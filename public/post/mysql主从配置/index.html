@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Mysql主从配置 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="安装三个数据库 1 2 3 4 5 6 7 for i in $(seq 1 3) do name=mysql&amp;#34;$i&amp;#34; port=330&amp;#34;$i&amp;#34; mkdir &amp;#34;$name&amp;#34; docker run -p &amp;#34;$port&amp;#34;:3306 --name &amp;#34;$name&amp;#34; -v /root/&amp;#34;$name&amp;#34;/conf:/etc/mysql/conf.d -v /root/&amp;#34;$name&amp;#34;/logs:/var/log/mysql -v /root/&amp;#34;$name&amp;#34;/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7 --character-set-server=utf8mb4 done 开启bin_log 1 2 3 4 5 6 [mysqld] # 数据同步时数据库唯一" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.101.0 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/mysql%E4%B8%BB%E4%BB%8E%E9%85%8D%E7%BD%AE/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.6435569658f2f3cb91477c33ad77c6854decc10653bdfcb187d1df31b5b8b02c.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="Mysql主从配置" />
+<meta property="og:description" content="安装三个数据库 1 2 3 4 5 6 7 for i in $(seq 1 3) do name=mysql&#34;$i&#34; port=330&#34;$i&#34; mkdir &#34;$name&#34; docker run -p &#34;$port&#34;:3306 --name &#34;$name&#34; -v /root/&#34;$name&#34;/conf:/etc/mysql/conf.d -v /root/&#34;$name&#34;/logs:/var/log/mysql -v /root/&#34;$name&#34;/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7 --character-set-server=utf8mb4 done 开启bin_log 1 2 3 4 5 6 [mysqld] # 数据同步时数据库唯一" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/mysql%E4%B8%BB%E4%BB%8E%E9%85%8D%E7%BD%AE/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-08-09T09:10:34+08:00" />
+<meta property="article:modified_time" content="2022-08-09T09:12:40+08:00" />
+
+<meta itemprop="name" content="Mysql主从配置">
+<meta itemprop="description" content="安装三个数据库 1 2 3 4 5 6 7 for i in $(seq 1 3) do name=mysql&#34;$i&#34; port=330&#34;$i&#34; mkdir &#34;$name&#34; docker run -p &#34;$port&#34;:3306 --name &#34;$name&#34; -v /root/&#34;$name&#34;/conf:/etc/mysql/conf.d -v /root/&#34;$name&#34;/logs:/var/log/mysql -v /root/&#34;$name&#34;/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7 --character-set-server=utf8mb4 done 开启bin_log 1 2 3 4 5 6 [mysqld] # 数据同步时数据库唯一"><meta itemprop="datePublished" content="2022-08-09T09:10:34+08:00" />
+<meta itemprop="dateModified" content="2022-08-09T09:12:40+08:00" />
+<meta itemprop="wordCount" content="513">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Mysql主从配置"/>
+<meta name="twitter:description" content="安装三个数据库 1 2 3 4 5 6 7 for i in $(seq 1 3) do name=mysql&#34;$i&#34; port=330&#34;$i&#34; mkdir &#34;$name&#34; docker run -p &#34;$port&#34;:3306 --name &#34;$name&#34; -v /root/&#34;$name&#34;/conf:/etc/mysql/conf.d -v /root/&#34;$name&#34;/logs:/var/log/mysql -v /root/&#34;$name&#34;/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7 --character-set-server=utf8mb4 done 开启bin_log 1 2 3 4 5 6 [mysqld] # 数据同步时数据库唯一"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Mysql主从配置</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2022-08-09 </span>
+        
+          <span class="more-meta"> 约 513 字 更新于 2022-08-09</span>
+          <span class="more-meta"> 预计阅读 2 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>安装三个数据库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="k">for</span> i in <span class="k">$(</span>seq <span class="m">1</span> 3<span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">do</span>
+</span></span><span class="line"><span class="cl"><span class="nv">name</span><span class="o">=</span>mysql<span class="s2">&#34;</span><span class="nv">$i</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">port</span><span class="o">=</span>330<span class="s2">&#34;</span><span class="nv">$i</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">mkdir <span class="s2">&#34;</span><span class="nv">$name</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">docker run -p <span class="s2">&#34;</span><span class="nv">$port</span><span class="s2">&#34;</span>:3306 --name <span class="s2">&#34;</span><span class="nv">$name</span><span class="s2">&#34;</span> -v /root/<span class="s2">&#34;</span><span class="nv">$name</span><span class="s2">&#34;</span>/conf:/etc/mysql/conf.d -v /root/<span class="s2">&#34;</span><span class="nv">$name</span><span class="s2">&#34;</span>/logs:/var/log/mysql -v /root/<span class="s2">&#34;</span><span class="nv">$name</span><span class="s2">&#34;</span>/data:/var/lib/mysql -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="m">123456</span> -d mysql:5.7 --character-set-server<span class="o">=</span>utf8mb4
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>开启bin_log</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="p">[</span><span class="n">mysqld</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">数据同步时数据库唯一标识，</span><span class="n">server_id参数的值必须是数字</span><span class="err">，否则启动</span><span class="n">MySQL会报错</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">server</span><span class="o">-</span><span class="n">id</span><span class="o">=</span><span class="mi">132</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">开启二进制日志</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">log</span><span class="o">-</span><span class="n">bin</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">mysql</span><span class="o">/</span><span class="n">mysql</span><span class="o">-</span><span class="n">bin</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>确认开启成功</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">show</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;%log_bin%&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">log_bin</span><span class="w">	</span><span class="k">ON</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">log_bin_basename</span><span class="w">	</span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">mysql</span><span class="o">/</span><span class="n">mysql</span><span class="o">-</span><span class="n">bin</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">log_bin_index</span><span class="w">	</span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">mysql</span><span class="o">/</span><span class="n">mysql</span><span class="o">-</span><span class="n">bin</span><span class="p">.</span><span class="k">index</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">log_bin_trust_function_creators</span><span class="w">	</span><span class="k">OFF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">log_bin_use_v1_row_events</span><span class="w">	</span><span class="k">OFF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">sql_log_bin</span><span class="w">	</span><span class="k">ON</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>开启主从</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">CHANGE</span><span class="w"> </span><span class="n">MASTER</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">MASTER_HOST</span><span class="o">=</span><span class="s1">&#39;192.168.50.231&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">MASTER_USER</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">,</span><span class="n">MASTER_PORT</span><span class="o">=</span><span class="mi">3301</span><span class="p">,</span><span class="w"> </span><span class="n">MASTER_PASSWORD</span><span class="o">=</span><span class="s1">&#39;123456&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">MASTER_LOG_FILE</span><span class="o">=</span><span class="s1">&#39;mysql-bin.000001&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">MASTER_LOG_POS</span><span class="o">=</span><span class="mi">154</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">start</span><span class="w"> </span><span class="n">slave</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">show</span><span class="w"> </span><span class="n">slave</span><span class="w"> </span><span class="n">status</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 关闭主从命令
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">stop</span><span class="w"> </span><span class="n">slave</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">reset</span><span class="w"> </span><span class="n">slave</span><span class="w"> </span><span class="k">all</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 验证主从状态
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- Slave_IO_Running和Slave_SQL_Running都为YES的时候就表示主从同步设置成功了
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>验证</p>
+<p>在主库上创建表,写入数据,查看从库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">database</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nb">character</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">collate</span><span class="w"> </span><span class="n">utf8mb4_unicode_ci</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="o">`</span><span class="n">student</span><span class="o">`</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">student</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">test</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">test</span><span class="o">`</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">BEGIN</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="o">`</span><span class="n">student</span><span class="o">`</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;aaa&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">COMMIT</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SET</span><span class="w"> </span><span class="n">FOREIGN_KEY_CHECKS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>变更为半同步</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="o">#</span><span class="w"> </span><span class="n">master服务器执行命令</span><span class="err">：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">INSTALL</span><span class="w"> </span><span class="n">PLUGIN</span><span class="w"> </span><span class="n">rpl_semi_sync_master</span><span class="w"> </span><span class="n">SONAME</span><span class="w"> </span><span class="s1">&#39;semisync_master.so&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="n">slave服务器执行命令</span><span class="err">：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">INSTALL</span><span class="w"> </span><span class="n">PLUGIN</span><span class="w"> </span><span class="n">rpl_semi_sync_slave</span><span class="w"> </span><span class="n">SONAME</span><span class="w"> </span><span class="s1">&#39;semisync_slave.so&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">查看插件是否安装成功</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">show</span><span class="w"> </span><span class="n">plugins</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p>修改/etc/my.cnf文件，在[mysqld]下添加如下配置：</p>
+</li>
+<li>
+<p>master服务器添加配置</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">plugin-load<span class="o">=</span><span class="s2">&#34;rpl_semi_sync_master=semisync_master.so&#34;</span>
+</span></span><span class="line"><span class="cl">rpl-semi-sync-master-enabled <span class="o">=</span> <span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>slave服务器添加配置</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">plugin-load<span class="o">=</span><span class="s2">&#34;rpl_semi_sync_slave=semisync_slave.so&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">rpl_semi_sync_slave_enabled</span><span class="o">=</span><span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>重启数据库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 重启数据库后查看master
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">show</span><span class="w"> </span><span class="n">STATUS</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;%rpl_semi_sync_master_status%&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- Rpl_semi_sync_master_status	ON
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- 查看从库状态
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">show</span><span class="w"> </span><span class="n">STATUS</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;%rpl_semi_sync_master_status%&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- Rpl_semi_sync_slave_status  ON
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>写入数据验证</p>
+<p>主库写入数据,从库同时出现</p>
+
+    </div>
+
+    
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/kubebuilder%E7%AC%94%E8%AE%B0/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Kubebuilder笔记</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/design/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
+            <span class="next-text nav-default">设计模式</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
