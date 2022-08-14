@@ -1,6 +1,8 @@
 ---
 title: "Istio简单使用"
 date: 2022-06-30T10:27:37+08:00
+tags: ["k8s"]
+subs: ["istio"]
 ---
 
 ## 安装
