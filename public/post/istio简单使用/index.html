@@ -48,12 +48,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/istio%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-06-30T10:27:37+08:00" />
-<meta property="article:modified_time" content="2022-08-14T10:52:53+08:00" />
+<meta property="article:modified_time" content="2022-06-30T10:27:37+08:00" />
 
 <meta itemprop="name" content="Istio简单使用">
 <meta itemprop="description" content="安装 主程序 参考文档: https://istio.io/latest/zh/docs/setup/install/ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 ➜ brew install istioctl # 查看 istioctl 可安装的模式 ➜ istioctl profile list Istio configuration profiles: default demo empty minimal openshift preview remote ➜ istioctl install --set profile=demo # 查看安装了什么 ➜ kubectl"><meta itemprop="datePublished" content="2022-06-30T10:27:37+08:00" />
-<meta itemprop="dateModified" content="2022-08-14T10:52:53+08:00" />
-<meta itemprop="wordCount" content="1135">
+<meta itemprop="dateModified" content="2022-06-30T10:27:37+08:00" />
+<meta itemprop="wordCount" content="1192">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Istio简单使用"/>
 <meta name="twitter:description" content="安装 主程序 参考文档: https://istio.io/latest/zh/docs/setup/install/ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 ➜ brew install istioctl # 查看 istioctl 可安装的模式 ➜ istioctl profile list Istio configuration profiles: default demo empty minimal openshift preview remote ➜ istioctl install --set profile=demo # 查看安装了什么 ➜ kubectl"/>
@@ -129,7 +129,7 @@
       <div class="post-meta">
         <span class="post-time"> 2022-06-30 </span>
         
-          <span class="more-meta"> 约 1135 字 更新于 2022-08-14</span>
+          <span class="more-meta"> 约 1192 字 更新于 2022-06-30</span>
           <span class="more-meta"> 预计阅读 3 分钟 </span>
         
       </div>
@@ -171,6 +171,8 @@
             <li><a href="#destinationrule">DestinationRule</a></li>
             <li><a href="#查看信息">查看信息</a></li>
             <li><a href="#限流测试">限流测试</a></li>
+            <li><a href="#融断测试">融断测试</a></li>
+            <li><a href="#限制超时时间">限制超时时间</a></li>
           </ul>
         </li>
       </ul>
@@ -895,6 +897,7 @@
 </div>
 </div><p><img src="http://inksnw.asuscomm.com:3001/blog/iShot_2022-08-13_10.50.11-20220813105208779.png" alt="iShot_2022-08-13_10.50.11"></p>
 <h3 id="限流测试">限流测试</h3>
+<p>修改dr文件,参考 <a href="https://istio.io/latest/docs/reference/config/networking/destination-rule/#ConnectionPoolSettings">https://istio.io/latest/docs/reference/config/networking/destination-rule/#ConnectionPoolSettings</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -908,6 +911,34 @@
 </span></span><span class="line"><span class="cl">  <span class="o">[</span>200<span class="o">]</span>	<span class="m">8</span> responses
 </span></span><span class="line"><span class="cl">  <span class="o">[</span>503<span class="o">]</span>	<span class="m">12</span> responses
 </span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="融断测试">融断测试</h3>
+<p>修改dr文件,参考 <a href="https://istio.io/latest/docs/reference/config/networking/destination-rule/#OutlierDetection">https://istio.io/latest/docs/reference/config/networking/destination-rule/#OutlierDetection</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">outlierDetection</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nt">consecutive5xxErrors</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="m">10.</span><span class="l">0s</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nt">maxEjectionPercent</span><span class="p">:</span><span class="w"> </span><span class="m">60</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nt">baseEjectionTime</span><span class="p">:</span><span class="w"> </span><span class="l">10s</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="限制超时时间">限制超时时间</h3>
+<p>修改ws文件,参考 <a href="https://istio.io/latest/docs/concepts/traffic-management/#timeouts">https://istio.io/latest/docs/concepts/traffic-management/#timeouts</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l">10s</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>

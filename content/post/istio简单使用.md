@@ -392,6 +392,8 @@ curl http://prods.inksnw.com:32016/p/123
 
 ### 限流测试
 
+修改dr文件,参考 https://istio.io/latest/docs/reference/config/networking/destination-rule/#ConnectionPoolSettings
+
 ```bash
 ➜ hey -c 2 -n 20 http://prods.inksnw.com:32016/p/123
 Status code distribution:
@@ -399,5 +401,23 @@ Status code distribution:
   [503]	12 responses
 ```
 
+### 融断测试
 
+修改dr文件,参考 https://istio.io/latest/docs/reference/config/networking/destination-rule/#OutlierDetection
+
+```yaml
+outlierDetection:
+	consecutive5xxErrors: 2
+	interval: 10.0s
+	maxEjectionPercent: 60
+	baseEjectionTime: 10s
+```
+
+### 限制超时时间
+
+修改ws文件,参考 https://istio.io/latest/docs/concepts/traffic-management/#timeouts
+
+```yaml
+timeout: 10s
+```
 
