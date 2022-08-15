@@ -183,6 +183,8 @@ spec:
       forwardOriginalToken: true
       # istio处理后将token中的信息以base64方式发给后端服务
       outputPayloadToHeader: "Userinfo"
+      # 可以动态的获取jwk信息
+      # jwksUri:
       jwks: |
         {
           "e": "AQAB",
