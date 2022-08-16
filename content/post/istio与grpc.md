@@ -271,7 +271,7 @@ func main() {
 
 工具访问
 
-![Snipaste_2022-08-16_22-53-35](http://inksnw.asuscomm.com:3001/blog/Snipaste_2022-08-16_22-53-35-20220816225406949.png)
+![Snipaste_2022-08-16_22-53-35](http://inksnw.asuscomm.com:3001/blog/istio与grpc_20220817012633.png)
 
 > 因为Gateway配置的是80端口,因此使用grpc ingress的对应 NodePort 端口
 >
