@@ -51,7 +51,7 @@ metadata:
   namespace: myistio
 spec:
   selector:
-    istio: ingressgateway 
+    istio: ingressgateway
   servers:
     - port:
         number: 80
@@ -59,6 +59,17 @@ spec:
         protocol: HTTP
       hosts:
         - nginx.inksnw.com
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+        privateKey: /etc/istio/ingressgateway-certs/tls.key
+      hosts:
+        - nginx.inksnw.com
+
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -93,20 +104,23 @@ curl http://nginx.inksnw.com:32016/
 使用 certstrap 快速生成证书
 
 ```bash
+brew install certstrap
 certstrap init --common-name "ExampleCA" --expires "20 years"
-certstrap request-cert -cn server -ip 127.0.0.1 -domain "hello.com"
+certstrap request-cert -cn server  -domain "nginx.inksnw.com"
 certstrap sign server --CA ExampleCA
 certstrap request-cert -cn client
 certstrap sign client --CA ExampleCA
 ```
 
-
-
 文档 https://istio.io/latest/zh/docs/tasks/traffic-management/ingress/secure-ingress-mount/#configure-a-TLS-ingress-gateway-with-a-file-mount-based-approach
 
-使用 kubectl 在命名空间 istio-system 下创建 secret istio-ingressgateway-certs。Istio 网关将会自动加载该 secret, 该 secret 必须在 istio-system 命名空间下，且名为 istio-ingressgateway-certs， 默认 ingress 网关的配置保持一致
+创建secret
 
+```bash
+kubectl create -n istio-system secret tls istio-ingressgateway-certs --key server.key --cert server.crt
+```
 
+>该 secret **必须**在 `istio-system` 命名空间下，且名为 `istio-ingressgateway-certs`
 
 查看证书文件
 
@@ -114,4 +128,8 @@ certstrap sign client --CA ExampleCA
 kubectl exec -it -n istio-system $(kubectl -n istio-system get pods -l istio=ingressgateway -o jsonpath='{.items[0].metadata.name}') -- ls -al /etc/istio/ingressgateway-certs
 ```
 
-未完待续
+## 访问测试
+
+```bash
+curl https://nginx.inksnw.com:31754/
+```

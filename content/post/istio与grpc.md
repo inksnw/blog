@@ -64,7 +64,6 @@ metadata:
   namespace: myistio
 spec:
   selector:
-  	# 使用grpc专用的gateway
     istio: grpc-ingressgateway 
   servers:
     - port:
@@ -190,3 +189,91 @@ func main() {
 https://github.com/bloomrpc/bloomrpc
 
 ![Snipaste_2022-08-16_16-33-11](http://inksnw.asuscomm.com:3001/blog/Snipaste_2022-08-16_16-33-11.jpg)
+
+## 配置证书
+
+### 生成自签证书
+
+```bash
+certstrap init --common-name "ExampleCA" --expires "20 years" # 生成根证书
+certstrap request-cert -cn server  -domain "*.inksnw.com"  # 服务端证书
+certstrap request-cert -cn client  														# 客户端证书
+certstrap sign client --CA ExampleCA
+certstrap sign server --CA ExampleCA
+```
+
+### 修改gateway文件
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: grpc-gateway
+  namespace: myistio
+spec:
+  selector:
+    istio: grpc-ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: grpc
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: grpc-ingressgateway-certs
+      hosts:
+        - "*"
+```
+
+### 创建secret
+
+```bash
+kubectl create -n istio-system secret tls grpc-ingressgateway-certs --key=server.key  --cert=server.crt
+```
+
+### 访问测试
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"grpc/pbfiles"
+	"log"
+	"os"
+	"path"
+)
+
+func main() {
+	str, _ := os.Getwd()
+	creds, err := credentials.NewClientTLSFromFile(path.Join(str, "server.crt"),
+		"grpc.inksnw.com")
+	if err != nil {
+		log.Fatal(err)
+	}
+	client, err := grpc.DialContext(context.Background(),
+		"grpc.inksnw.com:31882",
+		grpc.WithTransportCredentials(creds))
+	rsp := &pbfiles.ProdResponse{}
+	err = client.Invoke(context.Background(),
+		"/ProdService/GetProd",
+		&pbfiles.ProdRequest{ProdId: 123}, rsp)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(rsp.Result)
+
+}
+```
+
+工具访问
+
+![Snipaste_2022-08-16_22-53-35](http://inksnw.asuscomm.com:3001/blog/Snipaste_2022-08-16_22-53-35-20220816225406949.png)
+
+> 因为Gateway配置的是80端口,因此使用grpc ingress的对应 NodePort 端口
+>
+> Gateway 的协议配置https,会自动识别grpc
+
