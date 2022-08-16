@@ -1,6 +1,8 @@
 ---
 title: "Istio与grpc"
 date: 2022-08-16T15:38:47+08:00
+tags: ["k8s"]
+subs: ["istio"]
 ---
 
 准备一套grpc示例代码,[参考]( http://inksnw.asuscomm.com:3001/post/grpc示例/)
