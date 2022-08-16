@@ -65,10 +65,10 @@ istioctl kube-inject -f xx.yaml | kubectl apply -f -
 开启自动注入
 
 ```bash
-➜ kubectl create ns myweb
-➜ kubectl get ns -L istio-injection
+➜ kubectl create ns myistio
 #自动注入
-➜ kubectl label ns myweb istio-injection=enabled
+➜ kubectl label ns myistio istio-injection=enabled
+➜ kubectl get ns -L istio-injection
 ```
 
 ## 暴露kiali服务
