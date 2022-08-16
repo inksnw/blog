@@ -1,5 +1,5 @@
 ---
-title: "istio和jwt"
+title: "istio与jwt"
 date: 2022-08-15T10:27:37+08:00
 tags: ["k8s"]
 subs: ["istio"]
