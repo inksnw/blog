@@ -53,7 +53,7 @@
 <meta itemprop="name" content="Istio与grpc">
 <meta itemprop="description" content="准备一套grpc示例代码,参考 istio配置 查看gateway配置文件 1 istioctl profile dump --config-path components demo 创建grpc专用gateway 1 2 3 4 5 6 7 8 9 10 11 12 13"><meta itemprop="datePublished" content="2022-08-16T15:38:47+08:00" />
 <meta itemprop="dateModified" content="2022-08-16T15:38:47+08:00" />
-<meta itemprop="wordCount" content="999">
+<meta itemprop="wordCount" content="1153">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Istio与grpc"/>
 <meta name="twitter:description" content="准备一套grpc示例代码,参考 istio配置 查看gateway配置文件 1 istioctl profile dump --config-path components demo 创建grpc专用gateway 1 2 3 4 5 6 7 8 9 10 11 12 13"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-16 </span>
             
-            <span class="more-meta"> 约 999 字 更新于 2022-08-16
+            <span class="more-meta"> 约 1153 字 更新于 2022-08-16
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -201,6 +201,7 @@
             <li><a href="#访问测试-2">访问测试</a></li>
           </ul>
         </li>
+        <li><a href="#自动开启mtls">自动开启mTLS</a></li>
       </ul>
     </li>
   </ul>
@@ -832,6 +833,40 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="自动开启mtls">自动开启mTLS</h2>
+<p>通过 PeerAuthentication,对等验证,有三大模式</p>
+<p>PERMISSIVE：同时接受未加密连接和双向加密连接</p>
+<p>STRICT：只接受加密连接</p>
+<p>DISABLE：关闭双向加密连接</p>
+<p>同一名称空间内部请求会自动走tls,其它名称空间访问会被拒绝</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">security.istio.io/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">PeerAuthentication</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">testmtls</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">myistio</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">reviews</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">mtls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">STRICT</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>

@@ -360,3 +360,29 @@ func main() {
 }
 ```
 
+## 自动开启mTLS
+
+通过 PeerAuthentication,对等验证,有三大模式
+
+PERMISSIVE：同时接受未加密连接和双向加密连接
+
+STRICT：只接受加密连接
+
+DISABLE：关闭双向加密连接
+
+同一名称空间内部请求会自动走tls,其它名称空间访问会被拒绝
+
+```yaml
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: testmtls
+  namespace: myistio
+spec:
+  selector:
+    matchLabels:
+      app: reviews
+  mtls:
+    mode: STRICT
+```
+
