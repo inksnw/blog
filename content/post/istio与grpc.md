@@ -190,7 +190,7 @@ https://github.com/bloomrpc/bloomrpc
 
 ![Snipaste_2022-08-16_16-33-11](http://inksnw.asuscomm.com:3001/blog/Snipaste_2022-08-16_16-33-11.jpg)
 
-## 配置证书
+## 单向证书
 
 ### 生成自签证书
 
@@ -276,4 +276,87 @@ func main() {
 > 因为Gateway配置的是80端口,因此使用grpc ingress的对应 NodePort 端口
 >
 > Gateway 的协议配置https,会自动识别grpc
+
+## 双向证书
+
+### 导入cacert
+
+```bash
+kubectl create -n istio-system secret generic grpc-ingressgateway-certs --from-file=key=server.key --from-file=cert=server.crt --from-file=cacert=ExampleCA.crt
+```
+
+### 修改gateway为双向认证
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: grpc-gateway
+  namespace: myistio
+spec:
+  selector:
+    istio: grpc-ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: grpc
+        protocol: HTTPS
+      tls:
+        mode: MUTUAL
+        credentialName: grpc-ingressgateway-certs
+      hosts:
+        - "*"
+```
+
+### 访问测试
+
+```go
+package main
+
+import (
+	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"grpc/pbfiles"
+	"log"
+	"os"
+)
+
+func main() {
+	cert, err := tls.LoadX509KeyPair("../out/client.crt", "../out/client.key")
+	if err != nil {
+		log.Fatal(err)
+	}
+	certPool := x509.NewCertPool()
+	ca, err := os.ReadFile("../out/ExampleCA.crt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	certPool.AppendCertsFromPEM(ca)
+	creds := credentials.NewTLS(&tls.Config{
+		Certificates: []tls.Certificate{cert},
+		ServerName:   "grpc.inksnw.com",
+		RootCAs:      certPool,
+	})
+	client, err := grpc.DialContext(context.Background(),
+		"grpc.inksnw.com:31882",
+		grpc.WithTransportCredentials(creds))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	rsp := &pbfiles.ProdResponse{}
+	err = client.Invoke(context.Background(),
+		"/ProdService/GetProd",
+		&pbfiles.ProdRequest{ProdId: 123}, rsp)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(rsp.Result)
+
+}
+```
 
