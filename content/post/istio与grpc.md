@@ -362,6 +362,8 @@ func main() {
 
 ## 自动开启mTLS
 
+文档 https://istio.io/latest/docs/reference/config/security/peer_authentication/
+
 通过 PeerAuthentication,对等验证,有三大模式
 
 PERMISSIVE：同时接受未加密连接和双向加密连接
