@@ -208,6 +208,41 @@ spec:
                   local myname=response_handle:headers():get("Myname")
                  response_handle:headers():add("Mynewname", "inksnw_"..myname)
               end
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: myfilter-checkappid
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.cors"
+      patch:
+        operation: INSERT_AFTER
+        value:
+          name: checkappid.lua
+          typed_config:
+            "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
+            inlineCode: |
+              function envoy_on_request(request)
+                 local getid=request:headers():get("appid")
+                 if(getid==nil) then
+                    request:respond(
+                          {[":status"] = "400"},
+                          "error appid")
+                 end
+              end
 ```
 
 ### 访问测试
