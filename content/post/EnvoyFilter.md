@@ -100,6 +100,14 @@ spec:
 
 ```
 
+## 修改日志级别
+
+进入网关的容器
+
+```bash
+curl -X POST http://localhost:15000/logging?level=info
+```
+
 ## 添加filter
 
 ```yaml
@@ -116,6 +124,13 @@ spec:
     - applyTo: HTTP_FILTER
       match:
         context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+
       patch:
         operation: INSERT_BEFORE
         value:
@@ -124,24 +139,98 @@ spec:
             "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
             inlineCode: |
               function envoy_on_response(response_handle)
-                 response_handle:headers():add("myname", "inksnw")
+                 response_handle:headers():add("Myname", "eeee")
+              end
+              function envoy_on_request(request)
+                    local getid=request:headers():get("Userid")
+                     request:logInfo("userid is "..getid)
+                end
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: myfilter-adduserid
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "my.lua"
+
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: adduserid.lua
+          typed_config:
+            "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
+            inlineCode: |
+              function envoy_on_request(request)
+                 request:headers():add("Userid", "123")
+              end
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: myfilter-prefix
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "my.lua"
+
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: myprefix.lua
+          typed_config:
+            "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
+            inlineCode: |
+              function envoy_on_response(response_handle)
+                  local myname=response_handle:headers():get("Myname")
+                 response_handle:headers():add("Mynewname", "inksnw_"..myname)
               end
 ```
 
-访问测试
+### 访问测试
 
 返回的header中添加了相应的头
 
 ```bash
 HTTP/1.1 200 OK
 server: istio-envoy
-date: Wed, 17 Aug 2022 07:46:02 GMT
+date: Wed, 17 Aug 2022 08:25:44 GMT
 content-type: text/html
 content-length: 615
 last-modified: Tue, 19 Jul 2022 14:05:27 GMT
 etag: "62d6ba27-267"
 accept-ranges: bytes
-x-envoy-upstream-service-time: 1
+x-envoy-upstream-service-time: 0
 myname: inksnw
+mynewname: addfake_inksnw
+```
+
+### 查看日志
+
+```bash
+kubectl logs istio-ingressgateway-6dbb44ff8d-4bpsp -n istio-system
 ```
 
