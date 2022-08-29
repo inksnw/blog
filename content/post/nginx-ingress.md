@@ -1,6 +1,7 @@
 ---
 title: "nginx-ingress"
 date: 2022-08-12T10:27:37+08:00
+tags: ["k8s"]
 subs: ["istio"]
 ---
 
