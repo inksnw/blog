@@ -316,3 +316,30 @@ fn main() {
 }
 ```
 
+### 标准库中的Option枚举
+
+Option是Rust标准库定义的一个枚举:
+
+```rust
+enum Option<T> {
+    Some(T),
+    None,
+}
+```
+
+Option用于一个非常普遍的场景，即一个值要不有值要么没值。 Rust中没有空值Null的概念，需要的场景下使用Option枚举，这样更不容易出错。
+
+```rust
+fn plus_one(x: Option<i32>) -> Option<i32> {
+    match x {
+        Some(i) => Some(i + 1),  // 解构后重新计算
+        None => None
+    }
+}
+fn main() {
+    let y: Option<i32> = Some(100);
+    let y = plus_one(y);
+    println!("{:?}", y);
+}
+```
+
