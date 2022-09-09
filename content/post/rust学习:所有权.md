@@ -316,7 +316,7 @@ fn main() {
 }
 ```
 
-### 标准库中的Option枚举
+### Option枚举
 
 Option是Rust标准库定义的一个枚举:
 
