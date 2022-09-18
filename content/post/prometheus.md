@@ -39,6 +39,7 @@ helm install myadapter prometheus-community/prometheus-adapter -n monitor
 给部署添加如下命令行即可：
 
 ```bash
+
 args:
   - --kubelet-preferred-address-types=InternalIP
   - --kubelet-insecure-tls
