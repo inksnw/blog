@@ -48,3 +48,268 @@ args:
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
 
+## 创建一个nginx服务
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mynginx
+spec:
+  selector:
+    app: mynginx
+  ports:
+    - port: 80
+      targetPort: 80
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mynginx
+  labels:
+    app: mynginx
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: mynginx
+      labels:
+        app: mynginx
+    spec:
+      containers:
+        - name: mynginx
+          image: nginx
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: web-nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: web-nginx-config
+          configMap:
+            name: web-nginx-config
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: mynginx
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-nginx-config
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  auto;
+    error_log  /var/log/nginx/error.log notice;
+    pid        /var/run/nginx.pid;
+    events {
+        worker_connections  1024;
+    }
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+        access_log  /var/log/nginx/access.log  main;
+        sendfile        on;
+        keepalive_timeout  65;
+        server {
+          listen       80;
+          listen  [::]:80;
+          server_name  localhost;
+          location / {
+              root   /usr/share/nginx/html;
+              index  index.html index.htm;
+          }
+          location /status {
+            stub_status;
+          }
+          error_page   500 502 503 504  /50x.html;
+          location = /50x.html {
+              root   /usr/share/nginx/html;
+          }
+      }
+    }
+```
+
+访问status
+
+```
+http://192.168.50.40:30509/status
+```
+
+![image-20220919014046228](http://inksnw.asuscomm.com:3001/blog/prometheus_59c00197e79cd0cdb7c4e4c68e18f6fc.png)
+
+> Active connections: 当前nginx正在处理的活动连接数.
+>
+> Server accepts handled requests: 
+>  nginx启动以来总共处理了10个连接
+>  成功创建10握手(证明中间没有失败的)
+>  总共处理了12个请求。
+>
+> Reading: nginx读取到客户端的Header信息数.
+> Writing: nginx返回给客户端的Header信息数.
+> Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writing),意思就是nginx已经处理完成,正在等候下一次请求指令的驻留连接。
+> 所以,在访问效率高,请求很快被处理完毕的情况下,Waiting数比较多是正常的.如果reading +writing数较多,则说明并发访问量非常大,正在处理过程中。
+
+## 创建metrics服务
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-prometheus-exporter
+spec:
+  selector:
+    matchLabels:
+      k8s: mynginx-exporter
+  template:
+    metadata:
+      labels:
+        k8s: mynginx-exporter
+    spec:
+      containers:
+        - name: mynginx-exporter
+          image: nginx/nginx-prometheus-exporter
+          imagePullPolicy: IfNotPresent
+          command:
+            - "nginx-prometheus-exporter"
+            - "-nginx.scrape-uri=http://mynginx/status"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-prometheus-exporter
+  labels:
+    k8s: mynginx-exporter
+spec:
+  ports:
+    - port: 9113
+      targetPort: 9113
+      name: mynginx-prometheus-exporter
+      protocol: TCP
+  type: NodePort
+  selector:
+    k8s: mynginx-exporter
+```
+
+访问测试
+
+```
+http://192.168.50.40:32127/metrics
+```
+
+![Snipaste_2022-09-19_01-20-30](http://inksnw.asuscomm.com:3001/blog/prometheus_b4e0607fb2e115113f0f97a75ef72387.png)
+
+## 创建ServiceMonitor，注入promethues
+
+要注意label名,port名要和metrics的svc信息对应
+
+```yaml
+kind: ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+metadata:
+  name: mynginx-monitor
+spec:
+  endpoints:
+    - interval: 3s
+      port: metrics-port
+  selector:
+    matchLabels:
+      k8s: mynginx-exporter
+```
+
+转发服务
+
+```bash
+kubectl port-forward svc/prometheus-k8s 9090:9090 -n kubesphere-monitoring-system --address="0.0.0.0"
+```
+
+查看
+
+![Snipaste_2022-09-19_01-31-48](http://inksnw.asuscomm.com:3001/blog/prometheus_caf8d8233205d8c93e40a9a12d54ecec.png)
+
+查询数据
+
+![image-20220919022556769](http://inksnw.asuscomm.com:3001/blog/prometheus_a610ae00f28947f25fcba182f52bcc32.png)
+
+创建一个告警规则
+
+参考
+
+- https://segmentfault.com/a/1190000040639025
+
+- https://www.qikqiak.com/post/prometheus-operator-custom-alert/
+
+传统的prometheus单进程部署模式下，我们如何定义报警规则：
+
+1. 修改配置文件prometheus.yaml，增加报警规则定义；
+2. POST /-/reload让配置生效；
+
+在prometheus-operator部署模式下，我们仅需定义prometheusrule资源对象即可，operator监听到prometheusrule资源对象被创建，会自动为我们添加告警规则文件，自动reload。
+
+#### 1. 默认的告警规则
+
+prometheus-operator部署出来的prometheus默认已经有一些规则，在prometheus-k8s-0这个pod的目录下面：
+
+```bash
+$ ls /etc/prometheus/rules/prometheus-k8s-rulefiles-0/
+{namespace}-prometheus-k8s-rules.yaml
+
+```
+#### 2.创建prometheurule资源对象
+
+yaml文件中需要标识label:
+
+- prometheus=k8s;
+
+- role=alert-rules;
+
+因为prometheus实例的ruleSelectorl默认有如下的筛选规则：
+
+> ruleSelector:
+>     matchLabels:
+>       prometheus: k8s
+>       role: alert-rules
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    prometheus: k8s
+    role: alert-rules
+  name: myalert
+spec:
+  groups:
+    - name: myalertgroup
+      rules:
+        - alert: myalert1
+          annotations:
+            aliasName: ""
+            description: ""
+            message: '当前值：{{ $value }}'
+            rule_update_time: "2022-09-15T01:20:00Z"
+            summary: 无法提供服务
+          expr: sum(nginx_connections_accepted) > 10
+          for: 1m
+          labels:
+            severity: error
+```
+
+查看是否生效
+
+![image-20220919025117742](http://inksnw.asuscomm.com:3001/blog/prometheus_c096e7974f4018b110d8693cc717b8a8.png)
+
+触发告警
+
+![image-20220919025150230](http://inksnw.asuscomm.com:3001/blog/prometheus_349a5dd3f228633614cc4c09a862e63b.png)
