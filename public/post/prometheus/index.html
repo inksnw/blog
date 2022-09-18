@@ -53,7 +53,7 @@
 <meta itemprop="name" content="Prometheus">
 <meta itemprop="description" content="安装prometheus operator 1 2 3 4 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts helm repo update kubectl create ns monitor helm install myprometheus prometheus-community/kube-prometheus-stack -n monitor 报错解决 plugin type=&ldquo;calico&rdquo; failed (add): error getting ClusterInformation: connection is unauthorized: Unauthorized 删除 /etc/cni/net.d/下的文"><meta itemprop="datePublished" content="2022-08-24T15:11:03+08:00" />
 <meta itemprop="dateModified" content="2022-08-24T15:11:03+08:00" />
-<meta itemprop="wordCount" content="1436">
+<meta itemprop="wordCount" content="1424">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Prometheus"/>
 <meta name="twitter:description" content="安装prometheus operator 1 2 3 4 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts helm repo update kubectl create ns monitor helm install myprometheus prometheus-community/kube-prometheus-stack -n monitor 报错解决 plugin type=&ldquo;calico&rdquo; failed (add): error getting ClusterInformation: connection is unauthorized: Unauthorized 删除 /etc/cni/net.d/下的文"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-24 </span>
             
-            <span class="more-meta"> 约 1436 字 更新于 2022-08-24
+            <span class="more-meta"> 约 1424 字 更新于 2022-08-24
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -149,9 +149,17 @@
         <li><a href="#安装metrics-server-可选">安装metrics-server (可选)</a></li>
         <li><a href="#创建一个nginx服务">创建一个nginx服务</a></li>
         <li><a href="#创建metrics服务">创建metrics服务</a></li>
-        <li><a href="#创建servicemonitor注入promethues">创建ServiceMonitor，注入promethues</a>
+        <li><a href="#创建servicemonitor">创建ServiceMonitor</a>
           <ul>
-            <li></li>
+            <li><a href="#查看服务发现">查看服务发现</a></li>
+            <li><a href="#查询数据">查询数据</a></li>
+          </ul>
+        </li>
+        <li><a href="#创建一个告警规则">创建一个告警规则</a>
+          <ul>
+            <li><a href="#默认的告警规则">默认的告警规则</a></li>
+            <li><a href="#创建prometheurule资源对象">创建prometheurule资源对象</a></li>
+            <li><a href="#查看是否生效">查看是否生效</a></li>
           </ul>
         </li>
       </ul>
@@ -520,7 +528,7 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="http://inksnw.asuscomm.com:3001/blog/prometheus_b4e0607fb2e115113f0f97a75ef72387.png" alt="Snipaste_2022-09-19_01-20-30"></p>
-<h2 id="创建servicemonitor注入promethues">创建ServiceMonitor，注入promethues</h2>
+<h2 id="创建servicemonitor">创建ServiceMonitor</h2>
 <p>要注意label名,port名要和metrics的svc信息对应</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -559,11 +567,11 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl port-forward svc/prometheus-k8s 9090:9090 -n kubesphere-monitoring-system --address<span class="o">=</span><span class="s2">&#34;0.0.0.0&#34;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>查看</p>
+</div><h3 id="查看服务发现">查看服务发现</h3>
 <p><img src="http://inksnw.asuscomm.com:3001/blog/prometheus_caf8d8233205d8c93e40a9a12d54ecec.png" alt="Snipaste_2022-09-19_01-31-48"></p>
-<p>查询数据</p>
+<h3 id="查询数据">查询数据</h3>
 <p><img src="http://inksnw.asuscomm.com:3001/blog/prometheus_a610ae00f28947f25fcba182f52bcc32.png" alt="image-20220919022556769"></p>
-<p>创建一个告警规则</p>
+<h2 id="创建一个告警规则">创建一个告警规则</h2>
 <p>参考</p>
 <ul>
 <li>
@@ -579,7 +587,7 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 <li>POST /-/reload让配置生效；</li>
 </ol>
 <p>在prometheus-operator部署模式下，我们仅需定义prometheusrule资源对象即可，operator监听到prometheusrule资源对象被创建，会自动为我们添加告警规则文件，自动reload。</p>
-<h4 id="1-默认的告警规则">1. 默认的告警规则</h4>
+<h3 id="默认的告警规则">默认的告警规则</h3>
 <p>prometheus-operator部署出来的prometheus默认已经有一些规则，在prometheus-k8s-0这个pod的目录下面：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -591,7 +599,7 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 </span></span><span class="line"><span class="cl"><span class="o">{</span>namespace<span class="o">}</span>-prometheus-k8s-rules.yaml
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h4 id="2创建prometheurule资源对象">2.创建prometheurule资源对象</h4>
+</div><h3 id="创建prometheurule资源对象">创建prometheurule资源对象</h3>
 <p>yaml文件中需要标识label:</p>
 <ul>
 <li>
@@ -658,7 +666,7 @@ role: alert-rules</p>
 </span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l">error</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>查看是否生效</p>
+</div><h3 id="查看是否生效">查看是否生效</h3>
 <p><img src="http://inksnw.asuscomm.com:3001/blog/prometheus_c096e7974f4018b110d8693cc717b8a8.png" alt="image-20220919025117742"></p>
 <p>触发告警</p>
 <p><img src="http://inksnw.asuscomm.com:3001/blog/prometheus_349a5dd3f228633614cc4c09a862e63b.png" alt="image-20220919025150230"></p>

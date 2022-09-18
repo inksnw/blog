@@ -1718,7 +1718,7 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/prometheus_b4e0607fb2e115113f0f97a75ef72387.png&#34; alt=&#34;Snipaste_2022-09-19_01-20-30&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;创建servicemonitor注入promethues&#34;&gt;创建ServiceMonitor，注入promethues&lt;/h2&gt;
+&lt;h2 id=&#34;创建servicemonitor&#34;&gt;创建ServiceMonitor&lt;/h2&gt;
 &lt;p&gt;要注意label名,port名要和metrics的svc信息对应&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1757,11 +1757,11 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;kubectl port-forward svc/prometheus-k8s 9090:9090 -n kubesphere-monitoring-system --address&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;0.0.0.0&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;查看&lt;/p&gt;
+&lt;/div&gt;&lt;h3 id=&#34;查看服务发现&#34;&gt;查看服务发现&lt;/h3&gt;
 &lt;p&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/prometheus_caf8d8233205d8c93e40a9a12d54ecec.png&#34; alt=&#34;Snipaste_2022-09-19_01-31-48&#34;&gt;&lt;/p&gt;
-&lt;p&gt;查询数据&lt;/p&gt;
+&lt;h3 id=&#34;查询数据&#34;&gt;查询数据&lt;/h3&gt;
 &lt;p&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/prometheus_a610ae00f28947f25fcba182f52bcc32.png&#34; alt=&#34;image-20220919022556769&#34;&gt;&lt;/p&gt;
-&lt;p&gt;创建一个告警规则&lt;/p&gt;
+&lt;h2 id=&#34;创建一个告警规则&#34;&gt;创建一个告警规则&lt;/h2&gt;
 &lt;p&gt;参考&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -1777,7 +1777,7 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 &lt;li&gt;POST /-/reload让配置生效；&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;在prometheus-operator部署模式下，我们仅需定义prometheusrule资源对象即可，operator监听到prometheusrule资源对象被创建，会自动为我们添加告警规则文件，自动reload。&lt;/p&gt;
-&lt;h4 id=&#34;1-默认的告警规则&#34;&gt;1. 默认的告警规则&lt;/h4&gt;
+&lt;h3 id=&#34;默认的告警规则&#34;&gt;默认的告警规则&lt;/h3&gt;
 &lt;p&gt;prometheus-operator部署出来的prometheus默认已经有一些规则，在prometheus-k8s-0这个pod的目录下面：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1789,7 +1789,7 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;namespace&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;-prometheus-k8s-rules.yaml
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h4 id=&#34;2创建prometheurule资源对象&#34;&gt;2.创建prometheurule资源对象&lt;/h4&gt;
+&lt;/div&gt;&lt;h3 id=&#34;创建prometheurule资源对象&#34;&gt;创建prometheurule资源对象&lt;/h3&gt;
 &lt;p&gt;yaml文件中需要标识label:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -1856,7 +1856,7 @@ role: alert-rules&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;            &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;severity&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;error&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;查看是否生效&lt;/p&gt;
+&lt;/div&gt;&lt;h3 id=&#34;查看是否生效&#34;&gt;查看是否生效&lt;/h3&gt;
 &lt;p&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/prometheus_c096e7974f4018b110d8693cc717b8a8.png&#34; alt=&#34;image-20220919025117742&#34;&gt;&lt;/p&gt;
 &lt;p&gt;触发告警&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/prometheus_349a5dd3f228633614cc4c09a862e63b.png&#34; alt=&#34;image-20220919025150230&#34;&gt;&lt;/p&gt;

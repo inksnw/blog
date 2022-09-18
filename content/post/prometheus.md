@@ -210,7 +210,7 @@ http://192.168.50.40:32127/metrics
 
 ![Snipaste_2022-09-19_01-20-30](http://inksnw.asuscomm.com:3001/blog/prometheus_b4e0607fb2e115113f0f97a75ef72387.png)
 
-## 创建ServiceMonitor，注入promethues
+## 创建ServiceMonitor
 
 要注意label名,port名要和metrics的svc信息对应
 
@@ -234,15 +234,15 @@ spec:
 kubectl port-forward svc/prometheus-k8s 9090:9090 -n kubesphere-monitoring-system --address="0.0.0.0"
 ```
 
-查看
+### 查看服务发现
 
 ![Snipaste_2022-09-19_01-31-48](http://inksnw.asuscomm.com:3001/blog/prometheus_caf8d8233205d8c93e40a9a12d54ecec.png)
 
-查询数据
+### 查询数据
 
 ![image-20220919022556769](http://inksnw.asuscomm.com:3001/blog/prometheus_a610ae00f28947f25fcba182f52bcc32.png)
 
-创建一个告警规则
+## 创建一个告警规则
 
 参考
 
@@ -257,7 +257,7 @@ kubectl port-forward svc/prometheus-k8s 9090:9090 -n kubesphere-monitoring-syste
 
 在prometheus-operator部署模式下，我们仅需定义prometheusrule资源对象即可，operator监听到prometheusrule资源对象被创建，会自动为我们添加告警规则文件，自动reload。
 
-#### 1. 默认的告警规则
+### 默认的告警规则
 
 prometheus-operator部署出来的prometheus默认已经有一些规则，在prometheus-k8s-0这个pod的目录下面：
 
@@ -266,7 +266,7 @@ $ ls /etc/prometheus/rules/prometheus-k8s-rulefiles-0/
 {namespace}-prometheus-k8s-rules.yaml
 
 ```
-#### 2.创建prometheurule资源对象
+### 创建prometheurule资源对象
 
 yaml文件中需要标识label:
 
@@ -306,7 +306,7 @@ spec:
             severity: error
 ```
 
-查看是否生效
+### 查看是否生效
 
 ![image-20220919025117742](http://inksnw.asuscomm.com:3001/blog/prometheus_c096e7974f4018b110d8693cc717b8a8.png)
 
