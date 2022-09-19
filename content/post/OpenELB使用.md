@@ -6,7 +6,7 @@ tags: ["k8s"]
 
 二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群节点的local网卡上（比如kube-ipvs0），当Client访问时，由于在同一个二层，会广播ARP请求，某个节点会进行ARP Reply，从而Client请求流量会发送到此节点，然后由节点上的Kube-proxy进行负载，转到真正的Pod地址。
 
-
+参考: https://www.qikqiak.com/post/openelb/
 
 ## 安装
 
