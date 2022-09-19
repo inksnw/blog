@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="先卸载已安装的cni插件,k8s是使用kubekey安装的,查看源码发现,生成的calico配置文件在 /etc/kubernetes/net" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="什么是CNI CNI是Kubernetes提供的网络接口。要使用CNI，需要在kubelet上加参数–network-plugin=cni，需" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -26,7 +26,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.102.3 with theme even" />
+<meta name="generator" content="Hugo 0.101.0 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E5%86%99%E4%B8%80%E4%B8%AAcni%E6%8F%92%E4%BB%B6/" />
@@ -44,19 +44,19 @@
 
 
 <meta property="og:title" content="写一个cni插件" />
-<meta property="og:description" content="先卸载已安装的cni插件,k8s是使用kubekey安装的,查看源码发现,生成的calico配置文件在 /etc/kubernetes/net" />
+<meta property="og:description" content="什么是CNI CNI是Kubernetes提供的网络接口。要使用CNI，需要在kubelet上加参数–network-plugin=cni，需" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E5%86%99%E4%B8%80%E4%B8%AAcni%E6%8F%92%E4%BB%B6/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2022-08-29T13:53:04+08:00" />
+<meta property="article:published_time" content="2022-09-19T09:53:04+08:00" />
 <meta property="article:modified_time" content="2022-08-29T16:13:20+08:00" />
 
 <meta itemprop="name" content="写一个cni插件">
-<meta itemprop="description" content="先卸载已安装的cni插件,k8s是使用kubekey安装的,查看源码发现,生成的calico配置文件在 /etc/kubernetes/net"><meta itemprop="datePublished" content="2022-08-29T13:53:04+08:00" />
+<meta itemprop="description" content="什么是CNI CNI是Kubernetes提供的网络接口。要使用CNI，需要在kubelet上加参数–network-plugin=cni，需"><meta itemprop="datePublished" content="2022-09-19T09:53:04+08:00" />
 <meta itemprop="dateModified" content="2022-08-29T16:13:20+08:00" />
-<meta itemprop="wordCount" content="455">
+<meta itemprop="wordCount" content="739">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="写一个cni插件"/>
-<meta name="twitter:description" content="先卸载已安装的cni插件,k8s是使用kubekey安装的,查看源码发现,生成的calico配置文件在 /etc/kubernetes/net"/>
+<meta name="twitter:description" content="什么是CNI CNI是Kubernetes提供的网络接口。要使用CNI，需要在kubelet上加参数–network-plugin=cni，需"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -127,9 +127,9 @@
         <h1 class="post-title">写一个cni插件</h1>
 
         <div class="post-meta">
-            <span class="post-time"> 2022-08-29 </span>
+            <span class="post-time"> 2022-09-19 </span>
             
-            <span class="more-meta"> 约 455 字 更新于 2022-08-29
+            <span class="more-meta"> 约 739 字 更新于 2022-08-29
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -140,13 +140,27 @@
 <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content always-active">
-        <nav id="TableOfContents"></nav>
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#什么是cni">什么是CNI</a></li>
+        <li><a href="#准备工作">准备工作</a></li>
+        <li><a href="#测试">测试</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
     
     <div class="post-content">
-        <p>先卸载已安装的cni插件,k8s是使用kubekey安装的,查看源码发现,生成的calico配置文件在 /etc/kubernetes/network-plugin.yaml,删除</p>
+        <h2 id="什么是cni">什么是CNI</h2>
+<p>CNI是Kubernetes提供的网络接口。要使用CNI，需要在kubelet上加参数–network-plugin=cni，需要需要也可以设置–cni-conf-dir和–cni-bin-dir参数。对于Kubernetes来说，network plugin就是一个二进制文件。</p>
+<p>容器网络功能的实现最终是通过CNI插件来完成的。每个CNI插件本质上就是一个可执行文件，而CNI的执行流程就是从容器管理系统和配置文件获取配置信息，然后将这些信息以环境变量和标准输入的形式传输给插件，再运行插件完成具体的容器网络配置，最后将配置结果通过标志输出返回。</p>
+<h2 id="准备工作">准备工作</h2>
+<p>先卸载已安装的cni插件,k8s是使用kubekey安装的,查看源码发现,生成的calico配置文件在 /etc/kubernetes/network-plugin.yaml,删除</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -168,18 +182,19 @@
 <pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">rm -rf /etc/cni/net.d/*
 </span></span></code></pre></td></tr></table>
 </div>
-</div><blockquote>
-<p>cni的二进制在 /opt/cni/bin</p>
-<p>bridge： 桥</p>
-<p>ipvlan: 在容器中添加一个ipvlan接口。</p>
-<p>loopback：设置loopback接口的状态为up。</p>
-<p>macvlan：创建一个新的 MAC 地址，将所有到该地址的流量转发到容器。</p>
-<p>ptp: 创建一个 veth 对。</p>
-<p>vlan：分配一个vlan设备。</p>
-<p>host-device：将已经存在的设备移动到容器中。</p>
+</div><p>cni插件目录简介</p>
+<blockquote>
+<p>bridge： 桥
+ipvlan: 在容器中添加一个ipvlan接口。
+loopback：设置loopback接口的状态为up。
+macvlan：创建一个新的 MAC 地址，将所有到该地址的流量转发到容器。
+ptp: 创建一个 veth 对。
+vlan：分配一个vlan设备。
+host-device：将已经存在的设备移动到容器中。</p>
 </blockquote>
 <p>cni规范的地址</p>
 <p><a href="https://github.com/containernetworking/cni/blob/main/SPEC.md">https://github.com/containernetworking/cni/blob/main/SPEC.md</a></p>
+<h2 id="测试">测试</h2>
 <p>安装cnitool</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -272,13 +287,9 @@
             <a href="/%20tags/k8s/">k8s</a>
             </div>
         <nav class="post-nav">
-            <a class="prev" href="/post/rust%E5%AD%A6%E4%B9%A0%E6%89%80%E6%9C%89%E6%9D%83%E4%B8%8E%E7%BB%93%E6%9E%84%E4%BD%93/">
-                <i class="iconfont icon-left"></i>
-                <span class="prev-text nav-default">Rust学习:所有权与结构体</span>
-                <span class="prev-text nav-mobile">上一篇</span>
-            </a>
-            <a class="next" href="/post/prometheus/">
-                <span class="next-text nav-default">Prometheus</span>
+            
+            <a class="next" href="/post/rust%E5%AD%A6%E4%B9%A0%E5%8C%85%E4%B8%8E%E6%B3%9B%E5%9E%8B/">
+                <span class="next-text nav-default">Rust学习:包与泛型</span>
                 <span class="next-text nav-mobile">下一篇</span>
                 <i class="iconfont icon-right"></i>
             </a>
