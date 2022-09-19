@@ -8,5 +8,9 @@ tags: ["生活"]
 
 1.以这个课程为主 https://kaisery.github.io/trpl-zh-cn/ch00-00-introduction.html
 
-2.实现一个功能程序
+2.抄一遍https://github.com/ZhangHanDong/inviting-rust 的web构架
+
+3.抄一遍https://rustwiki.org/zh-CN/rust-by-example/primitives/array.html 通过例子学Rust
+
+4.尝试手写一下web构架
 
