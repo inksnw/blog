@@ -6,11 +6,24 @@ tags: ["k8s"]
 
 ## 什么是CNI
 
-CNI是Kubernetes提供的网络接口。要使用CNI，需要在kubelet上加参数–network-plugin=cni，需要需要也可以设置–cni-conf-dir和–cni-bin-dir参数。对于Kubernetes来说，network plugin就是一个二进制文件。
+CNI是Kubernetes提供的网络接口。要使用CNI，需要在kubelet上加参数–network-plugin=cni，需要需要也可以设置–cni-conf-dir和–cni-bin-dir参数。
 
+CNI 的基础可执行文件，按照功能可以分为三类：
 
+- **Main 插件**，它是用来创建具体网络设备的二进制文件，比如bridge（网桥设备）、loopback（lo 设备）、ptp（Veth Pair 设备等等
+
+- **IPAM（IP Address Management）插件**，用来给容器分配IP地址，比如dhcp和host-local。
+
+- **CNI 社区维护的第三方 CNI 插件**，比如`flannel`，提供跨主机通信方案
 
 容器网络功能的实现最终是通过CNI插件来完成的。每个CNI插件本质上就是一个可执行文件，而CNI的执行流程就是从容器管理系统和配置文件获取配置信息，然后将这些信息以环境变量和标准输入的形式传输给插件，再运行插件完成具体的容器网络配置，最后将配置结果通过标志输出返回。
+
+初始化一个容器网络环境的过程大致如下：
+
+1. 没有网桥就使用`bridge`创建一个网桥设备
+2. 使用`ptp`创建一个veth pair设备，并且把一端插在容器里，成为容器的eth0网卡，另一端插在网桥上
+3. 使用`dhcp`或`host-local`为eth0网卡分配IP地址
+4. 调用第三方CNI插件，比如`flannel`，实现容器跨主机通信方案
 
 ## 准备工作
 
