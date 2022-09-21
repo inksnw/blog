@@ -196,12 +196,16 @@ spec:
   ports:
     - port: 9113
       targetPort: 9113
-      name: mynginx-prometheus-exporter
+      name: metrics-port
       protocol: TCP
   type: NodePort
   selector:
     k8s: mynginx-exporter
 ```
+
+> metadata.labels: 这下的标签要和ServiceMonitor的 spec.selector.matchLabels: 选择的标签一致。
+
+
 
 访问测试
 
@@ -228,6 +232,18 @@ spec:
     matchLabels:
       k8s: mynginx-exporter
 ```
+
+> 关键词注释：
+>
+> spec.endpoints.interval：30s 每隔30秒获取一次信息
+>
+> spec.endpoints.port: http-metrics 对应Service的端口名称，在service资源中的spec.ports.name中定义。
+>
+> spec.namespaceSelector.matchNames: 匹配某名称空间的service，如果要从所有名称空间中匹配用any: true
+>
+> spec.selector.matchLabels: 匹配Service的标签，多个标签为“与”关系
+>
+> spec.selector.matchExpressions: 匹配Service的标签，多个标签是“或”关系
 
 转发服务
 
@@ -269,18 +285,7 @@ $ ls /etc/prometheus/rules/prometheus-k8s-rulefiles-0/
 ```
 ### 创建prometheurule资源对象
 
-yaml文件中需要标识label:
-
-- prometheus=k8s;
-
-- role=alert-rules;
-
-因为prometheus实例的ruleSelectorl默认有如下的筛选规则：
-
-> ruleSelector:
->     matchLabels:
->       prometheus: k8s
->       role: alert-rules
+Prometheus通过配置来匹配 alertmanager的endpoints来关联alertmanager。添加自定义监控需要创建PrometheusRule资源，并且要包含prometheus=k8s和 role=alert-rules这两个标签，因为Prometheus通过这两个标签选择此资源对象。
 
 ```yaml
 apiVersion: monitoring.coreos.com/v1

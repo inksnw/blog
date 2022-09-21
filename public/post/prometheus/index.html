@@ -26,7 +26,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.102.3 with theme even" />
+<meta name="generator" content="Hugo 0.103.1 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/prometheus/" />
@@ -53,7 +53,7 @@
 <meta itemprop="name" content="Prometheus">
 <meta itemprop="description" content="安装prometheus operator 1 2 3 4 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts helm repo update kubectl create ns monitor helm install myprometheus prometheus-community/kube-prometheus-stack -n monitor 报错解决 plugin type=&ldquo;calico&rdquo; failed (add): error getting ClusterInformation: connection is unauthorized: Unauthorized 删除 /etc/cni/net.d/下的文"><meta itemprop="datePublished" content="2022-08-24T15:11:03+08:00" />
 <meta itemprop="dateModified" content="2022-09-19T03:04:27+08:00" />
-<meta itemprop="wordCount" content="1425">
+<meta itemprop="wordCount" content="1721">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Prometheus"/>
 <meta name="twitter:description" content="安装prometheus operator 1 2 3 4 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts helm repo update kubectl create ns monitor helm install myprometheus prometheus-community/kube-prometheus-stack -n monitor 报错解决 plugin type=&ldquo;calico&rdquo; failed (add): error getting ClusterInformation: connection is unauthorized: Unauthorized 删除 /etc/cni/net.d/下的文"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-24 </span>
             
-            <span class="more-meta"> 约 1425 字 更新于 2022-09-19
+            <span class="more-meta"> 约 1721 字 更新于 2022-09-19
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -513,14 +513,17 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">9113</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">9113</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mynginx-prometheus-exporter</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">metrics-port</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">NodePort</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">k8s</span><span class="p">:</span><span class="w"> </span><span class="l">mynginx-exporter</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>访问测试</p>
+</div><blockquote>
+<p>metadata.labels: 这下的标签要和ServiceMonitor的 spec.selector.matchLabels: 选择的标签一致。</p>
+</blockquote>
+<p>访问测试</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -560,7 +563,15 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 </span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">k8s</span><span class="p">:</span><span class="w"> </span><span class="l">mynginx-exporter</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>转发服务</p>
+</div><blockquote>
+<p>关键词注释：</p>
+<p>spec.endpoints.interval：30s 每隔30秒获取一次信息</p>
+<p>spec.endpoints.port: http-metrics 对应Service的端口名称，在service资源中的spec.ports.name中定义。</p>
+<p>spec.namespaceSelector.matchNames: 匹配某名称空间的service，如果要从所有名称空间中匹配用any: true</p>
+<p>spec.selector.matchLabels: 匹配Service的标签，多个标签为“与”关系</p>
+<p>spec.selector.matchExpressions: 匹配Service的标签，多个标签是“或”关系</p>
+</blockquote>
+<p>转发服务</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -602,22 +613,7 @@ Waiting: 开启keep-alive的情况下,这个值等于 active – (reading + writ
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="创建prometheurule资源对象">创建prometheurule资源对象</h3>
-<p>yaml文件中需要标识label:</p>
-<ul>
-<li>
-<p>prometheus=k8s;</p>
-</li>
-<li>
-<p>role=alert-rules;</p>
-</li>
-</ul>
-<p>因为prometheus实例的ruleSelectorl默认有如下的筛选规则：</p>
-<blockquote>
-<p>ruleSelector:
-matchLabels:
-prometheus: k8s
-role: alert-rules</p>
-</blockquote>
+<p>Prometheus通过配置来匹配 alertmanager的endpoints来关联alertmanager。添加自定义监控需要创建PrometheusRule资源，并且要包含prometheus=k8s和 role=alert-rules这两个标签，因为Prometheus通过这两个标签选择此资源对象。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
