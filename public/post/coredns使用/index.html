@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>CoreDNS使用 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="下载二进制文件 1 https://github.com/coredns/coredns/releases/tag/v1.10.0 创建配置文件 1 2 3 4 .:53 { forward . 114.114.114.114 log } 目录结构 1 2 3 4 5 . ├── Corefile └── coredns 0 directories, 2 files 启动 1 ./coredns dig命令 查询DNS包括NS记录，A" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.103.1 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/coredns%E4%BD%BF%E7%94%A8/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.6ed31e05c2f87daccb834dfbf6608daf79c37db132498cb5c0d887eb732bfbda.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="CoreDNS使用" />
+<meta property="og:description" content="下载二进制文件 1 https://github.com/coredns/coredns/releases/tag/v1.10.0 创建配置文件 1 2 3 4 .:53 { forward . 114.114.114.114 log } 目录结构 1 2 3 4 5 . ├── Corefile └── coredns 0 directories, 2 files 启动 1 ./coredns dig命令 查询DNS包括NS记录，A" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/coredns%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-09-22T15:56:54+08:00" />
+<meta property="article:modified_time" content="2022-09-22T15:56:54+08:00" />
+
+<meta itemprop="name" content="CoreDNS使用">
+<meta itemprop="description" content="下载二进制文件 1 https://github.com/coredns/coredns/releases/tag/v1.10.0 创建配置文件 1 2 3 4 .:53 { forward . 114.114.114.114 log } 目录结构 1 2 3 4 5 . ├── Corefile └── coredns 0 directories, 2 files 启动 1 ./coredns dig命令 查询DNS包括NS记录，A"><meta itemprop="datePublished" content="2022-09-22T15:56:54+08:00" />
+<meta itemprop="dateModified" content="2022-09-22T15:56:54+08:00" />
+<meta itemprop="wordCount" content="673">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="CoreDNS使用"/>
+<meta name="twitter:description" content="下载二进制文件 1 https://github.com/coredns/coredns/releases/tag/v1.10.0 创建配置文件 1 2 3 4 .:53 { forward . 114.114.114.114 log } 目录结构 1 2 3 4 5 . ├── Corefile └── coredns 0 directories, 2 files 启动 1 ./coredns dig命令 查询DNS包括NS记录，A"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">CoreDNS使用</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2022-09-22 </span>
+            
+            <span class="more-meta"> 约 673 字 更新于 2022-09-22
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#下载二进制文件">下载二进制文件</a></li>
+            <li><a href="#创建配置文件">创建配置文件</a></li>
+            <li><a href="#目录结构">目录结构</a></li>
+            <li><a href="#启动">启动</a></li>
+            <li><a href="#测试">测试</a></li>
+            <li><a href="#resolvconf">resolv.conf</a></li>
+            <li><a href="#修改配置文件">修改配置文件</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h3 id="下载二进制文件">下载二进制文件</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">https://github.com/coredns/coredns/releases/tag/v1.10.0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="创建配置文件">创建配置文件</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">.:53 { 
+</span></span><span class="line"><span class="cl"> forward . 114.114.114.114
+</span></span><span class="line"><span class="cl"> log
+</span></span><span class="line"><span class="cl"> } 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="目录结构">目录结构</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── Corefile
+</span></span><span class="line"><span class="cl">└── coredns
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">0</span> directories, <span class="m">2</span> files
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="启动">启动</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">./coredns
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>dig命令</p>
+<blockquote>
+<p>查询DNS包括NS记录，A记录，MX记录等相关信息的工具</p>
+<p>@&lt;服务器地址&gt;：指定进行域名解析的域名服务器；</p>
+<p>-b&lt;ip地址&gt;：当主机具有多个IP地址，指定使用本机的哪个IP地址向域名服务器发送域名查询请求；</p>
+<p>-f&lt;文件名称&gt;：指定dig以批处理的方式运行，指定的文件中保存着需要批处理查询的DNS任务信息；</p>
+<p>-P：指定域名服务器所使用端口号；</p>
+<p>-t&lt;类型&gt;：指定要查询的DNS数据类型；</p>
+<p>-x&lt;IP地址&gt;：执行逆向域名查询；</p>
+<p>-<strong>4</strong>：使用IPv4</p>
+<p>-<strong>6</strong>：使用IPv6；</p>
+<p>-h：显示指令帮助信息</p>
+</blockquote>
+<h3 id="测试">测试</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">dig @localhost www.baidu.com
+</span></span><span class="line"><span class="cl"><span class="c1"># coredns日志</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>INFO<span class="o">]</span> <span class="o">[</span>::1<span class="o">]</span>:53726 - <span class="m">37910</span> <span class="s2">&#34;A IN www.baidu.com. udp 42 false 4096&#34;</span> NOERROR qr,rd,ra <span class="m">149</span> 0.040773854s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="resolvconf">resolv.conf</h3>
+<p>/etc/resolv.conf  是DNS客户机配置文件，用于设置DNS服务器的IP地址及DNS域名，还包含了主机的域名搜索顺序</p>
+<p>resolv.conf的关键字主要有四个，分别是：</p>
+<ul>
+<li>
+<p>nameserver  //定义DNS服务器的IP地址</p>
+</li>
+<li>
+<p>domain    //定义本地域名</p>
+</li>
+<li>
+<p>search    //定义域名的搜索列表</p>
+</li>
+<li>
+<p>sortlist    //对返回的域名进行排序</p>
+</li>
+</ul>
+<h3 id="修改配置文件">修改配置文件</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">.:53 {
+</span></span><span class="line"><span class="cl">  hosts {
+</span></span><span class="line"><span class="cl">    192.168.50.40 inksnw.com
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl"> forward . /etc/resolv.conf
+</span></span><span class="line"><span class="cl"> reload 5s
+</span></span><span class="line"><span class="cl"> log
+</span></span><span class="line"><span class="cl"> } 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行测试</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">dig @localhost inksnw.b.c
+</span></span><span class="line"><span class="cl">nslookup inksnw.b.c localhost
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到<code>inksnw.b.c</code>都解析到了 <code>192.168.50.40</code>上</p>
+<p>dns缓存清除方法</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># mac</span>
+</span></span><span class="line"><span class="cl">sudo dscacheutil -flushcache<span class="p">;</span> sudo killall -HUP mDNSResponder
+</span></span><span class="line"><span class="cl"><span class="c1"># ubuntu</span>
+</span></span><span class="line"><span class="cl">systemctl status systemd-resolved <span class="c1">#查看服务状态</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 检查DNS缓存统计信息</span>
+</span></span><span class="line"><span class="cl">systemd-resolve --statistics
+</span></span><span class="line"><span class="cl"><span class="c1"># 清空缓存</span>
+</span></span><span class="line"><span class="cl">systemd-resolve --flush-caches
+</span></span><span class="line"><span class="cl">systemctl restart systemd-resolved
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>短域名的配置方式</p>
+<p>在 <code>/etc/resolv.conf</code>中添加,就会如果找不到xxx域名会自动寻找xx.b.c域名</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">search b.c
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/4.%E5%8F%98%E9%87%8F%E7%BB%91%E5%AE%9A/">
+                <span class="next-text nav-default">4.变量绑定</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
