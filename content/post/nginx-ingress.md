@@ -26,7 +26,7 @@ tags: ["k8s"]
 
 - Local表示：流量只发给本机的Pod。
 
-<img src="https://img2020.cnblogs.com/blog/1464583/202007/1464583-20200707174740496-463162050.png" alt="img" style="zoom: 67%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_ad0022e96a73a6a8d7fb41c6b6f0c1ff.png" alt="image-20220922222116679" style="zoom: 50%;" />
 
 
 
@@ -56,7 +56,7 @@ Kube-proxy转发时会保留源IP。即：容器收到的报文，看到源IP地
 
 同时，由于本机不会跨节点转发报文，所以要想所有节点上的容器有负载均衡，就需要上一级的Loadbalancer来做了。
 
-<img src="https://img2020.cnblogs.com/blog/1464583/202007/1464583-20200707174845450-1319538618.png" alt="img" style="zoom: 67%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_efba8c2e767b0cf86f72a7ace17c97ea.png" alt="1464583-20200707174845450-1319538618" style="zoom:50%;" />
 
 不过流量还是会不太均衡，如上图，Loadbalancer看到的是2个后端（把节点的IP），每个Node上面几个Pod对Loadbalancer来说是不知道的。
 
