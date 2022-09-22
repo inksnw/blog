@@ -4,13 +4,15 @@ date: 2022-09-22T15:56:54+08:00
 tags: ["k8s"]
 ---
 
-### 下载二进制文件
+# 普通使用
+
+下载二进制文件
 
 ```bash
 https://github.com/coredns/coredns/releases/tag/v1.10.0
 ```
 
-### 创建配置文件
+创建配置文件
 
 ```
 .:53 { 
@@ -19,7 +21,7 @@ https://github.com/coredns/coredns/releases/tag/v1.10.0
  } 
 ```
 
-### 目录结构
+目录结构
 
 ```bash
 .
@@ -29,7 +31,7 @@ https://github.com/coredns/coredns/releases/tag/v1.10.0
 0 directories, 2 files
 ```
 
-### 启动
+启动
 
 ```bash
 ./coredns
@@ -57,7 +59,7 @@ dig命令
 >
 > -h：显示指令帮助信息
 
-### 测试
+测试
 
 ```bash
 dig @localhost www.baidu.com
@@ -65,7 +67,7 @@ dig @localhost www.baidu.com
 [INFO] [::1]:53726 - 37910 "A IN www.baidu.com. udp 42 false 4096" NOERROR qr,rd,ra 149 0.040773854s
 ```
 
-### resolv.conf 
+resolv.conf 
 
 /etc/resolv.conf  是DNS客户机配置文件，用于设置DNS服务器的IP地址及DNS域名，还包含了主机的域名搜索顺序
 
@@ -79,7 +81,7 @@ resolv.conf的关键字主要有四个，分别是：
 
 - sortlist    //对返回的域名进行排序
 
-### 修改配置文件
+修改配置文件
 
 ```
 .:53 {
@@ -101,7 +103,7 @@ nslookup inksnw.b.c localhost
 
 可以看到`inksnw.b.c`都解析到了 `192.168.50.40`上
 
-dns缓存清除方法
+# dns缓存清除方法
 
 ```bash
 # mac
@@ -121,5 +123,66 @@ systemctl restart systemd-resolved
 
 ```
 search b.c
+```
+
+# 配置ETCD
+
+```
+cluster.local {
+    etcd {
+        path /inksnw
+        endpoint http://localhost:2379
+    }
+    reload 5s
+    log
+}
+```
+
+添加记录
+
+```bash
+etcdctl put /inksnw/local/cluster/usersvc '{"host":"1.2.3.5","ttl":60}'
+etcdctl put /inksnw/local/cluster/prodsvc '{"host":"1.2.3.6","ttl":60}'
+```
+
+访问测试
+
+```bash
+ping prodsvc.cluster.local
+```
+
+一个服务多个ip
+
+```
+etcdctl put /inksnw/local/cluster/usersvc/001 '{"host":"1.2.3.5","ttl":60}'
+etcdctl put /inksnw/local/cluster/usersvc/002 '{"host":"1.2.3.6","ttl":60}'
+```
+
+访问测试
+
+```bash
+# 随机一个
+ping prodsvc.cluster.local
+# 某一个
+ping 001.prodsvc.cluster.local
+```
+
+实际服务使用
+
+```go
+package main
+
+import (
+	"fmt"
+	"net"
+)
+
+func main() {
+	list, err := net.LookupHost("prodsvc.cluster.local")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(list)
+}
 ```
 
