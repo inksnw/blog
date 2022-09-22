@@ -52,4 +52,4 @@ curl -H 'Host:demo.localdev.me' http://192.168.50.40:30443
 
 发现其实本质就是配置了nginx的域名转发
 
-![image-20220922213751633](http://inksnw.asuscomm.com:3001/blog/nginx-ingress_bdc7364de5da8c2f4e185ea3e55ef455.png)
+<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_bdc7364de5da8c2f4e185ea3e55ef455.png" alt="image-20220922213751633" style="zoom:50%;" />
