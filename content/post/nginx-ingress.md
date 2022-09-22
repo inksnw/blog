@@ -4,9 +4,7 @@ date: 2022-08-12T10:27:37+08:00
 tags: ["k8s"]
 ---
 
-# nginx-ingress
-
-安装nginx-ingress
+# 安装nginx-ingress
 
 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/
 
@@ -20,7 +18,7 @@ tags: ["k8s"]
 ➜ kubectl edit svc ingress-nginx-controller -n  ingress-nginx
 ```
 
-快速创建一个`deploy`与`svc`
+# 快速创建一个`deploy`与`svc`
 
 ```bash
 kubectl create deployment demo --image=httpd --port=80
@@ -43,7 +41,7 @@ curl -H 'Host:demo.localdev.me' http://192.168.50.40:30443
 <html><body><h1>It works!</h1></body></html>
 ```
 
-查看nginx配置
+# 查看nginx配置
 
 ```bash
  kubectl exec -it ingress-nginx-controller-b4fcbcc8f-gl8bq  -n ingress-nginx -- /bin/bash
