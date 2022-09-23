@@ -311,3 +311,13 @@ this is 1
 # curl -H "canary: true" -H 'Host:canary.test.com'  http://192.168.50.40:30443
 this is 2
 ```
+
+### 流量复制
+
+文档: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#mirror
+
+```yaml
+annotations:
+    nginx.ingress.kubernetes.io/mirror-target: https://test.env.com/$request_uri
+```
+

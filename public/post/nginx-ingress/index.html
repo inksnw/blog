@@ -53,7 +53,7 @@
 <meta itemprop="name" content="nginx-ingress">
 <meta itemprop="description" content="安装 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.1/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPolicy: Local,会重置"><meta itemprop="datePublished" content="2022-08-12T10:27:37+08:00" />
 <meta itemprop="dateModified" content="2022-09-23T16:13:17+08:00" />
-<meta itemprop="wordCount" content="2643">
+<meta itemprop="wordCount" content="2656">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nginx-ingress"/>
 <meta name="twitter:description" content="安装 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.1/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPolicy: Local,会重置"/>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-12 </span>
             
-            <span class="more-meta"> 约 2643 字 更新于 2022-09-23
+            <span class="more-meta"> 约 2656 字 更新于 2022-09-23
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -154,7 +154,11 @@
         <li><a href="#baseauth认证">BaseAuth认证</a></li>
         <li><a href="#限流设置">限流设置</a></li>
         <li><a href="#nginx原生配置">Nginx原生配置</a></li>
-        <li><a href="#灰度发布">灰度发布</a></li>
+        <li><a href="#灰度发布">灰度发布</a>
+          <ul>
+            <li><a href="#流量复制">流量复制</a></li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ul>
@@ -599,6 +603,18 @@
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># curl -H &#34;canary: true&#34; -H &#39;Host:canary.test.com&#39;  http://192.168.50.40:30443</span>
 </span></span><span class="line"><span class="cl">this is <span class="m">2</span>
 </span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="流量复制">流量复制</h3>
+<p>文档: <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#mirror">https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#mirror</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/mirror-target</span><span class="p">:</span><span class="w"> </span><span class="l">https://test.env.com/$request_uri</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>
