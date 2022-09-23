@@ -85,7 +85,7 @@ affinity:
 
 如果你是从外部LB接收流量的，那么使用：Local模式 + Pod反亲和，一般是足够的
 
-## 快速创建一个`deploy`与`svc`
+## 创建`deploy`与`svc`
 
 ```bash
 kubectl create deployment demo --image=httpd --port=80
