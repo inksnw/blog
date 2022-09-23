@@ -53,7 +53,7 @@
 <meta itemprop="name" content="nginx-ingress">
 <meta itemprop="description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol"><meta itemprop="datePublished" content="2022-08-12T10:27:37+08:00" />
 <meta itemprop="dateModified" content="2022-09-23T10:24:02+08:00" />
-<meta itemprop="wordCount" content="1349">
+<meta itemprop="wordCount" content="1518">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nginx-ingress"/>
 <meta name="twitter:description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol"/>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-12 </span>
             
-            <span class="more-meta"> 约 1349 字 更新于 2022-09-23
+            <span class="more-meta"> 约 1518 字 更新于 2022-09-23
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -152,6 +152,7 @@
         <li><a href="#快速创建一个deploy与svc">快速创建一个<code>deploy</code>与<code>svc</code></a></li>
         <li><a href="#查看nginx配置">查看nginx配置</a></li>
         <li><a href="#baseauth认证">BaseAuth认证</a></li>
+        <li><a href="#限流设置">限流设置</a></li>
       </ul>
     </li>
   </ul>
@@ -292,6 +293,7 @@
 </div><p>发现其实本质就是配置了nginx的域名转发</p>
 <img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_bdc7364de5da8c2f4e185ea3e55ef455.png" alt="image-20220922213751633" style="zoom:50%;" />
 <h2 id="baseauth认证">BaseAuth认证</h2>
+<p>文档 <a href="https://kubernetes.github.io/ingress-nginx/examples/auth/basic/">https://kubernetes.github.io/ingress-nginx/examples/auth/basic/</a></p>
 <p>生成secret文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -344,8 +346,35 @@
 <pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">http://demo.localdev.me:30443/
 </span></span></code></pre></td></tr></table>
 </div>
-</div><img src="../../../../Library/Application%20Support/typora-user-images/image-20220923102341532.png" alt="image-20220923102341532" style="zoom:50%;" />
-
+</div><img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_8202422854fee1e25162af095b4e22ef.jpg" alt="Snipaste_2022-09-23_10-26-22" style="zoom:50%;" />
+<h2 id="限流设置">限流设置</h2>
+<p>文档: <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#rate-limiting">https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#rate-limiting</a></p>
+<p>nginx.ingress.kubernetes.io/limit-rps：每秒从指定 IP 接受的请求数。突发限制设置为此限制乘以突发乘数，默认乘数为5。当客户端超过此限制时，返回limit-req-status-code default: 503。</p>
+<p>编辑相应的ingress</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/limit-rps</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># 突发请求倍数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/limit-burst-multiplier</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;5&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>访问测试</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="k">while</span> true<span class="p">;</span><span class="k">do</span> curl -s -w <span class="s2">&#34;%{http_code}\n&#34;</span> -o /dev/null -H <span class="s1">&#39;Host:demo.localdev.me&#39;</span> http://192.168.50.40:30443<span class="p">;</span><span class="k">done</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
     </div>
 
     

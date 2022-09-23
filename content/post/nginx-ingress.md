@@ -121,6 +121,8 @@ curl -H 'Host:demo.localdev.me' http://192.168.50.40:30443
 
 ## BaseAuth认证
 
+文档 https://kubernetes.github.io/ingress-nginx/examples/auth/basic/
+
 生成secret文件
 
 ```bash
@@ -153,4 +155,26 @@ annotations:
 http://demo.localdev.me:30443/
 ```
 
-<img src="../../../../Library/Application%20Support/typora-user-images/image-20220923102341532.png" alt="image-20220923102341532" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_8202422854fee1e25162af095b4e22ef.jpg" alt="Snipaste_2022-09-23_10-26-22" style="zoom:50%;" />
+
+## 限流设置
+
+文档: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#rate-limiting
+
+nginx.ingress.kubernetes.io/limit-rps：每秒从指定 IP 接受的请求数。突发限制设置为此限制乘以突发乘数，默认乘数为5。当客户端超过此限制时，返回limit-req-status-code default: 503。
+
+编辑相应的ingress
+
+```yaml
+annotations:
+    nginx.ingress.kubernetes.io/limit-rps: "1"
+    # 突发请求倍数
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+```
+
+访问测试
+
+```bash
+while true;do curl -s -w "%{http_code}\n" -o /dev/null -H 'Host:demo.localdev.me' http://192.168.50.40:30443;done
+```
+
