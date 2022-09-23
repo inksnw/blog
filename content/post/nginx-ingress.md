@@ -229,7 +229,7 @@ metadata:
 > canary-by-header - > canary-by-cookie - > canary-weight
 > ```
 
-### 测试
+测试
 
 ```bash
 kubectl create deployment canary1 --image=nginx --port=80
