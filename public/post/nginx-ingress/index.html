@@ -48,12 +48,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/nginx-ingress/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-08-12T10:27:37+08:00" />
-<meta property="article:modified_time" content="2022-09-23T10:24:02+08:00" />
+<meta property="article:modified_time" content="2022-09-23T11:00:29+08:00" />
 
 <meta itemprop="name" content="nginx-ingress">
 <meta itemprop="description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol"><meta itemprop="datePublished" content="2022-08-12T10:27:37+08:00" />
-<meta itemprop="dateModified" content="2022-09-23T10:24:02+08:00" />
-<meta itemprop="wordCount" content="1518">
+<meta itemprop="dateModified" content="2022-09-23T11:00:29+08:00" />
+<meta itemprop="wordCount" content="1660">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nginx-ingress"/>
 <meta name="twitter:description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol"/>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-12 </span>
             
-            <span class="more-meta"> 约 1518 字 更新于 2022-09-23
+            <span class="more-meta"> 约 1660 字 更新于 2022-09-23
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -153,6 +153,7 @@
         <li><a href="#查看nginx配置">查看nginx配置</a></li>
         <li><a href="#baseauth认证">BaseAuth认证</a></li>
         <li><a href="#限流设置">限流设置</a></li>
+        <li><a href="#nginx原生配置">Nginx原生配置</a></li>
       </ul>
     </li>
   </ul>
@@ -373,6 +374,62 @@
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="k">while</span> true<span class="p">;</span><span class="k">do</span> curl -s -w <span class="s2">&#34;%{http_code}\n&#34;</span> -o /dev/null -H <span class="s1">&#39;Host:demo.localdev.me&#39;</span> http://192.168.50.40:30443<span class="p">;</span><span class="k">done</span>
 </span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="nginx原生配置">Nginx原生配置</h2>
+<p>文档: <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#server-snippet">https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#server-snippet</a></p>
+<p>server-snippet作用于nginx <code>server</code>段</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/server-snippet</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">        set $agentflag 0;
+</span></span></span><span class="line"><span class="cl"><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">        if ($http_user_agent ~* &#34;(Mobile)&#34; ){
+</span></span></span><span class="line"><span class="cl"><span class="sd">          set $agentflag 1;
+</span></span></span><span class="line"><span class="cl"><span class="sd">        }
+</span></span></span><span class="line"><span class="cl"><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">        if ( $agentflag = 1 ) {
+</span></span></span><span class="line"><span class="cl"><span class="sd">          return 301 https://m.example.com;
+</span></span></span><span class="line"><span class="cl"><span class="sd">        }</span><span class="w">        
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>configuration-snippet作用于nginx <code>location</code>段</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/configuration-snippet</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">  </span><span class="w">  		</span><span class="l">more_set_headers &#34;Request-Id: $req_id&#34;;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>

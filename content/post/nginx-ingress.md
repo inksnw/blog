@@ -178,3 +178,37 @@ annotations:
 while true;do curl -s -w "%{http_code}\n" -o /dev/null -H 'Host:demo.localdev.me' http://192.168.50.40:30443;done
 ```
 
+## Nginx原生配置
+
+文档: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#server-snippet
+
+server-snippet作用于nginx `server`段
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+        set $agentflag 0;
+
+        if ($http_user_agent ~* "(Mobile)" ){
+          set $agentflag 1;
+        }
+
+        if ( $agentflag = 1 ) {
+          return 301 https://m.example.com;
+        }
+```
+
+configuration-snippet作用于nginx `location`段
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+  		more_set_headers "Request-Id: $req_id";
+```
+
