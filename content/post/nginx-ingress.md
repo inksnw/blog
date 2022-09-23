@@ -249,7 +249,7 @@ kind: Ingress
 metadata:
   name: my1
 spec:
-	ingressClassName: nginx
+  ingressClassName: nginx
   rules:
   - host: canary.test.com
     http:
@@ -273,9 +273,9 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/canary: "true"
     nginx.ingress.kubernetes.io/canary-by-header: "canary"
-	nginx.ingress.kubernetes.io/canary-by-header-value: "true"
+  nginx.ingress.kubernetes.io/canary-by-header-value: "true"
 spec:
-	ingressClassName: nginx
+  ingressClassName: nginx
   rules:
   - host: canary.test.com
     http:
