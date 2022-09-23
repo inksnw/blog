@@ -312,7 +312,7 @@ this is 1
 this is 2
 ```
 
-### 流量复制
+## 流量复制
 
 文档: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#mirror
 
