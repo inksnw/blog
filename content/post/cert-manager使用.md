@@ -79,11 +79,49 @@ curl -H "Host:inksnw.test.com" http://192.168.50.40:32599
 ```yaml
 spec:
   ingressClassName: nginx
+  rules:
+  - host: inksnw.test.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: demo
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
   tls:
   - hosts:
     - inksnw.test.com
     secretName: gin-tls
 ```
 
+访问
+```
+https://inksnw.test.com:32599/
+```
 
 
+
+<img src="http://inksnw.asuscomm.com:3001/blog/cert-manager使用_02876af27e28815da1fe18fde7a98d13.png" alt="ssl-wrong-version" style="zoom:50%;" />
+
+找了半天原因,尝试使用curl访问
+
+```bash
+$ curl https://inksnw.test.com:32599/
+curl: (35) error:1400410B:SSL routines:CONNECT_CR_SRVR_HELLO:wrong version number
+```
+
+```bash
+kubectl get svc -n ingress-nginx
+NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+ingress-nginx-controller             NodePort    10.233.61.80    <none>        80:32599/TCP,443:31306/TCP   170m                 170m
+```
+
+原来32599是http的端口,https需要使用31306
+
+再次访问
+
+<img src="http://inksnw.asuscomm.com:3001/blog/cert-manager使用_8dace1259dbbac20a873dcfcf8cab671.png" alt="image-20220923172433508" style="zoom:50%;" />
+
+chrome没有`继续前往`的解决办法,在当前页,键盘盲输`thisisunsafe`
