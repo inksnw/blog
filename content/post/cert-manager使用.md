@@ -96,7 +96,8 @@ spec:
     secretName: gin-tls
 ```
 
-访问
+### 访问出错
+
 ```
 https://inksnw.test.com:32599/
 ```
