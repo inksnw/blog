@@ -118,3 +118,39 @@ curl -H 'Host:demo.localdev.me' http://192.168.50.40:30443
 发现其实本质就是配置了nginx的域名转发
 
 <img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_bdc7364de5da8c2f4e185ea3e55ef455.png" alt="image-20220922213751633" style="zoom:50%;" />
+
+## BaseAuth认证
+
+生成secret文件
+
+```bash
+apt install apache2-utils
+htpasswd -c auth inksnw
+htpasswd auth inksnw2  #增加用户
+```
+
+创建密文
+
+```bash
+kubectl -n default create secret generic basic-auth --from-file=auth
+```
+
+向相应的ingress添加注解
+
+```yaml
+annotations:
+    # type of authentication
+    nginx.ingress.kubernetes.io/auth-type: basic
+    # name of the secret that contains the user/password definitions
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    # message to display with an appropriate context why the authe
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - foo'
+```
+
+再次访问
+
+```
+http://demo.localdev.me:30443/
+```
+
+<img src="../../../../Library/Application%20Support/typora-user-images/image-20220923102341532.png" alt="image-20220923102341532" style="zoom:50%;" />

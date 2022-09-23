@@ -26,7 +26,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.102.3 with theme even" />
+<meta name="generator" content="Hugo 0.103.1 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/nginx-ingress/" />
@@ -53,7 +53,7 @@
 <meta itemprop="name" content="nginx-ingress">
 <meta itemprop="description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol"><meta itemprop="datePublished" content="2022-08-12T10:27:37+08:00" />
 <meta itemprop="dateModified" content="2022-09-22T22:23:11+08:00" />
-<meta itemprop="wordCount" content="1235">
+<meta itemprop="wordCount" content="1349">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nginx-ingress"/>
 <meta name="twitter:description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol"/>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-12 </span>
             
-            <span class="more-meta"> 约 1235 字 更新于 2022-09-22
+            <span class="more-meta"> 约 1349 字 更新于 2022-09-22
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -151,6 +151,7 @@
         </li>
         <li><a href="#快速创建一个deploy与svc">快速创建一个<code>deploy</code>与<code>svc</code></a></li>
         <li><a href="#查看nginx配置">查看nginx配置</a></li>
+        <li><a href="#baseauth认证">BaseAuth认证</a></li>
       </ul>
     </li>
   </ul>
@@ -290,6 +291,60 @@
 </div>
 </div><p>发现其实本质就是配置了nginx的域名转发</p>
 <img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_bdc7364de5da8c2f4e185ea3e55ef455.png" alt="image-20220922213751633" style="zoom:50%;" />
+<h2 id="baseauth认证">BaseAuth认证</h2>
+<p>生成secret文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">apt install apache2-utils
+</span></span><span class="line"><span class="cl">htpasswd -c auth inksnw
+</span></span><span class="line"><span class="cl">htpasswd auth inksnw2  <span class="c1">#增加用户</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>创建密文</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl -n default create secret generic basic-auth --from-file<span class="o">=</span>auth
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>向相应的ingress添加注解</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># type of authentication</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/auth-type</span><span class="p">:</span><span class="w"> </span><span class="l">basic</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># name of the secret that contains the user/password definitions</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/auth-secret</span><span class="p">:</span><span class="w"> </span><span class="l">basic-auth</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># message to display with an appropriate context why the authe</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/auth-realm</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Authentication Required - foo&#39;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>再次访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">http://demo.localdev.me:30443/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><img src="../../../../Library/Application%20Support/typora-user-images/image-20220923102341532.png" alt="image-20220923102341532" style="zoom:50%;" />
 
     </div>
 
