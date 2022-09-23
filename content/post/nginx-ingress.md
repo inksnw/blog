@@ -9,7 +9,7 @@ tags: ["k8s"]
 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/
 
 ```bash
-➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
+➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.1/deploy/static/provider/cloud/deploy.yaml
 ```
 
 修改服务模式为NodePort,**注意**,要同时删除掉`externalTrafficPolicy: Local`,会重置为模式`externalTrafficPolicy: Cluster`
