@@ -4,7 +4,7 @@ date: 2022-08-12T10:27:37+08:00
 tags: ["k8s"]
 ---
 
-## 安装nginx-ingress
+## 安装
 
 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/
 
@@ -182,6 +182,8 @@ while true;do curl -s -w "%{http_code}\n" -o /dev/null -H 'Host:demo.localdev.me
 
 文档: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#server-snippet
 
+支持通过注解`nginx.ingress.kubernetes.io/xxx`的方式配置不同的原生配置
+
 server-snippet作用于nginx `server`段
 
 ```yaml
@@ -212,3 +214,100 @@ metadata:
   		more_set_headers "Request-Id: $req_id";
 ```
 
+## 灰度发布
+
+通过配置 Ingress Annotations 来实现不同场景下的灰度发布和测试。 [Nginx Annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#canary) 支持以下 4 种 Canary 规则：
+
+- `nginx.ingress.kubernetes.io/canary-by-header`：基于 Request Header 的流量切分，适用于灰度发布以及 A/B 测试。当 Request Header 设置为 `always`时，请求将会被一直发送到 Canary 版本；当 Request Header 设置为 `never`时，请求不会被发送到 Canary 入口；对于任何其他 Header 值，将忽略 Header，并通过优先级将请求与其他金丝雀规则进行优先级的比较。
+- `nginx.ingress.kubernetes.io/canary-by-header-value`：要匹配的 Request Header 的值，用于通知 Ingress 将请求路由到 Canary Ingress 中指定的服务。当 Request Header 设置为此值时，它将被路由到 Canary 入口。该规则允许用户自定义 Request Header 的值，必须与上一个 annotation (即：canary-by-header）一起使用。
+- `nginx.ingress.kubernetes.io/canary-weight`：基于服务权重的流量切分，适用于蓝绿部署，权重范围 0 - 100 按百分比将请求路由到 Canary Ingress 中指定的服务。权重为 0 意味着该金丝雀规则不会向 Canary 入口的服务发送任何请求。权重为 100 意味着所有请求都将被发送到 Canary 入口。
+- `nginx.ingress.kubernetes.io/canary-by-cookie`：基于 Cookie 的流量切分，适用于灰度发布与 A/B 测试。用于通知 Ingress 将请求路由到 Canary Ingress 中指定的服务的cookie。当 cookie 值设置为 `always`时，它将被路由到 Canary 入口；当 cookie 值设置为 `never`时，请求不会被发送到 Canary 入口；对于任何其他值，将忽略 cookie 并将请求与其他金丝雀规则进行优先级的比较。
+
+注意：金丝雀规则按优先顺序进行如下排序：
+
+> ```
+> canary-by-header - > canary-by-cookie - > canary-weight
+> ```
+
+### 测试
+
+```bash
+kubectl create deployment canary1 --image=nginx --port=80
+kubectl expose deployment canary1
+kubectl create deployment canary2 --image=nginx --port=80
+kubectl expose deployment canary2
+#手动进入容器修改一下网页
+echo "this is 1">/usr/share/nginx/html/index.html
+echo "this is 2">/usr/share/nginx/html/index.html
+```
+
+正常的
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my1
+spec:
+	ingressClassName: nginx
+  rules:
+  - host: canary.test.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: canary1
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+```
+
+灰度的
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my2
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-header: "canary"
+	nginx.ingress.kubernetes.io/canary-by-header-value: "true"
+spec:
+	ingressClassName: nginx
+  rules:
+  - host: canary.test.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: canary2
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+```
+
+查看
+
+```bash
+kubectl get ingress
+NAME             CLASS   HOSTS              ADDRESS         PORTS   AGE
+my1              nginx   canary.test.com    10.233.51.220   80      2m13s
+my2              nginx   canary.test.com    10.233.51.220   80      104s
+```
+
+执行测试，不添加header，访问的默认是正式版本：
+
+```bash
+# curl -H 'Host:canary.test.com'  http://192.168.50.40:30443
+this is 1
+```
+
+添加header，可以看到，访问的已经是灰度版本了
+
+```bash
+# curl -H "canary: true" -H 'Host:canary.test.com'  http://192.168.50.40:30443
+this is 2
+```

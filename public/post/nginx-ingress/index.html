@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="安装 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPolicy: Local,会重置" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,19 +44,19 @@
 
 
 <meta property="og:title" content="nginx-ingress" />
-<meta property="og:description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol" />
+<meta property="og:description" content="安装 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPolicy: Local,会重置" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/nginx-ingress/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-08-12T10:27:37+08:00" />
 <meta property="article:modified_time" content="2022-09-23T11:10:44+08:00" />
 
 <meta itemprop="name" content="nginx-ingress">
-<meta itemprop="description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol"><meta itemprop="datePublished" content="2022-08-12T10:27:37+08:00" />
+<meta itemprop="description" content="安装 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPolicy: Local,会重置"><meta itemprop="datePublished" content="2022-08-12T10:27:37+08:00" />
 <meta itemprop="dateModified" content="2022-09-23T11:10:44+08:00" />
-<meta itemprop="wordCount" content="1660">
+<meta itemprop="wordCount" content="2647">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nginx-ingress"/>
-<meta name="twitter:description" content="安装nginx-ingress 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPol"/>
+<meta name="twitter:description" content="安装 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml 修改服务模式为NodePort,注意,要同时删除掉externalTrafficPolicy: Local,会重置"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-12 </span>
             
-            <span class="more-meta"> 约 1660 字 更新于 2022-09-23
+            <span class="more-meta"> 约 2647 字 更新于 2022-09-23
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -140,7 +140,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#安装nginx-ingress">安装nginx-ingress</a></li>
+        <li><a href="#安装">安装</a></li>
         <li><a href="#什么是external-traffic-policy">什么是external-traffic-policy</a></li>
         <li><a href="#这2种模式有什么区别">这2种模式有什么区别</a>
           <ul>
@@ -154,6 +154,11 @@
         <li><a href="#baseauth认证">BaseAuth认证</a></li>
         <li><a href="#限流设置">限流设置</a></li>
         <li><a href="#nginx原生配置">Nginx原生配置</a></li>
+        <li><a href="#灰度发布">灰度发布</a>
+          <ul>
+            <li><a href="#测试">测试</a></li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ul>
@@ -163,7 +168,7 @@
 
     
     <div class="post-content">
-        <h2 id="安装nginx-ingress">安装nginx-ingress</h2>
+        <h2 id="安装">安装</h2>
 <p>参考文档: <a href="https://kubernetes.github.io/ingress-nginx/deploy/">https://kubernetes.github.io/ingress-nginx/deploy/</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -377,6 +382,7 @@
 </div>
 </div><h2 id="nginx原生配置">Nginx原生配置</h2>
 <p>文档: <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#server-snippet">https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#server-snippet</a></p>
+<p>支持通过注解<code>nginx.ingress.kubernetes.io/xxx</code>的方式配置不同的原生配置</p>
 <p>server-snippet作用于nginx <code>server</code>段</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -430,6 +436,173 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/configuration-snippet</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
 </span></span></span><span class="line"><span class="cl"><span class="sd">  </span><span class="w">  		</span><span class="l">more_set_headers &#34;Request-Id: $req_id&#34;;</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="灰度发布">灰度发布</h2>
+<p>通过配置 Ingress Annotations 来实现不同场景下的灰度发布和测试。 <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#canary">Nginx Annotations</a> 支持以下 4 种 Canary 规则：</p>
+<ul>
+<li><code>nginx.ingress.kubernetes.io/canary-by-header</code>：基于 Request Header 的流量切分，适用于灰度发布以及 A/B 测试。当 Request Header 设置为 <code>always</code>时，请求将会被一直发送到 Canary 版本；当 Request Header 设置为 <code>never</code>时，请求不会被发送到 Canary 入口；对于任何其他 Header 值，将忽略 Header，并通过优先级将请求与其他金丝雀规则进行优先级的比较。</li>
+<li><code>nginx.ingress.kubernetes.io/canary-by-header-value</code>：要匹配的 Request Header 的值，用于通知 Ingress 将请求路由到 Canary Ingress 中指定的服务。当 Request Header 设置为此值时，它将被路由到 Canary 入口。该规则允许用户自定义 Request Header 的值，必须与上一个 annotation (即：canary-by-header）一起使用。</li>
+<li><code>nginx.ingress.kubernetes.io/canary-weight</code>：基于服务权重的流量切分，适用于蓝绿部署，权重范围 0 - 100 按百分比将请求路由到 Canary Ingress 中指定的服务。权重为 0 意味着该金丝雀规则不会向 Canary 入口的服务发送任何请求。权重为 100 意味着所有请求都将被发送到 Canary 入口。</li>
+<li><code>nginx.ingress.kubernetes.io/canary-by-cookie</code>：基于 Cookie 的流量切分，适用于灰度发布与 A/B 测试。用于通知 Ingress 将请求路由到 Canary Ingress 中指定的服务的cookie。当 cookie 值设置为 <code>always</code>时，它将被路由到 Canary 入口；当 cookie 值设置为 <code>never</code>时，请求不会被发送到 Canary 入口；对于任何其他值，将忽略 cookie 并将请求与其他金丝雀规则进行优先级的比较。</li>
+</ul>
+<p>注意：金丝雀规则按优先顺序进行如下排序：</p>
+<blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">canary-by-header - &gt; canary-by-cookie - &gt; canary-weight
+</span></span></code></pre></td></tr></table>
+</div>
+</div></blockquote>
+<h3 id="测试">测试</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create deployment canary1 --image<span class="o">=</span>nginx --port<span class="o">=</span><span class="m">80</span>
+</span></span><span class="line"><span class="cl">kubectl expose deployment canary1
+</span></span><span class="line"><span class="cl">kubectl create deployment canary2 --image<span class="o">=</span>nginx --port<span class="o">=</span><span class="m">80</span>
+</span></span><span class="line"><span class="cl">kubectl expose deployment canary2
+</span></span><span class="line"><span class="cl"><span class="c1">#手动进入容器修改一下网页</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;this is 1&#34;</span>&gt;/usr/share/nginx/html/index.html
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;this is 2&#34;</span>&gt;/usr/share/nginx/html/index.html
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>正常的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">canary.test.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">canary1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>灰度的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/canary</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;true&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/canary-by-header</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;canary&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nt">nginx.ingress.kubernetes.io/canary-by-header-value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;true&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">canary.test.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">canary2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get ingress
+</span></span><span class="line"><span class="cl">NAME             CLASS   HOSTS              ADDRESS         PORTS   AGE
+</span></span><span class="line"><span class="cl">my1              nginx   canary.test.com    10.233.51.220   <span class="m">80</span>      2m13s
+</span></span><span class="line"><span class="cl">my2              nginx   canary.test.com    10.233.51.220   <span class="m">80</span>      104s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行测试，不添加header，访问的默认是正式版本：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># curl -H &#39;Host:canary.test.com&#39;  http://192.168.50.40:30443</span>
+</span></span><span class="line"><span class="cl">this is <span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>添加header，可以看到，访问的已经是灰度版本了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># curl -H &#34;canary: true&#34; -H &#39;Host:canary.test.com&#39;  http://192.168.50.40:30443</span>
+</span></span><span class="line"><span class="cl">this is <span class="m">2</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>
