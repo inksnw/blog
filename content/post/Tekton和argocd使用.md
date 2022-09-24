@@ -19,14 +19,14 @@ Tekton是一个谷歌开源的kubernetes原生CI/CD框架
 
 文档: https://github.com/tektoncd/pipeline/blob/main/docs/install.md
 
-### tekton/pipelines
+**tekton/pipelines**
 
 ```bash
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl get pods --namespace tekton-pipelines
 ```
 
-### dashboard
+**dashboard**
 
 ```bash
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
@@ -39,13 +39,13 @@ kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboar
 kubectl edit svc tekton-dashboard -n  tekton-pipelines 
 ```
 
-### tkn cli
+**tkn cli**
 
 ```
 brew install tektoncd-cli
 ```
 
-基本概念
+**基本概念**
 
 - Task: 表示一个构建任务,可以定义一系列的`steps`,如编译,构建镜像,推送镜像等
 - TaskRun: task定义了一个模板,taskrun代表了一次实际的运行
@@ -53,3 +53,38 @@ brew install tektoncd-cli
 - PipelineRun: 类似task和taskRun的关系
 - PipeLineResource: 表示pipeline intput资源,如git源码,镜像资源等
 
+## 运行
+
+创建一个`Task`与`TaskRun`
+
+```yaml
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: hello
+spec:
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo "Hello World"
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: hello-task-run
+spec:
+  taskRef:
+    name: hello
+```
+
+查看信息
+
+```bash
+$ kubectl get task
+$ kubectl get taskrun
+$ tkn taskrun list
+```
+
+<img src="http://inksnw.asuscomm.com:3001/blog/Tekton和argocd使用_0e87c8f1eecf273adae9217db1ba60e8.png" alt="image-20220924211406813"  />
