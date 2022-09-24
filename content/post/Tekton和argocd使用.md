@@ -118,3 +118,11 @@ $ kubectl logs hello-task-run-pod --all-containers
 Hello World
 ```
 
+以下内容先欠着,写不动了
+
+pipline
+piplineresource
+trigger
+kaniko
+argocd
+tekton触发argocd
