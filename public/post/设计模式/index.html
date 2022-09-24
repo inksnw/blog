@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Kubebuilder笔记 - </title>
+  <title>设计模式 - </title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="记录一下方便自己使用 1 2 3 4 5 6 7 8 9 10 mkdir myoperator cd myoperator go mod init myoperator kubebuilder init --domain my.domain kubebuilder create api --group webapp --version v1 --kind Guestbook #Create Resource [y/n] #y #Create Controller [y/n] #y make generate" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="核心内容来自于 https://lailin.xyz/post/go-design-pattern.html 手打了一遍文档并验证了实现,主要用于加强记忆 很多设计模式里的东西,在平时写代码无意识就用到了,设计模式有意义么,对于多人合作" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -29,7 +29,7 @@
 <meta name="generator" content="Hugo 0.104.0 with theme even" />
 
 
-<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/kubebuilder%E7%AC%94%E8%AE%B0/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -43,20 +43,20 @@
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:title" content="Kubebuilder笔记" />
-<meta property="og:description" content="记录一下方便自己使用 1 2 3 4 5 6 7 8 9 10 mkdir myoperator cd myoperator go mod init myoperator kubebuilder init --domain my.domain kubebuilder create api --group webapp --version v1 --kind Guestbook #Create Resource [y/n] #y #Create Controller [y/n] #y make generate" />
+<meta property="og:title" content="设计模式" />
+<meta property="og:description" content="核心内容来自于 https://lailin.xyz/post/go-design-pattern.html 手打了一遍文档并验证了实现,主要用于加强记忆 很多设计模式里的东西,在平时写代码无意识就用到了,设计模式有意义么,对于多人合作" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/kubebuilder%E7%AC%94%E8%AE%B0/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2022-08-09T23:47:44+08:00" />
-<meta property="article:modified_time" content="2022-08-29T16:13:20+08:00" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-07-04T11:46:35+08:00" />
+<meta property="article:modified_time" content="2022-07-04T11:46:35+08:00" />
 
-<meta itemprop="name" content="Kubebuilder笔记">
-<meta itemprop="description" content="记录一下方便自己使用 1 2 3 4 5 6 7 8 9 10 mkdir myoperator cd myoperator go mod init myoperator kubebuilder init --domain my.domain kubebuilder create api --group webapp --version v1 --kind Guestbook #Create Resource [y/n] #y #Create Controller [y/n] #y make generate"><meta itemprop="datePublished" content="2022-08-09T23:47:44+08:00" />
-<meta itemprop="dateModified" content="2022-08-29T16:13:20+08:00" />
-<meta itemprop="wordCount" content="51">
-<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Kubebuilder笔记"/>
-<meta name="twitter:description" content="记录一下方便自己使用 1 2 3 4 5 6 7 8 9 10 mkdir myoperator cd myoperator go mod init myoperator kubebuilder init --domain my.domain kubebuilder create api --group webapp --version v1 --kind Guestbook #Create Resource [y/n] #y #Create Controller [y/n] #y make generate"/>
+<meta itemprop="name" content="设计模式">
+<meta itemprop="description" content="核心内容来自于 https://lailin.xyz/post/go-design-pattern.html 手打了一遍文档并验证了实现,主要用于加强记忆 很多设计模式里的东西,在平时写代码无意识就用到了,设计模式有意义么,对于多人合作"><meta itemprop="datePublished" content="2022-07-04T11:46:35+08:00" />
+<meta itemprop="dateModified" content="2022-07-04T11:46:35+08:00" />
+<meta itemprop="wordCount" content="145">
+<meta itemprop="keywords" content="工程化," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="设计模式"/>
+<meta name="twitter:description" content="核心内容来自于 https://lailin.xyz/post/go-design-pattern.html 手打了一遍文档并验证了实现,主要用于加强记忆 很多设计模式里的东西,在平时写代码无意识就用到了,设计模式有意义么,对于多人合作"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -120,13 +120,13 @@
     
 
     <header class="post-header">
-        <h1 class="post-title">Kubebuilder笔记</h1>
+        <h1 class="post-title">设计模式</h1>
 
         <div class="post-meta">
-            <span class="post-time"> 2022-08-09 </span>
+            <span class="post-time"> 2022-07-04 </span>
             
-            <span class="more-meta"> 约 51 字 更新于 2022-08-29
-              <a class="article-tags" href=/tags/k8s/>k8s</a>
+            <span class="more-meta"> 约 145 字 更新于 2022-07-04
+              <a class="article-tags" href=/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/>工程化</a>
                 </span>
             
         </div>
@@ -136,55 +136,46 @@
 <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content always-active">
-        <nav id="TableOfContents"></nav>
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#设计原则">设计原则</a></li>
+        <li><a href="#设计模式">设计模式</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
     
     <div class="post-content">
-        <p>记录一下方便自己使用</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir myoperator
-</span></span><span class="line"><span class="cl"><span class="nb">cd</span> myoperator
-</span></span><span class="line"><span class="cl">go mod init myoperator
-</span></span><span class="line"><span class="cl">kubebuilder init --domain my.domain
-</span></span><span class="line"><span class="cl">kubebuilder create api --group webapp --version v1 --kind Guestbook
-</span></span><span class="line"><span class="cl"><span class="c1">#Create Resource [y/n]</span>
-</span></span><span class="line"><span class="cl"><span class="c1">#y</span>
-</span></span><span class="line"><span class="cl"><span class="c1">#Create Controller [y/n]</span>
-</span></span><span class="line"><span class="cl"><span class="c1">#y</span>
-</span></span><span class="line"><span class="cl">make generate
-</span></span></code></pre></td></tr></table>
-</div>
-</div>
+        <p>核心内容来自于 <a href="https://lailin.xyz/post/go-design-pattern.html">https://lailin.xyz/post/go-design-pattern.html</a></p>
+<p>手打了一遍文档并验证了实现,主要用于加强记忆</p>
+<p>很多设计模式里的东西,在平时写代码无意识就用到了,设计模式有意义么,对于多人合作,或者看别的代码的时候,设计模式可以让风格统一,迭代扩展方便,所以对工程化来讲,还有非常的有必要.</p>
+<h2 id="设计原则">设计原则</h2>
+<p><a href="http://inksnw.asuscomm.com:3001/blog/%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99.xmind">xmind文件下载</a></p>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99.png" alt="设计原则"></p>
+<h2 id="设计模式">设计模式</h2>
+<p><a href="http://inksnw.asuscomm.com:3001/blog/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F.xmind">xmind文件下载</a></p>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F.png" alt="设计模式"></p>
+
     </div>
 
     
 <footer class="post-footer">
         <div class="post-tags">
-            <a href="/%20tags/k8s/">k8s</a>
+            <a href="/%20tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/">工程化</a>
             </div>
         <nav class="post-nav">
-            <a class="prev" href="/post/k8s%E6%9D%83%E9%99%90/">
+            <a class="prev" href="/post/mysql%E4%B8%BB%E4%BB%8E%E9%85%8D%E7%BD%AE/">
                 <i class="iconfont icon-left"></i>
-                <span class="prev-text nav-default">K8s权限</span>
+                <span class="prev-text nav-default">Mysql主从配置</span>
                 <span class="prev-text nav-mobile">上一篇</span>
             </a>
-            <a class="next" href="/post/mysql%E4%B8%BB%E4%BB%8E%E9%85%8D%E7%BD%AE/">
-                <span class="next-text nav-default">Mysql主从配置</span>
+            <a class="next" href="/post/istio%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">
+                <span class="next-text nav-default">Istio简单使用</span>
                 <span class="next-text nav-mobile">下一篇</span>
                 <i class="iconfont icon-right"></i>
             </a>
