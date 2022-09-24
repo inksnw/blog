@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="Tekton是一个谷歌开源的kubernetes原生CI/CD框架 部分重要组件 Tekton Pipelines: 定义流水线（包含task、 task-run、pipelin" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,19 +44,19 @@
 
 
 <meta property="og:title" content="Tekton和argocd使用" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="Tekton是一个谷歌开源的kubernetes原生CI/CD框架 部分重要组件 Tekton Pipelines: 定义流水线（包含task、 task-run、pipelin" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/tekton%E5%92%8Cargocd%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-09-24T20:05:03+08:00" />
-<meta property="article:modified_time" content="2022-09-24T20:05:03+08:00" />
+<meta property="article:modified_time" content="2022-09-24T20:06:11+08:00" />
 
 <meta itemprop="name" content="Tekton和argocd使用">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-09-24T20:05:03+08:00" />
-<meta itemprop="dateModified" content="2022-09-24T20:05:03+08:00" />
-<meta itemprop="wordCount" content="0">
+<meta itemprop="description" content="Tekton是一个谷歌开源的kubernetes原生CI/CD框架 部分重要组件 Tekton Pipelines: 定义流水线（包含task、 task-run、pipelin"><meta itemprop="datePublished" content="2022-09-24T20:05:03+08:00" />
+<meta itemprop="dateModified" content="2022-09-24T20:06:11+08:00" />
+<meta itemprop="wordCount" content="328">
 <meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Tekton和argocd使用"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="Tekton是一个谷歌开源的kubernetes原生CI/CD框架 部分重要组件 Tekton Pipelines: 定义流水线（包含task、 task-run、pipelin"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-09-24 </span>
             
-            <span class="more-meta"> 约 0 字 更新于 2022-09-24
+            <span class="more-meta"> 约 328 字 更新于 2022-09-24
               </span>
             
         </div>
@@ -135,13 +135,93 @@
 <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content always-active">
-        <nav id="TableOfContents"></nav>
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#安装">安装</a>
+          <ul>
+            <li><a href="#tektonpipelines">tekton/pipelines</a></li>
+            <li><a href="#dashboard">dashboard</a></li>
+            <li><a href="#tkn-cli">tkn cli</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
     
     <div class="post-content">
-        
+        <p>Tekton是一个谷歌开源的kubernetes原生CI/CD框架</p>
+<p>部分重要组件</p>
+<ul>
+<li>
+<p>Tekton Pipelines:  定义流水线（包含task、 task-run、pipeline等）</p>
+</li>
+<li>
+<p>Trigger Trigger: pipeline 触发器，可以在 git 推送后，触发 pipeline</p>
+</li>
+<li>
+<p>Tekton CLI:  Tekton 交互的命令行工具。</p>
+</li>
+<li>
+<p>Tekton Dashboard: Tekton Pipelines 的 Web 图形界面</p>
+</li>
+</ul>
+<h2 id="安装">安装</h2>
+<p>文档: <a href="https://github.com/tektoncd/pipeline/blob/main/docs/install.md">https://github.com/tektoncd/pipeline/blob/main/docs/install.md</a></p>
+<h3 id="tektonpipelines">tekton/pipelines</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+</span></span><span class="line"><span class="cl">kubectl get pods --namespace tekton-pipelines
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="dashboard">dashboard</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>开放svc访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#修改为nodePort</span>
+</span></span><span class="line"><span class="cl">kubectl edit svc tekton-dashboard -n  tekton-pipelines 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="tkn-cli">tkn cli</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">brew install tektoncd-cli
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>基本概念</p>
+<ul>
+<li>Task: 表示一个构建任务,可以定义一系列的<code>steps</code>,如编译,构建镜像,推送镜像等</li>
+<li>TaskRun: task定义了一个模板,taskrun代表了一次实际的运行</li>
+<li>Pipeline: 一个或多个task,PipelineResource以及各种参数的集合</li>
+<li>PipelineRun: 类似task和taskRun的关系</li>
+<li>PipeLineResource: 表示pipeline intput资源,如git源码,镜像资源等</li>
+</ul>
+
     </div>
 
     
