@@ -85,6 +85,18 @@ spec:
 $ kubectl get task
 $ kubectl get taskrun
 $ tkn taskrun list
+$ tkn taskrun logs hello-task-run
+[echo] Hello World
+$ tkn task describe  hello
+Name:        hello
+Namespace:   default
+🦶 Steps
+ ∙ echo
+🗂  Taskruns
+NAME             STARTED         DURATION   STATUS
+hello-task-run   6 minutes ago   6s         Succeeded
 ```
+
+查看图形界面
 
 <img src="http://inksnw.asuscomm.com:3001/blog/Tekton和argocd使用_0e87c8f1eecf273adae9217db1ba60e8.png" alt="image-20220924211406813" style="zoom: 50%;" />
