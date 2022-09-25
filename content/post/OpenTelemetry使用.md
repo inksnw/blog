@@ -33,3 +33,34 @@ tags: ["k8s"]
 - 提供统一的存储层，用于保存Context信息，并保证在各种语言和处理模型下都可以工作（例如单线程模型、线程池模型、CallBack模型、Go Routine模型等）
 - 多种维度的关联基于元信息(标签)实现，元信息由业务确定，例如：通过Env来区别是测试还是生产环境等
 - 提供分布式的Context传播方式，例如通过W3C的traceparent/tracestate头、GRPC协议等
+
+## 编写简单示例
+
+```
+http://inksnw.asuscomm.com:3000/inksnw/myotel
+```
+
+## 安装Jaeger
+
+下载`all in one `包
+
+https://www.jaegertracing.io/download/
+
+```bash
+.
+├── example-hotrod
+├── jaeger-agent
+├── jaeger-all-in-one
+├── jaeger-collector
+├── jaeger-ingester
+└── jaeger-query
+./jaeger-all-in-one
+```
+
+访问
+
+```
+http://127.0.0.1:16686/search
+```
+
+<img src="http://inksnw.asuscomm.com:3001/blog/OpenTelemetry使用_d3a6255352cf09dee377af017c56e4cd.png" alt="image-20220925182452720" style="zoom:50%;" />
