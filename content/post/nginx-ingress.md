@@ -6,6 +6,8 @@ tags: ["k8s"]
 
 ## 安装
 
+ingress的本质就是一个南北向的网关,内置一个Nginx,控制器(Operator)监听ingress变化, reload nginx 配置
+
 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/
 
 ```bash
