@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>使用github作为Helm的chart仓库 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="创建一个github仓库 略 初始化项目 1 2 3 git clone https://github.com/inksnw/mychart.git # 使用helm初始化 helm create test 目录结构 1 2 3 4 5 6 7 8 9 10 11 12 13 14 test ├── Chart.yaml ├── charts ├── templates │ ├" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.103.1 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8github%E4%BD%9C%E4%B8%BAhelm%E7%9A%84chart%E4%BB%93%E5%BA%93/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.6ed31e05c2f87daccb834dfbf6608daf79c37db132498cb5c0d887eb732bfbda.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="使用github作为Helm的chart仓库" />
+<meta property="og:description" content="创建一个github仓库 略 初始化项目 1 2 3 git clone https://github.com/inksnw/mychart.git # 使用helm初始化 helm create test 目录结构 1 2 3 4 5 6 7 8 9 10 11 12 13 14 test ├── Chart.yaml ├── charts ├── templates │ ├" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8github%E4%BD%9C%E4%B8%BAhelm%E7%9A%84chart%E4%BB%93%E5%BA%93/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-09-27T16:56:13+08:00" />
+<meta property="article:modified_time" content="2022-09-27T16:56:13+08:00" />
+
+<meta itemprop="name" content="使用github作为Helm的chart仓库">
+<meta itemprop="description" content="创建一个github仓库 略 初始化项目 1 2 3 git clone https://github.com/inksnw/mychart.git # 使用helm初始化 helm create test 目录结构 1 2 3 4 5 6 7 8 9 10 11 12 13 14 test ├── Chart.yaml ├── charts ├── templates │ ├"><meta itemprop="datePublished" content="2022-09-27T16:56:13+08:00" />
+<meta itemprop="dateModified" content="2022-09-27T16:56:13+08:00" />
+<meta itemprop="wordCount" content="358">
+<meta itemprop="keywords" content="工程化," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="使用github作为Helm的chart仓库"/>
+<meta name="twitter:description" content="创建一个github仓库 略 初始化项目 1 2 3 git clone https://github.com/inksnw/mychart.git # 使用helm初始化 helm create test 目录结构 1 2 3 4 5 6 7 8 9 10 11 12 13 14 test ├── Chart.yaml ├── charts ├── templates │ ├"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">使用github作为Helm的chart仓库</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2022-09-27 </span>
+            
+            <span class="more-meta"> 约 358 字 更新于 2022-09-27
+              <a class="article-tags" href=/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/>工程化</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#初始化项目">初始化项目</a></li>
+        <li><a href="#打包上传">打包上传</a></li>
+        <li><a href="#设置github-pages">设置GitHub Pages</a></li>
+        <li><a href="#使用源">使用源</a></li>
+        <li><a href="#发布多个-release">发布多个 release</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>创建一个<strong>github</strong>仓库</p>
+<p>略</p>
+<h2 id="初始化项目">初始化项目</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/inksnw/mychart.git
+</span></span><span class="line"><span class="cl"><span class="c1"># 使用helm初始化</span>
+</span></span><span class="line"><span class="cl">helm create <span class="nb">test</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>目录结构</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">test
+</span></span><span class="line"><span class="cl">├── Chart.yaml
+</span></span><span class="line"><span class="cl">├── charts
+</span></span><span class="line"><span class="cl">├── templates
+</span></span><span class="line"><span class="cl">│   ├── NOTES.txt
+</span></span><span class="line"><span class="cl">│   ├── _helpers.tpl
+</span></span><span class="line"><span class="cl">│   ├── deployment.yaml
+</span></span><span class="line"><span class="cl">│   ├── hpa.yaml
+</span></span><span class="line"><span class="cl">│   ├── ingress.yaml
+</span></span><span class="line"><span class="cl">│   ├── service.yaml
+</span></span><span class="line"><span class="cl">│   ├── serviceaccount.yaml
+</span></span><span class="line"><span class="cl">│   └── tests
+</span></span><span class="line"><span class="cl">│       └── test-connection.yaml
+</span></span><span class="line"><span class="cl">└── values.yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="打包上传">打包上传</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ helm package test/
+</span></span><span class="line"><span class="cl">$ ls
+</span></span><span class="line"><span class="cl"><span class="nb">test</span>           test-0.1.0.tgz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>生成索引文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">helm repo index --url https://inksnw.github.io/mychart/ .
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>提交到github</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git add .
+</span></span><span class="line"><span class="cl">git commit -m <span class="s2">&#34;my first chart&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="设置github-pages">设置GitHub Pages</h2>
+<img src="http://inksnw.asuscomm.com:3001/blog/使用github作为Helm的chart仓库_4702eb9bb1298308ea430cd67a2d0c70.png" alt="image-20220927172720598" style="zoom:50%;" />
+<p>设置<code>_config.yml</code>文件可以配置主题</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">remote_theme: pages-themes/cayman@v0.2.0
+</span></span><span class="line"><span class="cl">plugins:
+</span></span><span class="line"><span class="cl">- jekyll-remote-theme <span class="c1"># add this line to the plugins list if you already have one</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="使用源">使用源</h2>
+<p>添加使用chart仓库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ helm repo add myrepo https://inksnw.github.io/mychart
+</span></span><span class="line"><span class="cl">$ helm repo list
+</span></span><span class="line"><span class="cl">NAME  	URL                                   
+</span></span><span class="line"><span class="cl">myrepo	https://inksnw.github.io/mychart
+</span></span><span class="line"><span class="cl"><span class="c1"># -l 显示所有版本</span>
+</span></span><span class="line"><span class="cl">$ helm search repo myrepo -l 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>安装chart包</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ helm install xxx myrepo/test
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="发布多个-release">发布多个 release</h2>
+<p>更新<code>Chart.yaml</code>文件中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">0.1.2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">appVersion</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;1.16.2&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>打包推送</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ helm package test/ 
+</span></span><span class="line"><span class="cl">$ helm repo index --url https://inksnw.github.io/mychart/ .
+</span></span><span class="line"><span class="cl">$ git add .
+</span></span><span class="line"><span class="cl">$ git commit -m <span class="s2">&#34;0.1.2&#34;</span>
+</span></span><span class="line"><span class="cl">$ git push
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>更新查看helm源</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ helm repo update myrepo
+</span></span><span class="line"><span class="cl">$ helm search repo myrepo -l
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/">工程化</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/opentelemetry%E4%BD%BF%E7%94%A8/">
+                <span class="next-text nav-default">OpenTelemetry使用</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
