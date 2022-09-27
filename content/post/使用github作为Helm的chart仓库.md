@@ -79,6 +79,9 @@ NAME  	URL
 myrepo	https://inksnw.github.io/mychart
 # -l 显示所有版本
 $ helm search repo myrepo -l 
+NAME       	CHART VERSION	APP VERSION	DESCRIPTION                
+myrepo/test	0.1.3        	1.16.3     	A Helm chart for Kubernetes
+myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
 ```
 
 安装chart包
