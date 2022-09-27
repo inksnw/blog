@@ -48,12 +48,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/fluent-bit%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-09-28T00:31:21+08:00" />
-<meta property="article:modified_time" content="2022-09-28T00:30:54+08:00" />
+<meta property="article:modified_time" content="2022-09-28T00:32:57+08:00" />
 
 <meta itemprop="name" content="Fluent Bit日志收集">
 <meta itemprop="description" content="组件 fluent-bit 负责解析及数据过滤 fluentd 负责接收fluent-bit解析后的数据,发送到mq等 安装测试 文档: https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit 1 2 helm repo add fluent https://fluent.github.io/helm-charts helm upgrade --install fluent-bit fluent/fluent-bit 默认安装的日志收集配"><meta itemprop="datePublished" content="2022-09-28T00:31:21+08:00" />
-<meta itemprop="dateModified" content="2022-09-28T00:30:54+08:00" />
-<meta itemprop="wordCount" content="445">
+<meta itemprop="dateModified" content="2022-09-28T00:32:57+08:00" />
+<meta itemprop="wordCount" content="575">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Fluent Bit日志收集"/>
 <meta name="twitter:description" content="组件 fluent-bit 负责解析及数据过滤 fluentd 负责接收fluent-bit解析后的数据,发送到mq等 安装测试 文档: https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit 1 2 helm repo add fluent https://fluent.github.io/helm-charts helm upgrade --install fluent-bit fluent/fluent-bit 默认安装的日志收集配"/>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-09-28 </span>
             
-            <span class="more-meta"> 约 445 字 更新于 2022-09-28
+            <span class="more-meta"> 约 575 字 更新于 2022-09-28
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -146,6 +146,8 @@
             <li><a href="#配置es输出">配置ES输出</a></li>
           </ul>
         </li>
+        <li><a href="#input配置">input配置</a></li>
+        <li><a href="#解析器">解析器</a></li>
       </ul>
     </li>
   </ul>
@@ -357,6 +359,33 @@
 </div>
 </div><p>查询</p>
 <img src="http://inksnw.asuscomm.com:3001/blog/fluent-bit日志收集_1539f772172be7ccf3a9f07e30b0579d.png" alt="image-20220928002559025" style="zoom:50%;" />
+<h2 id="input配置">input配置</h2>
+<p>tail配置,input与output通过<code>Tag</code>与<code>Match</code>字段进行对应</p>
+<p>容器中输出到 stdout 的日志，都会以*-json.log的命名方式在/var/log/containers/目录下生成的软链接</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="cl">    <span class="p">[</span><span class="nx">INPUT</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Name</span> <span class="nx">tail</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Path</span> <span class="err">/</span><span class="nx">var</span><span class="err">/</span><span class="nx">log</span><span class="err">/</span><span class="nx">containers</span><span class="err">/*</span><span class="p">.</span><span class="nx">log</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">multiline</span><span class="p">.</span><span class="nx">parser</span> <span class="nx">docker</span><span class="p">,</span> <span class="nx">cri</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Tag</span> <span class="nx">kube</span><span class="p">.</span><span class="err">*</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Mem_Buf_Limit</span> <span class="mi">5</span><span class="nx">MB</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Skip_Long_Lines</span> <span class="nx">On</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Index</span> <span class="nx">mypod_index</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="解析器">解析器</h2>
+<p><a href="https://docs.fluentbit.io/manual/pipeline/parsers">https://docs.fluentbit.io/manual/pipeline/parsers</a></p>
 
     </div>
 

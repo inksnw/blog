@@ -136,3 +136,24 @@ yellow open fluent-bit x1FyeUYwTT-WheIwiHzq6A 1 1 107 0 187.9kb 187.9kb
 
 <img src="http://inksnw.asuscomm.com:3001/blog/fluent-bit日志收集_1539f772172be7ccf3a9f07e30b0579d.png" alt="image-20220928002559025" style="zoom:50%;" />
 
+## input配置
+
+tail配置,input与output通过`Tag`与`Match`字段进行对应
+
+ 容器中输出到 stdout 的日志，都会以*-json.log的命名方式在/var/log/containers/目录下生成的软链接
+
+```toml
+    [INPUT]
+        Name tail
+        Path /var/log/containers/*.log
+        multiline.parser docker, cri
+        Tag kube.*
+        Mem_Buf_Limit 5MB
+        Skip_Long_Lines On
+        Index mypod_index
+```
+
+## 解析器
+
+https://docs.fluentbit.io/manual/pipeline/parsers
+
