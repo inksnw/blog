@@ -13,6 +13,4 @@ date: 2022-04-29T21:35:16+08:00
 欠的文章
 
 - [ ] git submodules与rpc工程化
-- [ ] Admission Webhook使用
-- [ ] fluent-bit
 - [ ] k8s 调度器
