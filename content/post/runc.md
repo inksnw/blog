@@ -8,7 +8,7 @@ runc 是一个命令行客户端，用于运行根据 Open Container Initiative 
 
 ![2021-01-27_cri-containerd2](http://inksnw.asuscomm.com:3001/blog/runc_cb5954ad2c7242b97e5cf81611d377b5.png)
 
-上图是k8s调用`containerd`到拉起pod进程的流程,而拉起pod这个过程是由`runc`完成的
+上图是k8s调用`containerd`到拉起pod进程的流程,而拉起pod这个过程是由调用二进制的`runc`完成的,拉起后`runc`退出,不作为常驻进程
 
 **疑问**
 
