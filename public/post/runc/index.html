@@ -48,12 +48,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/runc/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-05-24T21:24:41+08:00" />
-<meta property="article:modified_time" content="2022-10-02T12:18:26+08:00" />
+<meta property="article:modified_time" content="2022-10-02T13:09:28+08:00" />
 
 <meta itemprop="name" content="runc的使用">
 <meta itemprop="description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,拉起pod这个过程是"><meta itemprop="datePublished" content="2022-05-24T21:24:41+08:00" />
-<meta itemprop="dateModified" content="2022-10-02T12:18:26+08:00" />
-<meta itemprop="wordCount" content="1403">
+<meta itemprop="dateModified" content="2022-10-02T13:09:28+08:00" />
+<meta itemprop="wordCount" content="1575">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="runc的使用"/>
 <meta name="twitter:description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,拉起pod这个过程是"/>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-05-24 </span>
             
-            <span class="more-meta"> 约 1403 字 更新于 2022-10-02
+            <span class="more-meta"> 约 1575 字 更新于 2022-10-02
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -181,7 +181,31 @@
 <h1 id="runc简单使用">runc简单使用</h1>
 <p>环境准备</p>
 <p>一台纯净的主机,只安装了docker</p>
+<p>开启ip转发</p>
 <div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="m">1</span> &gt; /proc/sys/net/ipv4/ip_forward
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>永久生效</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">vi /etc/sysctl.conf
+</span></span><span class="line"><span class="cl"><span class="c1">#添加如下值</span>
+</span></span><span class="line"><span class="cl">net.ipv4.ip_forward <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl">sysctl -p /etc/sysctl.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
@@ -313,7 +337,8 @@
 </span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+ &#34;readonly&#34;: false
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div class="chroma">
+</div><p>在mount段下添加挂载,在物理机的<code>/root/app</code>目录下放置刚编译的程序<code>main</code></p>
+<div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
@@ -328,10 +353,11 @@
 </span></span></span><span class="line"><span class="cl"><span class="gi">+			&#34;type&#34;: &#34;bind&#34;,
 </span></span></span><span class="line"><span class="cl"><span class="gi">+			&#34;source&#34;: &#34;/root/app&#34;,
 </span></span></span><span class="line"><span class="cl"><span class="gi">+			&#34;options&#34; : [&#34;rbind&#34;,&#34;rw&#34;]
-</span></span></span><span class="line"><span class="cl"><span class="gi">+		},
+</span></span></span><span class="line"><span class="cl"><span class="gi">+	},
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div class="chroma">
+</div><p>修改<code>process.args</code>内容</p>
+<div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
@@ -340,6 +366,29 @@
 <pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl"><span class="gd">- &#34;sh&#34;
 </span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+ &#34;/app/main&#34;
 </span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>目录结构</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ chmod +x ~/app/main
+</span></span><span class="line"><span class="cl">$ tree -L <span class="m">2</span>
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── app
+</span></span><span class="line"><span class="cl">│   └── main
+</span></span><span class="line"><span class="cl">└── busybox
+</span></span><span class="line"><span class="cl">    ├── config.json
+</span></span><span class="line"><span class="cl">    └── rootfs
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>运行</p>
 <div class="highlight"><div class="chroma">
@@ -354,6 +403,8 @@
 </div>
 </div><h1 id="runc共享网络空间">runc共享网络空间</h1>
 <h2 id="配置容器网络">配置容器网络</h2>
+<p>容器网络基本原理</p>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/runc_582804a69ecbeb334c544888b2521d08.png" alt="rancher_blog_image12-1"></p>
 <p>创建网桥</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -361,12 +412,20 @@
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#创建网桥,启动</span>
-</span></span><span class="line"><span class="cl">brctl addbr mybr
-</span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> mybr up
-</span></span><span class="line"><span class="cl">ip addr add 10.12.0.1/24 dev mybr
+</span></span><span class="line"><span class="cl">$ brctl addbr mybr
+</span></span><span class="line"><span class="cl">$ brctl show
+</span></span><span class="line"><span class="cl">bridge name     bridge id               STP enabled     interfaces
+</span></span><span class="line"><span class="cl">docker0         8000.02429ea3d5dd       no
+</span></span><span class="line"><span class="cl">mybr            8000.000000000000       no
+</span></span><span class="line"><span class="cl">$ ip link <span class="nb">set</span> mybr up
+</span></span><span class="line"><span class="cl">$ ip addr add 10.12.0.1/24 dev mybr
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>创建veth设备</p>
@@ -473,9 +532,11 @@
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
+</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#再次启动容器</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> ~/busybox
 </span></span><span class="line"><span class="cl">rc run abc
 </span></span><span class="line"><span class="cl"><span class="c1">#在宿主机配置iptables</span>
 </span></span><span class="line"><span class="cl">iptables -t nat -I PREROUTING -p tcp -m tcp --dport <span class="m">9999</span> -j DNAT --to-destination 10.12.0.2:8000
@@ -487,9 +548,11 @@
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">http://192.168.50.209:9999/
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ curl http://192.168.50.231:9999/
+</span></span><span class="line"><span class="cl">Hello world
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="多容器共享网络空间">多容器共享网络空间</h2>

@@ -31,6 +31,21 @@ systemd+ 35927 35602  0 11:52 ?        00:00:00 redis-server *:6379
 
 一台纯净的主机,只安装了docker
 
+开启ip转发
+
+```bash
+echo 1 > /proc/sys/net/ipv4/ip_forward
+```
+
+永久生效
+
+```bash
+vi /etc/sysctl.conf
+#添加如下值
+net.ipv4.ip_forward = 1
+sysctl -p /etc/sysctl.conf
+```
+
 ```bash
 $ mkdir -p ~/busybox/rootfs
 $ docker export $(docker create busybox) | tar -C ~/busybox/rootfs -xvf -
@@ -106,19 +121,32 @@ func main () {
 - "readonly": true
 + "readonly": false
 ```
-
+在mount段下添加挂载,在物理机的`/root/app`目录下放置刚编译的程序`main`
 ```diff
 +{
 +			"destination": "/app",
 +			"type": "bind",
 +			"source": "/root/app",
 +			"options" : ["rbind","rw"]
-+		},
++	},
 ```
-
+修改`process.args`内容
 ```diff
 - "sh"
 + "/app/main"
+```
+
+目录结构
+
+```bash
+$ chmod +x ~/app/main
+$ tree -L 2
+.
+├── app
+│   └── main
+└── busybox
+    ├── config.json
+    └── rootfs
 ```
 
 运行
@@ -132,13 +160,21 @@ rc run abc
 
 ## 配置容器网络
 
+容器网络基本原理
+
+![rancher_blog_image12-1](http://inksnw.asuscomm.com:3001/blog/runc_582804a69ecbeb334c544888b2521d08.png)
+
 创建网桥
 
 ```bash
 #创建网桥,启动
-brctl addbr mybr
-ip link set mybr up
-ip addr add 10.12.0.1/24 dev mybr
+$ brctl addbr mybr
+$ brctl show
+bridge name     bridge id               STP enabled     interfaces
+docker0         8000.02429ea3d5dd       no
+mybr            8000.000000000000       no
+$ ip link set mybr up
+$ ip addr add 10.12.0.1/24 dev mybr
 ```
 
 创建veth设备
@@ -195,6 +231,7 @@ ip netns exec mycontainer ping 10.12.0.2
 
 ```bash
 #再次启动容器
+cd ~/busybox
 rc run abc
 #在宿主机配置iptables
 iptables -t nat -I PREROUTING -p tcp -m tcp --dport 9999 -j DNAT --to-destination 10.12.0.2:8000
@@ -205,7 +242,8 @@ iptables -t nat -nvL
 访问宿主机
 
 ```bash
-http://192.168.50.209:9999/
+$ curl http://192.168.50.231:9999/
+Hello world
 ```
 
 ## 多容器共享网络空间
