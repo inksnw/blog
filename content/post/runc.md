@@ -6,9 +6,9 @@ tags: ["k8s"]
 
 runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序
 
-![2021-01-27_cri-containerd2](http://inksnw.asuscomm.com:3001/blog/runc_cb5954ad2c7242b97e5cf81611d377b5.png)
+<img src="http://inksnw.asuscomm.com:3001/blog/runc_cb5954ad2c7242b97e5cf81611d377b5.png" alt="2021-01-27_cri-containerd2" style="zoom: 50%;" />
 
-上图是k8s调用`containerd`到拉起pod进程的流程,而拉起pod这个过程是由调用二进制的`runc`完成的,拉起后`runc`退出,不作为常驻进程
+上图是k8s调用`containerd`到拉起pod进程的流程,拉起pod这个过程是由调用二进制的`runc`完成的,拉起后`runc`退出,不作为常驻进程
 
 **疑问**
 
@@ -23,22 +23,22 @@ root     35677 35602  0 11:52 ?        00:00:00 nginx: master process nginx -g d
 systemd+ 35927 35602  0 11:52 ?        00:00:00 redis-server *:6379
 ```
 
-本文介绍如何使用runc来启动容器,并共享网络空间与进程空间
+下面介绍一下如何使用runc来启动容器,并共享网络空间与进程空间
 
 # runc简单使用
 
-生成busybox文件,建议在**另一台主机**上操作避免干扰
+环境准备
+
+一台纯净的主机,只安装了docker
 
 ```bash
-mkdir -p ~/busybox/
-docker export $(docker create busybox) | tar -C ~/busybox/rootfs -xvf -
+$ mkdir -p ~/busybox/rootfs
+$ docker export $(docker create busybox) | tar -C ~/busybox/rootfs -xvf -
 ```
-将busybox目录拷贝到实际操作的主机上
-
 下载runc二进制
 
 ```bash
-curl -LJO https://github.com/opencontainers/runc/releases/download/v1.1.2/runc.amd64
+curl -LJO https://github.com/opencontainers/runc/releases/download/v1.1.4/runc.amd64
 chmod +x runc.amd64
 mv runc.amd64 /usr/local/bin/rc
 rc -v
@@ -47,9 +47,9 @@ rc -v
 生成配置文件 
 
 ```bash
-cd ~/busybox
-rc spec
-tree -L 2
+$ cd ~/busybox
+$ rc spec
+$ tree -L 2
 #目录结构
 .
 └── busybox
@@ -63,7 +63,7 @@ tree -L 2
 cd ~/busybox
 rc run abc
 ```
-查看运行的容器列表
+另外开启一个终端,查看运行的容器列表
 ```bash
 rc list
 ID          PID         STATUS      BUNDLE          CREATED                          OWNER

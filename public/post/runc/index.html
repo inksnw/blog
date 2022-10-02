@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,而拉起pod这个过程" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,拉起pod这个过程是" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,19 +44,19 @@
 
 
 <meta property="og:title" content="runc的使用" />
-<meta property="og:description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,而拉起pod这个过程" />
+<meta property="og:description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,拉起pod这个过程是" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/runc/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-05-24T21:24:41+08:00" />
-<meta property="article:modified_time" content="2022-10-02T12:14:56+08:00" />
+<meta property="article:modified_time" content="2022-10-02T12:18:26+08:00" />
 
 <meta itemprop="name" content="runc的使用">
-<meta itemprop="description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,而拉起pod这个过程"><meta itemprop="datePublished" content="2022-05-24T21:24:41+08:00" />
-<meta itemprop="dateModified" content="2022-10-02T12:14:56+08:00" />
-<meta itemprop="wordCount" content="1414">
+<meta itemprop="description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,拉起pod这个过程是"><meta itemprop="datePublished" content="2022-05-24T21:24:41+08:00" />
+<meta itemprop="dateModified" content="2022-10-02T12:18:26+08:00" />
+<meta itemprop="wordCount" content="1403">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="runc的使用"/>
-<meta name="twitter:description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,而拉起pod这个过程"/>
+<meta name="twitter:description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,拉起pod这个过程是"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-05-24 </span>
             
-            <span class="more-meta"> 约 1414 字 更新于 2022-10-02
+            <span class="more-meta"> 约 1403 字 更新于 2022-10-02
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -156,8 +156,8 @@
     
     <div class="post-content">
         <p>runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序</p>
-<p><img src="http://inksnw.asuscomm.com:3001/blog/runc_cb5954ad2c7242b97e5cf81611d377b5.png" alt="2021-01-27_cri-containerd2"></p>
-<p>上图是k8s调用<code>containerd</code>到拉起pod进程的流程,而拉起pod这个过程是由调用二进制的<code>runc</code>完成的,拉起后<code>runc</code>退出,不作为常驻进程</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/runc_cb5954ad2c7242b97e5cf81611d377b5.png" alt="2021-01-27_cri-containerd2" style="zoom: 50%;" />
+<p>上图是k8s调用<code>containerd</code>到拉起pod进程的流程,拉起pod这个过程是由调用二进制的<code>runc</code>完成的,拉起后<code>runc</code>退出,不作为常驻进程</p>
 <p><strong>疑问</strong></p>
 <p>这个图来自<a href="https://github.com/containerd/containerd/blob/main/docs/cri/architecture.md">官方地址</a></p>
 <blockquote>
@@ -177,21 +177,21 @@
 </span></span><span class="line"><span class="cl">systemd+ <span class="m">35927</span> <span class="m">35602</span>  <span class="m">0</span> 11:52 ?        00:00:00 redis-server *:6379
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>本文介绍如何使用runc来启动容器,并共享网络空间与进程空间</p>
+</div><p>下面介绍一下如何使用runc来启动容器,并共享网络空间与进程空间</p>
 <h1 id="runc简单使用">runc简单使用</h1>
-<p>生成busybox文件,建议在<strong>另一台主机</strong>上操作避免干扰</p>
+<p>环境准备</p>
+<p>一台纯净的主机,只安装了docker</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir -p ~/busybox/
-</span></span><span class="line"><span class="cl">docker <span class="nb">export</span> <span class="k">$(</span>docker create busybox<span class="k">)</span> <span class="p">|</span> tar -C ~/busybox/rootfs -xvf -
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ mkdir -p ~/busybox/rootfs
+</span></span><span class="line"><span class="cl">$ docker <span class="nb">export</span> <span class="k">$(</span>docker create busybox<span class="k">)</span> <span class="p">|</span> tar -C ~/busybox/rootfs -xvf -
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>将busybox目录拷贝到实际操作的主机上</p>
-<p>下载runc二进制</p>
+</div><p>下载runc二进制</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -200,7 +200,7 @@
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -LJO https://github.com/opencontainers/runc/releases/download/v1.1.2/runc.amd64
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -LJO https://github.com/opencontainers/runc/releases/download/v1.1.4/runc.amd64
 </span></span><span class="line"><span class="cl">chmod +x runc.amd64
 </span></span><span class="line"><span class="cl">mv runc.amd64 /usr/local/bin/rc
 </span></span><span class="line"><span class="cl">rc -v
@@ -219,9 +219,9 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> ~/busybox
-</span></span><span class="line"><span class="cl">rc spec
-</span></span><span class="line"><span class="cl">tree -L <span class="m">2</span>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ <span class="nb">cd</span> ~/busybox
+</span></span><span class="line"><span class="cl">$ rc spec
+</span></span><span class="line"><span class="cl">$ tree -L <span class="m">2</span>
 </span></span><span class="line"><span class="cl"><span class="c1">#目录结构</span>
 </span></span><span class="line"><span class="cl">.
 </span></span><span class="line"><span class="cl">└── busybox
@@ -240,7 +240,7 @@
 </span></span><span class="line"><span class="cl">rc run abc
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>查看运行的容器列表</p>
+</div><p>另外开启一个终端,查看运行的容器列表</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
