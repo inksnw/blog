@@ -162,7 +162,7 @@ rc run abc
 
 容器网络基本原理
 
-![rancher_blog_image12-1](http://inksnw.asuscomm.com:3001/blog/runc_582804a69ecbeb334c544888b2521d08.png)
+<img src="http://inksnw.asuscomm.com:3001/blog/runc_582804a69ecbeb334c544888b2521d08.png" alt="rancher_blog_image12-1" style="zoom: 67%;" />
 
 创建网桥
 
