@@ -4,9 +4,9 @@ date: 2022-05-24T21:24:41+08:00
 tags: ["k8s"]
 ---
 
-<!--more-->
-
 runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序
+
+![2021-01-27_cri-containerd2](http://inksnw.asuscomm.com:3001/blog/runc_cb5954ad2c7242b97e5cf81611d377b5.png)
 
 本文介绍如何使用runc来启动容器,并共享网络空间与进程空间
 
