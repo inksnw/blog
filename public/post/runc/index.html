@@ -48,12 +48,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/runc/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-05-24T21:24:41+08:00" />
-<meta property="article:modified_time" content="2022-10-02T11:40:58+08:00" />
+<meta property="article:modified_time" content="2022-10-02T12:14:15+08:00" />
 
 <meta itemprop="name" content="runc的使用">
 <meta itemprop="description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,而拉起pod这个过程"><meta itemprop="datePublished" content="2022-05-24T21:24:41+08:00" />
-<meta itemprop="dateModified" content="2022-10-02T11:40:58+08:00" />
-<meta itemprop="wordCount" content="1386">
+<meta itemprop="dateModified" content="2022-10-02T12:14:15+08:00" />
+<meta itemprop="wordCount" content="1390">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="runc的使用"/>
 <meta name="twitter:description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,而拉起pod这个过程"/>
@@ -125,7 +125,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-05-24 </span>
             
-            <span class="more-meta"> 约 1386 字 更新于 2022-10-02
+            <span class="more-meta"> 约 1390 字 更新于 2022-10-02
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -162,12 +162,22 @@
 <p>这个图来自<a href="https://github.com/containerd/containerd/blob/main/docs/cri/architecture.md">官方地址</a></p>
 <blockquote>
 <p>从图中看,一个Pod中有多个容器时,会有多个shim进程,实际创建一个nginx+redis的pod,查看进程发现,pause容器与两个业务容器都是共用一同一个shim父进程</p>
-<p>root     35602     1  0 11:52 ?        00:00:00 /usr/bin/containerd-shim-runc-v2 -namespace k8s.io -id 40098e2fb7e3397xxx -address /run/containerd/containerd.sock
-65535    35628 35602  0 11:52 ?        00:00:00 /pause
-root     35677 35602  0 11:52 ?        00:00:00 nginx: master process nginx -g daemon off;
-systemd+ 35927 35602  0 11:52 ?        00:00:00 redis-server *:6379</p>
 </blockquote>
-<p>本文介绍如何使用runc来启动容器,并共享网络空间与进程空间</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root     <span class="m">35602</span>     <span class="m">1</span>  <span class="m">0</span> 11:52 ?        00:00:00 /usr/bin/containerd-shim-runc-v2 -namespace k8s.io -id 40098e2fb7e3397xxx -address /run/containerd/containerd.sock
+</span></span><span class="line"><span class="cl"><span class="m">65535</span>    <span class="m">35628</span> <span class="m">35602</span>  <span class="m">0</span> 11:52 ?        00:00:00 /pause
+</span></span><span class="line"><span class="cl">root     <span class="m">35677</span> <span class="m">35602</span>  <span class="m">0</span> 11:52 ?        00:00:00 nginx: master process nginx -g daemon off<span class="p">;</span>
+</span></span><span class="line"><span class="cl">systemd+ <span class="m">35927</span> <span class="m">35602</span>  <span class="m">0</span> 11:52 ?        00:00:00 redis-server *:6379
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>本文介绍如何使用runc来启动容器,并共享网络空间与进程空间</p>
 <h1 id="runc简单使用">runc简单使用</h1>
 <p>生成busybox文件,建议在<strong>另一台主机</strong>上操作避免干扰</p>
 <div class="highlight"><div class="chroma">

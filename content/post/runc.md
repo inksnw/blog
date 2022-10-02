@@ -15,11 +15,13 @@ runc 是一个命令行客户端，用于运行根据 Open Container Initiative 
 这个图来自[官方地址](https://github.com/containerd/containerd/blob/main/docs/cri/architecture.md)
 
 > 从图中看,一个Pod中有多个容器时,会有多个shim进程,实际创建一个nginx+redis的pod,查看进程发现,pause容器与两个业务容器都是共用一同一个shim父进程
->
-> root     35602     1  0 11:52 ?        00:00:00 /usr/bin/containerd-shim-runc-v2 -namespace k8s.io -id 40098e2fb7e3397xxx -address /run/containerd/containerd.sock
-> 65535    35628 35602  0 11:52 ?        00:00:00 /pause
-> root     35677 35602  0 11:52 ?        00:00:00 nginx: master process nginx -g daemon off;
-> systemd+ 35927 35602  0 11:52 ?        00:00:00 redis-server *:6379
+
+```bash
+root     35602     1  0 11:52 ?        00:00:00 /usr/bin/containerd-shim-runc-v2 -namespace k8s.io -id 40098e2fb7e3397xxx -address /run/containerd/containerd.sock
+65535    35628 35602  0 11:52 ?        00:00:00 /pause
+root     35677 35602  0 11:52 ?        00:00:00 nginx: master process nginx -g daemon off;
+systemd+ 35927 35602  0 11:52 ?        00:00:00 redis-server *:6379
+```
 
 本文介绍如何使用runc来启动容器,并共享网络空间与进程空间
 
