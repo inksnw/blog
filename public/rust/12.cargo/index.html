@@ -53,7 +53,7 @@
 <meta itemprop="name" content="12.cargo">
 <meta itemprop="description" content="手敲一遍 通过例子学Rust 依赖 大多数程序都会依赖于某些库。如果你曾经手动管理过库依赖，那么你就知道这会带来的极大的痛苦。幸运的是，Rust 的"><meta itemprop="datePublished" content="2022-10-06T12:46:57+08:00" />
 <meta itemprop="dateModified" content="2022-10-06T16:42:04+08:00" />
-<meta itemprop="wordCount" content="763">
+<meta itemprop="wordCount" content="2124">
 <meta itemprop="keywords" content="rust," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="12.cargo"/>
 <meta name="twitter:description" content="手敲一遍 通过例子学Rust 依赖 大多数程序都会依赖于某些库。如果你曾经手动管理过库依赖，那么你就知道这会带来的极大的痛苦。幸运的是，Rust 的"/>
@@ -129,7 +129,7 @@
     <div class="post-meta">
       <span class="post-time"> 2022-10-06 </span>
       
-      <span class="more-meta"> 约 763 字 更新于 2022-10-06
+      <span class="more-meta"> 约 2124 字 更新于 2022-10-06
               <a class="article-tags" href=/tags/rust/>rust</a>
         </span>
       
@@ -197,6 +197,10 @@
     <li>
       <ul>
         <li><a href="#依赖">依赖</a></li>
+        <li><a href="#约定规范">约定规范</a></li>
+        <li><a href="#测试">测试</a></li>
+        <li><a href="#构建脚本">构建脚本</a></li>
+        <li><a href="#怎么使用构建脚本">怎么使用构建脚本</a></li>
       </ul>
     </li>
   </ul>
@@ -291,7 +295,169 @@
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">bar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;../bar&#34;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span>#<span class="w"> </span><span class="err">来自本地文件系统的路径</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
+</div><p><code>cargo</code> 不仅仅是一个包依赖管理器。<code>Cargo.toml</code> 的所有可用配置选项都列在 <a href="https://doc.rust-lang.org/cargo/reference/manifest.html">格式规范</a>中。</p>
+<p>要构建我们的项目，我们可以在项目目录中的任何位置（包括子目录！）执行 <code>cargo build</code>。我们也可以执行 <code>cargo run</code> 来构建和运行。请注意，这些命令将处理所有依赖，在需要时下载 crate，并构建所有内容，包括 crate。（请注意，它只重新构建尚未构建的内容，这和 <code>make</code> 类似）。</p>
+<h2 id="约定规范">约定规范</h2>
+<p>在上一小节中，我们看到了以下目录层次结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">foo
+</span></span><span class="line"><span class="cl">├── Cargo.toml
+</span></span><span class="line"><span class="cl">└── src
+</span></span><span class="line"><span class="cl">    └── main.rs
+</span></span></code></pre></td></tr></table>
 </div>
+</div><p>假设我们要在同一个项目中有两个二进制可执行文件。 那要怎样做呢？</p>
+<p>很显然，<code>cargo</code> 支持这一点。正如我们之前看到的，默认二进制名称是 <code>main</code>，但可以通过将文件放在 <code>bin/</code> 目录中来添加其他二进制可执行文件：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">foo
+</span></span><span class="line"><span class="cl">├── Cargo.toml
+</span></span><span class="line"><span class="cl">└── src
+</span></span><span class="line"><span class="cl">    ├── main.rs
+</span></span><span class="line"><span class="cl">    └── bin
+</span></span><span class="line"><span class="cl">        └── my_other_bin.rs
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>为了使得 <code>cargo</code> 编译或运行这个二进制可执行文件而不是默认或其他二进制可执行文件，我们只需给 <code>cargo</code> 增加一个参数 <code>--bin my_other_bin</code>，其中 <code>my_other_bin</code> 是我们想要使用的二进制可执行文件的名称。</p>
+<p>除了可添加其他二进制可执行文件外，<code>cargo</code> 还支持<a href="https://doc.rust-lang.org/cargo/guide/project-layout.html">更多功能</a>，如基准测试，测试和示例。</p>
+<p>在下一节中，我们将更仔细地学习测试的内容。</p>
+<h2 id="测试">测试</h2>
+<p>我们知道测试是任何软件不可缺少的一部分！Rust 对单元和集成测试提供一流的支持（参见《Rust 程序设计语言》中的关于<a href="https://rustwiki.org/zh-CN/book/ch11-00-testing.html">测试的章节</a>）。</p>
+<p>通过上面链接的关于测试章节，我们看到了如何编写单元测试和集成测试。在代码目录组织上，我们可以将单元测试放在需要测试的模块中，并将集成测试放在源码中 <code>tests/</code> 目录中：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">foo
+</span></span><span class="line"><span class="cl">├── Cargo.toml
+</span></span><span class="line"><span class="cl">├── src
+</span></span><span class="line"><span class="cl">│   └── main.rs
+</span></span><span class="line"><span class="cl">└── tests
+</span></span><span class="line"><span class="cl">    ├── my_test.rs
+</span></span><span class="line"><span class="cl">    └── my_other_test.rs
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>tests</code> 目录下的每个文件都是一个单独的集成测试。</p>
+<p><code>cargo</code> 很自然地提供了一种便捷的方法来运行所有测试！</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cargo <span class="nb">test</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>你将会看到像这样的输出：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ cargo <span class="nb">test</span>
+</span></span><span class="line"><span class="cl">   Compiling blah v0.1.0 <span class="o">(</span>file:///nobackup/blah<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    Finished dev <span class="o">[</span>unoptimized + debuginfo<span class="o">]</span> target<span class="o">(</span>s<span class="o">)</span> in 0.89 secs
+</span></span><span class="line"><span class="cl">     Running target/debug/deps/blah-d3b32b97275ec472
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">running <span class="m">3</span> tests
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> test_bar ... ok
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> test_baz ... ok
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> test_foo_bar ... ok
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> test_foo ... ok
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> result: ok. <span class="m">3</span> passed<span class="p">;</span> <span class="m">0</span> failed<span class="p">;</span> <span class="m">0</span> ignored<span class="p">;</span> <span class="m">0</span> measured<span class="p">;</span> <span class="m">0</span> filtered out
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>你还可以运行如下测试，其中名称匹配一个模式：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cargo <span class="nb">test</span> test_foo
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ cargo <span class="nb">test</span> test_foo
+</span></span><span class="line"><span class="cl">   Compiling blah v0.1.0 <span class="o">(</span>file:///nobackup/blah<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    Finished dev <span class="o">[</span>unoptimized + debuginfo<span class="o">]</span> target<span class="o">(</span>s<span class="o">)</span> in 0.35 secs
+</span></span><span class="line"><span class="cl">     Running target/debug/deps/blah-d3b32b97275ec472
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">running <span class="m">2</span> tests
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> test_foo ... ok
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> test_foo_bar ... ok
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> result: ok. <span class="m">2</span> passed<span class="p">;</span> <span class="m">0</span> failed<span class="p">;</span> <span class="m">0</span> ignored<span class="p">;</span> <span class="m">0</span> measured<span class="p">;</span> <span class="m">2</span> filtered out
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>需要注意的一点是：<code>cargo</code> 可能同时进行多项测试，因此请确保它们不会相互竞争。例如，如果它们都输出到文件，则应该将它们写入不同的文件。</p>
+<h2 id="构建脚本">构建脚本</h2>
+<p>有时使用 <code>cargo</code> 正常构建还是不够的。也许你的 crate 在 cargo 成功编译之前需要一些先决条件，比如代码生成或者需要编译的一些本地代码。为了解决这个问题，我们构建了 cargo 可以运行的脚本。</p>
+<p>要向包中添加构建脚本，可以在 <code>Cargo.toml</code> 中指定它，如下所示：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>package<span class="o">]</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="nv">build</span> <span class="o">=</span> <span class="s2">&#34;build.rs&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>跟默认情况不同，这里 cargo 将在项目目录中优先查找 <code>build.rs</code> 文件。（本句采用意译，英文原文为：Otherwise Cargo will look for a <code>build.rs</code> file in the project directory by default.）</p>
+<h2 id="怎么使用构建脚本">怎么使用构建脚本</h2>
+<p>构建脚本只是另一个 Rust 文件，此文件将在编译包中的任何其他内容之前，优先进行编译和调用。 因此，此文件可实现满足 crate 的先决条件。</p>
+<p>cargo 通过<a href="https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts">此处指定</a>的可以使用的环境变量为脚本提供输入。（英文原文：Cargo provides the script with inputs via environment variables <a href="https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts">specified here</a> that can be used.）</p>
+<p>此脚本通过 stdout （标准输出）提供输出。打印的所有行都写入到 <code>target/debug/build/&lt;pkg&gt;/output</code>。另外，以 <code>cargo:</code> 为前缀的行将由 cargo 直接解析，因此可用于定义包编译的参数。</p>
+<p>有关进一步的说明和示例，请阅读 <a href="https://doc.rust-lang.org/cargo/reference/build-scripts.html">cargo 规定说明文档</a>。</p>
+
   </div>
 
   
