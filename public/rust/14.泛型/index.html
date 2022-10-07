@@ -53,7 +53,7 @@
 <meta itemprop="name" content="14.泛型">
 <meta itemprop="description" content="手敲一遍 通过例子学Rust 函数 泛型（generic）是关于泛化类型和函数功能，以扩大其适用范围的话题。泛型极大地 减少了代码的重复，但它自身的"><meta itemprop="datePublished" content="2022-10-06T17:12:49+08:00" />
 <meta itemprop="dateModified" content="2022-10-07T18:12:32+08:00" />
-<meta itemprop="wordCount" content="1868">
+<meta itemprop="wordCount" content="2267">
 <meta itemprop="keywords" content="rust," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="14.泛型"/>
 <meta name="twitter:description" content="手敲一遍 通过例子学Rust 函数 泛型（generic）是关于泛化类型和函数功能，以扩大其适用范围的话题。泛型极大地 减少了代码的重复，但它自身的"/>
@@ -129,7 +129,7 @@
     <div class="post-meta">
       <span class="post-time"> 2022-10-06 </span>
       
-      <span class="more-meta"> 约 1868 字 更新于 2022-10-07
+      <span class="more-meta"> 约 2267 字 更新于 2022-10-07
               <a class="article-tags" href=/tags/rust/>rust</a>
         </span>
       
@@ -207,7 +207,12 @@
         <li><a href="#函数">函数</a></li>
         <li><a href="#实现">实现</a></li>
         <li><a href="#trait">trait</a></li>
-        <li><a href="#约束">约束</a></li>
+        <li><a href="#约束">约束</a>
+          <ul>
+            <li><a href="#测试实例空约束">测试实例:空约束</a></li>
+          </ul>
+        </li>
+        <li><a href="#多重约束">多重约束</a></li>
       </ul>
     </li>
   </ul>
@@ -563,6 +568,130 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// ^ 试一试：取消上述语句的注释。
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// | 报错：未实现 `Debug` 或 `HasArea`。
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="测试实例空约束">测试实例:空约束</h3>
+<p>约束的工作机制会产生这样的效果：即使一个 <code>trait</code> 不包含任何功能，你仍然可以用它 作为约束。标准库中的 <code>Eq</code> 和 <code>Ord</code> 就是这样的 <code>trait</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">Cardinal</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">struct</span> <span class="nc">BlueJay</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">struct</span> <span class="nc">Turkey</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">trait</span><span class="w"> </span><span class="n">Red</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">trait</span><span class="w"> </span><span class="n">Blue</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">Red</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">Cardinal</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">Blue</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">BlueJay</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 这些函数只对实现了相应的 trait 的类型有效。
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 事实上这些 trait 内部是空的，但这没有关系。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">fn</span> <span class="nf">red</span><span class="o">&lt;</span><span class="n">T</span>: <span class="nc">Red</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span>: <span class="kp">&amp;</span><span class="nc">T</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="o">&#39;</span><span class="nb">static</span> <span class="kt">str</span> <span class="p">{</span><span class="w"> </span><span class="s">&#34;red&#34;</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">blue</span><span class="o">&lt;</span><span class="n">T</span>: <span class="nc">Blue</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span>: <span class="kp">&amp;</span><span class="nc">T</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="o">&#39;</span><span class="nb">static</span> <span class="kt">str</span> <span class="p">{</span><span class="w"> </span><span class="s">&#34;blue&#34;</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">cardinal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cardinal</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">blue_jay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BlueJay</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">_turkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Turkey</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 由于约束，`red()` 不能作用于 blue_jay （蓝松鸟），反过来也一样。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;A cardinal is {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">red</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cardinal</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;A blue jay is {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">blue</span><span class="p">(</span><span class="o">&amp;</span><span class="n">blue_jay</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// println!(&#34;A turkey is {}&#34;, red(&amp;_turkey));
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// ^ 试一试：去掉此行注释。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="多重约束">多重约束</h2>
+<p>多重约束（multiple bounds）可以用 <code>+</code> 连接。和平常一样，类型之间使用 <code>,</code> 隔开。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">fmt</span>::<span class="p">{</span><span class="n">Debug</span><span class="p">,</span><span class="w"> </span><span class="n">Display</span><span class="p">};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">compare_prints</span><span class="o">&lt;</span><span class="n">T</span>: <span class="nc">Debug</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Display</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t</span>: <span class="kp">&amp;</span><span class="nc">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Debug: `{:?}`&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Display: `{}`&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">compare_types</span><span class="o">&lt;</span><span class="n">T</span>: <span class="nc">Debug</span><span class="p">,</span><span class="w"> </span><span class="n">U</span>: <span class="nc">Debug</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t</span>: <span class="kp">&amp;</span><span class="nc">T</span><span class="p">,</span><span class="w"> </span><span class="n">u</span>: <span class="kp">&amp;</span><span class="nc">U</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;t: `{:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;u: `{:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;words&#34;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">];</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">];</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">compare_prints</span><span class="p">(</span><span class="o">&amp;</span><span class="n">string</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">//compare_prints(&amp;array);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 试一试 ^ 将此行注释去掉。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">compare_types</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">vec</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div>
