@@ -26,7 +26,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.104.0 with theme even" />
+<meta name="generator" content="Hugo 0.104.1 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8github%E4%BD%9C%E4%B8%BAhelm%E7%9A%84chart%E4%BB%93%E5%BA%93/" />
@@ -53,7 +53,7 @@
 <meta itemprop="name" content="使用github作为Helm的chart仓库">
 <meta itemprop="description" content="创建一个github仓库 略 初始化项目 1 2 3 git clone https://github.com/inksnw/mychart.git # 使用helm初始化 helm create test 目录结构 1 2 3 4 5 6 7 8 9 10 11 12 13 14 test ├── Chart.yaml ├── charts ├── templates │ ├"><meta itemprop="datePublished" content="2022-09-27T16:56:13+08:00" />
 <meta itemprop="dateModified" content="2022-09-28T14:45:55+08:00" />
-<meta itemprop="wordCount" content="408">
+<meta itemprop="wordCount" content="633">
 <meta itemprop="keywords" content="工程化," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用github作为Helm的chart仓库"/>
 <meta name="twitter:description" content="创建一个github仓库 略 初始化项目 1 2 3 git clone https://github.com/inksnw/mychart.git # 使用helm初始化 helm create test 目录结构 1 2 3 4 5 6 7 8 9 10 11 12 13 14 test ├── Chart.yaml ├── charts ├── templates │ ├"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-09-27 </span>
             
-            <span class="more-meta"> 约 408 字 更新于 2022-09-28
+            <span class="more-meta"> 约 633 字 更新于 2022-09-28
               <a class="article-tags" href=/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/>工程化</a>
                 </span>
             
@@ -149,6 +149,7 @@
         <li><a href="#设置github-pages">设置GitHub Pages</a></li>
         <li><a href="#使用源">使用源</a></li>
         <li><a href="#发布多个-release">发布多个 release</a></li>
+        <li><a href="#使用同一个仓库">使用同一个仓库</a></li>
       </ul>
     </li>
   </ul>
@@ -337,7 +338,17 @@
 </span></span><span class="line"><span class="cl">myrepo/test	0.1.2        	1.16.2     	A Helm chart <span class="k">for</span> Kubernetes
 </span></span></code></pre></td></tr></table>
 </div>
-</div>
+</div><h2 id="使用同一个仓库">使用同一个仓库</h2>
+<p>实际使用时,不想为helm源单独建一个仓库怎么办呢</p>
+<p><strong>方法一</strong></p>
+<p>设置github pages页,将主页目录由<code>/(root)</code>改为<code>/docs</code>,并把helm 发布相关的内容移动到这个目录,存在问题:</p>
+<ul>
+<li>docs里的<code>readme</code>文件对项目依然有效,在根目录放一个<code>readme</code>文件无效果,显示为空</li>
+<li>生成<code>helm repo index</code>的命令,<code>--url</code>参数需要添加<code>/docs</code>,保证生成的下载链接正确</li>
+</ul>
+<p><strong>方法二</strong></p>
+<p>新建一个分支专门用于当作helm repo, 配置github pages页的主页分支</p>
+
     </div>
 
     
