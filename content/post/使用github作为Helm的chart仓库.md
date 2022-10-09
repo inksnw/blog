@@ -124,11 +124,11 @@ myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
 
 **方法一**
 
-设置github pages页,将主页目录由`/(root)`改为`/docs`,并把helm 发布相关的内容移动到这个目录,存在问题: 
+设置github pages页,将主页目录由`/(root)`改为`/(docs)`,并把helm 发布相关的内容移动到这个目录,存在问题: 
 
 - docs里的`readme`文件对项目依然有效,在根目录放一个`readme`文件无效果,显示为空
-- 生成`helm repo index`的命令,`--url`参数需要添加`/docs`,保证生成的下载链接正确
+- 生成 **helm repo index** 的命令,`--url`参数需要添加`/docs`,保证生成的下载链接正确
 
-**方法二**
+**方法二(推荐)**
 
 新建一个分支专门用于当作helm repo, 配置github pages页的主页分支
