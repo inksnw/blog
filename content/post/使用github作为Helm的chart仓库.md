@@ -132,3 +132,5 @@ myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
 **方法二(推荐)**
 
 新建一个分支专门用于当作helm repo, 配置github pages页的主页分支
+
+实例 https://github.com/inksnw/mychart
