@@ -117,6 +117,12 @@ http://192.168.50.209:3002/
           insecure_skip_verify = true
 ```
 
+重启containerd
+
+```bash
+systemctl restart containerd
+```
+
 上传镜像
 
 ```bash
