@@ -135,3 +135,16 @@ myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
 
 - docs里的`readme`文件对项目依然有效,在根目录放一个`readme`文件无效果,显示为空
 - 生成 **helm repo index** 的命令,`--url`参数需要写对层级,本例中需要添加`/docs`,保证生成的下载链接正确
+
+## 同步分支数据
+
+实际使用中,chart的最新代码可能是在主分支的,那每次更新要手动复制文件到 chart分支么,这样不是很麻烦,git 提供了只合并部分其它分支文件的功能
+
+```bash
+## 首先切换到分支chart分支
+git checkout chart
+## 合并
+git checkout main test/** 
+```
+
+合并好了文件后,就是上文中的生成tar包,生成索引,上传的过程了,就不再写一遍了

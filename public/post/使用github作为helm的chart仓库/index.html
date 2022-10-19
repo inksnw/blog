@@ -48,12 +48,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8github%E4%BD%9C%E4%B8%BAhelm%E7%9A%84chart%E4%BB%93%E5%BA%93/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-09-27T16:56:13+08:00" />
-<meta property="article:modified_time" content="2022-10-19T16:00:46+08:00" />
+<meta property="article:modified_time" content="2022-10-19T17:34:32+08:00" />
 
 <meta itemprop="name" content="使用github作为Helm的chart仓库">
 <meta itemprop="description" content="创建一个github仓库 如果想在原来的项目下使用,请看最下面的章节 使用同一个仓库 初始化项目 1 2 3 git clone https://github.com/inksnw/mychart.git # 创建测试helm文件 helm create test 目录结构 1"><meta itemprop="datePublished" content="2022-09-27T16:56:13+08:00" />
-<meta itemprop="dateModified" content="2022-10-19T16:00:46+08:00" />
-<meta itemprop="wordCount" content="665">
+<meta itemprop="dateModified" content="2022-10-19T17:34:32+08:00" />
+<meta itemprop="wordCount" content="815">
 <meta itemprop="keywords" content="工程化," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用github作为Helm的chart仓库"/>
 <meta name="twitter:description" content="创建一个github仓库 如果想在原来的项目下使用,请看最下面的章节 使用同一个仓库 初始化项目 1 2 3 git clone https://github.com/inksnw/mychart.git # 创建测试helm文件 helm create test 目录结构 1"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-09-27 </span>
             
-            <span class="more-meta"> 约 665 字 更新于 2022-10-19
+            <span class="more-meta"> 约 815 字 更新于 2022-10-19
               <a class="article-tags" href=/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/>工程化</a>
                 </span>
             
@@ -150,6 +150,7 @@
         <li><a href="#使用源">使用源</a></li>
         <li><a href="#发布多个-release">发布多个 release</a></li>
         <li><a href="#使用同一个仓库">使用同一个仓库</a></li>
+        <li><a href="#同步分支数据">同步分支数据</a></li>
       </ul>
     </li>
   </ul>
@@ -353,6 +354,23 @@
 <li>docs里的<code>readme</code>文件对项目依然有效,在根目录放一个<code>readme</code>文件无效果,显示为空</li>
 <li>生成 <strong>helm repo index</strong> 的命令,<code>--url</code>参数需要写对层级,本例中需要添加<code>/docs</code>,保证生成的下载链接正确</li>
 </ul>
+<h2 id="同步分支数据">同步分支数据</h2>
+<p>实际使用中,chart的最新代码可能是在主分支的,那每次更新要手动复制文件到 chart分支么,这样不是很麻烦,git 提供了只合并部分其它分支文件的功能</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">## 首先切换到分支chart分支</span>
+</span></span><span class="line"><span class="cl">git checkout chart
+</span></span><span class="line"><span class="cl"><span class="c1">## 合并</span>
+</span></span><span class="line"><span class="cl">git checkout main test/** 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>合并好了文件后,就是上文中的生成tar包,生成索引,上传的过程了,就不再写一遍了</p>
 
     </div>
 
