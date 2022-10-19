@@ -6,7 +6,7 @@ tags: ["工程化"]
 
 创建一个**github**仓库
 
-如果想在原来的项目下使用,请看最下面的章节 `使用同一个仓库`
+如果想在原来的项目下使用,可新建一个分支,专门存储chart文件,暂未发现更好的办法
 
 ## 初始化项目
 
@@ -118,23 +118,6 @@ NAME       	CHART VERSION	APP VERSION	DESCRIPTION
 myrepo/test	0.1.3        	1.16.3     	A Helm chart for Kubernetes
 myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
 ```
-
-## 使用同一个仓库
-
-实际使用时,不想为helm源单独建一个仓库怎么办呢
-
-**方法一(推荐)**
-
-新建一个分支专门用于当作helm repo, 配置github pages页的主页分支
-
-实例 https://github.com/inksnw/mychart
-
-**方法二**
-
-设置github pages页,将主页目录由`/(root)`改为`/(docs)`,并把helm 发布相关的内容移动到这个目录,存在问题: 
-
-- docs里的`readme`文件对项目依然有效,在根目录放一个`readme`文件无效果,显示为空
-- 生成 **helm repo index** 的命令,`--url`参数需要写对层级,本例中需要添加`/docs`,保证生成的下载链接正确
 
 ## 同步分支数据
 
