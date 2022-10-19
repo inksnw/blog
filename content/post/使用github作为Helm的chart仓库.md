@@ -111,7 +111,7 @@ $ git push
 更新查看helm源
 
 ```bash
-$ helm repo update myrepo
+$ helm repo update
 $ helm search repo myrepo -l
 NAME       	CHART VERSION	APP VERSION	DESCRIPTION                
 myrepo/test	0.1.3        	1.16.3     	A Helm chart for Kubernetes
