@@ -6,13 +6,13 @@ tags: ["工程化"]
 
 创建一个**github**仓库
 
-略
+如果想在原来的项目下使用,请看最下面的章节 `使用同一个仓库`
 
 ## 初始化项目
 
 ```bash
 git clone https://github.com/inksnw/mychart.git
-# 使用helm初始化
+# 创建测试helm文件
 helm create test
 ```
 
@@ -54,18 +54,19 @@ helm repo index --url https://inksnw.github.io/mychart/ .
 ```bash
 git add .
 git commit -m "my first chart"
+git push
 ```
 
 ## 设置GitHub Pages
 
 <img src="http://inksnw.asuscomm.com:3001/blog/使用github作为Helm的chart仓库_4702eb9bb1298308ea430cd67a2d0c70.png" alt="image-20220927172720598" style="zoom:50%;" />
 
-设置`_config.yml`文件可以配置主题
+> 设置`_config.yml`文件可以配置主题, 可选
 
 ```bash
 remote_theme: pages-themes/cayman@v0.2.0
 plugins:
-- jekyll-remote-theme # add this line to the plugins list if you already have one
+- jekyll-remote-theme
 ```
 
 ## 使用源
@@ -122,15 +123,15 @@ myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
 
 实际使用时,不想为helm源单独建一个仓库怎么办呢
 
-**方法一**
-
-设置github pages页,将主页目录由`/(root)`改为`/(docs)`,并把helm 发布相关的内容移动到这个目录,存在问题: 
-
-- docs里的`readme`文件对项目依然有效,在根目录放一个`readme`文件无效果,显示为空
-- 生成 **helm repo index** 的命令,`--url`参数需要添加`/docs`,保证生成的下载链接正确
-
-**方法二(推荐)**
+**方法一(推荐)**
 
 新建一个分支专门用于当作helm repo, 配置github pages页的主页分支
 
 实例 https://github.com/inksnw/mychart
+
+**方法二**
+
+设置github pages页,将主页目录由`/(root)`改为`/(docs)`,并把helm 发布相关的内容移动到这个目录,存在问题: 
+
+- docs里的`readme`文件对项目依然有效,在根目录放一个`readme`文件无效果,显示为空
+- 生成 **helm repo index** 的命令,`--url`参数需要写对层级,本例中需要添加`/docs`,保证生成的下载链接正确
