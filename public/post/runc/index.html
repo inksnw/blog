@@ -53,7 +53,7 @@
 <meta itemprop="name" content="runc的使用">
 <meta itemprop="description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,拉起pod这个过程是"><meta itemprop="datePublished" content="2022-05-24T21:24:41+08:00" />
 <meta itemprop="dateModified" content="2022-10-02T13:57:53+08:00" />
-<meta itemprop="wordCount" content="1575">
+<meta itemprop="wordCount" content="1784">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="runc的使用"/>
 <meta name="twitter:description" content="runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序 上图是k8s调用containerd到拉起pod进程的流程,拉起pod这个过程是"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-05-24 </span>
             
-            <span class="more-meta"> 约 1575 字 更新于 2022-10-02
+            <span class="more-meta"> 约 1784 字 更新于 2022-10-02
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -152,6 +152,7 @@
       </ul>
     </li>
     <li><a href="#runc共享进程空间">runc共享进程空间</a></li>
+    <li><a href="#限制cpu的使用">限制cpu的使用</a></li>
   </ul>
 </nav>
     </div>
@@ -641,6 +642,61 @@
 <pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl"><span class="gi">+ &#34;path&#34;: &#34;/proc/36817/ns/pid&#34;
 </span></span></span><span class="line"><span class="cl"><span class="gi">+ &#34;path&#34;: &#34;/proc/36817/ns/ipc&#34;
 </span></span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="限制cpu的使用">限制cpu的使用</h1>
+<p>在/sys/fs/cgroup/cpu 目录中,有cpu的信息,linux通过<code>cfs</code> Completely Fair Scheduler 完全公平调度器来实现cpu调度</p>
+<p>cfs_quota_us/cfs_period_us=0.1 好比只能只用0.1个cpu</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 一个cfs调度时间周期长度,默认为100000微秒</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="m">100000</span> &gt; cpu.cfs_period_us
+</span></span><span class="line"><span class="cl"><span class="c1"># 在上面的一个周期内,允许运行的时间,-1为不限制</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="m">10000</span> &gt; cpu.cfs_quota_us
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在runc的配置文件中添加以下内容实现cpu限制</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;linux&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;resources&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;cpu&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;quota&#34;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;period&#34;</span><span class="p">:</span> <span class="mi">100000</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>进入容器查看相应文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat /sys/fs/cgroup/cpu/cpu.cfs_period_us
+</span></span><span class="line"><span class="cl">cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>

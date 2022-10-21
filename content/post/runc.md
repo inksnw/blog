@@ -307,6 +307,41 @@ nsenter -t {pid} -n
 + "path": "/proc/36817/ns/ipc"
 ```
 
+# 限制cpu的使用
+
+在/sys/fs/cgroup/cpu 目录中,有cpu的信息,linux通过`cfs` Completely Fair Scheduler 完全公平调度器来实现cpu调度
+
+cfs_quota_us/cfs_period_us=0.1 好比只能只用0.1个cpu
+
+```bash
+# 一个cfs调度时间周期长度,默认为100000微秒
+echo 100000 > cpu.cfs_period_us
+# 在上面的一个周期内,允许运行的时间,-1为不限制
+echo 10000 > cpu.cfs_quota_us
+```
+
+在runc的配置文件中添加以下内容实现cpu限制
+
+```json
+{
+    "linux": {
+        "resources": {
+            "cpu": {
+                "quota": 10000,
+                "period": 100000
+            }
+        }
+    }
+}
+```
+
+进入容器查看相应文件
+
+```bash
+cat /sys/fs/cgroup/cpu/cpu.cfs_period_us
+cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
+```
+
 
 
 
