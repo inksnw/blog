@@ -121,10 +121,10 @@ myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
 
 ## 同步分支数据
 
-实际使用中,chart的最新代码可能是在主分支的,那每次更新要手动复制文件到 chart分支么,这样不是很麻烦,git 提供了只合并部分其它分支文件的功能
+实际使用中,每次更新手动复制文件到 chart分支会很麻烦,git 提供了只合并部分文件的功能
 
 ```bash
-## 首先切换到分支chart分支
+## 首先切换到chart分支
 git checkout chart
 ## 合并
 git checkout main test/** 
