@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>OpenTelemetry使用 - </title>
+  <title>Krustlet使用 - </title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="什么是OpenTelemetry 有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracin" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="前置条件 准备一个k8s集群,版本1.24,本机操作在mac上,已经配置好~/.kube/config 下载二进制程序 到目前为止2022.10." /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -29,7 +29,7 @@
 <meta name="generator" content="Hugo 0.104.3 with theme even" />
 
 
-<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/opentelemetry%E4%BD%BF%E7%94%A8/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/krustlet%E4%BD%BF%E7%94%A8/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -43,20 +43,20 @@
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:title" content="OpenTelemetry使用" />
-<meta property="og:description" content="什么是OpenTelemetry 有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracin" />
+<meta property="og:title" content="Krustlet使用" />
+<meta property="og:description" content="前置条件 准备一个k8s集群,版本1.24,本机操作在mac上,已经配置好~/.kube/config 下载二进制程序 到目前为止2022.10." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/opentelemetry%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2022-09-25T17:47:24+08:00" />
-<meta property="article:modified_time" content="2022-09-25T17:47:24+08:00" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/krustlet%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-10-27T00:41:02+08:00" />
+<meta property="article:modified_time" content="2022-10-27T00:41:02+08:00" />
 
-<meta itemprop="name" content="OpenTelemetry使用">
-<meta itemprop="description" content="什么是OpenTelemetry 有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracin"><meta itemprop="datePublished" content="2022-09-25T17:47:24+08:00" />
-<meta itemprop="dateModified" content="2022-09-25T17:47:24+08:00" />
-<meta itemprop="wordCount" content="931">
+<meta itemprop="name" content="Krustlet使用">
+<meta itemprop="description" content="前置条件 准备一个k8s集群,版本1.24,本机操作在mac上,已经配置好~/.kube/config 下载二进制程序 到目前为止2022.10."><meta itemprop="datePublished" content="2022-10-27T00:41:02+08:00" />
+<meta itemprop="dateModified" content="2022-10-27T00:41:02+08:00" />
+<meta itemprop="wordCount" content="357">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="OpenTelemetry使用"/>
-<meta name="twitter:description" content="什么是OpenTelemetry 有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracin"/>
+<meta name="twitter:title" content="Krustlet使用"/>
+<meta name="twitter:description" content="前置条件 准备一个k8s集群,版本1.24,本机操作在mac上,已经配置好~/.kube/config 下载二进制程序 到目前为止2022.10."/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -124,12 +124,12 @@
     
 
     <header class="post-header">
-        <h1 class="post-title">OpenTelemetry使用</h1>
+        <h1 class="post-title">Krustlet使用</h1>
 
         <div class="post-meta">
-            <span class="post-time"> 2022-09-25 </span>
+            <span class="post-time"> 2022-10-27 </span>
             
-            <span class="more-meta"> 约 931 字 更新于 2022-09-25
+            <span class="more-meta"> 约 357 字 更新于 2022-10-27
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -144,9 +144,15 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#什么是opentelemetry">什么是OpenTelemetry</a></li>
-        <li><a href="#编写简单示例">编写简单示例</a></li>
-        <li><a href="#安装jaeger">安装Jaeger</a></li>
+        <li>
+          <ul>
+            <li><a href="#前置条件">前置条件</a></li>
+            <li><a href="#下载二进制程序">下载二进制程序</a></li>
+            <li><a href="#创建启动配置文件">创建启动配置文件</a></li>
+            <li><a href="#启动krustlet">启动krustlet</a></li>
+            <li><a href="#签名证书请求httpskubernetesiozhdocsreferenceaccess-authn-authzcertificate-signing-requests"><a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/certificate-signing-requests/">签名证书请求</a></a></li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ul>
@@ -156,46 +162,61 @@
 
     
     <div class="post-content">
-        <h2 id="什么是opentelemetry">什么是OpenTelemetry</h2>
-<p>有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracing、Logging的融合及大一统，作为APM的数据采集终极解决方案。</p>
-<ul>
-<li>Tracing：提供了一个请求从接收到处理完成整个生命周期的跟踪路径，一次请求通常过经过N个系统，因此也被称为分布式链路追踪</li>
-<li>Metrics：例如cpu、请求延迟、用户访问数等Counter、Gauge、Histogram指标</li>
-<li>Logging：传统的日志，提供精确的系统记录</li>
-</ul>
-<p>这三者的组合可以形成大一统的APM解决方案：</p>
-<ol>
-<li>基于Metrics告警发现异常</li>
-<li>通过Tracing定位到具体的系统和方法</li>
-<li>根据模块的日志最终定位到错误详情和根源</li>
-<li>调整Metrics等设置，更精确的告警/发现问题</li>
-</ol>
-<p><strong>该如何融合？</strong></p>
-<p>在以往对APM的理解中，这三者都是完全独立的，但是随着时间的推移，人们逐步发现了三者之间的关联，例如我们可以把Tracing的TraceID打到Logging的日志中，这样可以把分布式链路跟踪和日志关联到一起，彼此数据互通，但是还存在以下问题：</p>
-<ol>
-<li>如何把Metrics和其他两者关联起来</li>
-<li>如何提供更多维度的关联，例如请求的方法名、URL、用户类型、设备类型、地理位置等</li>
-<li>关联关系如何一致，且能够在分布式系统下传播</li>
-</ol>
-<p>在OpenTelemetry中试图使用Context为Metrics、Logging、Tracing提供统一的上下文，三者均可以访问到这些信息，同时Context可以随着请求链路的深入，不断往下传播</p>
-<ul>
-<li>Context数据在Task/Request的执行周期中都可以被访问到</li>
-<li>提供统一的存储层，用于保存Context信息，并保证在各种语言和处理模型下都可以工作（例如单线程模型、线程池模型、CallBack模型、Go Routine模型等）</li>
-<li>多种维度的关联基于元信息(标签)实现，元信息由业务确定，例如：通过Env来区别是测试还是生产环境等</li>
-<li>提供分布式的Context传播方式，例如通过W3C的traceparent/tracestate头、GRPC协议等</li>
-</ul>
-<h2 id="编写简单示例">编写简单示例</h2>
+        <h3 id="前置条件">前置条件</h3>
+<p>准备一个k8s集群,版本1.24,本机操作在mac上,已经配置好<code>~/.kube/config</code></p>
+<h3 id="下载二进制程序">下载二进制程序</h3>
+<p>到目前为止<code>2022.10.27</code> 最新的release1.0还未支持k8s1.24,要想在1.24上使用需要在这个网址下载</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">http://inksnw.asuscomm.com:3000/inksnw/myotel
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">https://docs.krustlet.dev/intro/install/#from-canary-builds
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="安装jaeger">安装Jaeger</h2>
-<p>下载<code>all in one </code>包</p>
-<p><a href="https://www.jaegertracing.io/download/">https://www.jaegertracing.io/download/</a></p>
+</div><h3 id="创建启动配置文件">创建启动配置文件</h3>
+<p>文档: <a href="https://docs.krustlet.dev/howto/bootstrapping/">https://docs.krustlet.dev/howto/bootstrapping/</a></p>
+<p>按文档中的说明,创建一个<code>bootstrap.sh</code></p>
+<p>目录结构</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── LICENSE
+</span></span><span class="line"><span class="cl">├── README.md
+</span></span><span class="line"><span class="cl">├── bootstrap.sh
+</span></span><span class="line"><span class="cl">└── krustlet-wasi
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行<code>bootstrap.sh</code></p>
+<p>查看生成的文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat ~/.krustlet/config/bootstrap.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="启动krustlet">启动krustlet</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 192.168.50.251 为运行krustlet的主机ip,本例中为我的mac的ip</span>
+</span></span><span class="line"><span class="cl"><span class="nv">KUBECONFIG</span><span class="o">=</span>~/.kube/config ./krustlet-wasi --node-ip 192.168.50.251 --node-name<span class="o">=</span>krustlet --bootstrap-file<span class="o">=</span>~/.krustlet/config/bootstrap.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="签名证书请求httpskubernetesiozhdocsreferenceaccess-authn-authzcertificate-signing-requests"><a href="https://kubernetes.io/zh/docs/reference/access-authn-authz/certificate-signing-requests/">签名证书请求</a></h3>
+<p>执行<code>approve</code>后,可以看到已经添加了一个新节点</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -208,27 +229,17 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">.
-</span></span><span class="line"><span class="cl">├── example-hotrod
-</span></span><span class="line"><span class="cl">├── jaeger-agent
-</span></span><span class="line"><span class="cl">├── jaeger-all-in-one
-</span></span><span class="line"><span class="cl">├── jaeger-collector
-</span></span><span class="line"><span class="cl">├── jaeger-ingester
-</span></span><span class="line"><span class="cl">└── jaeger-query
-</span></span><span class="line"><span class="cl">./jaeger-all-in-one
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 本机的hostname为inksnwdeiMac.local</span>
+</span></span><span class="line"><span class="cl">$ kubectl certificate approve inksnwdeiMac.local-tls
+</span></span><span class="line"><span class="cl">$ kubectl get node
+</span></span><span class="line"><span class="cl">NAME       STATUS   ROLES                  AGE     VERSION
+</span></span><span class="line"><span class="cl">krustlet   Ready    &lt;none&gt;                 7s      1.0.0-alpha.1
+</span></span><span class="line"><span class="cl">node1      Ready    control-plane,worker   7h35m   v1.24.3
+</span></span><span class="line"><span class="cl">node2      Ready    worker                 7h34m   v1.24.3
+</span></span><span class="line"><span class="cl">node3      Ready    worker                 7h34m   v1.24.3
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>访问</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">http://127.0.0.1:16686/search
-</span></span></code></pre></td></tr></table>
 </div>
-</div><img src="http://inksnw.asuscomm.com:3001/blog/OpenTelemetry使用_d3a6255352cf09dee377af017c56e4cd.png" alt="image-20220925182452720" style="zoom:50%;" />
-
     </div>
 
     
@@ -237,13 +248,9 @@
             <a href="/%20tags/k8s/">k8s</a>
             </div>
         <nav class="post-nav">
-            <a class="prev" href="/post/%E4%BD%BF%E7%94%A8github%E4%BD%9C%E4%B8%BAhelm%E7%9A%84chart%E4%BB%93%E5%BA%93/">
-                <i class="iconfont icon-left"></i>
-                <span class="prev-text nav-default">使用github作为Helm的chart仓库</span>
-                <span class="prev-text nav-mobile">上一篇</span>
-            </a>
-            <a class="next" href="/post/tekton%E5%92%8Cargocd%E4%BD%BF%E7%94%A8/">
-                <span class="next-text nav-default">Tekton和argocd使用</span>
+            
+            <a class="next" href="/post/harbor%E5%AE%89%E8%A3%85%E4%B8%8Econtainerd/">
+                <span class="next-text nav-default">Harbor安装与containerd</span>
                 <span class="next-text nav-mobile">下一篇</span>
                 <i class="iconfont icon-right"></i>
             </a>
