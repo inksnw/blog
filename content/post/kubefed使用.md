@@ -46,7 +46,9 @@ spec:
 
 在子集群k2上查看ns
 
+```bash
 kubectl get ns |grep fedns
+```
 
 ## 创建联邦deploy
 
