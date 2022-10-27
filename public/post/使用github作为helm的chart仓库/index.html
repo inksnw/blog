@@ -53,7 +53,7 @@
 <meta itemprop="name" content="使用github作为Helm的chart仓库">
 <meta itemprop="description" content="创建一个github仓库 如果想在原来的项目下使用,又不想生成的tar包让代码目录变的混乱,可新建一个分支,专门存储chart文件,暂未发现更"><meta itemprop="datePublished" content="2022-09-27T16:56:13+08:00" />
 <meta itemprop="dateModified" content="2022-10-25T15:45:59+08:00" />
-<meta itemprop="wordCount" content="580">
+<meta itemprop="wordCount" content="1015">
 <meta itemprop="keywords" content="工程化," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用github作为Helm的chart仓库"/>
 <meta name="twitter:description" content="创建一个github仓库 如果想在原来的项目下使用,又不想生成的tar包让代码目录变的混乱,可新建一个分支,专门存储chart文件,暂未发现更"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-09-27 </span>
             
-            <span class="more-meta"> 约 580 字 更新于 2022-10-25
+            <span class="more-meta"> 约 1015 字 更新于 2022-10-25
               <a class="article-tags" href=/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/>工程化</a>
                 </span>
             
@@ -150,6 +150,12 @@
         <li><a href="#使用源">使用源</a></li>
         <li><a href="#发布多个-release">发布多个 release</a></li>
         <li><a href="#同步分支数据">同步分支数据</a></li>
+        <li><a href="#自动化构建">自动化构建</a>
+          <ul>
+            <li><a href="#创建目录">创建目录</a></li>
+            <li><a href="#github-操作流">GitHub 操作流</a></li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ul>
@@ -160,7 +166,14 @@
     
     <div class="post-content">
         <p>创建一个<strong>github</strong>仓库</p>
+<ul>
+<li>
 <p>如果想在原来的项目下使用,又不想生成的<code>tar</code>包让代码目录变的混乱,可新建一个分支,专门存储chart文件,暂未发现更好的办法</p>
+</li>
+<li>
+<p>想自动化完成,可以了解基本原理后直接看下方的 <a href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA">自动化构建</a></p>
+</li>
+</ul>
 <h2 id="初始化项目">初始化项目</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -359,6 +372,63 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>合并好了文件后,就是上文中的生成tar包,生成索引,上传的过程了,就不再写一遍了</p>
+<h2 id="自动化构建">自动化构建</h2>
+<p>helm repo的本质就是一个网址,只要能够提供<code>index.yaml</code> 发行版的下载信息就可以,每次更新上面的步骤都是一样的,有没有办法自动化呢,可以,使用github ci就能实现自动化发布</p>
+<h3 id="创建目录">创建目录</h3>
+<p>chart文件应该放在根目录下的<code>/charts</code>目录中</p>
+<h3 id="github-操作流">GitHub 操作流</h3>
+<p>在主分支创建一个GitHub操作流文件 <code>.github/workflows/release.yml</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Release Charts</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">on</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">jobs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">release</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Checkout</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">fetch-depth</span><span class="p">:</span><span class="w"> </span><span class="m">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Configure Git</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">          git config user.name &#34;$GITHUB_ACTOR&#34;
+</span></span></span><span class="line"><span class="cl"><span class="sd">          git config user.email &#34;$GITHUB_ACTOR@users.noreply.github.com&#34;</span><span class="w">          
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Run chart-releaser</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">helm/chart-releaser-action@v1.1.0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">env</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">CR_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;${{ secrets.GITHUB_TOKEN }}&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>创建另一个分支 <code>gh-pages</code> 用于发布chart。这个分支的更改会通过Chart发布操作自动创建。</p>
+<p>主分支推送后会通过检查项目中的每个chart来执行次操作， 且每当有新的chart版本时，就会在<code>gh-pages</code> 分支下创建或更新<code>index.yaml</code>文件，然后托管在GitHub页面上.同时发会布一个release,打一个tag.</p>
+<p>这样就实现了使用github来当作helm的仓库,推荐使用自动化构建的方法</p>
 
     </div>
 
