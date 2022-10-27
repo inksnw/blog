@@ -172,6 +172,8 @@ jobs:
 
 创建另一个分支 `gh-pages` 用于发布chart,这个分支的`readme` 文件就是github pages的页面,`index.yaml` 就是helm repo的索引文件
 
-主分支推送后`chart-releaser-action`会检查项目中的每个chart来执行次操作,且每当有新的chart版本时,就会在`gh-pages` 分支下创建或更新`index.yaml`文件,同时发会布一个release,打一个tag.
+主分支推送后`chart-releaser-action`会检查项目中的每个chart来执行次操作,每当有新的chart版本时,就会在`gh-pages` 分支下创建或更新`index.yaml`文件,同时发会布一个release,打一个tag.
 
 这样就实现了使用github来当作helm的仓库,推荐使用自动化构建的方法
+
+官方文档: https://helm.sh/zh/docs/howto/chart_releaser_action/
