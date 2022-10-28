@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="什么是OpenTelemetry 有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracin" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="什么是OpenTelemetry OpenTelemetry:实现Metrics ,Tracing , Logging 的融合及大一统，作为APM的数据采集终极解决方案。 Tra" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,19 +44,19 @@
 
 
 <meta property="og:title" content="OpenTelemetry使用" />
-<meta property="og:description" content="什么是OpenTelemetry 有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracin" />
+<meta property="og:description" content="什么是OpenTelemetry OpenTelemetry:实现Metrics ,Tracing , Logging 的融合及大一统，作为APM的数据采集终极解决方案。 Tra" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/opentelemetry%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-09-25T17:47:24+08:00" />
-<meta property="article:modified_time" content="2022-09-25T17:47:24+08:00" />
+<meta property="article:modified_time" content="2022-09-25T18:25:12+08:00" />
 
 <meta itemprop="name" content="OpenTelemetry使用">
-<meta itemprop="description" content="什么是OpenTelemetry 有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracin"><meta itemprop="datePublished" content="2022-09-25T17:47:24+08:00" />
-<meta itemprop="dateModified" content="2022-09-25T17:47:24+08:00" />
-<meta itemprop="wordCount" content="931">
+<meta itemprop="description" content="什么是OpenTelemetry OpenTelemetry:实现Metrics ,Tracing , Logging 的融合及大一统，作为APM的数据采集终极解决方案。 Tra"><meta itemprop="datePublished" content="2022-09-25T17:47:24+08:00" />
+<meta itemprop="dateModified" content="2022-09-25T18:25:12+08:00" />
+<meta itemprop="wordCount" content="889">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="OpenTelemetry使用"/>
-<meta name="twitter:description" content="什么是OpenTelemetry 有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracin"/>
+<meta name="twitter:description" content="什么是OpenTelemetry OpenTelemetry:实现Metrics ,Tracing , Logging 的融合及大一统，作为APM的数据采集终极解决方案。 Tra"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-09-25 </span>
             
-            <span class="more-meta"> 约 931 字 更新于 2022-09-25
+            <span class="more-meta"> 约 889 字 更新于 2022-09-25
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -145,7 +145,8 @@
     <li>
       <ul>
         <li><a href="#什么是opentelemetry">什么是OpenTelemetry</a></li>
-        <li><a href="#编写简单示例">编写简单示例</a></li>
+        <li><a href="#该如何融合"><strong>该如何融合？</strong></a></li>
+        <li><a href="#简单示例">简单示例</a></li>
         <li><a href="#安装jaeger">安装Jaeger</a></li>
       </ul>
     </li>
@@ -157,9 +158,9 @@
     
     <div class="post-content">
         <h2 id="什么是opentelemetry">什么是OpenTelemetry</h2>
-<p>有了以上的背景知识，我们就可以顶一下OpenTelemetry的终极目标了：实现Metrics、Tracing、Logging的融合及大一统，作为APM的数据采集终极解决方案。</p>
+<p>OpenTelemetry:实现<code>Metrics </code>,<code>Tracing</code> , <code>Logging </code>的融合及大一统，作为APM的数据采集终极解决方案。</p>
 <ul>
-<li>Tracing：提供了一个请求从接收到处理完成整个生命周期的跟踪路径，一次请求通常过经过N个系统，因此也被称为分布式链路追踪</li>
+<li>Tracing：一个请求从接收到处理完成整个生命周期的跟踪路径，一次请求通常过经过N个系统，因此也被称为分布式链路追踪</li>
 <li>Metrics：例如cpu、请求延迟、用户访问数等Counter、Gauge、Histogram指标</li>
 <li>Logging：传统的日志，提供精确的系统记录</li>
 </ul>
@@ -170,7 +171,7 @@
 <li>根据模块的日志最终定位到错误详情和根源</li>
 <li>调整Metrics等设置，更精确的告警/发现问题</li>
 </ol>
-<p><strong>该如何融合？</strong></p>
+<h2 id="该如何融合"><strong>该如何融合？</strong></h2>
 <p>在以往对APM的理解中，这三者都是完全独立的，但是随着时间的推移，人们逐步发现了三者之间的关联，例如我们可以把Tracing的TraceID打到Logging的日志中，这样可以把分布式链路跟踪和日志关联到一起，彼此数据互通，但是还存在以下问题：</p>
 <ol>
 <li>如何把Metrics和其他两者关联起来</li>
@@ -184,7 +185,7 @@
 <li>多种维度的关联基于元信息(标签)实现，元信息由业务确定，例如：通过Env来区别是测试还是生产环境等</li>
 <li>提供分布式的Context传播方式，例如通过W3C的traceparent/tracestate头、GRPC协议等</li>
 </ul>
-<h2 id="编写简单示例">编写简单示例</h2>
+<h2 id="简单示例">简单示例</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
