@@ -1,5 +1,5 @@
 ---
-title: "Prometheus"
+title: "Prometheus简单使用"
 date: 2022-08-24T15:11:03+08:00
 tags: ["k8s"]
 ---
@@ -217,7 +217,9 @@ http://192.168.50.40:32127/metrics
 
 ## 创建ServiceMonitor
 
-要注意label名,port名要和metrics的svc信息对应
+一个业务pod通过exporter生成metrics svc,再由ServiceMonitor通过标签和port名筛选找到,operator会把这个信息转化成相应的prometheus配置文件
+
+<img src="http://inksnw.asuscomm.com:3001/blog/prometheus_e8a23cc25c96c0bc0f620b7f48fd4208.png" alt="prometheus-architecture" style="zoom:50%;" />
 
 ```yaml
 kind: ServiceMonitor
@@ -237,13 +239,13 @@ spec:
 >
 > spec.endpoints.interval：30s 每隔30秒获取一次信息
 >
-> spec.endpoints.port: http-metrics 对应Service的端口名称，在service资源中的spec.ports.name中定义。
+> spec.endpoints.port: http-metrics:  对应Service的端口名称，在service资源中的spec.ports.name中定义。
 >
-> spec.namespaceSelector.matchNames: 匹配某名称空间的service，如果要从所有名称空间中匹配用any: true
+> spec.namespaceSelector.matchNames:  匹配某名称空间的service，如果要从所有名称空间中匹配用any: true
 >
-> spec.selector.matchLabels: 匹配Service的标签，多个标签为“与”关系
+> spec.selector.matchLabels:  匹配Service的标签，多个标签为“与”关系
 >
-> spec.selector.matchExpressions: 匹配Service的标签，多个标签是“或”关系
+> spec.selector.matchExpressions:  匹配Service的标签，多个标签是“或”关系
 
 转发服务
 

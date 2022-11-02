@@ -42,7 +42,7 @@ http://inksnw.asuscomm.com:3000/inksnw/myotel
 
 ## 安装Jaeger
 
-下载`all in one `包
+下载`all in one `包约100M
 
 https://www.jaegertracing.io/download/
 
