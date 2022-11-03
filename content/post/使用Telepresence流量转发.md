@@ -116,13 +116,13 @@ demo: intercepted
     Intercepting           : all TCP requests
 ```
 
-查看pod信息
+劫持以后, 会新建一个pod替换掉原来的,在新的Pod中会多一个 `traffic-agent` 的容器,对流量进行拦截
 
 ```bash
 # 原信息
 NAME                  READY   STATUS    RESTARTS   AGE
 demo-859dc84b-9q9nn   1/1     Running   0          2m25s
-# 劫持以后, pod新建一个,在新的Pod中会多一个 traffic-agent 的容器,对流量进行拦截
+# 新信息
 NAME                    READY   STATUS    RESTARTS   AGE
 demo-69949dbc65-p9qvk   2/2     Running   0          35s
 ```
