@@ -51,8 +51,10 @@ $ etcdctl lease revoke  694d84416f12f026
 lease 694d84416f12f026 revoked
 # 保持租约始终存活, 会挂起在命令行,自动续期
 $ etcdctl lease keep-alive xxxxx
-# 把key和租约关联
+# 把key和租约关联,一旦租约过期，或被删掉,key就没了
 $ etcdctl put /user inksnw --lease=xxxxxooo 
+# 查看该租约下的所有key
+etcdctl lease timetolive   xxxxxxx --keys 
 ```
 
 
