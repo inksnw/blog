@@ -44,7 +44,7 @@ services:
     image: docker.io/bitnami/etcd:3.5
     container_name: etcd0
     ports:
-      - "23800:2380" #前宿主后容器
+      - "23800:2380" #宿主:容器
       - "23790:2379"
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
@@ -55,7 +55,7 @@ services:
       - ETCD_ADVERTISE_CLIENT_URLS=http://192.168.1.105:23790 #通知其他节点，客户端接入本节点的监听地址
       - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd0:2380 #通知其他节点与本节点进行数据交换的地址
       - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster #集群唯一标识
-      - ETCD_INITIAL_CLUSTER=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380 #集群所有节点配置，逗号分隔
+      - ETCD_INITIAL_CLUSTER=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380 #集群所有节点
       - ETCD_INITIAL_CLUSTER_STATE=new #new-不存在对应集群时创建新集群，existing-不存在对应集群时节点创建失败
  
   etcd1:
