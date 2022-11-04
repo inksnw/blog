@@ -150,6 +150,7 @@ $ ipvsadm -S -n | grep 10.233.63.220
 当我们创建Service之后，kube-proxy 首先会在宿主机上创建一个虚拟网卡（叫作：kube-ipvs0），并为它 **增加** 一个 Service VIP 作为 IP 地址，如下所示：`10.233.63.220` 是我们demo服务的ip, `10.233.0.1` 和 `10.233.0.3` 分别是 kubernetes 和 coredns 的ip
 
 ```bash
+$ ip addr show kube-ipvs0
 4: kube-ipvs0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default 
     link/ether d6:03:0d:92:93:c5 brd ff:ff:ff:ff:ff:ff
     inet 10.233.63.220/32 scope global kube-ipvs0
