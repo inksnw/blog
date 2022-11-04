@@ -4,7 +4,7 @@ date: 2022-11-04T15:12:02+08:00
 tags: ["k8s"]
 ---
 
-mac安装
+## 单机安装与使用
 
 ```bash
 brew install etcd
@@ -12,7 +12,7 @@ brew services list
 brew services etcd
 ```
 
-命令行使用
+查看信息
 
 ```bash
 $ etcdctl version
@@ -31,6 +31,31 @@ etcdctl get /user/101/name
 # 前缀查看
 etcdctl get /user/101  --prefix
 ```
+
+租约
+
+```bash
+# 设置了两个租约
+$ etcdctl lease grant 20
+$ etcdctl lease grant 30
+# 查看租约列表
+$ etcdctl lease list
+found 2 leases
+694d84416f12f020
+694d84416f12f022
+# 查看信息（剩余时间）
+$ etcdctl lease timetolive 694d84416f12f026
+lease 694d84416f12f026 granted with TTL(30s), remaining(5s)
+# 删除租约 
+$ etcdctl lease revoke  694d84416f12f026
+lease 694d84416f12f026 revoked
+# 保持租约始终存活, 会挂起在命令行,自动续期
+$ etcdctl lease keep-alive xxxxx
+# 把key和租约关联
+$ etcdctl put /user inksnw --lease=xxxxxooo 
+```
+
+
 
 ## 集群版安装
 
