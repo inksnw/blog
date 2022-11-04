@@ -142,7 +142,7 @@ etcdctl --endpoints http://192.168.50.231:23790 member list
 
 ## confd使用
 
-### 安装confd
+安装confd
 
 源仓库最近2018年就不再更新了,这个[fork ](https://github.com/abtreece/confd)还在更新, 但现在都是 k8s 的天下了,有 configMap 还要啥自行车
 
@@ -153,9 +153,7 @@ mkdir -p /etc/confd/{conf.d,templates}
 confd -watch -backend etcd -node http://127.0.0.1:2379
 ```
 
-### 放置toml
-
-放到 `/etc/confd/conf.d/test.toml`
+编辑文件  `/etc/confd/conf.d/test.toml`
 
 ```toml
 [template]
@@ -168,9 +166,7 @@ keys = [
 reload_cmd = "echo 'this is test reload'"
 ```
 
-### 放置tmpl
-
-放到 `/etc/confd/templates/my-toml.tmpl`
+编辑文件  `/etc/confd/templates/my-toml.tmpl`
 
 ```yaml
 {{with get "/deleting-hosts/node-tikv"}}
