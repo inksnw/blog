@@ -9,7 +9,7 @@ tags: ["etcd"]
 ```bash
 brew install etcd
 brew services list
-brew services etcd
+brew services start etcd
 ```
 
 查看信息
