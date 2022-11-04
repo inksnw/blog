@@ -1,10 +1,10 @@
 ---
-title: "Etcd简单使用"
+title: "Etcd与confd简单使用"
 date: 2022-11-04T15:12:02+08:00
-tags: ["k8s"]
+tags: ["etcd"]
 ---
 
-## 单机安装与使用
+## etcd单机安装与使用
 
 ```bash
 brew install etcd
@@ -57,9 +57,7 @@ $ etcdctl put /user inksnw --lease=xxxxxooo
 etcdctl lease timetolive   xxxxxxx --keys 
 ```
 
-
-
-## 集群版安装
+## etcd集群版安装
 
 创建 docker-compose文件
 
@@ -142,3 +140,56 @@ $ etcdctl -w table --endpoints=etcd0:2379,etcd1:2379,etcd2:2379 endpoint status
 etcdctl --endpoints http://192.168.50.231:23790 member list
 ```
 
+## confd使用
+
+### 安装confd
+
+源仓库最近2018年就不再更新了,这个[fork ](https://github.com/abtreece/confd)还在更新, 但现在都是 k8s 的天下了,有 configMap 还要啥自行车
+
+```bash
+# 创建confdir
+mkdir -p /etc/confd/{conf.d,templates}
+# 启动
+confd -watch -backend etcd -node http://127.0.0.1:2379
+```
+
+### 放置toml
+
+放到 `/etc/confd/conf.d/test.toml`
+
+```toml
+[template]
+src = "my-toml.tmpl"
+dest = "/Users/nuc/Desktop/test.sh"
+mode = "0777"
+keys = [
+    "/",
+]
+reload_cmd = "echo 'this is test reload'"
+```
+
+### 放置tmpl
+
+放到 `/etc/confd/templates/my-toml.tmpl`
+
+```yaml
+{{with get "/deleting-hosts/node-tikv"}}
+    key: {{base .Key}}
+    value: {{.Value}}
+{{end}}
+```
+
+向etcd更新数据
+
+```bash
+etcdctl  put /deleting-hosts/node-tikv foo1
+```
+
+当etcd中的值变动,confd会根据**templates**下配置的模板自动更新**conf.d**中配置的目标文件
+
+```bash
+$ cat /Users/nuc/Desktop/test.sh
+
+    key: node-tikv
+    value: foo1
+```
