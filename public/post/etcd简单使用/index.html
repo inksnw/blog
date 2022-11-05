@@ -26,7 +26,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.104.3 with theme even" />
+<meta name="generator" content="Hugo 0.105.0 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/etcd%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" />
@@ -48,12 +48,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/etcd%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-11-04T15:12:02+08:00" />
-<meta property="article:modified_time" content="2022-11-04T19:20:30+08:00" />
+<meta property="article:modified_time" content="2022-11-04T15:12:02+08:00" />
 
 <meta itemprop="name" content="Etcd与confd简单使用">
 <meta itemprop="description" content="etcd单机安装与使用 1 2 3 brew install etcd brew services list brew services start etcd 查看信息 1 2 3 $ etcdctl version etcdctl version: 3.5.5 API version: 3.5 创建资源操作 1 2 3 4 5 6 7 # 创建 etcdctl put /user/101/name inksnw etcdctl put /user/101/age 19 # 查看 etcdctl get /user/101/name"><meta itemprop="datePublished" content="2022-11-04T15:12:02+08:00" />
-<meta itemprop="dateModified" content="2022-11-04T19:20:30+08:00" />
-<meta itemprop="wordCount" content="903">
+<meta itemprop="dateModified" content="2022-11-04T15:12:02+08:00" />
+<meta itemprop="wordCount" content="1041">
 <meta itemprop="keywords" content="etcd," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Etcd与confd简单使用"/>
 <meta name="twitter:description" content="etcd单机安装与使用 1 2 3 brew install etcd brew services list brew services start etcd 查看信息 1 2 3 $ etcdctl version etcdctl version: 3.5.5 API version: 3.5 创建资源操作 1 2 3 4 5 6 7 # 创建 etcdctl put /user/101/name inksnw etcdctl put /user/101/age 19 # 查看 etcdctl get /user/101/name"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-11-04 </span>
             
-            <span class="more-meta"> 约 903 字 更新于 2022-11-04
+            <span class="more-meta"> 约 1041 字 更新于 2022-11-04
               <a class="article-tags" href=/tags/etcd/>etcd</a>
                 </span>
             
@@ -145,6 +145,7 @@
     <li>
       <ul>
         <li><a href="#etcd单机安装与使用">etcd单机安装与使用</a></li>
+        <li><a href="#代码操作">代码操作</a></li>
         <li><a href="#etcd集群版安装">etcd集群版安装</a></li>
         <li><a href="#confd使用">confd使用</a></li>
       </ul>
@@ -248,6 +249,60 @@
 </span></span><span class="line"><span class="cl">$ etcdctl put /user inksnw --lease<span class="o">=</span>xxxxxooo 
 </span></span><span class="line"><span class="cl"><span class="c1"># 查看该租约下的所有key</span>
 </span></span><span class="line"><span class="cl">etcdctl lease timetolive   xxxxxxx --keys 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="代码操作">代码操作</h2>
+<p>在 etcd v3 中，为了解决 etcd v2 的以上缺陷，使用的是基于 HTTP/2 的 gRPC 协议，双向流的 Watch API 设计，实现了连接多路复用。</p>
+<p>发生变化时会通过grpc主动推送事件</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/etcd简单使用_072628a3341b0dab6f443ce2f003c0ca.png" alt="image-20221105194741685" style="zoom:50%;" />
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;go.etcd.io/etcd/client/v3&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">config</span> <span class="o">:=</span> <span class="nx">clientv3</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Endpoints</span><span class="p">:</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;127.0.0.1:2379&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">client</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">clientv3</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">watchChan</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nx">Watcher</span><span class="p">.</span><span class="nf">Watch</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="s">&#34;/user/101/name&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">watchChan</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">item</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">i</span><span class="p">.</span><span class="nx">Events</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s: %s \n&#34;</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nx">Kv</span><span class="p">.</span><span class="nx">Key</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nx">Kv</span><span class="p">.</span><span class="nx">Value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="etcd集群版安装">etcd集群版安装</h2>

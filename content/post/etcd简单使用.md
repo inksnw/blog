@@ -57,6 +57,39 @@ $ etcdctl put /user inksnw --lease=xxxxxooo
 etcdctl lease timetolive   xxxxxxx --keys 
 ```
 
+## 代码操作
+
+在 etcd v3 中，为了解决 etcd v2 的以上缺陷，使用的是基于 HTTP/2 的 gRPC 协议，双向流的 Watch API 设计，实现了连接多路复用。
+
+发生变化时会通过grpc主动推送事件
+
+<img src="http://inksnw.asuscomm.com:3001/blog/etcd简单使用_072628a3341b0dab6f443ce2f003c0ca.png" alt="image-20221105194741685" style="zoom:50%;" />
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"go.etcd.io/etcd/client/v3"
+)
+
+func main() {
+	config := clientv3.Config{
+		Endpoints: []string{"127.0.0.1:2379"},
+	}
+	client, _ := clientv3.New(config)
+
+	watchChan := client.Watcher.Watch(context.Background(), "/user/101/name")
+
+	for i := range watchChan {
+		for _, item := range i.Events {
+			fmt.Printf("%s: %s \n", item.Kv.Key, item.Kv.Value)
+		}
+	}
+}
+```
+
 ## etcd集群版安装
 
 创建 docker-compose文件
