@@ -74,7 +74,7 @@ cephosd: skipping OSD configuration as no devices matched the storage settings f
 
 显示没有在`node3`上发现匹配的`devices`,查看文档 [OSD pods are not created on my devices](https://rook.io/docs/rook/v1.10/Troubleshooting/ceph-common-issues/#osd-pods-are-not-created-on-my-devices) 发现需要在`cluster.yaml`中配置磁盘相关的信息
 
-在kvm界面上给三台节点添加硬盘,推荐一个kvm管理界面 https://cockpit-project.org/
+在kvm界面上给三台节点添加硬盘,推荐一个kvm管理工具,很好用 https://cockpit-project.org/
 
 进入主机查看磁盘信息,看到新加的磁盘叫 `/dev/vdb`
 
@@ -110,7 +110,7 @@ spec:
 kubectl apply -f pool.yaml 
 ```
 
-### 创建一个StorageClass
+### 创建StorageClass
 
 ```yaml
 apiVersion: storage.k8s.io/v1
