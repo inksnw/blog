@@ -53,7 +53,7 @@
 <meta itemprop="name" content="同步上游代码">
 <meta itemprop="description" content="参考自 https://www.xiadmin.com/39250 原仓库又称为上游仓库，当我们在 GitHub 或者码云上 fork 出一个仓库后, 原仓库可能会有各种提交以及修改 如果原仓库更新了,此时怎样才能保证我们 fork 出来"><meta itemprop="datePublished" content="2022-09-21T15:01:41+08:00" />
 <meta itemprop="dateModified" content="2022-09-21T15:01:41+08:00" />
-<meta itemprop="wordCount" content="410">
+<meta itemprop="wordCount" content="334">
 <meta itemprop="keywords" content="git," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="同步上游代码"/>
 <meta name="twitter:description" content="参考自 https://www.xiadmin.com/39250 原仓库又称为上游仓库，当我们在 GitHub 或者码云上 fork 出一个仓库后, 原仓库可能会有各种提交以及修改 如果原仓库更新了,此时怎样才能保证我们 fork 出来"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-09-21 </span>
             
-            <span class="more-meta"> 约 410 字 更新于 2022-09-21
+            <span class="more-meta"> 约 334 字 更新于 2022-09-21
               <a class="article-tags" href=/tags/git/>git</a>
                 </span>
             
@@ -161,34 +161,18 @@
 <p>如果原仓库更新了,此时怎样才能保证我们 fork 出来的仓库和原仓库内容一致呢</p>
 <h2 id="配置上游仓库源">配置上游仓库源</h2>
 <ul>
-<li>给 fork 配置一个 remote</li>
-<li>主要使用 git remote -v 查看远程状态。</li>
-</ul>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git remote -v
-</span></span><span class="line"><span class="cl"><span class="c1"># origin  https://github.com/xiadmin/test.git (fetch)</span>
-</span></span><span class="line"><span class="cl"><span class="c1"># origin  https://github.com/xiadmin/test.git (push)</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ul>
-<li>添加一个将被同步给 fork 远程的上游仓库</li>
+<li>添加一个上游仓库</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git remote add upstream https://github.com/new_xiadmin/test.git 
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git remote add myupstream https://github.com/kubesphere/kse-installer
 </span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
-<li>再次查看状态确认是否配置成功。</li>
+<li>再次查看状态。</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -200,15 +184,15 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git remote -v
-</span></span><span class="line"><span class="cl">origin     https://github.com/xiadmin/test.git <span class="o">(</span>fetch<span class="o">)</span>
-</span></span><span class="line"><span class="cl">origin     https://github.com/xiadmin/test.git <span class="o">(</span>push<span class="o">)</span>
-</span></span><span class="line"><span class="cl">upstream   https://github.com/base_xiadmin/test.git <span class="o">(</span>fetch<span class="o">)</span>
-</span></span><span class="line"><span class="cl">upstream   https://github.com/base_xiadmin/test.git <span class="o">(</span>push<span class="o">)</span>
+</span></span><span class="line"><span class="cl">myupstream      https://github.com/kubesphere/kse-installer <span class="o">(</span>fetch<span class="o">)</span>
+</span></span><span class="line"><span class="cl">myupstream      https://github.com/kubesphere/kse-installer <span class="o">(</span>push<span class="o">)</span>
+</span></span><span class="line"><span class="cl">origin  				https://github.com/inksnw/kse-installer.git <span class="o">(</span>fetch<span class="o">)</span>
+</span></span><span class="line"><span class="cl">origin  				https://github.com/inksnw/kse-installer.git <span class="o">(</span>push<span class="o">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="同步上游仓库代码">同步上游仓库代码</h2>
 <ul>
-<li>从上游仓库 fetch 分支和提交点，传送到本地，并会被存储在一个本地分支 upstream/master</li>
+<li>从上游仓库 fetch 分支和提交点，传送到本地</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -220,7 +204,7 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git fetch upstream
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git fetch myupstream
 </span></span><span class="line"><span class="cl">remote: Enumerating objects: 22, <span class="k">done</span>.remote: Counting objects: 100% <span class="o">(</span>22/22<span class="o">)</span>, <span class="k">done</span>.
 </span></span><span class="line"><span class="cl">remote: Compressing objects: 100% <span class="o">(</span>13/13<span class="o">)</span>, <span class="k">done</span>.
 </span></span><span class="line"><span class="cl">remote: Total <span class="m">14</span> <span class="o">(</span>delta 9<span class="o">)</span>, reused <span class="m">0</span> <span class="o">(</span>delta 0<span class="o">)</span>, pack-reused <span class="m">0</span>
@@ -251,7 +235,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="推送">推送</h2>
-<p>向自己fork的仓库执行 <code>git push</code> 时,会提示需要先执行 <code>git pull</code> 这时本地就会再产生一次merge提交(原因暂不清楚),尝试直接 <code>git push -f</code> 结果正常</p>
+<p>向自己fork的仓库执行 <code>git push</code> 时,会提示需要先执行 <code>git pull</code> 这时本地就会再产生一次merge提交,直接 <code>git push -f</code> 结果正常</p>
 
     </div>
 
