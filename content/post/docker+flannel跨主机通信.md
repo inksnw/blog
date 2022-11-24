@@ -1,7 +1,7 @@
 ---
 title: "Docker+flannel跨主机通信"
 date: 2022-11-24T19:43:57+08:00
-draft: true
+tags: ["k8s"]
 ---
 
 ## 安装ETCD
