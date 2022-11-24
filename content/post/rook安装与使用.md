@@ -57,7 +57,7 @@ kubectl port-forward svc/rook-ceph-mgr-dashboard 8443:8443 -n rook-ceph --addres
 kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
 ```
 
-![image-20221117112105162](/Users/inksnw/Library/Application Support/typora-user-images/image-20221117112105162.png)
+
 
 ## 配置OSD
 
