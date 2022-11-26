@@ -219,9 +219,9 @@ static_resources:
         sni: www.baidu.com
 ```
 如果出现以下报错,是说 `envoy.filters.http.router` 这个filter必须放到`http_filters`列表的最后一个
-> ```html
+> 
 > Error: terminal filter named envoy.filters.http.router of type envoy.filters.http.router must be the last filter in a http filter chain.
-> ```
+> 
 
 重新启动访问测试
 
