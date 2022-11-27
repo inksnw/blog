@@ -76,6 +76,12 @@ static_resources:
         sni: www.baidu.com
 ```
 
+envoy配置结构
+
+<img src="http://inksnw.asuscomm.com:3001/blog/使用rust编写envoy扩展_1310473275110bfc967ed40c84d75284.png" alt="20200504160047" style="zoom: 67%;" />
+
+
+
 启动访问 主机的`10000` 端口,发现请求被转发到了百度
 
 ```
