@@ -158,7 +158,7 @@ br-23de81e9cde3         8000.02421e76cdbe       no              veth818c3b2
 docker0         				8000.0242574058ec       no
 ```
 
-### 创建VXLAN接口接入docker网桥
+创建VXLAN接口接入docker网桥
 
 ```bash
 # 两台主机,创建vxlan并搭在网桥上
