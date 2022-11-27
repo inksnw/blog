@@ -6,6 +6,8 @@ tags: ["k8s"]
 
 # vxlan
 
+VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络
+
 ```bash
 docker run --name ngx1 -p 8080:80 --privileged -d nginx
 docker exec -it ngx1 sh -c "echo ngx1 >/usr/share/nginx/html/index.html"
@@ -13,7 +15,9 @@ docker run --name ngx1 -p 8080:80 --privileged -d nginx
 docker exec -it ngx1 sh -c "echo ngx2 >/usr/share/nginx/html/index.html"
 ```
 
-点对点模式
+## 点对点模式
+
+![vxlan.drawio](http://inksnw.asuscomm.com:3001/blog/vxlan使用_6017f9a085ac01c69fa6ff45825a4bee.svg)
 
 ```bash
 # 在A机器上

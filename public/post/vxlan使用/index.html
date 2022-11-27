@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="vxlan 1 2 3 4 docker run --name ngx1 -p 8080:80 --privileged -d nginx docker exec -it ngx1 sh -c &amp;#34;echo ngx1 &amp;gt;/usr/share/nginx/html/index.html&amp;#34; docker run --name ngx1 -p 8080:80 --privileged -d nginx docker exec -it ngx1 sh -c &amp;#34;echo ngx2 &amp;gt;/usr/share/nginx/html/index.html&amp;#34; 点对点模式 1 2 3 4 5 # 在A机器上 ip link add vxlan0 type vxlan id 120 dstport 4789 remote 192.168.50.41 local" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 1 2 3 4 docker run --name" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,19 +44,19 @@
 
 
 <meta property="og:title" content="Vxlan使用" />
-<meta property="og:description" content="vxlan 1 2 3 4 docker run --name ngx1 -p 8080:80 --privileged -d nginx docker exec -it ngx1 sh -c &#34;echo ngx1 &gt;/usr/share/nginx/html/index.html&#34; docker run --name ngx1 -p 8080:80 --privileged -d nginx docker exec -it ngx1 sh -c &#34;echo ngx2 &gt;/usr/share/nginx/html/index.html&#34; 点对点模式 1 2 3 4 5 # 在A机器上 ip link add vxlan0 type vxlan id 120 dstport 4789 remote 192.168.50.41 local" />
+<meta property="og:description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 1 2 3 4 docker run --name" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/vxlan%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-05-25T11:05:09+08:00" />
 <meta property="article:modified_time" content="2022-05-25T11:05:09+08:00" />
 
 <meta itemprop="name" content="Vxlan使用">
-<meta itemprop="description" content="vxlan 1 2 3 4 docker run --name ngx1 -p 8080:80 --privileged -d nginx docker exec -it ngx1 sh -c &#34;echo ngx1 &gt;/usr/share/nginx/html/index.html&#34; docker run --name ngx1 -p 8080:80 --privileged -d nginx docker exec -it ngx1 sh -c &#34;echo ngx2 &gt;/usr/share/nginx/html/index.html&#34; 点对点模式 1 2 3 4 5 # 在A机器上 ip link add vxlan0 type vxlan id 120 dstport 4789 remote 192.168.50.41 local"><meta itemprop="datePublished" content="2022-05-25T11:05:09+08:00" />
+<meta itemprop="description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 1 2 3 4 docker run --name"><meta itemprop="datePublished" content="2022-05-25T11:05:09+08:00" />
 <meta itemprop="dateModified" content="2022-05-25T11:05:09+08:00" />
-<meta itemprop="wordCount" content="463">
+<meta itemprop="wordCount" content="525">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Vxlan使用"/>
-<meta name="twitter:description" content="vxlan 1 2 3 4 docker run --name ngx1 -p 8080:80 --privileged -d nginx docker exec -it ngx1 sh -c &#34;echo ngx1 &gt;/usr/share/nginx/html/index.html&#34; docker run --name ngx1 -p 8080:80 --privileged -d nginx docker exec -it ngx1 sh -c &#34;echo ngx2 &gt;/usr/share/nginx/html/index.html&#34; 点对点模式 1 2 3 4 5 # 在A机器上 ip link add vxlan0 type vxlan id 120 dstport 4789 remote 192.168.50.41 local"/>
+<meta name="twitter:description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 1 2 3 4 docker run --name"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-05-25 </span>
             
-            <span class="more-meta"> 约 463 字 更新于 2022-05-25
+            <span class="more-meta"> 约 525 字 更新于 2022-05-25
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -142,7 +142,11 @@
     <div class="post-toc-content always-active">
         <nav id="TableOfContents">
   <ul>
-    <li><a href="#vxlan">vxlan</a></li>
+    <li><a href="#vxlan">vxlan</a>
+      <ul>
+        <li><a href="#点对点模式">点对点模式</a></li>
+      </ul>
+    </li>
     <li><a href="#容器跨主机互通">容器跨主机互通</a></li>
   </ul>
 </nav>
@@ -152,6 +156,7 @@
     
     <div class="post-content">
         <h1 id="vxlan">vxlan</h1>
+<p>VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -166,7 +171,8 @@
 </span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it ngx1 sh -c <span class="s2">&#34;echo ngx2 &gt;/usr/share/nginx/html/index.html&#34;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>点对点模式</p>
+</div><h2 id="点对点模式">点对点模式</h2>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/vxlan%E4%BD%BF%E7%94%A8_6017f9a085ac01c69fa6ff45825a4bee.svg" alt="vxlan.drawio"></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
