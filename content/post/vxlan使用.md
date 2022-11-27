@@ -8,13 +8,6 @@ tags: ["k8s"]
 
 VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络
 
-```bash
-docker run --name ngx1 -p 8080:80 --privileged -d nginx
-docker exec -it ngx1 sh -c "echo ngx1 >/usr/share/nginx/html/index.html"
-docker run --name ngx1 -p 8080:80 --privileged -d nginx
-docker exec -it ngx1 sh -c "echo ngx2 >/usr/share/nginx/html/index.html"
-```
-
 ## 点对点模式
 
 <img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_55abc651d2676d86057d5a780c071c3c.jpg" alt="vxlan" style="zoom:50%;" />
@@ -91,10 +84,11 @@ tcpdump -i enp1s0 host 192.168.50.29 -s0 -v -w vxlan.pcap
 
 ## 广播模式
 
+过arp泛洪来学习mac地址,即在vxlan子网内广播arp请求,对应节点响应.group指定多播组的地址,group的值保持一致就可以,有一定范围要求
+
 ```bash
 # 在A机器上
 ip link delete vxlan0
-# 通过arp泛洪来学习mac地址,即在vxlan子网内广播arp请求,对应节点响应.group指定多播组的地址
 ip link add vxlan0 type vxlan id 120 dstport 4789 group 229.1.1.1 dev enp1s0
 ip addr add 10.16.0.2/24 dev vxlan0
 ip link set vxlan0 up 
@@ -103,34 +97,94 @@ ip link set vxlan0 up
 ```bash
 # 在A机器上
 ip link delete vxlan0
-# 通过arp泛洪来学习mac地址,即在vxlan子网内广播arp请求,对应节点响应.group指定多播组的地址
 ip link add vxlan0 type vxlan id 120 dstport 4789 group 229.1.1.1 dev enp1s0
 ip addr add 10.16.0.3/24 dev vxlan0
 ip link set vxlan0 up 
 ```
 
-# 容器跨主机互通
+## 容器跨主机互通
+
+清理掉两台主机在上文中的vxlan0
+
+```
+ip link delete vxlan0
+```
+安装了docker后，可以看到多了一个docker0的网络接口，默认在172.17.0.0/16网段。这个是连接本地多个容器的网桥。
+
+在两台主机上创建一个自定义网络，指定网段10.17.0.0/24。
 
 ```bash
-#新建网桥,两台主机
-docker network create --driver=bridge --subnet=10.16.0.0/24 mylan
+docker network create --driver=bridge --subnet=10.17.0.0/24 mylan
+```
+
+利用`docker network ls`查看，可以看到一个新的bridge网络被创建，名称为mylan。
+
+```bash
+$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+6386f405d676   bridge    bridge    local
+28ac27a849f8   host      host      local
+23de81e9cde3   mylan     bridge    local
+fbb68e5e1225   none      null      local
+```
+
+利用`ip addr`可以看到多了一个网络接口，名字不是dockerXX，而直接以br开头，是一个网桥。
+
+用`brctl show`查看
+
+```bash
+$ brctl show
+bridge name     				bridge id               STP enabled     interfaces
+br-23de81e9cde3         8000.02421e76cdbe       no
+docker0         				8000.0242574058ec       no
+```
+
+分别创建docker容器
+
+```bash
 # A机器
-docker run --name ngx1 --network=mylan --ip 10.6.0.8 nginx
+docker run -d --name ngx1 --network=mylan --ip 10.17.0.8 nginx
 docker exec -it ngx1 sh -c "echo ngx1 >/usr/share/nginx/html/index.html"
 # B机器
-docker run --name ngx1 --network=mylan --ip 10.6.0.9 nginx
+docker run -d --name ngx1 --network=mylan --ip 10.17.0.9 nginx
 docker exec -it ngx1 sh -c "echo ngx2 >/usr/share/nginx/html/index.html"
 ```
+此时查看`brctl show`可以看到有一个`veth818c3b2`设备已经连接到了网桥上
+
+```bash
+$ root@base:~# brctl show
+bridge name     				bridge id               STP enabled     interfaces
+br-23de81e9cde3         8000.02421e76cdbe       no              veth818c3b2
+docker0         				8000.0242574058ec       no
+```
+
+### 创建VXLAN接口接入docker网桥
 
 ```bash
 # 两台主机,创建vxlan并搭在网桥上
 ip link add vxlan0 type vxlan id 120 dstport 4789 group 229.1.1.1 dev enp1s0
-brctl addif br-xxxx vxlan0
+brctl addif br-e4c356e71cd0 vxlan0
 ip link set vxlan0 up 
 ```
+查看网桥信息,可以看到`br-23de81e9cde3`网桥上接了vxlan 端和docker容器网卡端
+```bash
+$ brctl show
+bridge name     				bridge id               STP enabled     interfaces
+br-23de81e9cde3         8000.02421e76cdbe       no              veth818c3b2
+                                                        				vxlan0
+docker0         				8000.0242574058ec       no
+```
+
+此时的网络拓扑
+
+<img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_e3661f8f12dff2de75b4b064fa116bce.jpg" alt="vxlan docker" style="zoom:50%;" />
+
+有了VXLAN接口的连接后，从vm1上docker容器发出的包到达docker网桥后，可以从网桥的VXLAN接口出去，从而报文在VETP(VXLAN接口)处被封装成VXLAN报文，再从物理网络上到达对端VETP所在的主机vm2。对端VTEP能正确解包VXLAN报文的话，随后即可将报文通过vm2上的docker网桥送到上层的docker容器中。
+
 
 ```bash
 # 从A主机容器访问B主机容器
-docker exec -it ngx1 curl 10.16.0.9
+$ docker exec -it ngx1 curl 10.17.0.9
+ngx2
 ```
 

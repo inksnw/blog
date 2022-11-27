@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 1 2 3 4 docker run --name" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 点对点模式 在逻" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,19 +44,19 @@
 
 
 <meta property="og:title" content="Vxlan使用" />
-<meta property="og:description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 1 2 3 4 docker run --name" />
+<meta property="og:description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 点对点模式 在逻" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/vxlan%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-05-25T11:05:09+08:00" />
 <meta property="article:modified_time" content="2022-05-25T11:05:09+08:00" />
 
 <meta itemprop="name" content="Vxlan使用">
-<meta itemprop="description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 1 2 3 4 docker run --name"><meta itemprop="datePublished" content="2022-05-25T11:05:09+08:00" />
+<meta itemprop="description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 点对点模式 在逻"><meta itemprop="datePublished" content="2022-05-25T11:05:09+08:00" />
 <meta itemprop="dateModified" content="2022-05-25T11:05:09+08:00" />
-<meta itemprop="wordCount" content="1522">
+<meta itemprop="wordCount" content="2063">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Vxlan使用"/>
-<meta name="twitter:description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 1 2 3 4 docker run --name"/>
+<meta name="twitter:description" content="vxlan VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络 点对点模式 在逻"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-05-25 </span>
             
-            <span class="more-meta"> 约 1522 字 更新于 2022-05-25
+            <span class="more-meta"> 约 2063 字 更新于 2022-05-25
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -146,9 +146,13 @@
       <ul>
         <li><a href="#点对点模式">点对点模式</a></li>
         <li><a href="#广播模式">广播模式</a></li>
+        <li><a href="#容器跨主机互通">容器跨主机互通</a>
+          <ul>
+            <li><a href="#创建vxlan接口接入docker网桥">创建VXLAN接口接入docker网桥</a></li>
+          </ul>
+        </li>
       </ul>
     </li>
-    <li><a href="#容器跨主机互通">容器跨主机互通</a></li>
   </ul>
 </nav>
     </div>
@@ -158,21 +162,7 @@
     <div class="post-content">
         <h1 id="vxlan">vxlan</h1>
 <p>VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run --name ngx1 -p 8080:80 --privileged -d nginx
-</span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it ngx1 sh -c <span class="s2">&#34;echo ngx1 &gt;/usr/share/nginx/html/index.html&#34;</span>
-</span></span><span class="line"><span class="cl">docker run --name ngx1 -p 8080:80 --privileged -d nginx
-</span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it ngx1 sh -c <span class="s2">&#34;echo ngx2 &gt;/usr/share/nginx/html/index.html&#34;</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h2 id="点对点模式">点对点模式</h2>
+<h2 id="点对点模式">点对点模式</h2>
 <img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_55abc651d2676d86057d5a780c071c3c.jpg" alt="vxlan" style="zoom:50%;" />
 <p>在逻辑上形成的VXLAN overlay网络环境如上图，虚线部分示意出来的Overlay Network和VXLAN Tunnel都是逻辑上的概念。容器不用感知底层物理网络，看起来对端是和自己在同一个二层环境里，就是像是在VTEP设备的上面直接构建了一条VXLAN Tunnel，把Overlay网络里的网络接口直接在二层打通。</p>
 <p>在IP地址分配后，Linux系统的路由表就会创建一条路由，去往<code>10.0.0.0/24</code>网段的报文走网络接口<code>vxlan0</code>出去。vm1上去往10.0.0.0/24的报文，在<code>vxlan0</code>上会做VXLAN封装，内层地址是<code>10.16.0.3</code>，外层地址是<code>192.168.50.29</code>。VXLAN报文通过物理网络达到对端vm2上的VETP vxlan0做VXLAN协议的解封装，从而结束整个过程。</p>
@@ -277,6 +267,7 @@
 </div><p>导入<code>wireshark</code>查看</p>
 <img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_5886c9b8455b9de8ee387a511d7029e4.png" alt="Snipaste_2022-11-27_22-16-24" style="zoom:50%;" />
 <h2 id="广播模式">广播模式</h2>
+<p>过arp泛洪来学习mac地址,即在vxlan子网内广播arp请求,对应节点响应.group指定多播组的地址,group的值保持一致就可以,有一定范围要求</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -284,12 +275,10 @@
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
-</span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 在A机器上</span>
 </span></span><span class="line"><span class="cl">ip link delete vxlan0
-</span></span><span class="line"><span class="cl"><span class="c1"># 通过arp泛洪来学习mac地址,即在vxlan子网内广播arp请求,对应节点响应.group指定多播组的地址</span>
 </span></span><span class="line"><span class="cl">ip link add vxlan0 <span class="nb">type</span> vxlan id <span class="m">120</span> dstport <span class="m">4789</span> group 229.1.1.1 dev enp1s0
 </span></span><span class="line"><span class="cl">ip addr add 10.16.0.2/24 dev vxlan0
 </span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> vxlan0 up 
@@ -302,18 +291,36 @@
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
-</span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 在A机器上</span>
 </span></span><span class="line"><span class="cl">ip link delete vxlan0
-</span></span><span class="line"><span class="cl"><span class="c1"># 通过arp泛洪来学习mac地址,即在vxlan子网内广播arp请求,对应节点响应.group指定多播组的地址</span>
 </span></span><span class="line"><span class="cl">ip link add vxlan0 <span class="nb">type</span> vxlan id <span class="m">120</span> dstport <span class="m">4789</span> group 229.1.1.1 dev enp1s0
 </span></span><span class="line"><span class="cl">ip addr add 10.16.0.3/24 dev vxlan0
 </span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> vxlan0 up 
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h1 id="容器跨主机互通">容器跨主机互通</h1>
+</div><h2 id="容器跨主机互通">容器跨主机互通</h2>
+<p>清理掉两台主机在上文中的vxlan0</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">ip link delete vxlan0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>安装了docker后，可以看到多了一个docker0的网络接口，默认在172.17.0.0/16网段。这个是连接本地多个容器的网桥。</p>
+<p>在两台主机上创建一个自定义网络，指定网段10.17.0.0/24。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker network create --driver<span class="o">=</span>bridge --subnet<span class="o">=</span>10.17.0.0/24 mylan
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>利用<code>docker network ls</code>查看，可以看到一个新的bridge网络被创建，名称为mylan。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -322,21 +329,68 @@
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#新建网桥,两台主机</span>
-</span></span><span class="line"><span class="cl">docker network create --driver<span class="o">=</span>bridge --subnet<span class="o">=</span>10.16.0.0/24 mylan
-</span></span><span class="line"><span class="cl"><span class="c1"># A机器</span>
-</span></span><span class="line"><span class="cl">docker run --name ngx1 --network<span class="o">=</span>mylan --ip 10.6.0.8 nginx
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ docker network ls
+</span></span><span class="line"><span class="cl">NETWORK ID     NAME      DRIVER    SCOPE
+</span></span><span class="line"><span class="cl">6386f405d676   bridge    bridge    <span class="nb">local</span>
+</span></span><span class="line"><span class="cl">28ac27a849f8   host      host      <span class="nb">local</span>
+</span></span><span class="line"><span class="cl">23de81e9cde3   mylan     bridge    <span class="nb">local</span>
+</span></span><span class="line"><span class="cl">fbb68e5e1225   none      null      <span class="nb">local</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>利用<code>ip addr</code>可以看到多了一个网络接口，名字不是dockerXX，而直接以br开头，是一个网桥。</p>
+<p>用<code>brctl show</code>查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ brctl show
+</span></span><span class="line"><span class="cl">bridge name     				bridge id               STP enabled     interfaces
+</span></span><span class="line"><span class="cl">br-23de81e9cde3         8000.02421e76cdbe       no
+</span></span><span class="line"><span class="cl">docker0         				8000.0242574058ec       no
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>分别创建docker容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># A机器</span>
+</span></span><span class="line"><span class="cl">docker run -d --name ngx1 --network<span class="o">=</span>mylan --ip 10.17.0.8 nginx
 </span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it ngx1 sh -c <span class="s2">&#34;echo ngx1 &gt;/usr/share/nginx/html/index.html&#34;</span>
 </span></span><span class="line"><span class="cl"><span class="c1"># B机器</span>
-</span></span><span class="line"><span class="cl">docker run --name ngx1 --network<span class="o">=</span>mylan --ip 10.6.0.9 nginx
+</span></span><span class="line"><span class="cl">docker run -d --name ngx1 --network<span class="o">=</span>mylan --ip 10.17.0.9 nginx
 </span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it ngx1 sh -c <span class="s2">&#34;echo ngx2 &gt;/usr/share/nginx/html/index.html&#34;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div class="chroma">
+</div><p>此时查看<code>brctl show</code>可以看到有一个<code>veth818c3b2</code>设备已经连接到了网桥上</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ root@base:~# brctl show
+</span></span><span class="line"><span class="cl">bridge name     				bridge id               STP enabled     interfaces
+</span></span><span class="line"><span class="cl">br-23de81e9cde3         8000.02421e76cdbe       no              veth818c3b2
+</span></span><span class="line"><span class="cl">docker0         				8000.0242574058ec       no
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="创建vxlan接口接入docker网桥">创建VXLAN接口接入docker网桥</h3>
+<div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
@@ -346,18 +400,40 @@
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 两台主机,创建vxlan并搭在网桥上</span>
 </span></span><span class="line"><span class="cl">ip link add vxlan0 <span class="nb">type</span> vxlan id <span class="m">120</span> dstport <span class="m">4789</span> group 229.1.1.1 dev enp1s0
-</span></span><span class="line"><span class="cl">brctl addif br-xxxx vxlan0
+</span></span><span class="line"><span class="cl">brctl addif br-e4c356e71cd0 vxlan0
 </span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> vxlan0 up 
 </span></span></code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div class="chroma">
+</div><p>查看网桥信息,可以看到<code>br-23de81e9cde3</code>网桥上接了vxlan 端和docker容器网卡端</p>
+<div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ brctl show
+</span></span><span class="line"><span class="cl">bridge name     				bridge id               STP enabled     interfaces
+</span></span><span class="line"><span class="cl">br-23de81e9cde3         8000.02421e76cdbe       no              veth818c3b2
+</span></span><span class="line"><span class="cl">                                                        				vxlan0
+</span></span><span class="line"><span class="cl">docker0         				8000.0242574058ec       no
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>此时的网络拓扑</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_e3661f8f12dff2de75b4b064fa116bce.jpg" alt="vxlan docker" style="zoom:50%;" />
+<p>有了VXLAN接口的连接后，从vm1上docker容器发出的包到达docker网桥后，可以从网桥的VXLAN接口出去，从而报文在VETP(VXLAN接口)处被封装成VXLAN报文，再从物理网络上到达对端VETP所在的主机vm2。对端VTEP能正确解包VXLAN报文的话，随后即可将报文通过vm2上的docker网桥送到上层的docker容器中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 从A主机容器访问B主机容器</span>
-</span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it ngx1 curl 10.16.0.9
+</span></span><span class="line"><span class="cl">$ docker <span class="nb">exec</span> -it ngx1 curl 10.17.0.9
+</span></span><span class="line"><span class="cl">ngx2
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
