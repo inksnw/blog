@@ -17,25 +17,79 @@ docker exec -it ngx1 sh -c "echo ngx2 >/usr/share/nginx/html/index.html"
 
 ## 点对点模式
 
-![vxlan.drawio](http://inksnw.asuscomm.com:3001/blog/vxlan使用_6017f9a085ac01c69fa6ff45825a4bee.svg)
+<img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_55abc651d2676d86057d5a780c071c3c.jpg" alt="vxlan" style="zoom:50%;" />
+
+在逻辑上形成的VXLAN overlay网络环境如上图，虚线部分示意出来的Overlay Network和VXLAN Tunnel都是逻辑上的概念。容器不用感知底层物理网络，看起来对端是和自己在同一个二层环境里，就是像是在VTEP设备的上面直接构建了一条VXLAN Tunnel，把Overlay网络里的网络接口直接在二层打通。
+
+在IP地址分配后，Linux系统的路由表就会创建一条路由，去往`10.0.0.0/24`网段的报文走网络接口`vxlan0`出去。vm1上去往10.0.0.0/24的报文，在`vxlan0`上会做VXLAN封装，内层地址是`10.16.0.3`，外层地址是`192.168.50.29`。VXLAN报文通过物理网络达到对端vm2上的VETP vxlan0做VXLAN协议的解封装，从而结束整个过程。
+
+具体操作命令
 
 ```bash
 # 在A机器上
-ip link add vxlan0 type vxlan id 120 dstport 4789 remote 192.168.50.41 local 192.168.50.40 dev enp1s0
+ip link add vxlan0 type vxlan id 120 dstport 4789 remote 192.168.50.29 dev enp1s0
 ip addr add 10.16.0.2/24 dev vxlan0
 ip link set vxlan0 up 
 route -n
 ```
+上述命令创建了一个Linux上类型为`vxlan`的网络接口，名为`vxlan0`。
+
+- id: VNI标识是120。
+- remote: 作为一个VTEP设备来封装和解封VXLAN报文，需要知道将封装好的VXLAN报文发送到哪个对端VTEP。可以利用group指定组播组地址，或者利用remote指定对端单播地址。这里点对点的对端IP地址为192.168.50.29。
+- dstport: 指定目的端口为4789。
+- dev: 指定VTEP通过哪个物理device来通信，这里是使用enp1s0。
+
+查看网卡信息
+
+```bash
+$ ip addr
+4: vxlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1450 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 92:bc:67:b8:1f:95 brd ff:ff:ff:ff:ff:ff
+    inet 10.16.0.2/24 scope global vxlan0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::90bc:67ff:feb8:1f95/64 scope link 
+       valid_lft forever preferred_lft forever
+$ route -n 
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
+10.16.0.0       0.0.0.0         255.255.255.0   U     0      0        0 vxlan0
+```
+
+看到路由表中多了一个通过`vxlan0` 的路由,按子网掩码最长到最短的顺序匹配,请求10.0.0.0/24网络的地址和`255.255.255.0`按位与,请求会转发到0.0.0.0上,再由`enp1s0`出去
+
+在B机器上做相同的操作
 
 ```bash
 #在B机器上
-ip link add vxlan0 type vxlan id 120 dstport 4789 remote 192.168.50.40 local 192.168.50.41 dev enp1s0
+ip link add vxlan0 type vxlan id 120 dstport 4789 remote 192.168.50.233 dev enp1s0
 ip addr add 10.16.0.3/24 dev vxlan0
 ip link set vxlan0 up 
 route -n
 ```
 
-广播模式
+以上简单的命令就完成了所有配置,在vm1上ping overlay网络的对端IP地址10.16.0.3，可以ping通。
+
+```bash
+root@base:~# ping 10.16.0.3
+PING 10.16.0.3 (10.16.0.3) 56(84) bytes of data.
+64 bytes from 10.16.0.3: icmp_seq=1 ttl=64 time=0.602 ms
+64 bytes from 10.16.0.3: icmp_seq=2 ttl=64 time=0.314 ms
+```
+
+在ping包的同时，用tcpdump抓vm1 eth0网卡的包。因为报文到达enp1s0前经过了网络接口vxlan0, 完成了VXLAN的封装，所以在抓包结果里应该能看到完整的VXLAN报文。
+
+抓包时可以只抓和对端`192.168.50.29`通信的报文，如下：
+
+```bash
+tcpdump -i enp1s0 host 192.168.50.29 -s0 -v -w vxlan.pcap
+```
+
+导入`wireshark`查看
+
+<img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_5886c9b8455b9de8ee387a511d7029e4.png" alt="Snipaste_2022-11-27_22-16-24" style="zoom:50%;" />
+
+## 广播模式
 
 ```bash
 # 在A机器上
