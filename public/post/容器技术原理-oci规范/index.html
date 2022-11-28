@@ -53,7 +53,7 @@
 <meta itemprop="name" content="OCI规范-Image spec">
 <meta itemprop="description" content="OCI 规范说起 OCI（Open Container Initiative）规范是事实上的容器标准,OCI 规范分为 Image spec 和 Runtime spec 两部分，它们分别覆盖了容器生命周期的不同阶"><meta itemprop="datePublished" content="2022-11-28T17:17:41+08:00" />
 <meta itemprop="dateModified" content="2022-11-28T17:17:41+08:00" />
-<meta itemprop="wordCount" content="851">
+<meta itemprop="wordCount" content="1124">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="OCI规范-Image spec"/>
 <meta name="twitter:description" content="OCI 规范说起 OCI（Open Container Initiative）规范是事实上的容器标准,OCI 规范分为 Image spec 和 Runtime spec 两部分，它们分别覆盖了容器生命周期的不同阶"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-11-28 </span>
             
-            <span class="more-meta"> 约 851 字 更新于 2022-11-28
+            <span class="more-meta"> 约 1124 字 更新于 2022-11-28
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -148,8 +148,10 @@
         <li><a href="#镜像规范">镜像规范</a>
           <ul>
             <li><a href="#镜像里面都有什么">镜像里面都有什么</a></li>
+            <li><a href="#手动构建一层">手动构建一层</a></li>
           </ul>
         </li>
+        <li><a href="#umoci制作镜像">umoci制作镜像</a></li>
       </ul>
     </li>
   </ul>
@@ -245,7 +247,8 @@
 </span></span><span class="line"><span class="cl"><span class="p">]</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>手动再创建一层,创建一个<code>Dockerfile</code>文件</p>
+</div><h3 id="手动构建一层">手动构建一层</h3>
+<p>手动再创建一层,创建一个<code>Dockerfile</code>文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -343,7 +346,106 @@
 </div>
 </div><p>解压查看,可以看到第二层只有一个app目录,与我们的<code>Dockerfile</code>配置一致</p>
 <img src="http://inksnw.asuscomm.com:3001/blog/容器技术原理-OCI规范_2eef73d14d6af274763c853300f0a7e1.png" alt="image-20221128213021570" style="zoom:50%;" />
-
+<h2 id="umoci制作镜像">umoci制作镜像</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/opencontainers/umoci/releases/download/v0.4.7/umoci.amd64
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>解压上一步的<code>layer.tar</code> 到一个新的目录<code>myos</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ umoci init --layout myimage
+</span></span><span class="line"><span class="cl">$ tree -L 1
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── myimage
+</span></span><span class="line"><span class="cl">└── myos
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2 directories, 0 files
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>创建一个镜像,此时 <code>myimage/index.json</code> 会多出<code>manifests</code>配置信息用于<code>镜像分发</code>等</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">umoci new --image myimage:v1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>将image提取到一个文件夹中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ umoci unpack --image myimage:v1 bundle
+</span></span><span class="line"><span class="cl">tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── config.json  runc对应的配置文件
+</span></span><span class="line"><span class="cl">├── rootfs       操作系统目录
+</span></span><span class="line"><span class="cl">├── sha256_0339cec20a876292977062c19cdc1ec9490454e88e1d7a1c961b40edf7483052.mtree
+</span></span><span class="line"><span class="cl">└── umoci.json
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">1</span> directory, <span class="m">3</span> files
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看此时的镜像信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ umoci stat --image myimage:v1
+</span></span><span class="line"><span class="cl">LAYER CREATED CREATED BY SIZE COMMENT
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>将第一步<code>myos</code>中的内容拷贝到<code>bundle/rootfs</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">cp -r myos/* bundle/rootfs/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>重新pack,并查看状态</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ umoci repack --image myimage:v1 bundle
+</span></span><span class="line"><span class="cl">$ umoci stat --image myimage:v1
+</span></span><span class="line"><span class="cl">LAYER                                                                   CREATED                        CREATED BY   SIZE    COMMENT
+</span></span><span class="line"><span class="cl">sha256:7c659bc85e3b04cfa17fdfb7c881dfd51816e08a4e5eb1adf5db7661afe4d39f 2022-11-28T13:58:06.485326153Z umoci repack 3.485MB 
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
     </div>
 
     

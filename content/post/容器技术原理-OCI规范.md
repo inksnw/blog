@@ -62,6 +62,8 @@ python3 -m json.tool manifest.json
 ]
 ```
 
+### 手动构建一层
+
 手动再创建一层,创建一个`Dockerfile`文件
 
 ```dockerfile
@@ -119,4 +121,64 @@ root@base:~/myalpine-img# python3 -m json.tool manifest.json
 解压查看,可以看到第二层只有一个app目录,与我们的`Dockerfile`配置一致
 
 <img src="http://inksnw.asuscomm.com:3001/blog/容器技术原理-OCI规范_2eef73d14d6af274763c853300f0a7e1.png" alt="image-20221128213021570" style="zoom:50%;" />
+
+## umoci制作镜像
+
+```bash
+wget https://github.com/opencontainers/umoci/releases/download/v0.4.7/umoci.amd64
+```
+
+解压上一步的`layer.tar` 到一个新的目录`myos`
+
+```
+$ umoci init --layout myimage
+$ tree -L 1
+.
+├── myimage
+└── myos
+
+2 directories, 0 files
+```
+
+创建一个镜像,此时 `myimage/index.json` 会多出`manifests`配置信息用于`镜像分发`等
+
+```
+umoci new --image myimage:v1
+```
+
+将image提取到一个文件夹中
+
+```bash
+$ umoci unpack --image myimage:v1 bundle
+tree
+.
+├── config.json  runc对应的配置文件
+├── rootfs       操作系统目录
+├── sha256_0339cec20a876292977062c19cdc1ec9490454e88e1d7a1c961b40edf7483052.mtree
+└── umoci.json
+
+1 directory, 3 files
+```
+
+查看此时的镜像信息
+
+```
+$ umoci stat --image myimage:v1
+LAYER CREATED CREATED BY SIZE COMMENT
+```
+
+将第一步`myos`中的内容拷贝到`bundle/rootfs`
+
+```
+cp -r myos/* bundle/rootfs/
+```
+
+重新pack,并查看状态
+
+```
+$ umoci repack --image myimage:v1 bundle
+$ umoci stat --image myimage:v1
+LAYER                                                                   CREATED                        CREATED BY   SIZE    COMMENT
+sha256:7c659bc85e3b04cfa17fdfb7c881dfd51816e08a4e5eb1adf5db7661afe4d39f 2022-11-28T13:58:06.485326153Z umoci repack 3.485MB 
+```
 
