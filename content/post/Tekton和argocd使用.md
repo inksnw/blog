@@ -82,12 +82,12 @@ spec:
 查看信息
 
 ```bash
-$ kubectl get task
-$ kubectl get taskrun
-$ tkn taskrun list
-$ tkn taskrun logs hello-task-run
+➜ kubectl get task
+➜ kubectl get taskrun
+➜ tkn taskrun list
+➜ tkn taskrun logs hello-task-run
 [echo] Hello World
-$ tkn task describe  hello
+➜ tkn task describe  hello
 Name:        hello
 Namespace:   default
 🦶 Steps
@@ -104,7 +104,7 @@ hello-task-run   6 minutes ago   6s         Succeeded
 我们可以通过 `kubectl describe` 命令来查看任务运行的过程，当任务执行完成后， Pod 就会变成 `Completed` 状态了：
 
 ```bash
-$ kubectl get pod                        
+➜ kubectl get pod                        
 NAME                 READY   STATUS      RESTARTS   AGE
 hello-task-run-pod   0/1     Completed   0          36m
 ```
@@ -112,7 +112,7 @@ hello-task-run-pod   0/1     Completed   0          36m
 可以查看容器的日志信息来了解任务的执行结果信息：
 
 ```bash
-$ kubectl logs hello-task-run-pod --all-containers
+➜ kubectl logs hello-task-run-pod --all-containers
 2022/09/24 13:12:10 Entrypoint initialization
 2022/09/24 13:12:11 Decoded script /tekton/scripts/script-0-nrkts
 Hello World

@@ -133,7 +133,7 @@ kubectl expose deployment demo
 创建好之后，看看svc
 
 ```bash
-$ kubectl get svc
+➜ kubectl get svc
 NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
 demo         ClusterIP   10.233.63.220   <none>        80/TCP    15h
 ```
@@ -142,7 +142,7 @@ demo         ClusterIP   10.233.63.220   <none>        80/TCP    15h
 
 ```bash
 # -S表示输出所保存的规则，-n表示以数字的形式输出ip和端口,不转义。可以看到ipvs的LB IP为ClusterIP，算法为rr。模式为NAT模式。
-$ ipvsadm -S -n | grep 10.233.63.220
+➜ ipvsadm -S -n | grep 10.233.63.220
 -A -t 10.233.63.220:80 -s rr
 -a -t 10.233.63.220:80 -r 10.233.92.3:80 -m -w 1
 ```
@@ -150,7 +150,7 @@ $ ipvsadm -S -n | grep 10.233.63.220
 当我们创建Service之后，kube-proxy 首先会在宿主机上创建一个虚拟网卡（叫作：kube-ipvs0），并为它 **增加** 一个 Service VIP 作为 IP 地址，如下所示：`10.233.63.220` 是我们demo服务的ip, `10.233.0.1` 和 `10.233.0.3` 分别是 kubernetes 和 coredns 的ip
 
 ```bash
-$ ip addr show kube-ipvs0
+➜ ip addr show kube-ipvs0
 4: kube-ipvs0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default 
     link/ether d6:03:0d:92:93:c5 brd ff:ff:ff:ff:ff:ff
     inet 10.233.63.220/32 scope global kube-ipvs0

@@ -66,7 +66,7 @@ systemctl status flanneld.service
 查看`/run/flannel/docker`文件,如果文件不存在可尝试手动创建,文件中没有内容,可以尝试重启flannel
 
 ```bash
-$ cat /run/flannel/docker
+➜ cat /run/flannel/docker
 DOCKER_OPT_BIP="--bip=10.3.48.1/24"
 DOCKER_OPT_IPMASQ="--ip-masq=true"
 DOCKER_OPT_MTU="--mtu=1450"
@@ -82,7 +82,7 @@ DOCKER_NETWORK_OPTIONS=" --bip=10.3.48.1/24 --ip-masq=true --mtu=1450"
 ## 修改docker配置
 
 ```bash
-$ vi /lib/systemd/system/docker.service
+➜ vi /lib/systemd/system/docker.service
 
 #在[Service]下加一行
 EnvironmentFile=/run/flannel/docker
@@ -101,9 +101,9 @@ systemctl restart docker
 
 ```bash
 # 在A主机上创建
-$ docker run -it --name alpine1 -d alpine sh
-$ docker exec -it 03 /bin/sh
-$ ip addr
+➜ docker run -it --name alpine1 -d alpine sh
+➜ docker exec -it 03 /bin/sh
+➜ ip addr
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -119,7 +119,7 @@ $ ip addr
 在A主机的容器中`ping` B主机的容器ip
 
 ```bash
-$ ping 10.3.42.2
+➜ ping 10.3.42.2
 PING 10.3.42.2 (10.3.42.2): 56 data bytes
 64 bytes from 10.3.42.2: seq=0 ttl=62 time=0.431 ms
 64 bytes from 10.3.42.2: seq=1 ttl=62 time=0.292 ms

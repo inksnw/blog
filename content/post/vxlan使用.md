@@ -35,14 +35,14 @@ route -n
 查看网卡信息
 
 ```bash
-$ ip addr
+➜ ip addr
 4: vxlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1450 qdisc noqueue state UNKNOWN group default qlen 1000
     link/ether 92:bc:67:b8:1f:95 brd ff:ff:ff:ff:ff:ff
     inet 10.16.0.2/24 scope global vxlan0
        valid_lft forever preferred_lft forever
     inet6 fe80::90bc:67ff:feb8:1f95/64 scope link 
        valid_lft forever preferred_lft forever
-$ route -n 
+➜ route -n 
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
@@ -120,7 +120,7 @@ docker network create --driver=bridge --subnet=10.17.0.0/24 mylan
 利用`docker network ls`查看，可以看到一个新的bridge网络被创建，名称为mylan。
 
 ```bash
-$ docker network ls
+➜ docker network ls
 NETWORK ID     NAME      DRIVER    SCOPE
 6386f405d676   bridge    bridge    local
 28ac27a849f8   host      host      local
@@ -133,7 +133,7 @@ fbb68e5e1225   none      null      local
 用`brctl show`查看
 
 ```bash
-$ brctl show
+➜ brctl show
 bridge name     				bridge id               STP enabled     interfaces
 br-23de81e9cde3         8000.02421e76cdbe       no
 docker0         				8000.0242574058ec       no
@@ -152,7 +152,7 @@ docker exec -it ngx1 sh -c "echo ngx2 >/usr/share/nginx/html/index.html"
 此时查看`brctl show`可以看到有一个`veth818c3b2`设备已经连接到了网桥上
 
 ```bash
-$ root@base:~# brctl show
+➜ root@base:~# brctl show
 bridge name     				bridge id               STP enabled     interfaces
 br-23de81e9cde3         8000.02421e76cdbe       no              veth818c3b2
 docker0         				8000.0242574058ec       no
@@ -168,7 +168,7 @@ ip link set vxlan0 up
 ```
 查看网桥信息,可以看到`br-23de81e9cde3`网桥上接了vxlan 端和docker容器网卡端
 ```bash
-$ brctl show
+➜ brctl show
 bridge name     				bridge id               STP enabled     interfaces
 br-23de81e9cde3         8000.02421e76cdbe       no              veth818c3b2
                                                         				vxlan0
@@ -184,7 +184,7 @@ docker0         				8000.0242574058ec       no
 
 ```bash
 # 从A主机容器访问B主机容器
-$ docker exec -it ngx1 curl 10.17.0.9
+➜ docker exec -it ngx1 curl 10.17.0.9
 ngx2
 ```
 

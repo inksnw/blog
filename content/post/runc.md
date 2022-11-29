@@ -47,8 +47,8 @@ sysctl -p /etc/sysctl.conf
 ```
 
 ```bash
-$ mkdir -p ~/busybox/rootfs
-$ docker export $(docker create busybox) | tar -C ~/busybox/rootfs -xvf -
+➜ mkdir -p ~/busybox/rootfs
+➜ docker export $(docker create busybox) | tar -C ~/busybox/rootfs -xvf -
 ```
 下载runc二进制
 
@@ -62,9 +62,9 @@ rc -v
 生成配置文件 
 
 ```bash
-$ cd ~/busybox
-$ rc spec
-$ tree -L 2
+➜ cd ~/busybox
+➜ rc spec
+➜ tree -L 2
 #目录结构
 .
 └── busybox
@@ -139,8 +139,8 @@ func main () {
 目录结构
 
 ```bash
-$ chmod +x ~/app/main
-$ tree -L 2
+➜ chmod +x ~/app/main
+➜ tree -L 2
 .
 ├── app
 │   └── main
@@ -168,13 +168,13 @@ rc run abc
 
 ```bash
 #创建网桥,启动
-$ brctl addbr mybr
-$ brctl show
+➜ brctl addbr mybr
+➜ brctl show
 bridge name     bridge id               STP enabled     interfaces
 docker0         8000.02429ea3d5dd       no
 mybr            8000.000000000000       no
-$ ip link set mybr up
-$ ip addr add 10.12.0.1/24 dev mybr
+➜ ip link set mybr up
+➜ ip addr add 10.12.0.1/24 dev mybr
 ```
 
 创建veth设备
@@ -242,7 +242,7 @@ iptables -t nat -nvL
 访问宿主机
 
 ```bash
-$ curl http://192.168.50.231:9999/
+➜ curl http://192.168.50.231:9999/
 Hello world
 ```
 

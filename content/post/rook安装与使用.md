@@ -68,7 +68,7 @@ kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['dat
 意思是应该有3个`OSD`现在有0个, 查看创建`OSD`的pod日志
 
 ```bash
-$ kubectl logs rook-ceph-osd-prepare-node3-mxshc  -n rook-ceph
+➜ kubectl logs rook-ceph-osd-prepare-node3-mxshc  -n rook-ceph
 cephosd: skipping OSD configuration as no devices matched the storage settings for this node "node3"
 ```
 
@@ -79,7 +79,7 @@ cephosd: skipping OSD configuration as no devices matched the storage settings f
 进入主机查看磁盘信息,看到新加的磁盘叫 `/dev/vdb`
 
 ```bash
-$ fdisk -l 
+➜ fdisk -l 
 Disk /dev/vdb: 30 GiB, 32212254720 bytes, 62914560 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -137,7 +137,7 @@ parameters:
 查看此时集群的sc
 
 ```bash
-$ kubectl get sc
+➜ kubectl get sc
 NAME              PROVISIONER                  RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 local (default)   openebs.io/local             Delete          WaitForFirstConsumer   false                  4h35m
 rook-ceph-block   rook-ceph.rbd.csi.ceph.com   Delete          Immediate              false                  7m6s
@@ -146,7 +146,7 @@ rook-ceph-block   rook-ceph.rbd.csi.ceph.com   Delete          Immediate        
 查看状态
 
 ```bash
-$ kubectl get cephcluster -n rook-ceph
+➜ kubectl get cephcluster -n rook-ceph
 NAME        DATADIRHOSTPATH   MONCOUNT   AGE     PHASE   MESSAGE                        HEALTH        EXTERNAL
 rook-ceph   /var/lib/rook     3          3h57m   Ready   Cluster created successfully   HEALTH_WARN 
 ```
@@ -170,7 +170,7 @@ spec:
 查看
 
 ```bash
-$ kubectl get pvc
+➜ kubectl get pvc
 NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
 test-nginx   Bound    pvc-35f9dabb-e313-44cc-a642-0efdf307ccd0   1Gi        RWO            rook-ceph-block   5m40s
 ```
@@ -201,8 +201,8 @@ spec:
 进入容器查看磁盘大小
 
 ```bash
-$ kubectl exec -it task-pv-pod -- /bin/bash
-$ df -h
+➜ kubectl exec -it task-pv-pod -- /bin/bash
+➜ df -h
 /dev/rbd0                          974M   24K  958M   1% /usr/share/nginx/html
 ```
 
@@ -218,9 +218,9 @@ kubectl edit pvc test-nginx
 修改`StorageClass` 开放扩容
 
 ```bash
-$ kubectl edit sc rook-ceph-block
+➜ kubectl edit sc rook-ceph-block
 # 添加 allowVolumeExpansion: true
-$ kubectl get sc
+➜ kubectl get sc
 NAME              PROVISIONER                  RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 local (default)   openebs.io/local             Delete          WaitForFirstConsumer   false                  4h40m
 rook-ceph-block   rook-ceph.rbd.csi.ceph.com   Delete          Immediate              true                   11m
@@ -235,8 +235,8 @@ kubectl edit pvc test-nginx
 进入容器查看磁盘大小,发现磁盘大小已经变更
 
 ```bash
-$ kubectl exec -it task-pv-pod -- /bin/bash
-$ df -h
+➜ kubectl exec -it task-pv-pod -- /bin/bash
+➜ df -h
 /dev/rbd0                          2.0G   24K  2.0G   1% /usr/share/nginx/html
 ```
 

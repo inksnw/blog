@@ -53,8 +53,8 @@ KUBECONFIG=~/.kube/config ./krustlet-wasi --node-ip 192.168.50.251 --node-name=k
 
 ```bash
 # 本机的hostname为inksnwdeiMac.local
-$ kubectl certificate approve inksnwdeiMac.local-tls
-$ kubectl get node
+➜ kubectl certificate approve inksnwdeiMac.local-tls
+➜ kubectl get node
 NAME       STATUS   ROLES                  AGE     VERSION
 krustlet   Ready    <none>                 7s      1.0.0-alpha.1
 node1      Ready    control-plane,worker   7h35m   v1.24.3

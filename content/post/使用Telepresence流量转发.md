@@ -73,7 +73,7 @@ curl http://demo.default:80
 
 ```bash
 # telepresence intercept $SERVICE_NAME --port $LOCAL_PORT:REMOTE_PORT
-$ telepresence intercept demo --port 8000:80 -n default
+➜ telepresence intercept demo --port 8000:80 -n default
 
 Using Deployment demo
 intercepted
@@ -95,10 +95,10 @@ python3 -m http.server
 在集群上访问原服务
 
 ```bash
-$ kubectl get svc
+➜ kubectl get svc
 NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
 demo         ClusterIP   10.233.63.220   <none>        80/TCP    7m32s
-$ curl 10.233.63.220:80
+➜ curl 10.233.63.220:80
 ```
 
 会发现集群上的服务已经由 nginx 变成了本机电脑的 python 文件服务
@@ -106,7 +106,7 @@ $ curl 10.233.63.220:80
 列出服务的劫持状态：
 
 ```bash
-$ telepresence list -n default
+➜ telepresence list -n default
 demo: intercepted
     Intercept name         : demo-default
     State                  : ACTIVE
@@ -130,8 +130,8 @@ demo-69949dbc65-p9qvk   2/2     Running   0          35s
 卸载服务的劫持状态
 
 ```bash
-$ telepresence uninstall --agent demo -n default
-$ telepresence list -n default
+➜ telepresence uninstall --agent demo -n default
+➜ telepresence list -n default
 demo: ready to intercept (traffic-agent not yet installed)
 ```
 
@@ -140,6 +140,6 @@ demo: ready to intercept (traffic-agent not yet installed)
 关闭到集群的连接，将本地的网络恢复原状：
 
 ```bash
-$ telepresence quit
+➜ telepresence quit
 ```
 

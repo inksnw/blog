@@ -131,8 +131,8 @@ wget https://github.com/opencontainers/umoci/releases/download/v0.4.7/umoci.amd6
 解压上一步的`layer.tar` 到一个新的目录`myos`
 
 ```
-$ umoci init --layout myimage
-$ tree -L 1
+➜ umoci init --layout myimage
+➜ tree -L 1
 .
 ├── myimage
 └── myos
@@ -149,7 +149,7 @@ umoci new --image myimage:v1
 将image提取到一个文件夹中
 
 ```bash
-$ umoci unpack --image myimage:v1 bundle
+➜ umoci unpack --image myimage:v1 bundle
 tree
 .
 ├── config.json  runc对应的配置文件
@@ -163,7 +163,7 @@ tree
 查看此时的镜像信息
 
 ```
-$ umoci stat --image myimage:v1
+➜ umoci stat --image myimage:v1
 LAYER CREATED CREATED BY SIZE COMMENT
 ```
 
@@ -176,8 +176,8 @@ cp -r myos/* bundle/rootfs/
 重新pack,并查看状态
 
 ```
-$ umoci repack --image myimage:v1 bundle
-$ umoci stat --image myimage:v1
+➜ umoci repack --image myimage:v1 bundle
+➜ umoci stat --image myimage:v1
 LAYER                                                                   CREATED                        CREATED BY   SIZE    COMMENT
 sha256:7c659bc85e3b04cfa17fdfb7c881dfd51816e08a4e5eb1adf5db7661afe4d39f 2022-11-28T13:58:06.485326153Z umoci repack 3.485MB 
 ```

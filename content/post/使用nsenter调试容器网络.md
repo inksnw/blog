@@ -35,7 +35,7 @@ Containers:
 containerd 运行时使用 crictl 命令获取:
 
 ```bash
-$ crictl inspect 529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 | grep -i pid
+➜ crictl inspect 529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 | grep -i pid
     "pid": 2266462,
             "pid": 1
             "type": "pid"
@@ -46,7 +46,7 @@ $ crictl inspect 529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd72828
 dockerd 运行时使用 docker 命令获取:
 
 ```bash
-$ docker inspect e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 | grep -i pid
+➜ docker inspect e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 | grep -i pid
             "Pid": 910351,
             "PidMode": "",
             "PidsLimit": 0,
@@ -67,7 +67,7 @@ nsenter -n --target 910351
 成功进入容器的 netns，可以使用节点上的网络工具进行调试网络，可以首先使用 `ip a` 验证下 ip 地址是否为 pod ip:
 
 ```bash
-$ ip a
+➜ ip a
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo

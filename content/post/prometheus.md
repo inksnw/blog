@@ -281,7 +281,7 @@ kubectl port-forward svc/prometheus-k8s 9090:9090 -n kubesphere-monitoring-syste
 prometheus-operator部署出来的prometheus默认已经有一些规则，在prometheus-k8s-0这个pod的目录下面：
 
 ```bash
-$ ls /etc/prometheus/rules/prometheus-k8s-rulefiles-0/
+➜ ls /etc/prometheus/rules/prometheus-k8s-rulefiles-0/
 {namespace}-prometheus-k8s-rules.yaml
 
 ```

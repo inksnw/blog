@@ -237,7 +237,7 @@ journalctl -u kubelet -f
 配置网络
 
 ```bash
-cd ~ && mkdir flannel && cd flannel
+cd ➜ && mkdir flannel && cd flannel
 wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 kubectl apply -f kube-flannel.yml
 ```

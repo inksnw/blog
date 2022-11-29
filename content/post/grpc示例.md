@@ -8,7 +8,7 @@ tags: ["golang"]
 报错
 
 ```bash
-$ protoc --go_out=. --go-grpc_out=. hello.proto
+➜ protoc --go_out=. --go-grpc_out=. hello.proto
 protoc-gen-go: unable to determine Go import path for "hello.proto"
 ```
 

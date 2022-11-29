@@ -40,8 +40,8 @@ test
 ## 打包上传
 
 ```bash
-$ helm package test/
-$ ls
+➜ helm package test/
+➜ ls
 test           test-0.1.0.tgz
 ```
 
@@ -76,12 +76,12 @@ plugins:
 添加使用chart仓库
 
 ```bash
-$ helm repo add myrepo https://inksnw.github.io/mychart
-$ helm repo list
+➜ helm repo add myrepo https://inksnw.github.io/mychart
+➜ helm repo list
 NAME  	URL                                   
 myrepo	https://inksnw.github.io/mychart
 # -l 显示所有版本
-$ helm search repo myrepo -l 
+➜ helm search repo myrepo -l 
 NAME       	CHART VERSION	APP VERSION	DESCRIPTION                
 myrepo/test	0.1.3        	1.16.3     	A Helm chart for Kubernetes
 myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
@@ -90,7 +90,7 @@ myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes
 安装chart包
 
 ```bash
-$ helm install xxx myrepo/test
+➜ helm install xxx myrepo/test
 ```
 
 ## 发布多个 release
@@ -104,18 +104,18 @@ appVersion: "1.16.2"
 
 打包推送
 ```bash
-$ helm package test/ 
-$ helm repo index --url https://inksnw.github.io/mychart/ .
-$ git add .
-$ git commit -m "0.1.2"
-$ git push
+➜ helm package test/ 
+➜ helm repo index --url https://inksnw.github.io/mychart/ .
+➜ git add .
+➜ git commit -m "0.1.2"
+➜ git push
 ```
 
 更新查看helm源
 
 ```bash
-$ helm repo update
-$ helm search repo myrepo -l
+➜ helm repo update
+➜ helm search repo myrepo -l
 NAME       	CHART VERSION	APP VERSION	DESCRIPTION                
 myrepo/test	0.1.3        	1.16.3     	A Helm chart for Kubernetes
 myrepo/test	0.1.2        	1.16.2     	A Helm chart for Kubernetes

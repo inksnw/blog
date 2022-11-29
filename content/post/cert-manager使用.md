@@ -109,7 +109,7 @@ https://inksnw.test.com:32599/
 找了半天原因,尝试使用curl访问
 
 ```bash
-$ curl https://inksnw.test.com:32599/
+➜ curl https://inksnw.test.com:32599/
 curl: (35) error:1400410B:SSL routines:CONNECT_CR_SRVR_HELLO:wrong version number
 ```
 

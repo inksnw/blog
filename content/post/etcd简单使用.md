@@ -15,7 +15,7 @@ brew services start etcd
 查看信息
 
 ```bash
-$ etcdctl version
+➜ etcdctl version
 etcdctl version: 3.5.5
 API version: 3.5
 ```
@@ -36,23 +36,23 @@ etcdctl get /user/101  --prefix
 
 ```bash
 # 设置了两个租约
-$ etcdctl lease grant 20
-$ etcdctl lease grant 30
+➜ etcdctl lease grant 20
+➜ etcdctl lease grant 30
 # 查看租约列表
-$ etcdctl lease list
+➜ etcdctl lease list
 found 2 leases
 694d84416f12f020
 694d84416f12f022
 # 查看信息（剩余时间）
-$ etcdctl lease timetolive 694d84416f12f026
+➜ etcdctl lease timetolive 694d84416f12f026
 lease 694d84416f12f026 granted with TTL(30s), remaining(5s)
 # 删除租约 
-$ etcdctl lease revoke  694d84416f12f026
+➜ etcdctl lease revoke  694d84416f12f026
 lease 694d84416f12f026 revoked
 # 保持租约始终存活, 会挂起在命令行,自动续期
-$ etcdctl lease keep-alive xxxxx
+➜ etcdctl lease keep-alive xxxxx
 # 把key和租约关联,一旦租约过期，或被删掉,key就没了
-$ etcdctl put /user inksnw --lease=xxxxxooo 
+➜ etcdctl put /user inksnw --lease=xxxxxooo 
 # 查看该租约下的所有key
 etcdctl lease timetolive   xxxxxxx --keys 
 ```
@@ -156,8 +156,8 @@ services:
 运行查看
 
 ```bash
-$ docker exec -it 99df13bc0f5b /bin/bash
-$ etcdctl -w table --endpoints=etcd0:2379,etcd1:2379,etcd2:2379 endpoint status
+➜ docker exec -it 99df13bc0f5b /bin/bash
+➜ etcdctl -w table --endpoints=etcd0:2379,etcd1:2379,etcd2:2379 endpoint status
 +------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+
 |  ENDPOINT  |        ID        | VERSION | DB SIZE | IS LEADER | IS LEARNER | RAFT TERM | RAFT INDEX | RAFT APPLIED INDEX | ERRORS |
 +------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+
@@ -217,7 +217,7 @@ etcdctl  put /deleting-hosts/node-tikv foo1
 当etcd中的值变动,confd会根据**templates**下配置的模板自动更新**conf.d**中配置的目标文件
 
 ```bash
-$ cat /Users/nuc/Desktop/test.sh
+➜ cat /Users/nuc/Desktop/test.sh
 
     key: node-tikv
     value: foo1

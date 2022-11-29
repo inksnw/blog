@@ -70,8 +70,8 @@ cache:
 生成配置文件安装
 
 ```bash
-$ ./prepare
-$ docker-compose up -d
+➜ ./prepare
+➜ docker-compose up -d
 ```
 
 访问web界面
@@ -146,11 +146,11 @@ nerdctl -n=k8s.io --insecure-registry push harbor.inksnw.com:3002/calico/node:v3
 
 ```bash
 # 批量打标签
-$ nerdctl -n=k8s.io images|grep -v inksnw|tail -n +2|awk '{print "nerdctl -n=k8s.io tag "  $1":"$2   " harbor.inksnw.com:3002/" $1":"$2  }'|sh
+➜ nerdctl -n=k8s.io images|grep -v inksnw|tail -n +2|awk '{print "nerdctl -n=k8s.io tag "  $1":"$2   " harbor.inksnw.com:3002/" $1":"$2  }'|sh
 # 批量上传
-$ nerdctl -n=k8s.io images|grep inksnw|awk '{print "nerdctl -n=k8s.io --insecure-registry push " $1":"$2}'|sh
+➜ nerdctl -n=k8s.io images|grep inksnw|awk '{print "nerdctl -n=k8s.io --insecure-registry push " $1":"$2}'|sh
 # 批量删除为上传生成的image
-$ nerdctl -n=k8s.io images|grep inksnw|awk '{print "nerdctl -n=k8s.io rmi " $1":"$2}'|sh
+➜ nerdctl -n=k8s.io images|grep inksnw|awk '{print "nerdctl -n=k8s.io rmi " $1":"$2}'|sh
 # 查看删除后镜像
 nerdctl -n=k8s.io images
 ```
