@@ -38,3 +38,39 @@ docker.io/library/alpine                                    3.12                
 registry.cn-hangzhou.aliyuncs.com/google_containers/pause   3.2                 80d28bedfe5de       300kB
 ```
 
+克隆仓库
+
+```
+git clone https://github.com/virtual-kubelet/cri.git
+cd cri
+make build
+```
+查看providers
+
+```
+➜ ./virtual-kubelet providers
+cri
+```
+
+复制一个k8s集群中`/etc/kubernetes/pki`目录下的`apiserver-kubelet-client.crt`和`apiserver-kubelet-client.key`到本机,执行如下命令启动
+
+```bash
+export VKUBELET_POD_IP=192.168.50.40:6443
+export APISERVER_CERT_LOCATION="/root/apiserver-kubelet-client.crt"
+export APISERVER_KEY_LOCATION="/root/apiserver-kubelet-client.key"
+export KUBELET_PORT="10250"
+cd bin
+./virtual-kubelet --provider cri --kubeconfig /root/.kube/config
+```
+
+在k8s主机上查看节点,可以看到已经多了一个名为 `virtual-kubelet `的节点
+
+```bash
+➜ kubectl get node
+NAME              STATUS   ROLES                         AGE   VERSION
+node1             Ready    control-plane,master,worker   3h    v1.23.10
+node2             Ready    worker                        3h    v1.23.10
+node3             Ready    worker                        3h    v1.23.10
+virtual-kubelet   Ready    agent                         10s   v1.15.2-vk-cri-5dec3cb
+```
+

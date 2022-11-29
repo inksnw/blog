@@ -48,12 +48,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/virtual-kubelet/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-11-29T11:39:20+08:00" />
-<meta property="article:modified_time" content="2022-11-29T11:39:20+08:00" />
+<meta property="article:modified_time" content="2022-11-29T11:51:30+08:00" />
 
 <meta itemprop="name" content="Virtual Kubelet">
 <meta itemprop="description" content="安装 containerd 1 apt install containerd 安装 crictl 1 2 3 4 VERSION=&#34;v1.24.1&#34; wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin rm -f crictl-$VERSION-linux-amd64.tar.gz 设置crictl的配置文件 1 2 3 4 5 cat &gt; /etc/crictl.yaml &lt;&lt;EOF runtime-endpoint: unix:///run/containerd/containerd.sock image-endpoint: unix:///run/containerd/containerd.sock timeout: 10 EOF 拉取镜像测试 1 2 3 4 5 6 ➜ crictl pull"><meta itemprop="datePublished" content="2022-11-29T11:39:20+08:00" />
-<meta itemprop="dateModified" content="2022-11-29T11:39:20+08:00" />
-<meta itemprop="wordCount" content="91">
+<meta itemprop="dateModified" content="2022-11-29T11:51:30+08:00" />
+<meta itemprop="wordCount" content="308">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Virtual Kubelet"/>
 <meta name="twitter:description" content="安装 containerd 1 apt install containerd 安装 crictl 1 2 3 4 VERSION=&#34;v1.24.1&#34; wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin rm -f crictl-$VERSION-linux-amd64.tar.gz 设置crictl的配置文件 1 2 3 4 5 cat &gt; /etc/crictl.yaml &lt;&lt;EOF runtime-endpoint: unix:///run/containerd/containerd.sock image-endpoint: unix:///run/containerd/containerd.sock timeout: 10 EOF 拉取镜像测试 1 2 3 4 5 6 ➜ crictl pull"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-11-29 </span>
             
-            <span class="more-meta"> 约 91 字 更新于 2022-11-29
+            <span class="more-meta"> 约 308 字 更新于 2022-11-29
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -204,6 +204,68 @@
 </span></span><span class="line"><span class="cl">IMAGE                                                       TAG                 IMAGE ID            SIZE
 </span></span><span class="line"><span class="cl">docker.io/library/alpine                                    3.12                24c8ece58a1aa       2.81MB
 </span></span><span class="line"><span class="cl">registry.cn-hangzhou.aliyuncs.com/google_containers/pause   3.2                 80d28bedfe5de       300kB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>克隆仓库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">git clone https://github.com/virtual-kubelet/cri.git
+</span></span><span class="line"><span class="cl">cd cri
+</span></span><span class="line"><span class="cl">make build
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看providers</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ ./virtual-kubelet providers
+</span></span><span class="line"><span class="cl">cri
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>复制一个k8s集群中<code>/etc/kubernetes/pki</code>目录下的<code>apiserver-kubelet-client.crt</code>和<code>apiserver-kubelet-client.key</code>到本机,执行如下命令启动</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">VKUBELET_POD_IP</span><span class="o">=</span>192.168.50.40:6443
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">APISERVER_CERT_LOCATION</span><span class="o">=</span><span class="s2">&#34;/root/apiserver-kubelet-client.crt&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">APISERVER_KEY_LOCATION</span><span class="o">=</span><span class="s2">&#34;/root/apiserver-kubelet-client.key&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KUBELET_PORT</span><span class="o">=</span><span class="s2">&#34;10250&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> bin
+</span></span><span class="line"><span class="cl">./virtual-kubelet --provider cri --kubeconfig /root/.kube/config
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在k8s主机上查看节点,可以看到已经多了一个名为 <code>virtual-kubelet </code>的节点</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get node
+</span></span><span class="line"><span class="cl">NAME              STATUS   ROLES                         AGE   VERSION
+</span></span><span class="line"><span class="cl">node1             Ready    control-plane,master,worker   3h    v1.23.10
+</span></span><span class="line"><span class="cl">node2             Ready    worker                        3h    v1.23.10
+</span></span><span class="line"><span class="cl">node3             Ready    worker                        3h    v1.23.10
+</span></span><span class="line"><span class="cl">virtual-kubelet   Ready    agent                         10s   v1.15.2-vk-cri-5dec3cb
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
