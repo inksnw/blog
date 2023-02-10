@@ -14,7 +14,7 @@ tags: ["k8s"]
 cur 10.233.96.61 
 ```
 
-### 访问`pod-ip.ns.pod.cluster.local`
+### 访问ip+域名
 
 ```
 curl 10-233-96-61.default.pod.cluster.local
