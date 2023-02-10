@@ -191,9 +191,11 @@ testsvc      LoadBalancer   10.233.49.203   192.168.50.50   8989:30910/TCP   3m5
 >
 > 设置EXTERNAL-IP 有机率导致节点的arp信息错乱? master节点向worker节点的arp信息没了
 >
-> root@node1:~# arp -n|grep 192.168.50.5
-> 192.168.50.51                    (incomplete)                              enp1s0
-> 192.168.50.52                    (incomplete)                              enp1s0
+```bash
+➜ arp -n|grep 192.168.50.5
+192.168.50.51                    (incomplete)                              enp1s0
+192.168.50.52                    (incomplete)                              enp1s0
+```
 
 ### 使用ExternalName代理访问
 
