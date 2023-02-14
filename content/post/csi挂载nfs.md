@@ -1,5 +1,5 @@
 ---
-title: "Csi挂载nfs"
+title: "csi挂载nfs"
 date: 2023-02-14T19:11:47+08:00
 tags: ["k8s"]
 ---
