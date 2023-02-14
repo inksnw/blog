@@ -99,8 +99,6 @@ parameters:
   share: /data/public
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
-mountOptions:
-  - nfsvers=4.1
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
