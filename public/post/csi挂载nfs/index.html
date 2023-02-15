@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="配置NFS 安装nfs 1 2 3 4 5 6 7 8 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports ➜ systemctl status nfs-server # 挂载配置情况 ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主机上查看情况 1 2 3 ➜" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="配置NFS 安装nfs 1 2 3 4 5 6 7 8 9 10 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports # 重新导出 ➜ exportfs -a ➜ systemctl status nfs-server # 挂载配置情况 ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,18 +44,18 @@
 
 
 <meta property="og:title" content="csi挂载nfs" />
-<meta property="og:description" content="配置NFS 安装nfs 1 2 3 4 5 6 7 8 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports ➜ systemctl status nfs-server # 挂载配置情况 ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主机上查看情况 1 2 3 ➜" />
+<meta property="og:description" content="配置NFS 安装nfs 1 2 3 4 5 6 7 8 9 10 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports # 重新导出 ➜ exportfs -a ➜ systemctl status nfs-server # 挂载配置情况 ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/csi%E6%8C%82%E8%BD%BDnfs/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-02-14T19:11:47+08:00" />
 <meta property="article:modified_time" content="2023-02-14T19:11:47+08:00" />
 <meta itemprop="name" content="csi挂载nfs">
-<meta itemprop="description" content="配置NFS 安装nfs 1 2 3 4 5 6 7 8 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports ➜ systemctl status nfs-server # 挂载配置情况 ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主机上查看情况 1 2 3 ➜"><meta itemprop="datePublished" content="2023-02-14T19:11:47+08:00" />
+<meta itemprop="description" content="配置NFS 安装nfs 1 2 3 4 5 6 7 8 9 10 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports # 重新导出 ➜ exportfs -a ➜ systemctl status nfs-server # 挂载配置情况 ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主"><meta itemprop="datePublished" content="2023-02-14T19:11:47+08:00" />
 <meta itemprop="dateModified" content="2023-02-14T19:11:47+08:00" />
-<meta itemprop="wordCount" content="539">
+<meta itemprop="wordCount" content="549">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="csi挂载nfs"/>
-<meta name="twitter:description" content="配置NFS 安装nfs 1 2 3 4 5 6 7 8 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports ➜ systemctl status nfs-server # 挂载配置情况 ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主机上查看情况 1 2 3 ➜"/>
+<meta name="twitter:description" content="配置NFS 安装nfs 1 2 3 4 5 6 7 8 9 10 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports # 重新导出 ➜ exportfs -a ➜ systemctl status nfs-server # 挂载配置情况 ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-02-14 </span>
             
-            <span class="more-meta"> 约 539 字 更新于 2023-02-14
+            <span class="more-meta"> 约 549 字 更新于 2023-02-14
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -164,19 +164,23 @@
 <p>安装nfs</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ apt install nfs-kernel-server
 </span></span><span class="line"><span class="cl"><span class="c1"># 查看导出的nfs</span>
 </span></span><span class="line"><span class="cl">➜ cat /etc/exports
+</span></span><span class="line"><span class="cl"><span class="c1"># 重新导出</span>
+</span></span><span class="line"><span class="cl">➜ exportfs -a
 </span></span><span class="line"><span class="cl">➜ systemctl status nfs-server
 </span></span><span class="line"><span class="cl"><span class="c1"># 挂载配置情况</span>
 </span></span><span class="line"><span class="cl">➜ showmount -e localhost

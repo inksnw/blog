@@ -12,6 +12,8 @@ tags: ["k8s"]
 ➜ apt install nfs-kernel-server
 # 查看导出的nfs
 ➜ cat /etc/exports
+# 重新导出
+➜ exportfs -a
 ➜ systemctl status nfs-server
 # 挂载配置情况
 ➜ showmount -e localhost
