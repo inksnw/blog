@@ -147,18 +147,17 @@ func main() {
 
 ```yaml
 metadata:
-  name: myngx
-image: docker.io/nginx:1.18-alpine
-log_path: ngx.log
+  name: mynginx1
+image:
+  image: docker.io/nginx:1.18-alpine
 ```
 
 创建沙箱配置`sandbox.yaml`
 
 ```yaml
 metadata:
-  name: mysandbox
+  name: mynginxpod1
   namespace: default
-log_directory: "/root/temp"
 port_mappings:
   - protocol: 0
     container_port: 80
@@ -180,7 +179,7 @@ mkdir -p /opt/cni/net.d
 tar -zxvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
 ```
 
-创建cni配置文件到`/etc/cni/net.d/10-mynet.conf`, 参考自https://github.com/containernetworking/cni
+创建cni配置文件到`/etc/cni/net.d/10-mynet.conf`, 参考自 https://github.com/containernetworking/cni
 
  ```json
  {
@@ -206,24 +205,51 @@ tar -zxvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
 systemctl restart containerd
 ```
 
-查看cni装载情况
+查看cni装载情况,看到 `"lastCNILoadStatus": "OK"` ` "lastCNILoadStatus.default": "OK" `为正常
 
 ```bash
-# 看到 "lastCNILoadStatus": "OK", "lastCNILoadStatus.default": "OK" 为正常
 crictl info
 ```
+
+此时执行`ip addr` 会发现多了一个`cni0`网桥
 
 ### 创建pod
 
 ```
-crictl run nginx.yaml sandbox.yaml
+➜ crictl run nginx.yaml sandbox.yaml
+d4e9ada705fb8036beae4ea7b9c33b64600fb118048f012dd10cfdd742b59d4d
 ```
 
 > 报错 registry.k8s.io/pause:3.6 拉不下来
 
-修改containerd的配置文件将`registry.k8s.io/pause:3.6` 改为 `registry.cn-beijing.aliyuncs.com/kubesphereio/pause:3.8`
+修改containerd的配置文件将 `registry.k8s.io/pause:3.6` 改为 `registry.cn-beijing.aliyuncs.com/kubesphereio/pause:3.8`
 
 > 报错:  exec: "runc": executable file not found in $PATH: unknown
 
-安装`runc`
+安装`runc` 到`/usr/local/bin`
+
+查看pod
+
+```bash
+➜ crictl pods
+POD ID              CREATED             STATE               NAME                NAMESPACE           ATTEMPT             RUNTIME
+b5255c53e9ab3       36 seconds ago      Ready               mynginxpod1         default             0                   (default)
+```
+
+查看container
+
+```bash
+➜ crictl ps
+CONTAINER           IMAGE                         CREATED             STATE               NAME                ATTEMPT             POD ID              POD
+d4e9ada705fb8       docker.io/nginx:1.18-alpine   53 seconds ago      Running             mynginx1            0                   b5255c53e9ab3       unknown
+```
+
+删除
+
+```bash
+➜ crictl stop  d4e9ada705fb8
+➜ crictl rm    d4e9ada705fb8
+➜ crictl stopp b5255c53e9ab3
+➜ crictl rmp   b5255c53e9ab3
+```
 

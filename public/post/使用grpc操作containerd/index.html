@@ -52,7 +52,7 @@
 <meta itemprop="name" content="使用grpc操作containerd">
 <meta itemprop="description" content="环境配置 下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/c"><meta itemprop="datePublished" content="2023-02-16T19:43:26+08:00" />
 <meta itemprop="dateModified" content="2023-02-16T19:43:26+08:00" />
-<meta itemprop="wordCount" content="912">
+<meta itemprop="wordCount" content="979">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用grpc操作containerd"/>
 <meta name="twitter:description" content="环境配置 下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/c"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-02-16 </span>
             
-            <span class="more-meta"> 约 912 字 更新于 2023-02-16
+            <span class="more-meta"> 约 979 字 更新于 2023-02-16
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -409,9 +409,9 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">myngx</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">docker.io/nginx:1.18-alpine</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">log_path</span><span class="p">:</span><span class="w"> </span><span class="l">ngx.log</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mynginx1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">image</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">docker.io/nginx:1.18-alpine</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>创建沙箱配置<code>sandbox.yaml</code></p>
@@ -423,13 +423,11 @@
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
-</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mysandbox</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mynginxpod1</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">log_directory</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/root/temp&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">port_mappings</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="m">0</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
@@ -458,7 +456,7 @@
 </span></span><span class="line"><span class="cl">tar -zxvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>创建cni配置文件到<code>/etc/cni/net.d/10-mynet.conf</code>, 参考自https://github.com/containernetworking/cni</p>
+</div><p>创建cni配置文件到<code>/etc/cni/net.d/10-mynet.conf</code>, 参考自 <a href="https://github.com/containernetworking/cni">https://github.com/containernetworking/cni</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -504,35 +502,77 @@
 <pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">systemctl restart containerd
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>查看cni装载情况</p>
+</div><p>查看cni装载情况,看到 <code>&quot;lastCNILoadStatus&quot;: &quot;OK&quot;</code> <code>&quot;lastCNILoadStatus.default&quot;: &quot;OK&quot;</code>为正常</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">crictl info
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>此时执行<code>ip addr</code> 会发现多了一个<code>cni0</code>网桥</p>
+<h3 id="创建pod">创建pod</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 看到 &#34;lastCNILoadStatus&#34;: &#34;OK&#34;, &#34;lastCNILoadStatus.default&#34;: &#34;OK&#34; 为正常</span>
-</span></span><span class="line"><span class="cl">crictl info
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="创建pod">创建pod</h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">crictl run nginx.yaml sandbox.yaml
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ crictl run nginx.yaml sandbox.yaml
+</span></span><span class="line"><span class="cl">d4e9ada705fb8036beae4ea7b9c33b64600fb118048f012dd10cfdd742b59d4d
 </span></span></code></pre></td></tr></table>
 </div>
 </div><blockquote>
 <p>报错 registry.k8s.io/pause:3.6 拉不下来</p>
 </blockquote>
-<p>修改containerd的配置文件将<code>registry.k8s.io/pause:3.6</code> 改为 <code>registry.cn-beijing.aliyuncs.com/kubesphereio/pause:3.8</code></p>
+<p>修改containerd的配置文件将 <code>registry.k8s.io/pause:3.6</code> 改为 <code>registry.cn-beijing.aliyuncs.com/kubesphereio/pause:3.8</code></p>
 <blockquote>
 <p>报错:  exec: &ldquo;runc&rdquo;: executable file not found in $PATH: unknown</p>
 </blockquote>
-<p>安装<code>runc</code></p>
-
+<p>安装<code>runc</code> 到<code>/usr/local/bin</code></p>
+<p>查看pod</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ crictl pods
+</span></span><span class="line"><span class="cl">POD ID              CREATED             STATE               NAME                NAMESPACE           ATTEMPT             RUNTIME
+</span></span><span class="line"><span class="cl">b5255c53e9ab3       <span class="m">36</span> seconds ago      Ready               mynginxpod1         default             <span class="m">0</span>                   <span class="o">(</span>default<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看container</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ crictl ps
+</span></span><span class="line"><span class="cl">CONTAINER           IMAGE                         CREATED             STATE               NAME                ATTEMPT             POD ID              POD
+</span></span><span class="line"><span class="cl">d4e9ada705fb8       docker.io/nginx:1.18-alpine   <span class="m">53</span> seconds ago      Running             mynginx1            <span class="m">0</span>                   b5255c53e9ab3       unknown
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>删除</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ crictl stop  d4e9ada705fb8
+</span></span><span class="line"><span class="cl">➜ crictl rm    d4e9ada705fb8
+</span></span><span class="line"><span class="cl">➜ crictl stopp b5255c53e9ab3
+</span></span><span class="line"><span class="cl">➜ crictl rmp   b5255c53e9ab3
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
     </div>
 
     
