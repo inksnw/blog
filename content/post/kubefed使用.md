@@ -12,7 +12,9 @@ helm --namespace kube-federation-system upgrade -i kubefed kubefed-charts/kubefe
 
 安装kubefedctl二进制
 
-配置config上下文:略
+配置kube-config上下文:
+
+> Mac 上可以使用一个叫 kubecontext的小工具配置, 或者直接修改 ~/.kube/config文件
 
 ```bash
 kubefedctl join k1 --cluster-context  k1-admin --host-cluster-context  k1-admin --v=2
