@@ -30,6 +30,8 @@ tcp_address = "0.0.0.0:8989"
 		disable_tcp_service = false
 ```
 
+> stream_server_address = "192.168.50.233" 配置地址可实现exec功能
+
 配置系统服务到`/lib/systemd/system/containerd.service  `
 
 ```bash
