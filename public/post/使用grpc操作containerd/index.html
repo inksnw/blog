@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &amp;gt; /etc/containerd/config.toml 修改 /etc/containerd/confi" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="环境配置 下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &amp;gt; /etc/containerd/config.toml 修改 /etc/containerd/c" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,18 +44,18 @@
 
 
 <meta property="og:title" content="使用grpc操作containerd" />
-<meta property="og:description" content="下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/confi" />
+<meta property="og:description" content="环境配置 下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/c" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8grpc%E6%93%8D%E4%BD%9Ccontainerd/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-02-16T19:43:26+08:00" />
 <meta property="article:modified_time" content="2023-02-16T19:43:26+08:00" />
 <meta itemprop="name" content="使用grpc操作containerd">
-<meta itemprop="description" content="下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/confi"><meta itemprop="datePublished" content="2023-02-16T19:43:26+08:00" />
+<meta itemprop="description" content="环境配置 下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/c"><meta itemprop="datePublished" content="2023-02-16T19:43:26+08:00" />
 <meta itemprop="dateModified" content="2023-02-16T19:43:26+08:00" />
-<meta itemprop="wordCount" content="476">
+<meta itemprop="wordCount" content="912">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用grpc操作containerd"/>
-<meta name="twitter:description" content="下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/confi"/>
+<meta name="twitter:description" content="环境配置 下载containerd二进制包 1 2 wget https://github.com/containerd/containerd/releases/download/v1.6.18/containerd-1.6.18-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/c"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-02-16 </span>
             
-            <span class="more-meta"> 约 476 字 更新于 2023-02-16
+            <span class="more-meta"> 约 912 字 更新于 2023-02-16
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -139,13 +139,30 @@
 <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">目录</h2>
     <div class="post-toc-content always-active">
-        <nav id="TableOfContents"></nav>
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#环境配置">环境配置</a></li>
+        <li><a href="#grpc操作">grpc操作</a></li>
+        <li><a href="#crictl创建pod">crictl创建pod</a>
+          <ul>
+            <li><a href="#cri配置文件">cri配置文件</a></li>
+            <li><a href="#cni配置">cni配置</a></li>
+            <li><a href="#创建pod">创建pod</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
     
     <div class="post-content">
-        <p>下载containerd二进制包</p>
+        <h2 id="环境配置">环境配置</h2>
+<p>下载containerd二进制包</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -306,7 +323,8 @@
 </span></span><span class="line"><span class="cl">docker.io/library/alpine   3.12                24c8ece58a1aa       2.81MB
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>写一段简单代码操作containerd, 里面的api版本取决于上面查到的</p>
+</div><h2 id="grpc操作">grpc操作</h2>
+<p>写一段简单代码操作containerd, 里面的api版本取决于上面查到的</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -379,7 +397,142 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
+</div><h2 id="crictl创建pod">crictl创建pod</h2>
+<h3 id="cri配置文件">cri配置文件</h3>
+<p>创建容器配置<code>nginx.yaml</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">myngx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">docker.io/nginx:1.18-alpine</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">log_path</span><span class="p">:</span><span class="w"> </span><span class="l">ngx.log</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
+</div><p>创建沙箱配置<code>sandbox.yaml</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mysandbox</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">log_directory</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/root/temp&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">port_mappings</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="m">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="cni配置">cni配置</h3>
+<p>下载基本cni文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">wget https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-amd64-v1.2.0.tgz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>创建目录,将二进制放到这里, 目录取决于containerd配置文件中的<code>bin_dir = &quot;/opt/cni/bin</code>和<code> conf_dir = &quot;/etc/cni/net.d&quot;</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir -p /opt/cni/bin
+</span></span><span class="line"><span class="cl">mkdir -p /opt/cni/net.d
+</span></span><span class="line"><span class="cl">tar -zxvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>创建cni配置文件到<code>/etc/cni/net.d/10-mynet.conf</code>, 参考自https://github.com/containernetworking/cni</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&#34;cniVersion&#34;</span><span class="p">:</span> <span class="s2">&#34;0.2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;mynet&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;bridge&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&#34;bridge&#34;</span><span class="p">:</span> <span class="s2">&#34;cni0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&#34;isGateway&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&#34;ipMasq&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&#34;ipam&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;host-local&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&#34;subnet&#34;</span><span class="p">:</span> <span class="s2">&#34;10.22.0.0/16&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span> <span class="nt">&#34;dst&#34;</span><span class="p">:</span> <span class="s2">&#34;0.0.0.0/0&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>重启containerd</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">systemctl restart containerd
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看cni装载情况</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 看到 &#34;lastCNILoadStatus&#34;: &#34;OK&#34;, &#34;lastCNILoadStatus.default&#34;: &#34;OK&#34; 为正常</span>
+</span></span><span class="line"><span class="cl">crictl info
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="创建pod">创建pod</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">crictl run nginx.yaml sandbox.yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>报错 registry.k8s.io/pause:3.6 拉不下来</p>
+</blockquote>
+<p>修改containerd的配置文件将<code>registry.k8s.io/pause:3.6</code> 改为 <code>registry.cn-beijing.aliyuncs.com/kubesphereio/pause:3.8</code></p>
+<blockquote>
+<p>报错:  exec: &ldquo;runc&rdquo;: executable file not found in $PATH: unknown</p>
+</blockquote>
+<p>安装<code>runc</code></p>
+
     </div>
 
     

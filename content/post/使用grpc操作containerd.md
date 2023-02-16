@@ -4,6 +4,8 @@ date: 2023-02-16T19:43:26+08:00
 tags: ["k8s"]
 ---
 
+## 环境配置
+
 下载containerd二进制包
 
 ```bash
@@ -97,7 +99,7 @@ IMAGE                      TAG                 IMAGE ID            SIZE
 docker.io/library/alpine   3.12                24c8ece58a1aa       2.81MB
 ```
 
-
+## grpc操作
 
 写一段简单代码操作containerd, 里面的api版本取决于上面查到的
 
@@ -136,4 +138,92 @@ func main() {
 
 }
 ```
+
+## crictl创建pod
+
+### cri配置文件
+
+创建容器配置`nginx.yaml`
+
+```yaml
+metadata:
+  name: myngx
+image: docker.io/nginx:1.18-alpine
+log_path: ngx.log
+```
+
+创建沙箱配置`sandbox.yaml`
+
+```yaml
+metadata:
+  name: mysandbox
+  namespace: default
+log_directory: "/root/temp"
+port_mappings:
+  - protocol: 0
+    container_port: 80
+```
+
+### cni配置
+
+下载基本cni文件
+
+```
+wget https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-amd64-v1.2.0.tgz
+```
+
+创建目录,将二进制放到这里, 目录取决于containerd配置文件中的`bin_dir = "/opt/cni/bin`和` conf_dir = "/etc/cni/net.d"`
+
+```bash
+mkdir -p /opt/cni/bin
+mkdir -p /opt/cni/net.d
+tar -zxvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
+```
+
+创建cni配置文件到`/etc/cni/net.d/10-mynet.conf`, 参考自https://github.com/containernetworking/cni
+
+ ```json
+ {
+ 	"cniVersion": "0.2.0",
+ 	"name": "mynet",
+ 	"type": "bridge",
+ 	"bridge": "cni0",
+ 	"isGateway": true,
+ 	"ipMasq": true,
+ 	"ipam": {
+ 		"type": "host-local",
+ 		"subnet": "10.22.0.0/16",
+ 		"routes": [
+ 			{ "dst": "0.0.0.0/0" }
+ 		]
+ 	}
+ }
+ ```
+
+重启containerd
+
+```
+systemctl restart containerd
+```
+
+查看cni装载情况
+
+```bash
+# 看到 "lastCNILoadStatus": "OK", "lastCNILoadStatus.default": "OK" 为正常
+crictl info
+```
+
+### 创建pod
+
+```
+crictl run nginx.yaml sandbox.yaml
+```
+
+> 报错 registry.k8s.io/pause:3.6 拉不下来
+
+修改containerd的配置文件将`registry.k8s.io/pause:3.6` 改为 `registry.cn-beijing.aliyuncs.com/kubesphereio/pause:3.8`
+
+> 报错:  exec: "runc": executable file not found in $PATH: unknown
+
+安装`runc`
 
