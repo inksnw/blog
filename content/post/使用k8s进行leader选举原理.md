@@ -84,3 +84,4 @@ NAME         HOLDER   AGE
 myapp-lock   app1     12m
 ```
 
+选举是通过租约实现的,如果有业务比如`gin`服务想使用选举逻辑,可直接参考`kubebuilder`生成的`mgr`, 为你的服务实现的一个`start`方法,然后调用 `mgr.Add()`即可
