@@ -16,6 +16,8 @@ helm --namespace kube-federation-system upgrade -i kubefed kubefed-charts/kubefe
 
 > Mac 上可以使用一个叫 kubecontext的小工具配置, 或者直接修改 ~/.kube/config文件
 
+加入联邦
+
 ```bash
 kubefedctl join k1 --cluster-context  k1-admin --host-cluster-context  k1-admin --v=2
 kubefedctl join k2 --cluster-context  k2-admin --host-cluster-context  k1-admin --v=2
