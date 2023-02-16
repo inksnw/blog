@@ -88,6 +88,17 @@ RuntimeVersion:  v1.6.18
 RuntimeApiVersion:  v1
 ```
 
+拉取镜像
+
+```bash
+➜ crictl pull docker.io/alpine:3.12
+➜ crictl images
+IMAGE                      TAG                 IMAGE ID            SIZE
+docker.io/library/alpine   3.12                24c8ece58a1aa       2.81MB
+```
+
+
+
 写一段简单代码操作containerd, 里面的api版本取决于上面查到的
 
 ```go
