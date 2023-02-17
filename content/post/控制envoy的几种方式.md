@@ -32,3 +32,7 @@ curl localhost:10000
 - `filter` : 过滤器。在 Envoy 中指的是一些“可插拔”和可组合的逻辑处理层，是 Envoy 核心逻辑处理单元。
 - `route_config` : 路由规则配置。即将请求路由到后端的哪个集群。
 - `cluster` : 服务提供方集群。Envoy 通过服务发现定位集群成员并获取服务，具体路由到哪个集群成员由负载均衡策略决定
+
+## GRPC控制
+
+官方[参考实现](https://github.com/envoyproxy/go-control-plane)
