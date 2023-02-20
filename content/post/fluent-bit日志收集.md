@@ -97,13 +97,13 @@ server.port: 5601
 }
 ```
 
-访问**kinaba**
+访问**kibana**
 
 ```
 http://127.0.0.1:5601/app/dev_tools#/console
 ```
 
-两年没用es,8.0的kinaba界面改的我都认不出来了(-_-)
+两年没用es,8.0的kibana界面改的我都认不出来了(-_-)
 
 ### 配置ES输出
 
