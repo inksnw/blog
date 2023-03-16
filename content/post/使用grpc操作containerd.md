@@ -230,6 +230,14 @@ d4e9ada705fb8036beae4ea7b9c33b64600fb118048f012dd10cfdd742b59d4d
 
 安装`runc` 到`/usr/local/bin`
 
+```bash
+wget https://github.com/opencontainers/runc/releases/download/v1.1.4/runc.amd64
+mv runc.amd64 /usr/local/bin/runc
+chmod +x /usr/local/bin/runc
+```
+
+
+
 查看pod
 
 ```bash
