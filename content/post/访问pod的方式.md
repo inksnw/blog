@@ -108,7 +108,7 @@ ipvs:
 安装,参考文档https://metallb.universe.tf/installation/
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.9/config/manifests/metallb-native.yaml
 ```
 
 > **Layer 2模式** 
@@ -194,6 +194,12 @@ testsvc      LoadBalancer   10.233.49.203   192.168.50.50   8989:30910/TCP   3m5
 ➜ arp -n|grep 192.168.50.5
 192.168.50.51                    (incomplete)                              enp1s0
 192.168.50.52                    (incomplete)                              enp1s0
+```
+
+解决办法
+
+```bash
+kubectl delete daemonset speaker -n metallb-system
 ```
 
 ### 使用ExternalName代理访问
