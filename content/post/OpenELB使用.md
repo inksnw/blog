@@ -83,7 +83,9 @@ spec:
 - IP地址/子网掩码，例如 192.168.0.0/24
 - IP地址1-IP地址2，例如192.168.0.91-192.168.0.100
 
-`protocol` 可以配置为 layer2 或 bgp，默认为 bgp 模式，我们这里想使用 layer2 模式，所以需要显示指定 `interface` 是用来指定 OpenELB 监听 ARP 或 NDP 请求的网卡，该字段仅在协议设置为 layer2 时有效
+`protocol` 可以配置为 layer2 或 bgp，默认为 bgp 模式，我们这里配置 layer2 模式,
+
+`interface` 是用来指定 OpenELB 监听 ARP 或 NDP 请求的网卡，该字段仅在协议设置为 layer2 时有效
 
 ```bash
 ➜ kubectl get eip          
