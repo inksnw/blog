@@ -187,10 +187,9 @@ testsvc      LoadBalancer   10.233.49.203   192.168.50.50   8989:30910/TCP   3m5
 ➜ curl 192.168.50.50:8989
 ```
 
-> bug?
+> metallb与calico同时使用bgp模式时,会有问题, [原因参考](https://zhuanlan.zhihu.com/p/513231562)
 >
 > 设置EXTERNAL-IP 有机率导致节点的arp信息错乱? master节点向worker节点的arp信息没了
->
 ```bash
 ➜ arp -n|grep 192.168.50.5
 192.168.50.51                    (incomplete)                              enp1s0
