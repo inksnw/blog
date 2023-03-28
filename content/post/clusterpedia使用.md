@@ -136,6 +136,12 @@ clusterpedia-controller-manager-56bbcc7478-62qw2       1/1     Running   0      
 clusterpedia-postgresql-0                              1/1     Running   0          124m
 ```
 
+数据库的密码在secret中
+
+```bash
+kubectl get secret clusterpedia-postgresql -n clusterpedia-system  -o yaml
+```
+
 以下是推测的`clusterpedia`技术实现
 
 - `clusterpedia-clustersynchro-manager`通过`informer`把要同步的资源写入数据库中
