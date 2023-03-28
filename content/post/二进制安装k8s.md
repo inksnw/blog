@@ -11,14 +11,14 @@ draft: true
 ```
 wget https://github.com/etcd-io/etcd/releases/download/v3.5.7/etcd-v3.5.7-linux-amd64.tar.gz
 tar -zxvf etcd-v3.5.7-linux-amd64.tar.gz 
-mv etcd-v3.5.7-linux-amd64/etcd /usr/local/bin/
+mv etcd-v3.5.7-linux-amd64/etcd* /usr/local/bin/
 ```
 
 创建目录
 
 ```
-mkdir -p /etc/kubernetes/etcd
-mkdir -p /var/lib/etcd
+mkdir -p /etc/kubernetes/etcd/data
+chmod 700 /etc/kubernetes/etcd/data
 ```
 
 创建服务
@@ -45,18 +45,18 @@ etcd配置文件
 
 ```bash
 vi /etc/kubernetes/etcd/etcd.conf
-ETCD_DATA_DIR=/var/lib/etcd
-ETCD_ADVERTISE_CLIENT_URLS=https://192.168.50.50:2379
-ETCD_INITIAL_ADVERTISE_PEER_URLS=https://192.168.50.50:2380
+ETCD_DATA_DIR=/etc/kubernetes/etcd/data
+ETCD_ADVERTISE_CLIENT_URLS=http://192.168.50.54:2379
+ETCD_INITIAL_ADVERTISE_PEER_URLS=http://192.168.50.54:2380
 ETCD_INITIAL_CLUSTER_STATE=new
 ETCD_METRICS=basic
-ETCD_LISTEN_CLIENT_URLS=https://192.168.50.50:2379,https://127.0.0.1:2379
+ETCD_LISTEN_CLIENT_URLS=http://192.168.50.54:2379,http://127.0.0.1:2379
 ETCD_INITIAL_CLUSTER_TOKEN=k8s_etcd
-ETCD_LISTEN_PEER_URLS=https://192.168.50.50:2380
-ETCD_NAME=etcd-node1
+ETCD_LISTEN_PEER_URLS=http://192.168.50.54:2380
+ETCD_NAME=etcd-node4
 ETCD_PROXY=off
 ETCD_ENABLE_V2=true
-ETCD_INITIAL_CLUSTER=etcd-node1=https://192.168.50.50:2380
+ETCD_INITIAL_CLUSTER=etcd-node4=http://192.168.50.54:2380
 ```
 
 启动
@@ -78,7 +78,7 @@ etcdctl  member list
 下载二进制
 
 ```
-wget https://dl.k8s.io/v1.26.3/kubernetes-client-linux-amd64.tar.gz
+wget https://dl.k8s.io/v1.26.3/kubernetes-server-linux-amd64.tar.gz
 ```
 
 
