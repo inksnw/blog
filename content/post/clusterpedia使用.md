@@ -85,6 +85,7 @@ apiVersion: v1
 clusters:
 - cluster:
     certificate-authority-data: xxx
+    server: https://192.168.50.50:6443/apis/clusterpedia.io/v1beta1/resources/clusters/cluster-example
   name: cluster-example
 - cluster:
     certificate-authority-data: xxx
