@@ -26,7 +26,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.111.3 with theme even" />
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/openelb%E4%BD%BF%E7%94%A8/" />
@@ -52,7 +52,7 @@
 <meta itemprop="name" content="OpenELB使用">
 <meta itemprop="description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群"><meta itemprop="datePublished" content="2022-06-22T11:01:26+08:00" />
 <meta itemprop="dateModified" content="2022-06-22T11:01:26+08:00" />
-<meta itemprop="wordCount" content="1301">
+<meta itemprop="wordCount" content="1249">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="OpenELB使用"/>
 <meta name="twitter:description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-06-22 </span>
             
-            <span class="more-meta"> 约 1301 字 更新于 2022-06-22
+            <span class="more-meta"> 约 1249 字 更新于 2022-06-22
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -287,48 +287,14 @@
 <p><code>interface</code> 是用来指定 OpenELB 监听 ARP 或 NDP 请求的网卡，该字段仅在协议设置为 layer2 时有效</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get eip          
 </span></span><span class="line"><span class="cl">NAME       CIDR                          USAGE   TOTAL
 </span></span><span class="line"><span class="cl">eip-pool   192.168.50.50-192.168.50.60   <span class="m">0</span>       <span class="m">9</span>
-</span></span><span class="line"><span class="cl">➜ kubectl get eip eip-pool -o yaml
-</span></span><span class="line"><span class="cl">apiVersion: network.kubesphere.io/v1alpha2
-</span></span><span class="line"><span class="cl">kind: Eip
-</span></span><span class="line"><span class="cl">metadata:
-</span></span><span class="line"><span class="cl">  finalizers:
-</span></span><span class="line"><span class="cl">  - finalizer.ipam.kubesphere.io/v1alpha1
-</span></span><span class="line"><span class="cl">  name: eip-pool
-</span></span><span class="line"><span class="cl">spec:
-</span></span><span class="line"><span class="cl">  address: 192.168.50.50-192.168.50.60
-</span></span><span class="line"><span class="cl">  interface: ens33
-</span></span><span class="line"><span class="cl">  protocol: layer2
-</span></span><span class="line"><span class="cl">status:
-</span></span><span class="line"><span class="cl">  firstIP: 192.168.50.50
-</span></span><span class="line"><span class="cl">  lastIP: 192.168.50.60
-</span></span><span class="line"><span class="cl">  poolSize: <span class="m">9</span>
-</span></span><span class="line"><span class="cl">  ready: <span class="nb">true</span>
-</span></span><span class="line"><span class="cl">  v4: <span class="nb">true</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>到这里 LB 的地址池就准备好了，接下来创建一个简单的服务，通过 LB 来进行暴露：</p>
@@ -398,24 +364,24 @@
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># openelb-nginx-svc.yaml</span>
-</span></span><span class="line"><span class="cl">apiVersion: v1
-</span></span><span class="line"><span class="cl">kind: Service
-</span></span><span class="line"><span class="cl">metadata:
-</span></span><span class="line"><span class="cl">  name: nginx
-</span></span><span class="line"><span class="cl">  annotations:
-</span></span><span class="line"><span class="cl">    lb.kubesphere.io/v1alpha1: openelb
-</span></span><span class="line"><span class="cl">    protocol.openelb.kubesphere.io/v1alpha1: layer2
-</span></span><span class="line"><span class="cl">    eip.openelb.kubesphere.io/v1alpha2: eip-pool
-</span></span><span class="line"><span class="cl">spec:
-</span></span><span class="line"><span class="cl">  selector:
-</span></span><span class="line"><span class="cl">    app: nginx
-</span></span><span class="line"><span class="cl">  type: LoadBalancer
-</span></span><span class="line"><span class="cl">  ports:
-</span></span><span class="line"><span class="cl">    - name: http
-</span></span><span class="line"><span class="cl">      port: <span class="m">80</span>
-</span></span><span class="line"><span class="cl">      targetPort: <span class="m">80</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># openelb-nginx-svc.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">lb.kubesphere.io/v1alpha1</span><span class="p">:</span><span class="w"> </span><span class="l">openelb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">protocol.openelb.kubesphere.io/v1alpha1</span><span class="p">:</span><span class="w"> </span><span class="l">layer2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">eip.openelb.kubesphere.io/v1alpha2</span><span class="p">:</span><span class="w"> </span><span class="l">eip-pool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">LoadBalancer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>注意这里我们为 Service 添加了几个 annotations 注解：</p>
 <ul>

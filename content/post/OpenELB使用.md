@@ -91,23 +91,6 @@ spec:
 ➜ kubectl get eip          
 NAME       CIDR                          USAGE   TOTAL
 eip-pool   192.168.50.50-192.168.50.60   0       9
-➜ kubectl get eip eip-pool -o yaml
-apiVersion: network.kubesphere.io/v1alpha2
-kind: Eip
-metadata:
-  finalizers:
-  - finalizer.ipam.kubesphere.io/v1alpha1
-  name: eip-pool
-spec:
-  address: 192.168.50.50-192.168.50.60
-  interface: ens33
-  protocol: layer2
-status:
-  firstIP: 192.168.50.50
-  lastIP: 192.168.50.60
-  poolSize: 9
-  ready: true
-  v4: true
 ```
 
 到这里 LB 的地址池就准备好了，接下来创建一个简单的服务，通过 LB 来进行暴露：
@@ -136,7 +119,7 @@ spec:
 
 然后创建一个 `LoadBalancer` 类型的 Service 来暴露 nginx 服务：
 
-```bash
+```yaml
 # openelb-nginx-svc.yaml
 apiVersion: v1
 kind: Service
