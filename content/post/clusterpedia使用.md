@@ -29,8 +29,8 @@ helm install clusterpedia clusterpedia/clusterpedia \
 
 首先需要将接入集群的 kube config base64 编码。
 
-```
-base64 -w 0 ~./kube/config
+```bash
+base64 -w 0 ~/.kube/config
 ```
 
 将生成的编码内容,填入到下方的`spec.kubeconfig`中
