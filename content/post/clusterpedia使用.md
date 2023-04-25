@@ -64,6 +64,16 @@ spec:
       - certificates
 ```
 
+同步所有资源
+
+```yaml
+spec:
+  syncResources:
+  - group: "*"
+    resources:
+    - "*"
+```
+
 查看集群情况
 
 ```bash

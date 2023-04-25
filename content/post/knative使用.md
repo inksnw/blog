@@ -45,7 +45,7 @@ webhook-58b6b89c55-hhcgv                 1/1     Running   0          26s
 
 ### 创建一个服务
 
-```
+```yaml
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
