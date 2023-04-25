@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Tekton和argocd使用 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="Tekton是一个谷歌开源的kubernetes原生CI/CD框架 部分重要组件 Tekton Pipelines: 定义流水线（包含task、 task-run、pipelin" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/tekton%E5%92%8Cargocd%E4%BD%BF%E7%94%A8/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="Tekton和argocd使用" />
+<meta property="og:description" content="Tekton是一个谷歌开源的kubernetes原生CI/CD框架 部分重要组件 Tekton Pipelines: 定义流水线（包含task、 task-run、pipelin" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/tekton%E5%92%8Cargocd%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-09-24T20:05:03+08:00" />
+<meta property="article:modified_time" content="2022-09-24T20:05:03+08:00" />
+<meta itemprop="name" content="Tekton和argocd使用">
+<meta itemprop="description" content="Tekton是一个谷歌开源的kubernetes原生CI/CD框架 部分重要组件 Tekton Pipelines: 定义流水线（包含task、 task-run、pipelin"><meta itemprop="datePublished" content="2022-09-24T20:05:03+08:00" />
+<meta itemprop="dateModified" content="2022-09-24T20:05:03+08:00" />
+<meta itemprop="wordCount" content="705">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Tekton和argocd使用"/>
+<meta name="twitter:description" content="Tekton是一个谷歌开源的kubernetes原生CI/CD框架 部分重要组件 Tekton Pipelines: 定义流水线（包含task、 task-run、pipelin"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">Tekton和argocd使用</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2022-09-24 </span>
+            
+            <span class="more-meta"> 约 705 字 更新于 2022-09-24
+              </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#安装">安装</a></li>
+        <li><a href="#运行">运行</a></li>
+        <li><a href="#以下内容先欠着写不动了">以下内容先欠着,写不动了</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>Tekton是一个谷歌开源的kubernetes原生CI/CD框架</p>
+<p>部分重要组件</p>
+<ul>
+<li>
+<p>Tekton Pipelines:  定义流水线（包含task、 task-run、pipeline等）</p>
+</li>
+<li>
+<p>Trigger Trigger: pipeline 触发器，可以在 git 推送后，触发 pipeline</p>
+</li>
+<li>
+<p>Tekton CLI:  Tekton 交互的命令行工具。</p>
+</li>
+<li>
+<p>Tekton Dashboard: Tekton Pipelines 的 Web 图形界面</p>
+</li>
+</ul>
+<h2 id="安装">安装</h2>
+<p>文档: <a href="https://github.com/tektoncd/pipeline/blob/main/docs/install.md">https://github.com/tektoncd/pipeline/blob/main/docs/install.md</a></p>
+<p><strong>tekton/pipelines</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+</span></span><span class="line"><span class="cl">kubectl get pods --namespace tekton-pipelines
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>dashboard</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>开放svc访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#修改为nodePort</span>
+</span></span><span class="line"><span class="cl">kubectl edit svc tekton-dashboard -n  tekton-pipelines 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>tkn cli</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">brew install tektoncd-cli
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>基本概念</strong></p>
+<ul>
+<li>Task: 表示执行命令的一系列步骤，task 里可以定义一系列的 steps，例如编译代码、构建镜像、推送镜像等，每个 step 实际由一个 Pod 执行。</li>
+<li>TaskRun: task定义了一个模板,taskrun代表了一次实际的运行</li>
+<li>Pipeline: 一个或多个task,PipelineResource以及各种参数的集合</li>
+<li>PipelineRun: 类似task和taskRun的关系，pipelineRun 也表示某一次实际运行的 pipeline，下发一个 pipelineRun CRD 实例到 Kubernetes后，同样也会触发一次 pipeline 的构建。</li>
+<li>PipeLineResource: 表示pipeline 输入资源,如git源码,或者 pipeline 输出资源，例如一个容器镜像或者构建生成的 jar 包等</li>
+</ul>
+<h2 id="运行">运行</h2>
+<p>创建一个<code>Task</code>与<code>TaskRun</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">tekton.dev/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Task</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">echo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">alpine</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">        #!/bin/sh
+</span></span></span><span class="line"><span class="cl"><span class="sd">        echo &#34;Hello World&#34;</span><span class="w">        
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">tekton.dev/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">TaskRun</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-task-run</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">taskRef</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get task
+</span></span><span class="line"><span class="cl">➜ kubectl get taskrun
+</span></span><span class="line"><span class="cl">➜ tkn taskrun list
+</span></span><span class="line"><span class="cl">➜ tkn taskrun logs hello-task-run
+</span></span><span class="line"><span class="cl"><span class="o">[</span>echo<span class="o">]</span> Hello World
+</span></span><span class="line"><span class="cl">➜ tkn task describe  hello
+</span></span><span class="line"><span class="cl">Name:        hello
+</span></span><span class="line"><span class="cl">Namespace:   default
+</span></span><span class="line"><span class="cl">🦶 Steps
+</span></span><span class="line"><span class="cl"> ∙ <span class="nb">echo</span>
+</span></span><span class="line"><span class="cl">🗂  Taskruns
+</span></span><span class="line"><span class="cl">NAME             STARTED         DURATION   STATUS
+</span></span><span class="line"><span class="cl">hello-task-run   <span class="m">6</span> minutes ago   6s         Succeeded
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看图形界面</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/Tekton和argocd使用_0e87c8f1eecf273adae9217db1ba60e8.png" alt="image-20220924211406813" style="zoom: 50%;" />
+<p>我们可以通过 <code>kubectl describe</code> 命令来查看任务运行的过程，当任务执行完成后， Pod 就会变成 <code>Completed</code> 状态了：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get pod                        
+</span></span><span class="line"><span class="cl">NAME                 READY   STATUS      RESTARTS   AGE
+</span></span><span class="line"><span class="cl">hello-task-run-pod   0/1     Completed   <span class="m">0</span>          36m
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以查看容器的日志信息来了解任务的执行结果信息：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl logs hello-task-run-pod --all-containers
+</span></span><span class="line"><span class="cl">2022/09/24 13:12:10 Entrypoint initialization
+</span></span><span class="line"><span class="cl">2022/09/24 13:12:11 Decoded script /tekton/scripts/script-0-nrkts
+</span></span><span class="line"><span class="cl">Hello World
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="以下内容先欠着写不动了">以下内容先欠着,写不动了</h2>
+<ul>
+<li>pipline</li>
+<li>piplineresource</li>
+<li>trigger</li>
+<li>kaniko</li>
+<li>argocd</li>
+<li>tekton触发argocd</li>
+</ul>
+
+    </div>
+
+    
+<footer class="post-footer">
+        
+        <nav class="post-nav">
+            <a class="prev" href="/post/opentelemetry%E4%BD%BF%E7%94%A8/">
+                <i class="iconfont icon-left"></i>
+                <span class="prev-text nav-default">OpenTelemetry使用</span>
+                <span class="prev-text nav-mobile">上一篇</span>
+            </a>
+            <a class="next" href="/post/cert-manager%E4%BD%BF%E7%94%A8/">
+                <span class="next-text nav-default">Cert Manager使用</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>

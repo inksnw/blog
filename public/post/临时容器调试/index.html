@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>临时容器调试 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="修改manifest文件 修改/etc/kubernetes/manifests 下的三个yaml配置文件在- --feature-gates项后" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E4%B8%B4%E6%97%B6%E5%AE%B9%E5%99%A8%E8%B0%83%E8%AF%95/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="临时容器调试" />
+<meta property="og:description" content="修改manifest文件 修改/etc/kubernetes/manifests 下的三个yaml配置文件在- --feature-gates项后" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E4%B8%B4%E6%97%B6%E5%AE%B9%E5%99%A8%E8%B0%83%E8%AF%95/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-02-10T13:39:02+08:00" />
+<meta property="article:modified_time" content="2023-02-10T13:39:02+08:00" />
+<meta itemprop="name" content="临时容器调试">
+<meta itemprop="description" content="修改manifest文件 修改/etc/kubernetes/manifests 下的三个yaml配置文件在- --feature-gates项后"><meta itemprop="datePublished" content="2023-02-10T13:39:02+08:00" />
+<meta itemprop="dateModified" content="2023-02-10T13:39:02+08:00" />
+<meta itemprop="wordCount" content="272">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="临时容器调试"/>
+<meta name="twitter:description" content="修改manifest文件 修改/etc/kubernetes/manifests 下的三个yaml配置文件在- --feature-gates项后"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">临时容器调试</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-02-10 </span>
+            
+            <span class="more-meta"> 约 272 字 更新于 2023-02-10
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#修改manifest文件">修改<code>manifest</code>文件</a></li>
+            <li><a href="#修改kubelet配置">修改kubelet配置</a></li>
+            <li><a href="#验证">验证</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h3 id="修改manifest文件">修改<code>manifest</code>文件</h3>
+<p>修改<code>/etc/kubernetes/manifests</code> 下的三个yaml配置文件在<code>- --feature-gates</code>项后面添加 <code>EphemeralContainers=true</code></p>
+<h3 id="修改kubelet配置">修改kubelet配置</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">vi /var/lib/kubelet/kubeadm-flags.env 
+</span></span><span class="line"><span class="cl"><span class="c1"># 所有主机的kubelet加入 --feature-gates=EphemeralContainers=true</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 重启 kubelet</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="验证">验证</h3>
+<p>创建一个普通pod</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">kubectl run  mynginx --image=nginx</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>增加一个调试容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl debug -it mynginx --image<span class="o">=</span>busybox:1.28 --target<span class="o">=</span>mynginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>会进入到 <code>busybox</code> 容器的命令行, 此时查看pod信息,可以看到多了一个<code>ephemeralContainerStatuses</code>容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">kubectl get pod mynginx -o yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>但是查看pod信息时,容器数量依然计算为<code>1/1</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">kubectl get pod
+</span></span><span class="line"><span class="cl">NAME      READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">mynginx   1/1     Running   0          3m3s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>进入<code>/proc/1/root</code> 目录,则为原容器的文件目录</p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            <a class="prev" href="/post/csi%E6%8C%82%E8%BD%BDnfs/">
+                <i class="iconfont icon-left"></i>
+                <span class="prev-text nav-default">csi挂载nfs</span>
+                <span class="prev-text nav-mobile">上一篇</span>
+            </a>
+            <a class="next" href="/post/%E8%AE%BF%E9%97%AEpod%E7%9A%84%E6%96%B9%E5%BC%8F/">
+                <span class="next-text nav-default">访问pod的方式</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>

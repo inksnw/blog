@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>5.类型系统 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="手敲一遍 通过例子学Rust Rust 提供了多种机制，用于改变或定义原生类型和用户定义类型。接下来会讲到： 原生类型的类型转换 (cast) 指定字面量的类型 使用类型" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/rust/5.%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="5.类型系统" />
+<meta property="og:description" content="手敲一遍 通过例子学Rust Rust 提供了多种机制，用于改变或定义原生类型和用户定义类型。接下来会讲到： 原生类型的类型转换 (cast) 指定字面量的类型 使用类型" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/rust/5.%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/" /><meta property="article:section" content="rust" />
+<meta property="article:published_time" content="2022-09-22T23:29:19+08:00" />
+<meta property="article:modified_time" content="2022-09-22T23:29:19+08:00" />
+<meta itemprop="name" content="5.类型系统">
+<meta itemprop="description" content="手敲一遍 通过例子学Rust Rust 提供了多种机制，用于改变或定义原生类型和用户定义类型。接下来会讲到： 原生类型的类型转换 (cast) 指定字面量的类型 使用类型"><meta itemprop="datePublished" content="2022-09-22T23:29:19+08:00" />
+<meta itemprop="dateModified" content="2022-09-22T23:29:19+08:00" />
+<meta itemprop="wordCount" content="1691">
+<meta itemprop="keywords" content="rust," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="5.类型系统"/>
+<meta name="twitter:description" content="手敲一遍 通过例子学Rust Rust 提供了多种机制，用于改变或定义原生类型和用户定义类型。接下来会讲到： 原生类型的类型转换 (cast) 指定字面量的类型 使用类型"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+  
+
+  <header class="post-header">
+    <h1 class="post-title">5.类型系统</h1>
+
+    <div class="post-meta">
+      <span class="post-time"> 2022-09-22 </span>
+      
+      <span class="more-meta"> 约 1691 字 更新于 2022-09-22
+              <a class="article-tags" href=/tags/rust/>rust</a>
+        </span>
+      
+    </div>
+  </header>
+
+  
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">相关文章</h2>
+    <div class="post-toc-content">
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/15.%E4%BD%9C%E7%94%A8%E5%9F%9F%E8%A7%84%E5%88%99/" title="15.作用域规则">15.作用域规则</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/14.%E6%B3%9B%E5%9E%8B/" title="14.泛型">14.泛型</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/13.%E5%B1%9E%E6%80%A7/" title="13.属性">13.属性</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/12.cargo/" title="12.cargo">12.cargo</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/11.crate/" title="11.crate">11.crate</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/10.%E6%A8%A1%E5%9D%97/" title="10.模块">10.模块</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/9.%E5%87%BD%E6%95%B0/" title="9.函数">9.函数</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/8.%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/" title="8.流程控制">8.流程控制</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/7.%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="7.表达式">7.表达式</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/6.%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" title="6.类型转换">6.类型转换</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/5.%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/" title="5.类型系统">5.类型系统</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/4.%E5%8F%98%E9%87%8F%E7%BB%91%E5%AE%9A/" title="4.变量绑定">4.变量绑定</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/3.%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%9E%8B/" title="3.自定义类型">3.自定义类型</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/2.%E5%8E%9F%E7%94%9F%E7%B1%BB%E5%9E%8B/" title="2.原生类型">2.原生类型</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/1.hello-world/" title="1.Hello World">1.Hello World</a>
+        </li>
+        
+    </div>
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#类型转换">类型转换</a></li>
+    <li><a href="#字面量">字面量</a></li>
+    <li><a href="#类型推断">类型推断</a></li>
+    <li><a href="#别名">别名</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+  
+  <div class="post-content">
+    <p>手敲一遍 <a href="https://rustwiki.org/zh-CN/rust-by-example/index.html">通过例子学Rust</a></p>
+<p>Rust 提供了多种机制，用于改变或定义原生类型和用户定义类型。接下来会讲到：</p>
+<ul>
+<li>原生类型的类型转换 (cast)</li>
+<li>指定字面量的类型</li>
+<li>使用类型推断 (type inference)</li>
+<li>类型别名</li>
+</ul>
+<h1 id="类型转换">类型转换</h1>
+<p>Rust 不提供原生类型之间的隐式类型转换 (coercion),但可以使用<code>as</code>关键字进行显式类型转换 (casting)</p>
+<p>整形之间的转换大体遵循C语言的惯例,除了C会产生未定义行为的情形.在Rust中所有的整形转换都是定义良好的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="c1">//不显示类型转换产生的溢出警告
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#![allow(overflowing_literals)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">decimal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">65.4321_</span><span class="k">f32</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">//错误!不提供隐式转换
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// let integer: u8 = decimal;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 改正 ^ 注释掉这一行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">//可以显示转换
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">integer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decimal</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">u8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">character</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">integer</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">char</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Casting: </span><span class="si">{}</span><span class="s"> -&gt; </span><span class="si">{}</span><span class="s"> -&gt; </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">decimal</span><span class="p">,</span><span class="w"> </span><span class="n">integer</span><span class="p">,</span><span class="w"> </span><span class="n">character</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 当把任何类型转换为无符号类型 T 时，会不断加上或减去 (std::T::MAX + 1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 直到值位于新类型 T 的范围内。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 1000 已经在 u16 的范围内
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;1000 as a u16 is: </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">u16</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 1000 - 256 - 256 - 256 = 232
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 事实上的处理方式是：从最低有效位（LSB，least significant bits）开始保留
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 8 位，然后剩余位置，直到最高有效位（MSB，most significant bit）都被抛弃。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 译注：MSB 就是二进制的最高位，LSB 就是二进制的最低位，按日常书写习惯就是
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 最左边一位和最右边一位。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;1000 as a u8 is : </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">u8</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// -1 + 256 = 255
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;  -1 as a u8 is : </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="k">i8</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">u8</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 对正数，这就和取模一样。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;1000 mod 256 is : </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">256</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 当转换到有符号类型时，（位操作的）结果就和 “先转换到对应的无符号类型，
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 如果 MSB 是 1，则该值为负” 是一样的。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 当然如果数值已经在目标类型的范围内，就直接把它放进去。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34; 128 as a i16 is: </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">i16</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 128 转成 u8 还是 128，但转到 i8 相当于给 128 取八位的二进制补码，其值是：
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34; 128 as a i8 is : </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">i8</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 重复之前的例子
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 1000 as u8 -&gt; 232
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;1000 as a u8 is : </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">u8</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 232 的二进制补码是 -24
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34; 232 as a i8 is : </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">232</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">i8</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="字面量">字面量</h1>
+<p>对数值字面量，只要把类型作为后缀加上去，就完成了类型说明。比如指定字面量 <code>42</code> 的 类型是 <code>i32</code>，只需要写 <code>42i32</code>。</p>
+<p>无后缀的数值字面量，其类型取决于怎样使用它们。如果没有限制，编译器会对整数使用 <code>i32</code>，对浮点数使用 <code>f64</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 带后缀的字面量，其类型在初始化时已经知道了。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="k">u8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="k">u32</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="k">f32</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 无后缀的字面量，其类型取决于如何使用它们。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// `size_of_val` 返回一个变量所占的字节数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;size of `x` in bytes: </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">size_of_val</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;size of `y` in bytes: </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">size_of_val</span><span class="p">(</span><span class="o">&amp;</span><span class="n">y</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;size of `z` in bytes: </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">size_of_val</span><span class="p">(</span><span class="o">&amp;</span><span class="n">z</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;size of `i` in bytes: </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">size_of_val</span><span class="p">(</span><span class="o">&amp;</span><span class="n">i</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;size of `f` in bytes: </span><span class="si">{}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span>::<span class="n">mem</span>::<span class="n">size_of_val</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>上面的代码使用了一些还没有讨论过的概念。心急的读者可以看看下面的简短解释：</p>
+<ul>
+<li><code>fun(&amp;foo)</code> 用<strong>传引用</strong>（pass by reference）的方式把变量传给函数，而非 传值（pass by value，写法是 <code>fun(foo)</code>）。更多细节请看<a href="https://rustwiki.org/zh-CN/rust-by-example/scope/borrow.html">借用</a>。</li>
+<li><code>std::mem::size_of_val</code> 是一个函数，这里使用其<strong>完整路径</strong>（full path）调用。代 码可以分成一些叫做<strong>模块</strong>（module）的逻辑单元。在本例中，<code>size_of_val</code> 函数是 在 <code>mem</code> 模块中定义的，而 <code>mem</code> 模块又是在 <code>std</code> <strong>crate</strong> 中定义的。更多细节 请看<a href="https://rustwiki.org/zh-CN/rust-by-example/mod.html">模块</a>和<a href="https://rustwiki.org/zh-CN/rust-by-example/crates.html">crate</a>.</li>
+</ul>
+<h1 id="类型推断">类型推断</h1>
+<p>Rust 的类型推断引擎是很聪明的，它不只是在初始化时看看<a href="https://en.wikipedia.org/wiki/Value_(computer_science)#lrvalue">右值</a>（r-value）的 类型而已，它还会考察变量之后会怎样使用，借此推断类型。这是一个类型推导的进阶例子：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 因为有类型说明，编译器知道 `elem` 的类型是 u8。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">elem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="k">u8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 创建一个空向量（vector，即不定长的，可以增长的数组）。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Vec</span>::<span class="n">new</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 现在编译器还不知道 `vec` 的具体类型，只知道它是某种东西构成的向量（`Vec&lt;_&gt;`）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 在向量中插入 `elem`。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">vec</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">elem</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 啊哈！现在编译器知道 `vec` 是 u8 的向量了（`Vec&lt;u8&gt;`）。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 试一试 ^ 注释掉 `vec.push(elem)` 这一行。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;</span><span class="si">{:?}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">vec</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>没有必要写类型说明，编译器和程序员皆大欢喜！</p>
+<h1 id="别名">别名</h1>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="c1">// `NanoSecond` 是 `u64` 的新名字。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">type</span> <span class="nc">NanoSecond</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">u64</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">type</span> <span class="nc">Inch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">u64</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 通过这个属性屏蔽警告。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#[allow(non_camel_case_types)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">type</span> <span class="nc">u64_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">u64</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 试一试 ^ 移除上面那个属性
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// `NanoSecond` = `Inch` = `u64_t` = `u64`.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">nanoseconds</span>: <span class="nc">NanoSecond</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">u64_t</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">inches</span>: <span class="nc">Inch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">u64_t</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 注意类型别名*并不能*提供额外的类型安全，因为别名*并不是*新的类型。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;</span><span class="si">{}</span><span class="s"> nanoseconds + </span><span class="si">{}</span><span class="s"> inches = </span><span class="si">{}</span><span class="s"> unit?&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">             </span><span class="n">nanoseconds</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">             </span><span class="n">inches</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">             </span><span class="n">nanoseconds</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">inches</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>别名的主要用途是避免写出冗长的模板化代码（boilerplate code）。如 <code>IoResult&lt;T&gt;</code> 是 <code>Result&lt;T, IoError&gt;</code> 类型的别名。</p>
+
+  </div>
+
+  
+<footer class="post-footer">
+    <div class="post-tags">
+      <a href="/%20tags/rust/">rust</a>
+      </div>
+    <nav class="post-nav">
+      <a class="prev" href="/rust/6.%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">6.类型转换</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+      <a class="next" href="/rust/4.%E5%8F%98%E9%87%8F%E7%BB%91%E5%AE%9A/">
+        <span class="next-text nav-default">4.变量绑定</span>
+        <span class="next-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav>
+  </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>

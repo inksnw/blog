@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>OCI规范-Image spec - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="OCI 规范说起 OCI（Open Container Initiative）规范是事实上的容器标准,OCI 规范分为 Image spec 和 Runtime spec 两部分，它们分别覆盖了容器生命周期的不同阶" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86-oci%E8%A7%84%E8%8C%83/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="OCI规范-Image spec" />
+<meta property="og:description" content="OCI 规范说起 OCI（Open Container Initiative）规范是事实上的容器标准,OCI 规范分为 Image spec 和 Runtime spec 两部分，它们分别覆盖了容器生命周期的不同阶" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86-oci%E8%A7%84%E8%8C%83/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-11-28T17:17:41+08:00" />
+<meta property="article:modified_time" content="2022-11-28T17:17:41+08:00" />
+<meta itemprop="name" content="OCI规范-Image spec">
+<meta itemprop="description" content="OCI 规范说起 OCI（Open Container Initiative）规范是事实上的容器标准,OCI 规范分为 Image spec 和 Runtime spec 两部分，它们分别覆盖了容器生命周期的不同阶"><meta itemprop="datePublished" content="2022-11-28T17:17:41+08:00" />
+<meta itemprop="dateModified" content="2022-11-28T17:17:41+08:00" />
+<meta itemprop="wordCount" content="1124">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="OCI规范-Image spec"/>
+<meta name="twitter:description" content="OCI 规范说起 OCI（Open Container Initiative）规范是事实上的容器标准,OCI 规范分为 Image spec 和 Runtime spec 两部分，它们分别覆盖了容器生命周期的不同阶"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">OCI规范-Image spec</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2022-11-28 </span>
+            
+            <span class="more-meta"> 约 1124 字 更新于 2022-11-28
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#oci-规范说起">OCI 规范说起</a></li>
+        <li><a href="#镜像规范">镜像规范</a>
+          <ul>
+            <li><a href="#镜像里面都有什么">镜像里面都有什么</a></li>
+            <li><a href="#手动构建一层">手动构建一层</a></li>
+          </ul>
+        </li>
+        <li><a href="#umoci制作镜像">umoci制作镜像</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h2 id="oci-规范说起">OCI 规范说起</h2>
+<p>OCI（Open Container Initiative）规范是事实上的容器标准,OCI 规范分为 <code>Image spec</code> 和<a href="http://inksnw.asuscomm.com:3001/post/runc/"> Runtime spec </a>两部分，它们分别覆盖了容器生命周期的不同阶段：</p>
+<h2 id="镜像规范">镜像规范</h2>
+<p>镜像规范定义了如何创建一个符合 OCI 规范的镜像，它规定了镜像的构建系统需要输出的内容和格式，输出的容器镜像可以被解包成一个 <code>runtime bundle</code> ，<code>runtime bundle</code> 是由特定文件<code>config.json</code>和目录结构<code>rootfs</code>组成的一个文件夹，从中可以根据运行时标准运行容器。</p>
+<h3 id="镜像里面都有什么">镜像里面都有什么</h3>
+<p>规范要求镜像内容必须包括以下 3 部分：</p>
+<ul>
+<li><strong>Image Manifest</strong>：提供了镜像的配置和文件系统层定位信息，可以看作是镜像的目录，文件格式为 <code>json</code> 。</li>
+<li><strong>Image Layer Filesystem Changeset</strong>：序列化之后的文件系统和文件系统变更，它们可按顺序一层层应用为一个容器的 rootfs，因此通常也被称为一个 <code>layer</code>，文件格式可以是 <code>tar</code> ，<code>gzip</code> 等存档或压缩格式。</li>
+<li><strong>Image Configuration</strong>：包含了镜像在运行时所使用的执行参数以及有序的 rootfs 变更信息，文件类型为 <code>json</code>。</li>
+</ul>
+<p><em>rootfs (root file system)即 <code>/</code> 根挂载点所挂载的文件系统，是一个操作系统所包含的文件、配置和目录，但并不包括操作系统内核，同一台机器上的所有容器都共享宿主机操作系统的内核。</em></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker pull alpine
+</span></span><span class="line"><span class="cl">docker save alpine:latest -o alpine.tar
+</span></span><span class="line"><span class="cl">mkdir alpine-img
+</span></span><span class="line"><span class="cl">tar -xvf alpine.tar -C alpine-img/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看目录中的文件结构</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tree alpine-img/
+</span></span><span class="line"><span class="cl">alpine-img/
+</span></span><span class="line"><span class="cl">├── 49176f190c7e9cdb51ac85ab6c6d5e4512352218190cd69b08e6fd803ffbf3da.json runc用到的启动文件
+</span></span><span class="line"><span class="cl">├── 50b95c8857dc05c23a9b2373bcb0127cc4c391acf192a7fe7785e80f7bc0911a
+</span></span><span class="line"><span class="cl">│   ├── json
+</span></span><span class="line"><span class="cl">│   ├── layer.tar  容器的实际文件
+</span></span><span class="line"><span class="cl">│   └── VERSION    
+</span></span><span class="line"><span class="cl">├── manifest.json
+</span></span><span class="line"><span class="cl">└── repositories
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">1</span> directory, <span class="m">6</span> files
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看 <code>manifest.json</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="err">python</span><span class="mi">3</span> <span class="err">-m</span> <span class="err">json.tool</span> <span class="err">manifest.json</span> 
+</span></span><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;Config&#34;</span><span class="p">:</span> <span class="s2">&#34;49176f190c7e9cdb51ac85ab6c6d5e4512352218190cd69b08e6fd803ffbf3da.json&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;RepoTags&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;alpine:latest&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;Layers&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;50b95c8857dc05c23a9b2373bcb0127cc4c391acf192a7fe7785e80f7bc0911a/layer.tar&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="手动构建一层">手动构建一层</h3>
+<p>手动再创建一层,创建一个<code>Dockerfile</code>文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> alpine:latest</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> mkdir /app<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>docker build -t myalpine:v1 .<span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>再次解压</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker save myalpine:v1 -o myalpine.tar
+</span></span><span class="line"><span class="cl">mkdir myalpine-img
+</span></span><span class="line"><span class="cl">tar -xvf myalpine.tar -C myalpine-img/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看目录</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">root@base:~/myalpine-img# tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── 0c4a0f1a7afeb071999833e4a5dca155fa81ffcec12dd868aaa6a221775bf8c5
+</span></span><span class="line"><span class="cl">│   ├── json
+</span></span><span class="line"><span class="cl">│   ├── layer.tar
+</span></span><span class="line"><span class="cl">│   └── VERSION
+</span></span><span class="line"><span class="cl">├── 388f75b341ac497d0e06391476932f25934115c46103aa4b600b1082ca0f843e
+</span></span><span class="line"><span class="cl">│   ├── json
+</span></span><span class="line"><span class="cl">│   ├── layer.tar
+</span></span><span class="line"><span class="cl">│   └── VERSION
+</span></span><span class="line"><span class="cl">├── 5422d176b37133117f885a2963bc44e410c64349430aae2fff84de42dea8ec5a.json
+</span></span><span class="line"><span class="cl">├── manifest.json
+</span></span><span class="line"><span class="cl">└── repositories
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2 directories, 9 files
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再次查看<code>manifest.json</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="err">root@base:~/myalpine-img#</span> <span class="err">python</span><span class="mi">3</span> <span class="err">-m</span> <span class="err">json.tool</span> <span class="err">manifest.json</span> 
+</span></span><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;Config&#34;</span><span class="p">:</span> <span class="s2">&#34;5422d176b37133117f885a2963bc44e410c64349430aae2fff84de42dea8ec5a.json&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;RepoTags&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;myalpine:v1&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;Layers&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;0c4a0f1a7afeb071999833e4a5dca155fa81ffcec12dd868aaa6a221775bf8c5/layer.tar&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;388f75b341ac497d0e06391476932f25934115c46103aa4b600b1082ca0f843e/layer.tar&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>解压查看,可以看到第二层只有一个app目录,与我们的<code>Dockerfile</code>配置一致</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/容器技术原理-OCI规范_2eef73d14d6af274763c853300f0a7e1.png" alt="image-20221128213021570" style="zoom:50%;" />
+<h2 id="umoci制作镜像">umoci制作镜像</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/opencontainers/umoci/releases/download/v0.4.7/umoci.amd64
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>解压上一步的<code>layer.tar</code> 到一个新的目录<code>myos</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ umoci init --layout myimage
+</span></span><span class="line"><span class="cl">➜ tree -L 1
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── myimage
+</span></span><span class="line"><span class="cl">└── myos
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2 directories, 0 files
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>创建一个镜像,此时 <code>myimage/index.json</code> 会多出<code>manifests</code>配置信息用于<code>镜像分发</code>等</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">umoci new --image myimage:v1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>将image提取到一个文件夹中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ umoci unpack --image myimage:v1 bundle
+</span></span><span class="line"><span class="cl">tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── config.json  runc对应的配置文件
+</span></span><span class="line"><span class="cl">├── rootfs       操作系统目录
+</span></span><span class="line"><span class="cl">├── sha256_0339cec20a876292977062c19cdc1ec9490454e88e1d7a1c961b40edf7483052.mtree
+</span></span><span class="line"><span class="cl">└── umoci.json
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">1</span> directory, <span class="m">3</span> files
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看此时的镜像信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ umoci stat --image myimage:v1
+</span></span><span class="line"><span class="cl">LAYER CREATED CREATED BY SIZE COMMENT
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>将第一步<code>myos</code>中的内容拷贝到<code>bundle/rootfs</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">cp -r myos/* bundle/rootfs/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>重新pack,并查看状态</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ umoci repack --image myimage:v1 bundle
+</span></span><span class="line"><span class="cl">➜ umoci stat --image myimage:v1
+</span></span><span class="line"><span class="cl">LAYER                                                                   CREATED                        CREATED BY   SIZE    COMMENT
+</span></span><span class="line"><span class="cl">sha256:7c659bc85e3b04cfa17fdfb7c881dfd51816e08a4e5eb1adf5db7661afe4d39f 2022-11-28T13:58:06.485326153Z umoci repack 3.485MB 
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            <a class="prev" href="/post/virtual-kubelet/">
+                <i class="iconfont icon-left"></i>
+                <span class="prev-text nav-default">Virtual Kubelet</span>
+                <span class="prev-text nav-mobile">上一篇</span>
+            </a>
+            <a class="next" href="/post/%E4%BD%BF%E7%94%A8nsenter%E8%B0%83%E8%AF%95%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/">
+                <span class="next-text nav-default">使用nsenter调试容器网络</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>使用nsenter调试容器网络 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="获取容器 ID 使用 kubectl 获取 pod 中任意 cotnainer 的 id: 1 kubectl -n test describe pod debug-685b48bcf5-ggn5d containerd运行时 1 2 3 Containers: debug: Container ID: containerd://529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 dockerd运行时 1 2 3 Containers: debug: Container ID: docker://e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 获取 PID 拿到 container id" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8nsenter%E8%B0%83%E8%AF%95%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="使用nsenter调试容器网络" />
+<meta property="og:description" content="获取容器 ID 使用 kubectl 获取 pod 中任意 cotnainer 的 id: 1 kubectl -n test describe pod debug-685b48bcf5-ggn5d containerd运行时 1 2 3 Containers: debug: Container ID: containerd://529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 dockerd运行时 1 2 3 Containers: debug: Container ID: docker://e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 获取 PID 拿到 container id" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8nsenter%E8%B0%83%E8%AF%95%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-11-27T15:15:23+08:00" />
+<meta property="article:modified_time" content="2022-11-27T15:15:23+08:00" />
+<meta itemprop="name" content="使用nsenter调试容器网络">
+<meta itemprop="description" content="获取容器 ID 使用 kubectl 获取 pod 中任意 cotnainer 的 id: 1 kubectl -n test describe pod debug-685b48bcf5-ggn5d containerd运行时 1 2 3 Containers: debug: Container ID: containerd://529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 dockerd运行时 1 2 3 Containers: debug: Container ID: docker://e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 获取 PID 拿到 container id"><meta itemprop="datePublished" content="2022-11-27T15:15:23+08:00" />
+<meta itemprop="dateModified" content="2022-11-27T15:15:23+08:00" />
+<meta itemprop="wordCount" content="332">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="使用nsenter调试容器网络"/>
+<meta name="twitter:description" content="获取容器 ID 使用 kubectl 获取 pod 中任意 cotnainer 的 id: 1 kubectl -n test describe pod debug-685b48bcf5-ggn5d containerd运行时 1 2 3 Containers: debug: Container ID: containerd://529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 dockerd运行时 1 2 3 Containers: debug: Container ID: docker://e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 获取 PID 拿到 container id"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">使用nsenter调试容器网络</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2022-11-27 </span>
+            
+            <span class="more-meta"> 约 332 字 更新于 2022-11-27
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#获取容器-id">获取容器 ID</a></li>
+        <li><a href="#获取-pid">获取 PID</a></li>
+        <li><a href="#使用-nsenter-进入容器-netns">使用 nsenter 进入容器 netns</a></li>
+        <li><a href="#调试网络">调试网络</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h2 id="获取容器-id">获取容器 ID</h2>
+<p>使用 kubectl 获取 pod 中任意 cotnainer 的 id:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl -n <span class="nb">test</span> describe pod debug-685b48bcf5-ggn5d
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>containerd运行时</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Containers:
+</span></span><span class="line"><span class="cl">  debug:
+</span></span><span class="line"><span class="cl">    Container ID:   containerd://529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>dockerd运行时</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Containers:
+</span></span><span class="line"><span class="cl">  debug:
+</span></span><span class="line"><span class="cl">    Container ID:   docker://e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="获取-pid">获取 PID</h2>
+<p>拿到 container id 后，我们登录到 pod <strong>所在节点</strong>上去获取其主进程 pid。</p>
+<p>containerd 运行时使用 crictl 命令获取:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ crictl inspect 529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 <span class="p">|</span> grep -i pid
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;pid&#34;</span>: 2266462,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;pid&#34;</span>: <span class="m">1</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;pid&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>此例中 pid 为 2266462</p>
+</blockquote>
+<p>dockerd 运行时使用 docker 命令获取:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ docker inspect e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 <span class="p">|</span> grep -i pid
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Pid&#34;</span>: 910351,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;PidMode&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;PidsLimit&#34;</span>: 0,
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>此例中 pid 为 910351</p>
+</blockquote>
+<h2 id="使用-nsenter-进入容器-netns">使用 nsenter 进入容器 netns</h2>
+<p>在节点上使用 nsenter 进入 pod 的 netns:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nsenter -n --target <span class="m">910351</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="调试网络">调试网络</h2>
+<p>成功进入容器的 netns，可以使用节点上的网络工具进行调试网络，可以首先使用 <code>ip a</code> 验证下 ip 地址是否为 pod ip:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ ip a
+</span></span><span class="line"><span class="cl">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class="m">65536</span> qdisc noqueue state UNKNOWN group default qlen <span class="m">1000</span>
+</span></span><span class="line"><span class="cl">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span class="line"><span class="cl">    inet 127.0.0.1/8 scope host lo
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">3: eth0@if8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class="m">1500</span> qdisc noqueue state UP group default
+</span></span><span class="line"><span class="cl">    link/ether 6a:c6:6f:67:dd:6c brd ff:ff:ff:ff:ff:ff link-netnsid <span class="m">0</span>
+</span></span><span class="line"><span class="cl">    inet 172.18.0.67/26 brd 172.18.0.127 scope global eth0
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果要抓包也可以利用节点上的 tcpdump 工具抓包。</p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            <a class="prev" href="/post/%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86-oci%E8%A7%84%E8%8C%83/">
+                <i class="iconfont icon-left"></i>
+                <span class="prev-text nav-default">OCI规范-Image spec</span>
+                <span class="prev-text nav-mobile">上一篇</span>
+            </a>
+            <a class="next" href="/post/%E4%BD%BF%E7%94%A8rust%E7%BC%96%E5%86%99envoy%E6%89%A9%E5%B1%95/">
+                <span class="next-text nav-default">使用rust编写envoy扩展</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>

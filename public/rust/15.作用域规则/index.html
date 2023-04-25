@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>15.作用域规则 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="手敲一遍 通过例子学Rust 作用域在所有权（ownership）、借用（borrow）和生命周期（lifetime）中起着重要作用。也就是说，" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/rust/15.%E4%BD%9C%E7%94%A8%E5%9F%9F%E8%A7%84%E5%88%99/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="15.作用域规则" />
+<meta property="og:description" content="手敲一遍 通过例子学Rust 作用域在所有权（ownership）、借用（borrow）和生命周期（lifetime）中起着重要作用。也就是说，" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/rust/15.%E4%BD%9C%E7%94%A8%E5%9F%9F%E8%A7%84%E5%88%99/" /><meta property="article:section" content="rust" />
+<meta property="article:published_time" content="2022-10-07T22:01:48+08:00" />
+<meta property="article:modified_time" content="2022-10-07T22:01:48+08:00" />
+<meta itemprop="name" content="15.作用域规则">
+<meta itemprop="description" content="手敲一遍 通过例子学Rust 作用域在所有权（ownership）、借用（borrow）和生命周期（lifetime）中起着重要作用。也就是说，"><meta itemprop="datePublished" content="2022-10-07T22:01:48+08:00" />
+<meta itemprop="dateModified" content="2022-10-07T22:01:48+08:00" />
+<meta itemprop="wordCount" content="810">
+<meta itemprop="keywords" content="rust," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="15.作用域规则"/>
+<meta name="twitter:description" content="手敲一遍 通过例子学Rust 作用域在所有权（ownership）、借用（borrow）和生命周期（lifetime）中起着重要作用。也就是说，"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+  
+
+  <header class="post-header">
+    <h1 class="post-title">15.作用域规则</h1>
+
+    <div class="post-meta">
+      <span class="post-time"> 2022-10-07 </span>
+      
+      <span class="more-meta"> 约 810 字 更新于 2022-10-07
+              <a class="article-tags" href=/tags/rust/>rust</a>
+        </span>
+      
+    </div>
+  </header>
+
+  
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">相关文章</h2>
+    <div class="post-toc-content">
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/15.%E4%BD%9C%E7%94%A8%E5%9F%9F%E8%A7%84%E5%88%99/" title="15.作用域规则">15.作用域规则</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/14.%E6%B3%9B%E5%9E%8B/" title="14.泛型">14.泛型</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/13.%E5%B1%9E%E6%80%A7/" title="13.属性">13.属性</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/12.cargo/" title="12.cargo">12.cargo</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/11.crate/" title="11.crate">11.crate</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/10.%E6%A8%A1%E5%9D%97/" title="10.模块">10.模块</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/9.%E5%87%BD%E6%95%B0/" title="9.函数">9.函数</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/8.%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/" title="8.流程控制">8.流程控制</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/7.%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="7.表达式">7.表达式</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/6.%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" title="6.类型转换">6.类型转换</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/5.%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/" title="5.类型系统">5.类型系统</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/4.%E5%8F%98%E9%87%8F%E7%BB%91%E5%AE%9A/" title="4.变量绑定">4.变量绑定</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/3.%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%9E%8B/" title="3.自定义类型">3.自定义类型</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/2.%E5%8E%9F%E7%94%9F%E7%B1%BB%E5%9E%8B/" title="2.原生类型">2.原生类型</a>
+        </li>
+        
+        <li>
+            <a href="http://inksnw.asuscomm.com:3001/rust/1.hello-world/" title="1.Hello World">1.Hello World</a>
+        </li>
+        
+    </div>
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#rall">RALL</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+  
+  <div class="post-content">
+    <p>手敲一遍 <a href="https://rustwiki.org/zh-CN/rust-by-example/index.html">通过例子学Rust</a></p>
+<p>作用域在所有权（ownership）、借用（borrow）和生命周期（lifetime）中起着重要作用。也就是说，作用域告诉编译器什么时候借用是合法的、什么时候资源可以释放、以及变量何时被创建或销毁。</p>
+<h2 id="rall">RALL</h2>
+<p>Rust 的变量不只是在栈中保存数据：它们也<strong>占有</strong>资源，比如 <code>Box&lt;T&gt;</code> 占有堆（heap）中的内存。Rust 强制实行 <a href="https://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization">RAII</a>（Resource Acquisition Is Initiallization，资源获取即初始化），所以任何对象在离开作用域时，它的析构函数（destructor）就被调用，然后它占有的资源就被释放。</p>
+<p>这种行为避免了<strong>资源泄漏</strong>（resource leak），所以你再也不用手动释放内存或者担心内存泄漏（memory leak）！下面是个快速入门示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-RUST" data-lang="RUST"><span class="line"><span class="cl"><span class="c1">// raii.rs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">fn</span> <span class="nf">create_box</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 在堆上分配一个整型数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">_box1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="mi">3</span><span class="k">i32</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// `_box1` 在这里被销毁，内存得到释放
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 在堆上分配一个整型数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">_box2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="mi">5</span><span class="k">i32</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 嵌套作用域：
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 在堆上分配一个整型数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">_box3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="mi">4</span><span class="k">i32</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// `_box3` 在这里被销毁，内存得到释放
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 创建一大堆 box（只是因为好玩）。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// 完全不需要手动释放内存！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="k">u32</span><span class="o">..</span><span class="mi">1_000</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">create_box</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// `_box2` 在这里被销毁，内存得到释放
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>当然我们可以使用 <a href="https://valgrind.org/info/"><code>valgrind</code></a> 对内存错误进行仔细检查：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-BASH" data-lang="BASH"><span class="line"><span class="cl">➜ rustc raii.rs <span class="o">&amp;&amp;</span> valgrind ./raii
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span> Memcheck, a memory error <span class="nv">detector</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span> Copyright <span class="o">(</span>C<span class="o">)</span> 2002-2013, and GNU GPL<span class="err">&#39;</span>d, by Julian Seward et al.
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span> Using Valgrind-3.9.0 and LibVEX<span class="p">;</span> rerun with -h <span class="k">for</span> copyright <span class="nv">info</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span> Command: ./raii
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span> HEAP SUMMARY:
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span>     in use at exit: <span class="m">0</span> bytes in <span class="m">0</span> <span class="nv">blocks</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span>   total heap usage: 1,013 allocs, 1,013 frees, 8,696 bytes <span class="nv">allocated</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span> All heap blocks were freed -- no leaks are <span class="nv">possible</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span>
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span> For counts of detected and suppressed errors, rerun with: -v
+</span></span><span class="line"><span class="cl"><span class="o">==</span><span class="nv">26873</span><span class="o">==</span> ERROR SUMMARY: <span class="m">0</span> errors from <span class="m">0</span> contexts <span class="o">(</span>suppressed: <span class="m">2</span> from 2<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>完全没有泄漏！</p>
+<p>Rust 中的析构函数概念是通过 <a href="https://rustwiki.org/zh-CN/std/ops/trait.Drop.html"><code>Drop</code></a> trait 提供的。当资源离开作用域，就调用析构函数。你无需为每种类型都实现 <a href="https://rustwiki.org/zh-CN/std/ops/trait.Drop.html"><code>Drop</code></a> trait，只要为那些需要自己的析构函数逻辑的类型实现就可以了。</p>
+<p>运行下列例子，看看 <a href="https://rustwiki.org/zh-CN/std/ops/trait.Drop.html"><code>Drop</code></a> trait 是怎样工作的。当 <code>main</code> 函数中的变量离开作用域，自定义的析构函数就会被调用：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-RUST" data-lang="RUST"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">ToDrop</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="nb">Drop</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">ToDrop</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">drop</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;ToDrop is being dropped&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ToDrop</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Made a ToDrop!&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div>
+  </div>
+
+  
+<footer class="post-footer">
+    <div class="post-tags">
+      <a href="/%20tags/rust/">rust</a>
+      </div>
+    <nav class="post-nav">
+      
+      <a class="next" href="/rust/14.%E6%B3%9B%E5%9E%8B/">
+        <span class="next-text nav-default">14.泛型</span>
+        <span class="next-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav>
+  </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>

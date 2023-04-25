@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>K8s基础知识 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/k8s%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="K8s基础知识" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/k8s%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-05-25T10:36:08+08:00" />
+<meta property="article:modified_time" content="2022-05-25T10:36:08+08:00" />
+<meta itemprop="name" content="K8s基础知识">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-05-25T10:36:08+08:00" />
+<meta itemprop="dateModified" content="2022-05-25T10:36:08+08:00" />
+<meta itemprop="wordCount" content="6115">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="K8s基础知识"/>
+<meta name="twitter:description" content=""/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">K8s基础知识</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2022-05-25 </span>
+            
+            <span class="more-meta"> 约 6115 字 更新于 2022-05-25
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-快速入门">1 快速入门</a>
+      <ul>
+        <li><a href="#11基础知识">1.1基础知识</a>
+          <ul>
+            <li><a href="#111组件解析">1.11组件解析</a></li>
+          </ul>
+        </li>
+        <li><a href="#12环境部署">1.2环境部署</a>
+          <ul>
+            <li><a href="#121基础配置">1.2.1基础配置</a></li>
+            <li><a href="#122其它功能">1.2.2其它功能</a></li>
+            <li><a href="#123命令实践">1.2.3命令实践</a></li>
+          </ul>
+        </li>
+        <li><a href="#13细节解析">1.3细节解析</a>
+          <ul>
+            <li><a href="#131初始化流程">1.3.1初始化流程</a></li>
+            <li><a href="#132组件解析">1.3.2组件解析</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#2核心知识">2核心知识</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#21pods">2.1Pods</a></li>
+            <li><a href="#22pod策略">2.2Pod策略</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h1 id="1-快速入门">1 快速入门</h1>
+<h2 id="11基础知识">1.1基础知识</h2>
+<h3 id="111组件解析">1.11组件解析</h3>
+<p><strong>基本架构</strong></p>
+<p>master组件</p>
+<blockquote>
+<p>Master是整个k8s集群中的控制节点,负整个集群中资源的调度和控制,至少包括四个组件.
+Api Server,Schedule,Controller,etcd</p>
+<p>Api Server:</p>
+<p>​		是用户使用k8s的入口,封装了核对对象的curd,提供了RESTFul风格的API.</p>
+<p>​		APIServer总体上由两部分组成: HTTP/HTTPS服务和一些功能性插件.这些功能性插件又分为两种:一部分与Iaas平台相关;另一部分与资源控制(Admission Control)相关.</p>
+<p>Schedule:</p>
+<p>​		Scheduler的作用是根据特定的调度算法把pod调度到node节点上,输入是待调度的pod和可用的工作节点列表,输出则是一个已经绑定了pod的节点</p>
+<p>Controller:</p>
+<p>​		重点实现service Endpoint的动态更新,管理着k8s集群中的各种控制节点,包括replication Controller和node Controller</p>
+<p>​		与APIServer相比,APIServer接收请求,根据请求的配置文件,定制资源的期望状态,而Controller Manager对资源的期望状态和当前状态进行比较,通过重启,迁移,删除等,保证资源在达到预期状态.</p>
+</blockquote>
+<p>node节点组件</p>
+<blockquote>
+<p>Docker,kubelet,kube-proxy,Fluentd,flannel</p>
+<p>kubelet:</p>
+<p>​		相当于集群中的一个Agent,负责与Master节点通信,同时Kubelet负责工作结点间的状态同步,对工作节点的所有资源(主要是容器)进行管理.kubelet与cAdvisor交互来抓取docker容器和主机的资源信息.</p>
+<p>kubectl垃圾回收机制,负责容器垃圾和镜像垃圾的回收.</p>
+<p>Kube-proxy:</p>
+<p>​		运行在Node节点,主要提供两种功能:</p>
+<ul>
+<li>管理service并提供service通信和负载均衡功能
+提供算法将客户端流量负载均衡到service对应的一组后端pod</li>
+<li>使用etcd的watch机制,实现服务发现功能
+维护一张从service到endpoint的映射关系
+- 保证后端pod的ip变化不对访问者的访问造成影响</li>
+</ul>
+<p>Flannel:</p>
+<p>​	flannel是针对k8s设计的一个覆盖网络(Overlay Network)工具,使不同节点的容器能够获得同一内网且不重复的ip地址,并且可通过内网ip通信.</p>
+</blockquote>
+<p>扩展组件</p>
+<blockquote>
+<p>网络和网络策略</p>
+<p>​		ACI通过Cisco ACI提供集成的容器网络和安全网络.</p>
+<p>​		Antrea在第3/4层工作,为k8s提供网络连接和安全服务,Antrea利用Open vSwitch作为网络的数据面</p>
+<p>​		Calico是一个安全的L3网络和网络策略驱动.</p>
+<p>​		Canal结合Flannel和Calico提供网络和网络策略</p>
+<p>服务发现</p>
+<p>​		CoreDNS是一种灵活的,可扩展的DNS服务器</p>
+<p>服务管理</p>
+<p>​		Ingress Controller(入栈流量控制器)k8s场景中应用级别的负载均衡解决方案</p>
+</blockquote>
+<h2 id="12环境部署">1.2环境部署</h2>
+<h3 id="121基础配置">1.2.1基础配置</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#免密登录,略</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#禁用swap,略</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>网络参数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#配置iptables参数,使用流经网桥的流量也经过iptables</span>
+</span></span><span class="line"><span class="cl">cat &gt;&gt; /etc/sysctl.d/k8s.conf <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">vm.swappiness=0
+</span></span></span><span class="line"><span class="cl"><span class="s">net.bridge.bridge-nf-call-ip6tables = 1
+</span></span></span><span class="line"><span class="cl"><span class="s">net.bridge.bridge-nf-call-iptables = 1
+</span></span></span><span class="line"><span class="cl"><span class="s">net.ipv4.ip_forward = 1
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#配置生效</span>
+</span></span><span class="line"><span class="cl">modprobe br_netfilter
+</span></span><span class="line"><span class="cl">modprobe overlay
+</span></span><span class="line"><span class="cl">sysctl -p /etc/sysctl.d/k8s.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>安装docker</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">apt-get update
+</span></span><span class="line"><span class="cl">apt-get install apt-transport-https ca-certificates curl gnupg lsb-release -y
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#配置软件源</span>
+</span></span><span class="line"><span class="cl">curl -fsSL https://download.docker.com/linux/ubuntu/gpg <span class="p">|</span> sudo apt-key add -
+</span></span><span class="line"><span class="cl">add-apt-repository <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>   <span class="s2">&#34;deb [arch=amd64] https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/ubuntu \
+</span></span></span><span class="line"><span class="cl"><span class="s2">   </span><span class="k">$(</span>lsb_release -cs<span class="k">)</span><span class="s2"> \
+</span></span></span><span class="line"><span class="cl"><span class="s2">   stable&#34;</span>
+</span></span><span class="line"><span class="cl">apt-get update
+</span></span><span class="line"><span class="cl">apt-get install docker-ce docker-ce-cli containerd.io -y
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#国内源</span>
+</span></span><span class="line"><span class="cl">cat &gt;&gt; /etc/docker/daemon.json <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">{
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;registry-mirrors&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;https://hub-mirror.c.163.com&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">    ],
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;exec-opts&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;native.cgroupdriver=systemd&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动</span>
+</span></span><span class="line"><span class="cl">systemctl restart docker
+</span></span><span class="line"><span class="cl">systemctl <span class="nb">enable</span> docker
+</span></span><span class="line"><span class="cl"><span class="c1">#检查</span>
+</span></span><span class="line"><span class="cl">docker info<span class="p">|</span>grep Cgroup
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>kubeadm配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#配置软件源</span>
+</span></span><span class="line"><span class="cl">apt-get update <span class="o">&amp;&amp;</span> apt-get install -y 
+</span></span><span class="line"><span class="cl">curl https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg <span class="p">|</span> apt-key add - 
+</span></span><span class="line"><span class="cl">cat <span class="s">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
+</span></span></span><span class="line"><span class="cl"><span class="s">deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">apt-get update
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#查看支持的软件版本</span>
+</span></span><span class="line"><span class="cl">apt-cache madison kubeadm
+</span></span><span class="line"><span class="cl"><span class="c1">#安装</span>
+</span></span><span class="line"><span class="cl">apt-get install -y kubelet kubeadm kubectl 
+</span></span><span class="line"><span class="cl"><span class="c1"># 会同时安装以下软件</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ebtables 是linux下网络数据包过滤的配置工具</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># cni是容器网络通信的软件</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># socat是kubelet的依赖</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># cri-tools是cri容器运行时接口的命令行工具</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 服务自启动,在kubeadm init前,暂不用启动</span>
+</span></span><span class="line"><span class="cl">systemctl <span class="nb">enable</span> kubelet
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>信息检查</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 查看默认配置</span>
+</span></span><span class="line"><span class="cl">kubeadm config print init-defaults
+</span></span><span class="line"><span class="cl"><span class="c1"># 检查kubeadm所依赖的镜像版本</span>
+</span></span><span class="line"><span class="cl">kubeadm config images list 
+</span></span><span class="line"><span class="cl"><span class="c1"># 拉取镜像文件</span>
+</span></span><span class="line"><span class="cl">kubeadm config images pull
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>集群初始化(主节点)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubeadm init --kubernetes-version<span class="o">=</span>1.23.6 --apiserver-advertise-address<span class="o">=</span>192.168.50.40 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--service-cidr<span class="o">=</span>10.96.0.0/12 --pod-network-cidr<span class="o">=</span>10.244.0.0/16 --ignore-preflight-errors<span class="o">=</span>Swap
+</span></span><span class="line"><span class="cl"><span class="c1">#注意:</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># --apiserver-advertise-address要设定为当前集群的master地址</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># --pod-network-cidr选项用于指定pod分配时使用的地址,通常应与使用的网络插件(flannel,calico)的默认保持一致</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 10.244.0.0/16是flannel的默认网络</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># --service-cidr用于指定为service分配时使用的网络地址,默认为10.96.0.0/12</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>出现以下字样表示启动成功</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubeadm join 192.168.50.40:6443 --token 8hbz0g.5wg7qy6641bx5msw <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>        --discovery-token-ca-cert-hash sha256:b1bdb64e7f2d647515039f54017a086896a68e85a3d246786280333dff4ee317 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看日志</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">journalctl -u kubelet -f
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>日志解析</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[kubelet]生成kubelet的配置文件 /var/lib/kubelet/config.yaml
+</span></span><span class="line"><span class="cl">[certificates]生成相关的各种证书
+</span></span><span class="line"><span class="cl">[kubeconfig]生成相关的kubeconfig文件
+</span></span><span class="line"><span class="cl">[bootstraptoken]生成的token记录下来,后续使用kubeadm join添加节点
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>配置用户访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir -p ~/.kube
+</span></span><span class="line"><span class="cl">cp -i /etc/kubernetes/admin.conf ~/.kube/config
+</span></span><span class="line"><span class="cl">chown <span class="k">$(</span>id -u<span class="k">)</span>:<span class="k">$(</span>id -g<span class="k">)</span> ~/.kube/config
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>检查效果</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">kubectl get cs
+</span></span><span class="line"><span class="cl">kubectl get nodes
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>网络现状</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">journalctl -u kubelet -f
+</span></span><span class="line"><span class="cl"><span class="c1">#报错 Unable to update cni config</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>配置网络</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> ➜ <span class="o">&amp;&amp;</span> mkdir flannel <span class="o">&amp;&amp;</span> <span class="nb">cd</span> flannel
+</span></span><span class="line"><span class="cl">wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+</span></span><span class="line"><span class="cl">kubectl apply -f kube-flannel.yml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#检查效果</span>
+</span></span><span class="line"><span class="cl">kubectl get nodes
+</span></span><span class="line"><span class="cl">kubectl get ns
+</span></span><span class="line"><span class="cl">kubectl get pod -n kube-system
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>配置节点</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubeadm join 192.168.50.40:6443 --token 8hbz0g.5wg7qy6641bx5msw <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>        --discovery-token-ca-cert-hash sha256:b1bdb64e7f2d647515039f54017a086896a68e85a3d246786280333dff4ee317 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="122其它功能">1.2.2其它功能</h3>
+<p>kubectl taint nodes k8s-master node-role.kubernetes.io/master:NoSchedule-bash补全</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;source &lt;(kubectl completion bash)&#34;</span> &gt;&gt;~/.bashrc
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>污点处理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#获取污点信息</span>
+</span></span><span class="line"><span class="cl">kubectl describe nodes<span class="p">|</span>grep -i taint
+</span></span><span class="line"><span class="cl"><span class="c1">#清除master上的污点,最后一个&#34;-&#34;代表删除</span>
+</span></span><span class="line"><span class="cl">kubectl taint nodes node1 node-role.kubernetes.io/master:NoSchedule-
+</span></span><span class="line"><span class="cl"><span class="c1">#添加污点</span>
+</span></span><span class="line"><span class="cl">kubectl taint nodes node1 node-role.kubernetes.io/master:NoSchedule
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>token信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#查看token时效</span>
+</span></span><span class="line"><span class="cl">kubeadm token list
+</span></span><span class="line"><span class="cl"><span class="c1">#重新生成</span>
+</span></span><span class="line"><span class="cl">kubeadm token create --print-join-command
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>节点删除</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#在master执行</span>
+</span></span><span class="line"><span class="cl">kubectl drain node2 --delete-local-data --force --ignore-daemonsets
+</span></span><span class="line"><span class="cl">kubectl delete node node2
+</span></span><span class="line"><span class="cl"><span class="c1">#在node上执行</span>
+</span></span><span class="line"><span class="cl">kubeadm reset
+</span></span><span class="line"><span class="cl">systemctl stop kubelet docker
+</span></span><span class="line"><span class="cl">rm -rf /etc/kubernetes/
+</span></span><span class="line"><span class="cl">ifconfig cnio down
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="123命令实践">1.2.3命令实践</h3>
+<p>应用实践</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#创建</span>
+</span></span><span class="line"><span class="cl">kubectl create deployment nginx --image<span class="o">=</span>nginx
+</span></span><span class="line"><span class="cl">kubectl get deployments.apps
+</span></span><span class="line"><span class="cl"><span class="c1">#扩容</span>
+</span></span><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">3</span> deploy nginx
+</span></span><span class="line"><span class="cl"><span class="c1">#缩容</span>
+</span></span><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">1</span> deploy nginx
+</span></span><span class="line"><span class="cl"><span class="c1">#pod的版本更新</span>
+</span></span><span class="line"><span class="cl">kubectl <span class="nb">set</span> image deploy/nginx <span class="nv">nginx</span><span class="o">=</span><span class="s1">&#39;nginx:1.11.0&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#查看版本更新状态和历史</span>
+</span></span><span class="line"><span class="cl">kubectl rollout status deploy nginx
+</span></span><span class="line"><span class="cl">kubectl rollout <span class="nb">history</span> deploy nginx
+</span></span><span class="line"><span class="cl"><span class="c1">#回滚更改</span>
+</span></span><span class="line"><span class="cl">kubectl rollout undo deploy nginx
+</span></span><span class="line"><span class="cl"><span class="c1">#回到指定版本</span>
+</span></span><span class="line"><span class="cl">kubectl rollout undo --to-revision<span class="o">=</span><span class="m">2</span> deploy nginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="13细节解析">1.3细节解析</h2>
+<h3 id="131初始化流程">1.3.1初始化流程</h3>
+<p>简单流程</p>
+<blockquote>
+<p>master节点启动:</p>
+<p>​	生成对外提供服务需要的各种私钥以及数据证书</p>
+<p>​	生成控制组件的kubeconfig文件及相关配置文件</p>
+<p>​	生成控制组件的pod对象需要的manifest文件</p>
+<p>​	为主节点添加标识,不参与node角色的工作</p>
+<p>​	生成统一认证token信息,方便节点加入</p>
+<p>​	基于TLS的安全引导相关配置,角色策略,签名请求,自动配置策略</p>
+<p>​	为集群安装DNS和kube-proxy插件</p>
+<p>node节点加入</p>
+<p>​	环境检查,读取配置信息</p>
+<p>​	获取集群相关数据后启动kubelet服务</p>
+<p>​	获取认证信息后,基于证书方式进行通信</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#查看ca的文件</span>
+</span></span><span class="line"><span class="cl">ls /etc/kubernetes/pki/
+</span></span><span class="line"><span class="cl"><span class="c1">#生成控制组件的kubeconfig文件及相关配置文件</span>
+</span></span><span class="line"><span class="cl">ls /etc/kubernetes
+</span></span><span class="line"><span class="cl"><span class="c1">#kubelet属性信息</span>
+</span></span><span class="line"><span class="cl">cat /var/lib/kubelet/config.yaml
+</span></span><span class="line"><span class="cl"><span class="c1">#kubeadm启动参数</span>
+</span></span><span class="line"><span class="cl">cat /var/lib/kubelet/kubeadm-flags.env
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>生成控制组件的pod对象需要的manifest文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#查看默认启动的容器</span>
+</span></span><span class="line"><span class="cl">ls /etc/kubernetes/manifests
+</span></span><span class="line"><span class="cl"><span class="c1">#查看配置信息</span>
+</span></span><span class="line"><span class="cl">kubectl describe cm kubelet-config-1.23 -n kube-system<span class="p">|</span>grep staticPodPath
+</span></span><span class="line"><span class="cl"><span class="c1">#查看etcd信息</span>
+</span></span><span class="line"><span class="cl">kubectl get pods -n kube-system<span class="p">|</span>grep etcd
+</span></span><span class="line"><span class="cl"><span class="c1">#安装etcd客户端</span>
+</span></span><span class="line"><span class="cl">apt install etcd-client
+</span></span><span class="line"><span class="cl"><span class="c1">#起个别名</span>
+</span></span><span class="line"><span class="cl"><span class="nb">alias</span> <span class="nv">etcdctl</span><span class="o">=</span><span class="s1">&#39;etcdctl --key=/etc/kubernetes/pki/etcd/server.key --cert=/etc/kubernetes/pki/etcd/server.crt --cacert=/etc/kubernetes/pki/etcd/ca.crt --endpoints 192.168.50.40:2379&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#查看节点</span>
+</span></span><span class="line"><span class="cl"><span class="nv">ETCDCTL_API</span><span class="o">=</span><span class="m">3</span> etcdctl -w table memeber list
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看证书相关信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#查看角色信息</span>
+</span></span><span class="line"><span class="cl">kubectl get role -n kube-system
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>为集群安装DNS和kube-proxy插件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get pod -n kube-system<span class="p">|</span>egrep <span class="s1">&#39;proxy|core&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Node注册解析</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl -n kube-system get cm kubeadm-config -o yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="132组件解析">1.3.2组件解析</h3>
+<blockquote>
+<p>​		k8s关于节点的控制,是通过Node Controller进行统一管理的.默认每10s节点上的kubelet向master汇报一次信息,如果超过4次master节点没有收到信息,就会将该节点置为NotReady状态.</p>
+<p>​		由于10s一次大量信息传递有些浪费,1.13版以后,引入了与节点配套使用的资源对象:节点租约</p>
+<p>​		kubelet每10s向master的apiserver同步一下节点状态,每次更新的是租约的有效期限,租约的同步间隔默认40s,默认采集到的信息保存到租约对象中,一旦租约存储的数据发生改变或每5分钟才将node的信息上报给master节点</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get ns kube-node-lease
+</span></span><span class="line"><span class="cl">kubectl get lease -n kube-node-lease
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="2核心知识">2核心知识</h1>
+<h3 id="21pods">2.1Pods</h3>
+<h4 id="211概述">2.1.1概述</h4>
+<table>
+<thead>
+<tr>
+<th>关系</th>
+<th>解析</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pod&amp;容器</td>
+<td>一个pod可以有多个容器,共享网络和存储<br />每个pod中有一个pause容器保存所有容器状态,通过管理pause容器实现管理pod中所有容器的效果</td>
+</tr>
+<tr>
+<td>pod&amp;节点</td>
+<td>同一Pod中的容器会被调度到相同node节点<br />不同节点间的Pod通信是通过虚拟二级网络技术实现的</td>
+</tr>
+<tr>
+<td>pod&amp;pod</td>
+<td>普通pod和静态pod</td>
+</tr>
+<tr>
+<td>pod&amp;应用</td>
+<td>每个pod都是应用的一个实例,有专门的Ip,与容器暴露的端口组合为一个service的endpoint地址<br />每个service由kube-proxy转换成本地的ipvs或iptables规则</td>
+</tr>
+<tr>
+<td>应用&amp;应用</td>
+<td>每个service的endpoint地址由coredns组件解析为对应的服务名称,其它service的pod通过访问该名称实现应用间通信的效果</td>
+</tr>
+<tr>
+<td>外部&amp;pod</td>
+<td>外部流量通过节点网卡进入K8s集群,基于ipvs或者iptables规则找到对应的service,进而找到对应的Pod地址</td>
+</tr>
+</tbody>
+</table>
+<p>pod通信</p>
+<blockquote>
+<p>pod内 多容器通信 :容器间通信(容器模型)</p>
+<p>单节点内多Pod通信:主机间容器通信(host模型)</p>
+<p>多节点内多pod通信: 跨主机网络解决方案(overlay模型)</p>
+</blockquote>
+<blockquote>
+<p>工作负载型资源</p>
+<p>​	  Pod,Deplyment,DaemonSet,Replica,StateFulSet,Job,CronJob</p>
+<p>服务发现和负载均衡资源</p>
+<p>​	Svc,Ingress</p>
+<p>配置和存储</p>
+<p>​	cm,Secret,pv,pvc,DownwardAPI</p>
+<p>动态调整资源</p>
+<p>​	HPA,VPA</p>
+<p>资源隔离,权限控制</p>
+<p>​	namespace,nodes,cluserroles,Roles</p>
+</blockquote>
+<h4 id="222流程解析">2.2.2流程解析</h4>
+<blockquote>
+<p>用户向master节点上的apiserver发起一个创建pod的请求</p>
+<p>apiserver将该信息写入etcd</p>
+<p>scheduluer检测到apiserver上有建立pod请求,开始调度该pod到指定的node,同时更新信息到etcd</p>
+<p>kubelet检测到有新的Pod调度过来,通过docker引擎运行pod对象</p>
+<p>kubelet通过container runtime取到pod状态,同步信息到apiserver,由它更新到etcd</p>
+</blockquote>
+<p>三种模式</p>
+<blockquote>
+<p>sideCar模式:	为主容器提供辅助功能</p>
+<p>Adapater模式:	帮助主容器通信过程中的信息修正</p>
+<p>Ambassador模式: 	利用pod多容器共享数据的特性,代理后端容器和其它应用进行交流</p>
+</blockquote>
+<p>流程解析</p>
+<blockquote>
+<p>顺序1:	init容器</p>
+<p>​		初始化容器,独立于主容器之外,pod可有任意数量的init容器,init顺序执行,最后一个执行完成后再启动主容器.主要是为主容器准备功能,如向存储卷写入数据,然后挂载到主容器上</p>
+<p>顺序2:	生命周期钩子</p>
+<p>​		启动后钩子:	与主进程并行运行</p>
+<p>​		运行中钩子:	Liveiness,Readiness</p>
+<p>​		停止前钩子:	先执行钩子,完成后向容器发送SIGTERM信号,无效则会被杀死,未成功会告警</p>
+<p>顺序3:	pod关闭</p>
+<p>​		执行停止前钩子,等待执行完毕</p>
+<p>​		向容器的主进程发送SIGTERM信号</p>
+<p>​		等待容器优雅关闭或者等待终止宽限期超时</p>
+<p>​		如未优雅关闭,使用SIGKILL信号强制终止进程</p>
+<p>​	设置终止宽限期</p>
+<p>​		sepc.terminationGracePeriod 默认为30s</p>
+<p>​		kubectl delete pod mypod &ndash;grace-period=0 &ndash;force</p>
+</blockquote>
+<p>Pod状态</p>
+<blockquote>
+<p>正常情况:</p>
+<p>​		pod一旦绑定到Node节点,就永远不会移动,即使节点发生重启</p>
+<p>pod在整个周期中会出现5种状态:</p>
+<p>​		pending,running,succeeded,failed,unknown</p>
+<p>异常情况:</p>
+<p>​		业务运行过程中不可避免会出现意外,这时有三种策略对pod进行管理</p>
+<p>​		OnFailure,Never,和Always(默认)</p>
+</blockquote>
+<p>pod状态</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pending</td>
+<td>Apiserver已创建该server,但pod内有一个或多个镜像还未创建,可能还在下载中</td>
+</tr>
+<tr>
+<td>Running</td>
+<td>Pod内所有容器已创建,且至少有一个容器处于运行状态,正在启动或重启状态</td>
+</tr>
+<tr>
+<td>Succeeded</td>
+<td>所有容器均成功执行退出,且不会再重启</td>
+</tr>
+<tr>
+<td>Failed</td>
+<td>所有容器均成功执行退出,且不会再重启</td>
+</tr>
+<tr>
+<td>Unknown</td>
+<td>由于某些原因无法获取pod的状态,如网络不通</td>
+</tr>
+<tr>
+<td>CrashLookBackOff</td>
+<td>曾启动成功,后来重启次数过多</td>
+</tr>
+<tr>
+<td>Error</td>
+<td>因集群配置,安全限制,资源等原因导致pod启动过程发生了异常</td>
+</tr>
+<tr>
+<td>Evited</td>
+<td>系统内存或磁盘资源不足,导致Pod异常</td>
+</tr>
+</tbody>
+</table>
+<p>容器状态</p>
+<table>
+<thead>
+<tr>
+<th>容器状态</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Waiting</td>
+<td>容器处于Running和Terminated之前的状态</td>
+</tr>
+<tr>
+<td>Running</td>
+<td>容器能够正常运行的状态</td>
+</tr>
+<tr>
+<td>Terminated</td>
+<td>容器已经被成功关闭了</td>
+</tr>
+</tbody>
+</table>
+<p>流程状态</p>
+<table>
+<thead>
+<tr>
+<th>流程状态</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PodScheduled</td>
+<td>Pod被调度到某一个节点</td>
+</tr>
+<tr>
+<td>Ready</td>
+<td>准备就绪,pod可处理请求</td>
+</tr>
+<tr>
+<td>Initialized</td>
+<td>Pod中所有初始init容器启动完毕</td>
+</tr>
+<tr>
+<td>Unschedulable</td>
+<td>由于资源等限制,导致pod无法被调度</td>
+</tr>
+<tr>
+<td>ContainersReady</td>
+<td>Pod中所有的容器都启动完毕了</td>
+</tr>
+</tbody>
+</table>
+<p>重启策略</p>
+<table>
+<thead>
+<tr>
+<th>重启策略</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Always</td>
+<td>容器失效时,即重启</td>
+</tr>
+<tr>
+<td>OnFailure</td>
+<td>容器终止运行,且退出码不为0时重启</td>
+</tr>
+<tr>
+<td>Never</td>
+<td>Pod不重启</td>
+</tr>
+</tbody>
+</table>
+<h4 id="223流程实践">2.2.3流程实践</h4>
+<p>pod实践</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">init-pod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">init</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">busybox</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">busybox</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;sh&#34;</span><span class="p">,</span><span class="s2">&#34;-c&#34;</span><span class="p">,</span><span class="s2">&#34;echo the app is running! &amp;&amp; sleep 3600&#34;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">initContainers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">init-myservice</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">busybox</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;sh&#34;</span><span class="p">,</span><span class="s2">&#34;-c&#34;</span><span class="p">,</span><span class="s2">&#34;until nslookup myservice;do echo waiting for myservice;sleep 2; done;&#34;</span><span class="p">]</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#查看效果</span>
+</span></span><span class="line"><span class="cl">kubectl get pod
+</span></span><span class="line"><span class="cl">kubectl describe pod init-pod
+</span></span><span class="line"><span class="cl">kubectl los init-pod -c init-myservice
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>service实践</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">myservice</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">9257</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#查看效果</span>
+</span></span><span class="line"><span class="cl">kubectl get pod -w
+</span></span><span class="line"><span class="cl">kubectl get svc
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>sidecar实践</p>
+<blockquote>
+<p>在一个pod启动两个容器,在访问B容器的时候都要经过A容器</p>
+</blockquote>
+<p>poststart实践</p>
+<blockquote>
+<p>对于pod的启动流程,主要有两种钩子</p>
+<p>​		poststart,容器创建完成后立即即行,不保证于容器entrypoint之前运行</p>
+<p>​		preStop,容器终止前运行,会阻塞删除容器的操作</p>
+<p>钩子容器的实现方式: Exec和HTTP</p>
+<p>​		Exec:	在钩子事件触发时,直接在当前容器运行由用户定义的命令</p>
+<p>​		HTTP:	在当前容器向某url发起HTTP请求</p>
+</blockquote>
+<p>poststop实践</p>
+<blockquote>
+<p>Pod对象移除前,做一些事情</p>
+<p>实现方式exec,httpGet,tcpSocket</p>
+<p>钩子处理的日志不会在pod事件中,如果失败postStart是FailedPostStartHook事件,prestop是FailedPreStopHook事件</p>
+</blockquote>
+<h3 id="22pod策略">2.2Pod策略</h3>
+<blockquote>
+<p>容器是基于6个命名空间隔离的</p>
+<ul>
+<li>内部所有容器共享pause容器的UTS|Network</li>
+<li>可选共享命名空间:IPC,PID</li>
+<li>MNT和USER默认没有共享</li>
+</ul>
+</blockquote>
+<h4 id="221安全相关">2.2.1安全相关</h4>
+<p>略</p>
+<h4 id="222探测机制">2.2.2探测机制</h4>
+<blockquote>
+<p>对于k8s内部的pod,常见的api接口有</p>
+<ul>
+<li>process health 状态健康检测接口</li>
+<li>metrics 监控指标接口</li>
+<li>readiness 容器可读状态接口</li>
+<li>liveness 容器存储状态接口</li>
+<li>tracing 链路监控的埋点接口</li>
+<li>logs 日志接口</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>LivenessProbe</p>
+<p>​		周期性检测,检测未通过时,kubelet会根据restartPllicy的定义来决定是否重启,未定义时,容器未终止即为健康</p>
+<p>ReadinessProbe:</p>
+<p>​		周期性检测,检测未通过时,与该pod关联的Service会将该pod从可用端点列表中删除,直到再次就绪再添加回来,未定义时,只要容器未终止,即为就绪</p>
+<p>StartupProbe:</p>
+<p>​		用户自定义的一些探测机制,效果等同LivenessProbe</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>探针类型</th>
+<th>解析</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ExecAction</td>
+<td>直接执行命令,成功返回表示探测成功</td>
+</tr>
+<tr>
+<td>TCPSocketAction</td>
+<td>端口正常打开,即成功</td>
+</tr>
+<tr>
+<td>HTTPGetAction</td>
+<td>向指定path发送http请求,2xx,3xx状态码表示成功</td>
+</tr>
+</tbody>
+</table>
+<p>相关的属性</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w">	</span><span class="c"># livenessProbe,ReadinessProbe的属性一样</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nt">livenessProbe</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="l">exec</span><span class="w"> </span><span class="c">#命令式擦针</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="l">httpGet</span><span class="w"> </span><span class="c">#http get类型探针</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="l">tcpSocket</span><span class="w"> </span><span class="c">#tcp socket类型的探针</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="l">initialDelaySecondss</span><span class="w"> </span><span class="c">#发起初次探测的延后时长</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="l">periodSeconds</span><span class="w"> </span><span class="c">#请求周期</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="l">timeoutSeconds</span><span class="w"> </span><span class="c">#超时时长,默认1s</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="l">successThreshold</span><span class="w"> </span><span class="c">#连续成功几次才正常,默认1次</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="l">failureThreshold</span><span class="w"> </span><span class="c">#连接失败几次,才表示异常,默认3次</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="223资源限制">2.2.3资源限制</h4>
+<p>略</p>
+<h4 id="224服务质量">2.2.4服务质量</h4>
+<blockquote>
+<p>高优先级:Guaranteed:</p>
+<p>​		pod内的每个容器同时设置了CPU和内存的requests和limits而且值必须相等</p>
+<p>中优先级:Burstable:</p>
+<p>​		pod至少有一个容器设置了cpu或内存的requests和limits</p>
+<p>低优先级: BestEffort</p>
+<p>​		没有任何一个容器设置了requests和limits</p>
+</blockquote>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            <a class="prev" href="/post/kubefed%E4%BD%BF%E7%94%A8/">
+                <i class="iconfont icon-left"></i>
+                <span class="prev-text nav-default">Kubefed使用</span>
+                <span class="prev-text nav-mobile">上一篇</span>
+            </a>
+            <a class="next" href="/post/runc/">
+                <span class="next-text nav-default">runc的使用</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>

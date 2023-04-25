@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>OpenELB使用 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/openelb%E4%BD%BF%E7%94%A8/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="OpenELB使用" />
+<meta property="og:description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/openelb%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-06-22T11:01:26+08:00" />
+<meta property="article:modified_time" content="2022-06-22T11:01:26+08:00" />
+<meta itemprop="name" content="OpenELB使用">
+<meta itemprop="description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群"><meta itemprop="datePublished" content="2022-06-22T11:01:26+08:00" />
+<meta itemprop="dateModified" content="2022-06-22T11:01:26+08:00" />
+<meta itemprop="wordCount" content="1249">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="OpenELB使用"/>
+<meta name="twitter:description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">OpenELB使用</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2022-06-22 </span>
+            
+            <span class="more-meta"> 约 1249 字 更新于 2022-06-22
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#安装">安装</a></li>
+        <li><a href="#配置">配置</a></li>
+        <li><a href="#查看">查看</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群节点的local网卡上（比如kube-ipvs0），当Client访问时，由于在同一个二层，会广播ARP请求，某个节点会进行ARP Reply，从而Client请求流量会发送到此节点，然后由节点上的Kube-proxy进行负载，转到真正的Pod地址。</p>
+<p>参考: <a href="https://www.qikqiak.com/post/openelb/">https://www.qikqiak.com/post/openelb/</a></p>
+<h2 id="安装">安装</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/openelb/openelb/master/deploy/openelb.yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看 Pod 的状态是否正常：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get pods -n openelb-system              
+</span></span><span class="line"><span class="cl">NAME                               READY   STATUS      RESTARTS   AGE
+</span></span><span class="line"><span class="cl">openelb-admission-create-47c6n     0/1     Completed   <span class="m">0</span>          51m
+</span></span><span class="line"><span class="cl">openelb-admission-patch-jpvn5      0/1     Completed   <span class="m">1</span>          51m
+</span></span><span class="line"><span class="cl">openelb-keepalive-vip-247vh        1/1     Running     <span class="m">0</span>          50m
+</span></span><span class="line"><span class="cl">openelb-keepalive-vip-jgdzj        1/1     Running     <span class="m">0</span>          50m
+</span></span><span class="line"><span class="cl">openelb-keepalive-vip-ptwtp        1/1     Running     <span class="m">0</span>          50m
+</span></span><span class="line"><span class="cl">openelb-manager-6f8cd5bd56-fhqdr   1/1     Running     <span class="m">0</span>          51m
+</span></span><span class="line"><span class="cl">➜ kubectl get validatingwebhookconfiguration       
+</span></span><span class="line"><span class="cl">NAME                WEBHOOKS   AGE
+</span></span><span class="line"><span class="cl">openelb-admission   <span class="m">1</span>          51m
+</span></span><span class="line"><span class="cl">➜ kubectl get mutatingwebhookconfigurations        
+</span></span><span class="line"><span class="cl">NAME                WEBHOOKS   AGE
+</span></span><span class="line"><span class="cl">openelb-admission   <span class="m">1</span>          51m
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看安装的 CRD：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get crd <span class="p">|</span>grep kubesphere
+</span></span><span class="line"><span class="cl">bgpconfs.network.kubesphere.io                        2022-06-22T02:48:34Z
+</span></span><span class="line"><span class="cl">bgppeers.network.kubesphere.io                        2022-06-22T02:48:34Z
+</span></span><span class="line"><span class="cl">eips.network.kubesphere.io                            2022-06-22T02:48:34Z
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看所有安装的资源</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl api-resources -o name --verbs<span class="o">=</span>list --namespaced <span class="p">|</span> xargs -n <span class="m">1</span> kubectl get --show-kind --ignore-not-found -n openelb-system
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="配置">配置</h2>
+<p>为了使其他节点不对local网卡上的Service External IP进行ARP Reply,由 OpenELB 处理 ARP 请求,需要为 kube-proxy 启用 <code>strictARP</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-basic" data-lang="basic"><span class="line"><span class="cl"><span class="err">➜</span><span class="w"> </span><span class="vg">kubectl</span><span class="w"> </span><span class="vg">edit</span><span class="w"> </span><span class="vg">configmap</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">proxy</span><span class="w"> </span><span class="o">-</span><span class="vg">n</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">system</span>
+</span></span><span class="line"><span class="cl"><span class="o">......</span>
+</span></span><span class="line"><span class="cl"><span class="nl">ipvs:</span>
+</span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nl">strictARP:</span><span class="w"> </span><span class="vg">true</span>
+</span></span><span class="line"><span class="cl"><span class="o">......</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行以下命令重启 kube-proxy ：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl rollout restart daemonset kube-proxy -n kube-system
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>创建一个 Eip 对象来充当 OpenELB 的 IP 地址池</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">network.kubesphere.io/v1alpha2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Eip</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">eip-pool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="m">192.168.50.50-192.168.50.60</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">layer2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">disable</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">interface</span><span class="p">:</span><span class="w"> </span><span class="l">enp1s0</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里我们通过 <code>address</code> 属性指定了 IP 地址池，可以填写一个或多个 IP 地址（要注意不同 Eip 对象中的 IP 段不能重叠），将被 OpenELB 使用。值格式可以是：</p>
+<ul>
+<li>IP地址，例如 192.168.0.100</li>
+<li>IP地址/子网掩码，例如 192.168.0.0/24</li>
+<li>IP地址1-IP地址2，例如192.168.0.91-192.168.0.100</li>
+</ul>
+<p><code>protocol</code> 可以配置为 layer2 或 bgp，默认为 bgp 模式，我们这里配置 layer2 模式,</p>
+<p><code>interface</code> 是用来指定 OpenELB 监听 ARP 或 NDP 请求的网卡，该字段仅在协议设置为 layer2 时有效</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get eip          
+</span></span><span class="line"><span class="cl">NAME       CIDR                          USAGE   TOTAL
+</span></span><span class="line"><span class="cl">eip-pool   192.168.50.50-192.168.50.60   <span class="m">0</span>       <span class="m">9</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>到这里 LB 的地址池就准备好了，接下来创建一个简单的服务，通过 LB 来进行暴露：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># openelb-nginx.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后创建一个 <code>LoadBalancer</code> 类型的 Service 来暴露 nginx 服务：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># openelb-nginx-svc.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">lb.kubesphere.io/v1alpha1</span><span class="p">:</span><span class="w"> </span><span class="l">openelb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">protocol.openelb.kubesphere.io/v1alpha1</span><span class="p">:</span><span class="w"> </span><span class="l">layer2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">eip.openelb.kubesphere.io/v1alpha2</span><span class="p">:</span><span class="w"> </span><span class="l">eip-pool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">LoadBalancer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>注意这里我们为 Service 添加了几个 annotations 注解：</p>
+<ul>
+<li><code>lb.kubesphere.io/v1alpha1: openelb</code> 用来指定该 Service 使用 OpenELB</li>
+<li><code>protocol.openelb.kubesphere.io/v1alpha1: layer2</code> 表示指定 OpenELB 用于 Layer2 模式</li>
+<li><code>eip.openelb.kubesphere.io/v1alpha2: eip-pool</code> 指定了 OpenELB 使用的 Eip 对象，未配置OpenELB 会自动使用与协议匹配的第一个可用 Eip 对象，此外也可以删除此注解并添加 <code>spec:loadBalancerIP</code> 字段（例如 spec:loadBalancerIP: 192.168.50.51）以将特定 IP 地址分配给 Service。</li>
+</ul>
+<p>同样直接创建上面的 Service：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl apply -f openelb-nginx-svc.yaml                
+</span></span><span class="line"><span class="cl">service/nginx created
+</span></span><span class="line"><span class="cl">➜ kubectl get svc nginx                   
+</span></span><span class="line"><span class="cl">NAME    TYPE           CLUSTER-IP   EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+</span></span><span class="line"><span class="cl">nginx   LoadBalancer   10.233.8.8   192.168.50.50   80:31438/TCP   3h19m
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看到 Service 服务被分配了一个 <code>EXTERNAL-IP</code>，可以通过该地址来访问上面的 nginx 服务了：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">http://192.168.50.50/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="查看">查看</h2>
+<p>查看网卡信息可以看到<code>EXTERNAL-IP</code>的地址被分配到了kube-ipvs0网卡上</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ ip addr show kube-ipvs0
+</span></span><span class="line"><span class="cl">4: kube-ipvs0: &lt;BROADCAST,NOARP&gt; mtu <span class="m">1500</span> qdisc noop state DOWN group default 
+</span></span><span class="line"><span class="cl">    link/ether a2:e8:1f:f7:e9:af brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="cl">    inet 10.233.0.3/32 scope global kube-ipvs0
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet 10.233.0.1/32 scope global kube-ipvs0
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet 10.233.11.71/32 scope global kube-ipvs0
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet 10.233.8.8/32 scope global kube-ipvs0
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet 192.168.50.50/32 scope global kube-ipvs0
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看 pod 信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ kubectl get pod -o wide
+</span></span><span class="line"><span class="cl">NAME                     READY   STATUS    RESTARTS   AGE     IP            NODE    NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">nginx-6c8b449b8f-hxgqm   1/1     Running   0          3h29m   10.233.96.3   node2   &lt;none&gt;           &lt;none&gt;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看 ipvs 信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ ipvsadm|grep -A 1 31438
+</span></span><span class="line"><span class="cl">TCP  node1:31438 rr
+</span></span><span class="line"><span class="cl">  -&gt; 10.233.96.3:http             Masq    1      0          0         
+</span></span><span class="line"><span class="cl">TCP  node1.cluster.local:31438 rr
+</span></span><span class="line"><span class="cl">  -&gt; 10.233.96.3:http             Masq    1      0          0         
+</span></span><span class="line"><span class="cl">--
+</span></span><span class="line"><span class="cl">TCP  node1:31438 rr
+</span></span><span class="line"><span class="cl">  -&gt; 10.233.96.3:http             Masq    1      0          0  
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            <a class="prev" href="/post/istio%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">
+                <i class="iconfont icon-left"></i>
+                <span class="prev-text nav-default">Istio简单使用</span>
+                <span class="prev-text nav-mobile">上一篇</span>
+            </a>
+            <a class="next" href="/post/iptables%E4%B8%8Eipvs/">
+                <span class="next-text nav-default">Iptables与ipvs</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
