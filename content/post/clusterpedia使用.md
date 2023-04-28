@@ -203,7 +203,7 @@ helm install clusterpedia clusterpedia/clusterpedia-core \
 --set installCRDs=true -f values.yaml
 ```
 
->  修改同步程序参数,在上文中, 我们说到配置`syncResources`可以通过通配符的的方式同步所有资源, 配置后同步程序需要添加功能,但是执行后启动报错, 提示没有这个功能, 推测`clusterpedia-core`的版本较低,还没有这个功能, 所以此步跳过
+>  修改同步程序参数,在上文中, 我们说到配置`syncResources`可以通过通配符的的方式同步所有资源, 配置后同步程序需要开启 *feature-gates* ,但是执行后启动报错, 提示没有这个功能, 推测`clusterpedia-core`的版本较低,还没有这个功能, 所以此步跳过
 
 >  ```bash
 >  # 添加启动参数 --feature-gates=AllowSyncAllResources=true
