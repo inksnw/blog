@@ -134,8 +134,6 @@ clusterpedia-system   cluster-example   clusterpedia-clustersynchro-manager-7799
 
 ### 实现分析
 
-<img src="/Users/inksnw/Desktop/arch.png" alt="arch" style="zoom:50%;" />
-
 查看创建的pod
 
 ```bash
@@ -158,4 +156,100 @@ kubectl get secret clusterpedia-postgresql -n clusterpedia-system  -o yaml
 - `clusterpedia-clustersynchro-manager`通过`informer`把要同步的资源写入数据库中
 - 当用户通过`--cluster clusterpedia`参数查询时, kubectl 以为这是另一个集群上下文, 而将请求发送到`clusterpedia-apiserver`, `clusterpedia-apiserver` 则会去数据库中查询数据, 将结果附加上集群字段返回
 - `clusterpedia-controller-manager`则负责一些集群的发现工作等
+
+### 使用存储插件
+
+clusterpedia通过`Go Plugin` 的方式支持了存储插件, 我们卸载掉普通版本,准备安装`clusterpedia-core`版本
+
+#### 安装`clusterpedia-core`
+
+```
+helm search repo clusterpedia
+NAME                            CHART VERSION   APP VERSION     DESCRIPTION                  
+clusterpedia/clusterpedia       1.5.0           v0.6.3          A Helm chart for Kubernetes  
+clusterpedia/clusterpedia-core  0.1.1           v0.6.0          A Helm chart for Clusterpedia
+clusterpedia/clusterpedia-mysql 0.1.1           v0.6.0          A Helm chart for Clusterpedia
+```
+
+修改values.yaml
+
+```bash
+helm pull clusterpedia/clusterpedia-core
+# 在values.yaml 中修改以下内容
+```
+
+```yaml
+storage:
+  name: "arango-storage-layer"
+  image:
+    registry: docker.io
+    repository: zichenkkkk/arango-storage-layer
+    tag: v0.0.1
+  config:
+    type: "arango"
+    host: "192.168.50.54"
+    port: 8529
+    database: clusterpedia
+    pullPolicy: IfNotPresent
+```
+
+安装
+
+```bash
+helm install clusterpedia clusterpedia/clusterpedia-core \
+--namespace clusterpedia-system \
+--create-namespace \
+--set persistenceMatchNode=None \
+--set installCRDs=true -f values.yaml
+```
+
+修改同步程序参数
+
+在上文中, 我们说到配置`syncResources`可以通过通配符的的方式同步所有资源, 配置后同步程序需要添加功能
+
+```bash
+# 添加启动参数 --feature-gates=AllowSyncAllResources=true
+kubectl edit deploy clusterpedia-clusterpedia-core-controller-manager -n clusterpedia-system
+```
+
+但是执行后启动报错, 提示没有这个功能, 推测`clusterpedia-core`的版本较低,还没有这个功能, 所以此步跳过
+
+开启同步资源
+
+```yaml
+apiVersion: cluster.clusterpedia.io/v1alpha2
+kind: PediaCluster
+metadata:
+  name: cluster-example
+spec:
+  apiserver:
+  kubeconfig: xxxxxx
+  caData:
+  tokenData:
+  certData:
+  keyData:
+  syncResources:
+  - group: apps
+    resources:
+     - deployments
+  - group: ""
+    resources:
+     - pods
+     - configmaps
+  - group: cert-manager.io
+    versions:
+      - v1
+    resources:
+      - certificates
+```
+
+执行查询
+
+```bash
+kubectl --cluster clusterpedia get pod  --insecure-skip-tls-verify=true  
+CLUSTER           NAME                      READY   STATUS    RESTARTS        AGE
+cluster-example   nginx6-848c7fc44d-ffnt8   1/1     Running   1 (7h42m ago)   16h
+```
+
+
 

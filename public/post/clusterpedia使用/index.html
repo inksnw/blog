@@ -52,7 +52,7 @@
 <meta itemprop="name" content="Clusterpedia使用">
 <meta itemprop="description" content="Clusterpedia在兼容Kubernetes OpenAPI的基础上，可以实现多集群资源同步，并提供更强大的搜索功能，帮助您高效快捷地获"><meta itemprop="datePublished" content="2023-03-28T14:56:53+08:00" />
 <meta itemprop="dateModified" content="2023-03-28T14:56:53+08:00" />
-<meta itemprop="wordCount" content="767">
+<meta itemprop="wordCount" content="1220">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Clusterpedia使用"/>
 <meta name="twitter:description" content="Clusterpedia在兼容Kubernetes OpenAPI的基础上，可以实现多集群资源同步，并提供更强大的搜索功能，帮助您高效快捷地获"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-03-28 </span>
             
-            <span class="more-meta"> 约 767 字 更新于 2023-03-28
+            <span class="more-meta"> 约 1220 字 更新于 2023-03-28
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -149,6 +149,7 @@
             <li><a href="#加入集群">加入集群</a></li>
             <li><a href="#配置kubectl">配置kubectl</a></li>
             <li><a href="#实现分析">实现分析</a></li>
+            <li><a href="#使用存储插件">使用存储插件</a></li>
           </ul>
         </li>
       </ul>
@@ -378,7 +379,6 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="实现分析">实现分析</h3>
-<img src="/Users/inksnw/Desktop/arch.png" alt="arch" style="zoom:50%;" />
 <p>查看创建的pod</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -413,7 +413,165 @@
 <li>当用户通过<code>--cluster clusterpedia</code>参数查询时, kubectl 以为这是另一个集群上下文, 而将请求发送到<code>clusterpedia-apiserver</code>, <code>clusterpedia-apiserver</code> 则会去数据库中查询数据, 将结果附加上集群字段返回</li>
 <li><code>clusterpedia-controller-manager</code>则负责一些集群的发现工作等</li>
 </ul>
-
+<h3 id="使用存储插件">使用存储插件</h3>
+<p>clusterpedia通过<code>Go Plugin</code> 的方式支持了存储插件, 我们卸载掉普通版本,准备安装<code>clusterpedia-core</code>版本</p>
+<h4 id="安装clusterpedia-core">安装<code>clusterpedia-core</code></h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">helm search repo clusterpedia
+</span></span><span class="line"><span class="cl">NAME                            CHART VERSION   APP VERSION     DESCRIPTION                  
+</span></span><span class="line"><span class="cl">clusterpedia/clusterpedia       1.5.0           v0.6.3          A Helm chart for Kubernetes  
+</span></span><span class="line"><span class="cl">clusterpedia/clusterpedia-core  0.1.1           v0.6.0          A Helm chart for Clusterpedia
+</span></span><span class="line"><span class="cl">clusterpedia/clusterpedia-mysql 0.1.1           v0.6.0          A Helm chart for Clusterpedia
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改values.yaml</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">helm pull clusterpedia/clusterpedia-core
+</span></span><span class="line"><span class="cl"><span class="c1"># 在values.yaml 中修改以下内容</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">storage</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;arango-storage-layer&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">registry</span><span class="p">:</span><span class="w"> </span><span class="l">docker.io</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l">zichenkkkk/arango-storage-layer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l">v0.0.1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">config</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;arango&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;192.168.50.54&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8529</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l">clusterpedia</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">pullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">IfNotPresent</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">helm install clusterpedia clusterpedia/clusterpedia-core <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--namespace clusterpedia-system <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--create-namespace <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--set <span class="nv">persistenceMatchNode</span><span class="o">=</span>None <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--set <span class="nv">installCRDs</span><span class="o">=</span><span class="nb">true</span> -f values.yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改同步程序参数</p>
+<p>在上文中, 我们说到配置<code>syncResources</code>可以通过通配符的的方式同步所有资源, 配置后同步程序需要添加功能</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 添加启动参数 --feature-gates=AllowSyncAllResources=true</span>
+</span></span><span class="line"><span class="cl">kubectl edit deploy clusterpedia-clusterpedia-core-controller-manager -n clusterpedia-system
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>但是执行后启动报错, 提示没有这个功能, 推测<code>clusterpedia-core</code>的版本较低,还没有这个功能, 所以此步跳过</p>
+<p>开启同步资源</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">cluster.clusterpedia.io/v1alpha2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">PediaCluster</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">cluster-example</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">apiserver</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">kubeconfig</span><span class="p">:</span><span class="w"> </span><span class="l">xxxxxx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">caData</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">tokenData</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">certData</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">keyData</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">syncResources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l">apps</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span>- <span class="l">deployments</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span>- <span class="l">pods</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span>- <span class="l">configmaps</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l">cert-manager.io</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">versions</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">certificates</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行查询</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl --cluster clusterpedia get pod  --insecure-skip-tls-verify<span class="o">=</span><span class="nb">true</span>  
+</span></span><span class="line"><span class="cl">CLUSTER           NAME                      READY   STATUS    RESTARTS        AGE
+</span></span><span class="line"><span class="cl">cluster-example   nginx6-848c7fc44d-ffnt8   1/1     Running   <span class="m">1</span> <span class="o">(</span>7h42m ago<span class="o">)</span>   16h
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
     </div>
 
     
