@@ -8,7 +8,7 @@ tags: ["k8s"]
 
 安装`Charles`,查看设置`Proxy->Proxy Settings`,Charles默认监听于8888端口
 
-
+<img src="http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_b8c69aac5fddbb8c2d0ecc23c47d32bf.png" alt="image-20230523172630419" style="zoom:50%;" />
 
 ## 配置客户端证书
 
@@ -25,7 +25,7 @@ grep certificate-authority-data ~/.kube/config |   awk '{ print $2 }' |   base64
 
 配置Charles，`Proxy->SSL Proxying Settings`让他拦截端口为`6443`的流量：
 
-<img src="http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_b8c69aac5fddbb8c2d0ecc23c47d32bf.png" alt="image-20230523172630419" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_cc7636d20e3cb6e5130b86d2bc28f4c2.png" alt="image-20230523173343158" style="zoom:50%;" />
 
 然后配置客户端私钥：
 
