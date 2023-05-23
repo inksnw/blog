@@ -1,7 +1,7 @@
 ---
 title: "使用Charles抓取k8s请求"
 date: 2023-05-23T16:32:50+08:00
-draft: true
+tags: ["k8s"]
 ---
 
 ## 配置代理
