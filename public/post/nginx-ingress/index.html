@@ -52,7 +52,7 @@
 <meta itemprop="name" content="nginx-ingress">
 <meta itemprop="description" content="安装 ingress的本质就是一个南北向的网关,内置一个Nginx,控制器(Operator)监听ingress变化, reload nginx 配置 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜"><meta itemprop="datePublished" content="2022-08-12T10:27:37+08:00" />
 <meta itemprop="dateModified" content="2022-09-25T17:49:44+08:00" />
-<meta itemprop="wordCount" content="2716">
+<meta itemprop="wordCount" content="2834">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nginx-ingress"/>
 <meta name="twitter:description" content="安装 ingress的本质就是一个南北向的网关,内置一个Nginx,控制器(Operator)监听ingress变化, reload nginx 配置 参考文档: https://kubernetes.github.io/ingress-nginx/deploy/ 1 ➜"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-08-12 </span>
             
-            <span class="more-meta"> 约 2716 字 更新于 2022-09-25
+            <span class="more-meta"> 约 2834 字 更新于 2022-09-25
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -143,17 +143,16 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#安装">安装</a></li>
-        <li><a href="#什么是external-traffic-policy">什么是external-traffic-policy</a></li>
-        <li><a href="#这2种模式有什么区别">这2种模式有什么区别</a>
+        <li><a href="#安装">安装</a>
           <ul>
             <li><a href="#cluster">Cluster</a></li>
             <li><a href="#local">Local</a></li>
-            <li><a href="#两种模式该怎么选">两种模式该怎么选</a></li>
+            <li><a href="#如何选择">如何选择</a></li>
           </ul>
         </li>
-        <li><a href="#创建deploy与svc">创建<code>deploy</code>与<code>svc</code></a></li>
+        <li><a href="#创建应用">创建应用</a></li>
         <li><a href="#查看nginx配置">查看nginx配置</a></li>
+        <li><a href="#配置https">配置https</a></li>
         <li><a href="#baseauth认证">BaseAuth认证</a></li>
         <li><a href="#限流设置">限流设置</a></li>
         <li><a href="#nginx原生配置">Nginx原生配置</a></li>
@@ -176,10 +175,13 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.1/deploy/static/provider/cloud/deploy.yaml
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.7.1/deploy/static/provider/cloud/deploy.yaml
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>修改服务模式为NodePort,<strong>注意</strong>,要同时删除掉<code>externalTrafficPolicy: Local</code>,会重置为模式<code>externalTrafficPolicy: Cluster</code></p>
+</div><ul>
+<li>修改服务模式为NodePort</li>
+<li>删除掉<code>externalTrafficPolicy: Local</code>, 会重置为模式<code>externalTrafficPolicy: Cluster</code></li>
+</ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -188,9 +190,7 @@
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl edit svc ingress-nginx-controller -n  ingress-nginx
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="什么是external-traffic-policy">什么是external-traffic-policy</h2>
-<p>在k8s的Service对象（申明一条访问通道）中，有一个“externalTrafficPolicy”字段可以设置。有2个值可以设置：Cluster或者Local。</p>
-<ul>
+</div><ul>
 <li>
 <p>Cluster表示：流量可以转发到其他节点上的Pod。</p>
 </li>
@@ -199,13 +199,10 @@
 </li>
 </ul>
 <img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_ad0022e96a73a6a8d7fb41c6b6f0c1ff.png" alt="image-20220922222116679" style="zoom: 50%;" />
-<h2 id="这2种模式有什么区别">这2种模式有什么区别</h2>
 <h3 id="cluster">Cluster</h3>
 <p>注：这个是默认模式，Kube-proxy不管容器实例在哪，公平转发。</p>
 <p>Kube-proxy转发时会替换掉报文的源IP。即：容器收的报文，源IP地址，已经被替换为上一个转发节点的了。</p>
 <p>原因是Kube-proxy在做转发的时候，会做一次SNAT (source network address translation)，所以源IP变成了节点1的IP地址。</p>
-<p>ps：snat确保回去的报文可以原路返回，不然回去的路径不一样，客户会认为非法报文的。（我发给张三的，怎么李四给我回应？丢弃！）</p>
-<p>这种模式好处是负载均衡会比较好，因为无论容器实例怎么分布在多个节点上，它都会转发过去。当然，由于多了一次转发，性能会损失一丢丢。</p>
 <h3 id="local">Local</h3>
 <p>这种情况下，只转发给本机的容器，绝不跨节点转发。</p>
 <p>Kube-proxy转发时会保留源IP。即：容器收到的报文，看到源IP地址还是用户的。</p>
@@ -245,11 +242,11 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">topologyKey</span><span class="p">:</span><span class="w"> </span><span class="l">kubernetes.io/hostname</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="两种模式该怎么选">两种模式该怎么选</h3>
-<p>要想性能（时延）好，当然应该选 Local 模式喽，毕竟流量转发少一次SNAT嘛。</p>
+</div><h3 id="如何选择">如何选择</h3>
+<p>要想性能（时延）好，当然应该选 Local 模式，流量转发少一次SNAT。</p>
 <p>不过注意，选了这个就得考虑好怎么处理好负载均衡问题（ps：通常我们使用Pod间反亲和来达成）。</p>
 <p>如果你是从外部LB接收流量的，那么使用：Local模式 + Pod反亲和，一般是足够的</p>
-<h2 id="创建deploy与svc">创建<code>deploy</code>与<code>svc</code></h2>
+<h2 id="创建应用">创建应用</h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -299,6 +296,240 @@
 </div>
 </div><p>发现其实本质就是配置了nginx的域名转发</p>
 <img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_bdc7364de5da8c2f4e185ea3e55ef455.png" alt="image-20220922213751633" style="zoom:50%;" />
+<h2 id="配置https">配置https</h2>
+<p>签发证书 <code>cert.sh</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat &gt; ca-config.json <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">{
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;signing&#34;: {
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;default&#34;: {
+</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;expiry&#34;: &#34;87600h&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">        },
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;profiles&#34;: {
+</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;kubernetes&#34;: {
+</span></span></span><span class="line"><span class="cl"><span class="s">                &#34;expiry&#34;: &#34;87600h&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">                &#34;usages&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">                    &#34;signing&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">                    &#34;key encipherment&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">                    &#34;server auth&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">                    &#34;client auth&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">                ]
+</span></span></span><span class="line"><span class="cl"><span class="s">            }
+</span></span></span><span class="line"><span class="cl"><span class="s">        }
+</span></span></span><span class="line"><span class="cl"><span class="s">    }
+</span></span></span><span class="line"><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">cat &gt; ca-csr.json <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">{
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;CN&#34;: &#34;kubernetes&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;key&#34;: {
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;algo&#34;: &#34;rsa&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;size&#34;: 4096
+</span></span></span><span class="line"><span class="cl"><span class="s">    },
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;names&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">        {
+</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;C&#34;: &#34;CN&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;L&#34;: &#34;BJ&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;ST&#34;: &#34;BJ&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">        }
+</span></span></span><span class="line"><span class="cl"><span class="s">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cfssl gencert -initca ca-csr.json <span class="p">|</span> cfssljson -bare ca - 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cat  &gt; web-csr.json <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">{
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;CN&#34;: &#34;demo.localdev.me&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;hosts&#34;: [],
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;key&#34;: {
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;algo&#34;: &#34;rsa&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;size&#34;: 2048
+</span></span></span><span class="line"><span class="cl"><span class="s">    },
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;names&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">        {
+</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;C&#34;: &#34;CN&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;L&#34;: &#34;BeiJing&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;ST&#34;: &#34;BeiJing&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">        }
+</span></span></span><span class="line"><span class="cl"><span class="s">    ]
+</span></span></span><span class="line"><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cfssl gencert -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -config<span class="o">=</span>ca-config.json -profile<span class="o">=</span>kubernetes web-csr.json <span class="p">|</span> cfssljson -bare demo.localdev.me 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看生成的文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@node1:~/https# tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── ca-config.json
+</span></span><span class="line"><span class="cl">├── ca.csr
+</span></span><span class="line"><span class="cl">├── ca-csr.json
+</span></span><span class="line"><span class="cl">├── ca-key.pem
+</span></span><span class="line"><span class="cl">├── ca.pem
+</span></span><span class="line"><span class="cl">├── cert.sh
+</span></span><span class="line"><span class="cl">├── demo.localdev.me.csr
+</span></span><span class="line"><span class="cl">├── demo.localdev.me-key.pem
+</span></span><span class="line"><span class="cl">├── demo.localdev.me.pem
+</span></span><span class="line"><span class="cl">└── web-csr.json
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>将证书保存到k8s中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret tls mytls --cert<span class="o">=</span>demo.localdev.me.pem --key<span class="o">=</span>demo.localdev.me-key.pem
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>配置ingress</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 在spec.tls添加字段 secretName: mytls</span>
+</span></span><span class="line"><span class="cl">kubectl edit ingress demo-localhost
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">demo.localdev.me</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">demo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">demo.localdev.me</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">mytls</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看访问端口, 可以看到https端口为31062</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get svc ingress-nginx-controller  -n ingress-nginx
+</span></span><span class="line"><span class="cl">root@node1:~/https# kubectl get svc ingress-nginx-controller  -n ingress-nginx 
+</span></span><span class="line"><span class="cl">NAME                       TYPE       CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                      AGE
+</span></span><span class="line"><span class="cl">ingress-nginx-controller   NodePort   10.233.17.206   &lt;none&gt;        80:32021/TCP,443:31062/TCP   53m
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>访问测试</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_08c782a6666c57fcfb6e01c47b1d8fe3.png" alt="image-20230527123409161" style="zoom:50%;" />
 <h2 id="baseauth认证">BaseAuth认证</h2>
 <p>文档 <a href="https://kubernetes.github.io/ingress-nginx/examples/auth/basic/">https://kubernetes.github.io/ingress-nginx/examples/auth/basic/</a></p>
 <p>生成secret文件</p>
