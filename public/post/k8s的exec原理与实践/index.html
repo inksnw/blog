@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>K8s的exec原理与实践 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="开启containerd远程连接 修改 /etc/containerd/config.toml文件,允许远程访问 1 2 3 4 5 6 [grpc] tcp_address = &amp;#34;0.0.0.0:8989&amp;#34; [plugins] [plugins.&amp;#34;io.containerd.grpc.v1.cri&amp;#34;] disable_tcp_service = false stream_server_address" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.3 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/k8s%E7%9A%84exec%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E8%B7%B5/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.57d9abbd4ecfbd9c8322dacf6966c95fe83535210946e6aca29f741e3ae8fda8.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="K8s的exec原理与实践" />
+<meta property="og:description" content="开启containerd远程连接 修改 /etc/containerd/config.toml文件,允许远程访问 1 2 3 4 5 6 [grpc] tcp_address = &#34;0.0.0.0:8989&#34; [plugins] [plugins.&#34;io.containerd.grpc.v1.cri&#34;] disable_tcp_service = false stream_server_address" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/k8s%E7%9A%84exec%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E8%B7%B5/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-06-15T21:31:40+08:00" />
+<meta property="article:modified_time" content="2023-06-15T21:31:40+08:00" />
+<meta itemprop="name" content="K8s的exec原理与实践">
+<meta itemprop="description" content="开启containerd远程连接 修改 /etc/containerd/config.toml文件,允许远程访问 1 2 3 4 5 6 [grpc] tcp_address = &#34;0.0.0.0:8989&#34; [plugins] [plugins.&#34;io.containerd.grpc.v1.cri&#34;] disable_tcp_service = false stream_server_address"><meta itemprop="datePublished" content="2023-06-15T21:31:40+08:00" />
+<meta itemprop="dateModified" content="2023-06-15T21:31:40+08:00" />
+<meta itemprop="wordCount" content="1017">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="K8s的exec原理与实践"/>
+<meta name="twitter:description" content="开启containerd远程连接 修改 /etc/containerd/config.toml文件,允许远程访问 1 2 3 4 5 6 [grpc] tcp_address = &#34;0.0.0.0:8989&#34; [plugins] [plugins.&#34;io.containerd.grpc.v1.cri&#34;] disable_tcp_service = false stream_server_address"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">K8s的exec原理与实践</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-06-15 </span>
+            
+            <span class="more-meta"> 约 1017 字 更新于 2023-06-15
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#开启containerd远程连接">开启containerd远程连接</a></li>
+            <li><a href="#启动一个apiserver">启动一个apiserver</a></li>
+            <li><a href="#启动一个kubelet">启动一个kubelet</a></li>
+            <li><a href="#启动一个kubectl">启动一个kubectl</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p><img src="http://inksnw.asuscomm.com:3001/blog/k8s%E7%9A%84exec%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E8%B7%B5_8f78e3983f575fbd9860b99d33b642b3.png" alt="kubectl-exec"></p>
+<h3 id="开启containerd远程连接">开启containerd远程连接</h3>
+<p>修改 /etc/containerd/config.toml文件,允许远程访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="cl"><span class="p">[</span><span class="nx">grpc</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nx">tcp_address</span> <span class="p">=</span> <span class="s2">&#34;0.0.0.0:8989&#34;</span> 
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="nx">plugins</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="s2">&#34;io.containerd.grpc.v1.cri&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">disable_tcp_service</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">stream_server_address</span> <span class="p">=</span> <span class="s2">&#34;192.168.50.50&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="启动一个apiserver">启动一个apiserver</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/util/proxy&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">api</span> <span class="s">&#34;k8s.io/kubernetes/pkg/apis/core&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/url&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">defaultFlushInterval</span> <span class="p">=</span> <span class="mi">200</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">normalizeLocation</span><span class="p">(</span><span class="nx">location</span> <span class="o">*</span><span class="nx">url</span><span class="p">.</span><span class="nx">URL</span><span class="p">)</span> <span class="o">*</span><span class="nx">url</span><span class="p">.</span><span class="nx">URL</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">normalized</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">url</span><span class="p">.</span><span class="nf">Parse</span><span class="p">(</span><span class="nx">location</span><span class="p">.</span><span class="nf">String</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">normalized</span><span class="p">.</span><span class="nx">Scheme</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">normalized</span><span class="p">.</span><span class="nx">Scheme</span> <span class="p">=</span> <span class="s">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">normalized</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//kubernetes-1.22.15/pkg/registry/core/pod/rest/subresources.go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">middleware</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">()</span> <span class="nx">http</span><span class="p">.</span><span class="nx">Handler</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">http</span><span class="p">.</span><span class="nf">HandlerFunc</span><span class="p">(</span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">params</span> <span class="o">:=</span> <span class="nx">url</span><span class="p">.</span><span class="nx">Values</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">params</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="nx">api</span><span class="p">.</span><span class="nx">ExecCommandParam</span><span class="p">,</span> <span class="s">&#34;pwd&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">urlStr</span> <span class="o">:=</span> <span class="s">&#34;http://localhost:9090/exec/default/nginx-pod/nginx&#34;</span> <span class="c1">// 反代到 Kubelet
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">urlObj</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">url</span><span class="p">.</span><span class="nf">Parse</span><span class="p">(</span><span class="nx">urlStr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">urlObj</span><span class="p">.</span><span class="nx">RawQuery</span> <span class="p">=</span> <span class="nx">params</span><span class="p">.</span><span class="nf">Encode</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">			<span class="c1">// Call the original handler
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">handler</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">proxy</span><span class="p">.</span><span class="nx">UpgradeAwareHandler</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Location</span><span class="p">:</span>        <span class="nf">normalizeLocation</span><span class="p">(</span><span class="nx">urlObj</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Transport</span><span class="p">:</span>       <span class="nx">http</span><span class="p">.</span><span class="nx">DefaultTransport</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">WrapTransport</span><span class="p">:</span>   <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">UpgradeRequired</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">FlushInterval</span><span class="p">:</span>   <span class="nx">defaultFlushInterval</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Responder</span><span class="p">:</span>       <span class="nx">proxy</span><span class="p">.</span><span class="nf">NewErrorResponder</span><span class="p">(</span><span class="kc">nil</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">handler</span><span class="p">.</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">})</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">wrappedHandler</span> <span class="o">:=</span> <span class="nf">middleware</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;启动假的 apiserver&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:6443&#34;</span><span class="p">,</span> <span class="nx">wrappedHandler</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="启动一个kubelet">启动一个kubelet</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/emicklei/go-restful&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;google.golang.org/grpc&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;google.golang.org/grpc/credentials/insecure&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/util/proxy&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">runtimeapi</span> <span class="s">&#34;k8s.io/cri-api/pkg/apis/runtime/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/klog/v2&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">api</span> <span class="s">&#34;k8s.io/kubernetes/pkg/apis/core&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/url&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 启动 kubelet 模拟 exec 服务端
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//原入口位于 kubernetes-1.24.12/pkg/kubelet/server/server.go 256行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">container</span> <span class="o">:=</span> <span class="nx">restful</span><span class="p">.</span><span class="nf">NewContainer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ws</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">restful</span><span class="p">.</span><span class="nx">WebService</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ws</span><span class="p">.</span><span class="nf">Path</span><span class="p">(</span><span class="s">&#34;/exec&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ws</span><span class="p">.</span><span class="nf">Route</span><span class="p">(</span><span class="nx">ws</span><span class="p">.</span><span class="nf">GET</span><span class="p">(</span><span class="s">&#34;/{podNamespace}/{podID}/{containerName}&#34;</span><span class="p">).</span><span class="nf">To</span><span class="p">(</span><span class="nx">GetExec</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ws</span><span class="p">.</span><span class="nf">Route</span><span class="p">(</span><span class="nx">ws</span><span class="p">.</span><span class="nf">POST</span><span class="p">(</span><span class="s">&#34;/{podNamespace}/{podID}/{containerName}&#34;</span><span class="p">).</span><span class="nf">To</span><span class="p">(</span><span class="nx">GetExec</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ws</span><span class="p">.</span><span class="nf">Route</span><span class="p">(</span><span class="nx">ws</span><span class="p">.</span><span class="nf">GET</span><span class="p">(</span><span class="s">&#34;/{podNamespace}/{podID}/{uid}/{containerName}&#34;</span><span class="p">).</span><span class="nf">To</span><span class="p">(</span><span class="nx">GetExec</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ws</span><span class="p">.</span><span class="nf">Route</span><span class="p">(</span><span class="nx">ws</span><span class="p">.</span><span class="nf">POST</span><span class="p">(</span><span class="s">&#34;/{podNamespace}/{podID}/{uid}/{containerName}&#34;</span><span class="p">).</span><span class="nf">To</span><span class="p">(</span><span class="nx">GetExec</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">container</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="nx">ws</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">klog</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;启动 kubelet exec 服务，监听9090端口&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:9090&#34;</span><span class="p">,</span> <span class="nx">container</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">RemoteRuntimeAddress</span> <span class="p">=</span> <span class="s">&#34;192.168.50.50:8989&#34;</span> <span class="c1">// 修改远程的 runtime 地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">initRuntimeClient</span><span class="p">()</span> <span class="nx">runtimeapi</span><span class="p">.</span><span class="nx">RuntimeServiceClient</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">gopts</span> <span class="o">:=</span> <span class="p">[]</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">DialOption</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">grpc</span><span class="p">.</span><span class="nf">WithTransportCredentials</span><span class="p">(</span><span class="nx">insecure</span><span class="p">.</span><span class="nf">NewCredentials</span><span class="p">()),</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">conn</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">grpc</span><span class="p">.</span><span class="nf">DialContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">RemoteRuntimeAddress</span><span class="p">,</span> <span class="nx">gopts</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">runtimeapi</span><span class="p">.</span><span class="nf">NewRuntimeServiceClient</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">GetExec</span><span class="p">(</span><span class="nx">request</span> <span class="o">*</span><span class="nx">restful</span><span class="p">.</span><span class="nx">Request</span><span class="p">,</span> <span class="nx">response</span> <span class="o">*</span><span class="nx">restful</span><span class="p">.</span><span class="nx">Response</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">klog</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;请求方法：&#34;</span><span class="p">,</span> <span class="nx">request</span><span class="p">.</span><span class="nx">Request</span><span class="p">.</span><span class="nx">Method</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Get command from request parameters
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">cmd</span> <span class="o">:=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">Request</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nf">Query</span><span class="p">()[</span><span class="nx">api</span><span class="p">.</span><span class="nx">ExecCommandParam</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">klog</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;运行cmd：&#34;</span><span class="p">,</span> <span class="nx">cmd</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">runtimeapi</span><span class="p">.</span><span class="nx">ExecRequest</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">ContainerId</span><span class="p">:</span> <span class="s">&#34;7da6c6638bdf6&#34;</span><span class="p">,</span> <span class="c1">// 修改要连接的容器 ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">Cmd</span><span class="p">:</span>         <span class="nx">cmd</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Tty</span><span class="p">:</span>         <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Stdin</span><span class="p">:</span>       <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Stdout</span><span class="p">:</span>      <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Stderr</span><span class="p">:</span>      <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">runtimeClient</span> <span class="o">:=</span> <span class="nf">initRuntimeClient</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">runtimeClient</span><span class="p">.</span><span class="nf">Exec</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">req</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">klog</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;得到的URL是：&#34;</span><span class="p">,</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">Url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">urlF</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">url</span><span class="p">.</span><span class="nf">Parse</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">Url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">handler</span> <span class="o">:=</span> <span class="nx">proxy</span><span class="p">.</span><span class="nf">NewUpgradeAwareHandler</span><span class="p">(</span><span class="nx">urlF</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">handler</span><span class="p">.</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">request</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="启动一个kubectl">启动一个kubectl</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;bufio&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/tls&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/util/httpstream/spdy&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/remotecommand&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;strings&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">apiServerUrl</span> <span class="o">:=</span> <span class="s">&#34;http://localhost:6443&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">tlsConfig</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span><span class="nx">InsecureSkipVerify</span><span class="p">:</span> <span class="kc">true</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">rt</span> <span class="o">:=</span> <span class="nx">spdy</span><span class="p">.</span><span class="nf">NewRoundTripper</span><span class="p">(</span><span class="nx">tlsConfig</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">reader</span> <span class="o">:=</span> <span class="nx">bufio</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdin</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewRequest</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">MethodPost</span><span class="p">,</span> <span class="nx">apiServerUrl</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Upgrade&#34;</span><span class="p">,</span> <span class="s">&#34;SPDY/3.1&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Connection&#34;</span><span class="p">,</span> <span class="s">&#34;Upgrade&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">executor</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">remotecommand</span><span class="p">.</span><span class="nf">NewSPDYExecutorForTransports</span><span class="p">(</span><span class="nx">rt</span><span class="p">,</span> <span class="nx">rt</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">MethodPost</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">URL</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;-&gt;: &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">cmdString</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">reader</span><span class="p">.</span><span class="nf">ReadString</span><span class="p">(</span><span class="sc">&#39;\n&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Error reading command: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">continue</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">cmdString</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">TrimSuffix</span><span class="p">(</span><span class="nx">cmdString</span><span class="p">,</span> <span class="s">&#34;\n&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">cmdString</span> <span class="o">==</span> <span class="s">&#34;exit&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">err</span> <span class="p">=</span> <span class="nx">executor</span><span class="p">.</span><span class="nf">StreamWithContext</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">remotecommand</span><span class="p">.</span><span class="nx">StreamOptions</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Stdin</span><span class="p">:</span>  <span class="nx">strings</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">cmdString</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Stdout</span><span class="p">:</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Stderr</span><span class="p">:</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Stderr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Tty</span><span class="p">:</span>    <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="p">})</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当执行 <code>kubectl exec</code> 命令时，实际上发生的事情如下：</p>
+<ol>
+<li>
+<p>kubectl 工具会向 Kubernetes API server 发送一个 API 请求，描述了 Pod 和容器名。</p>
+</li>
+<li>
+<p>Kubernetes API server 接收到这个请求后，解析出pod所在节点，反代相应节点的 kubelet 。</p>
+</li>
+<li>
+<p>kubelet 接收到 API server 的指示后，它通过grpc连接相应的cri接口执行操作。</p>
+</li>
+</ol>
+<p>以上代码实现了这个过程,但仅用于原理验证, 只实现了单次执行, 实际<code>kubectl exec -it</code> 时, apiserver会通过<code>spdy</code>协议解析到流中的输入命令,持续执行, 这个代码还未能调通</p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/k8s%E7%BD%91%E7%BB%9C%E7%AD%96%E7%95%A5%E7%A4%BA%E4%BE%8B/">
+                <span class="next-text nav-default">K8s网络策略示例</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:inksnw@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/inksnw" class="iconfont icon-github" title="github"></a>
+  <a href="http://inksnw.asuscomm.com:3001/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
