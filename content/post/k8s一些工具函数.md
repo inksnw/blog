@@ -90,3 +90,67 @@ func main() {
 }
 ```
 
+### 重试机制
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/retry"
+)
+
+func main() {
+	kubeconfig := "/Users/inksnw/.kube/config"
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		panic(err)
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+	
+	//go updatePodLabels(clientset, "nginx", "default", "key1", "value1")
+	//go updatePodLabels(clientset, "nginx", "default", "key1", "value2")
+
+	go updatePodLabelsWithRetry(clientset, "nginx", "default", "key1", "value1")
+	go updatePodLabelsWithRetry(clientset, "nginx", "default", "key1", "value2")
+	select {}
+}
+func updatePodLabels(clientset *kubernetes.Clientset, podName string, namespace string, key string, value string) error {
+	pod, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	pod.ObjectMeta.Labels[key] = value
+	opt := metav1.UpdateOptions{}
+	_, updateErr := clientset.CoreV1().Pods(namespace).Update(context.TODO(), pod, opt)
+	if updateErr != nil {
+		fmt.Println("更新失败", updateErr)
+	}
+	return updateErr
+}
+
+func updatePodLabelsWithRetry(clientset *kubernetes.Clientset, podName string, namespace string, key string, value string) {
+	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		pod, err := clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+		pod.ObjectMeta.Labels[key] = value
+		opt := metav1.UpdateOptions{}
+		_, updateErr := clientset.CoreV1().Pods(namespace).Update(context.TODO(), pod, opt)
+		return updateErr
+	})
+	if retryErr != nil {
+		fmt.Printf("Update failed: %v\n", retryErr)
+	}
+}
+
+```
+
