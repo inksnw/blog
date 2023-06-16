@@ -154,3 +154,44 @@ func updatePodLabelsWithRetry(clientset *kubernetes.Clientset, podName string, n
 
 ```
 
+### WrapTransport
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"net/http"
+)
+
+type wrap struct {
+	rt http.RoundTripper
+}
+
+func (w wrap) RoundTrip(request *http.Request) (*http.Response, error) {
+	fmt.Println(request.URL.String())
+	return w.rt.RoundTrip(request)
+}
+
+func main() {
+	kubeconfig := "/Users/inksnw/.kube/config"
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		panic(err)
+	}
+	config.WrapTransport = func(rt http.RoundTripper) http.RoundTripper {
+		return wrap{rt}
+	}
+	client, err := kubernetes.NewForConfig(config)
+	pod, err := client.CoreV1().Pods("default").Get(context.TODO(), "nginx", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(pod.Name)
+}
+```
+
