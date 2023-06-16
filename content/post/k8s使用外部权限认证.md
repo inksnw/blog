@@ -67,7 +67,7 @@ vi /etc/kubernetes/manifests
       name: webhook-config
       readOnly: true
   
-  - hostPath:  # 将 webhook-config.json 文件放在 master 节点的 /etc/config 目录下
+  - hostPath:  # 将 webhook-config 文件放在 master 节点的 /etc/config 目录下
       path: /etc/config
       type: DirectoryOrCreate
     name: webhook-config
