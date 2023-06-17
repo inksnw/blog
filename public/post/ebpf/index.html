@@ -48,11 +48,11 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/ebpf/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-06-17T14:04:53+08:00" />
-<meta property="article:modified_time" content="2023-06-17T17:26:13+08:00" />
+<meta property="article:modified_time" content="2023-06-17T17:31:43+08:00" />
 <meta itemprop="name" content="Ebpf简单使用">
 <meta itemprop="description" content="第一个 eBPF 程序 安装ecli 1 wget https://aka.pw/bpf-ecli 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 #define BPF_NO_GLOBAL_DATA #include &lt;linux/bpf.h&gt; #include &lt;bpf/bpf_helpers.h&gt; #include &lt;bpf/bpf_tracing.h&gt; typedef unsigned int u32; typedef int pid_t; const pid_t pid_filter = 0; char LICENSE[] SEC(&#34;license&#34;) = &#34;Dual BSD/GPL&#34;; SEC(&#34;tp/syscalls/sys_enter_write&#34;) int handle_tp(void *ctx) { pid_t pid = bpf_get_current_pid_tgid()"><meta itemprop="datePublished" content="2023-06-17T14:04:53+08:00" />
-<meta itemprop="dateModified" content="2023-06-17T17:26:13+08:00" />
-<meta itemprop="wordCount" content="1855">
+<meta itemprop="dateModified" content="2023-06-17T17:31:43+08:00" />
+<meta itemprop="wordCount" content="1926">
 <meta itemprop="keywords" content="ebpf," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Ebpf简单使用"/>
 <meta name="twitter:description" content="第一个 eBPF 程序 安装ecli 1 wget https://aka.pw/bpf-ecli 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 #define BPF_NO_GLOBAL_DATA #include &lt;linux/bpf.h&gt; #include &lt;bpf/bpf_helpers.h&gt; #include &lt;bpf/bpf_tracing.h&gt; typedef unsigned int u32; typedef int pid_t; const pid_t pid_filter = 0; char LICENSE[] SEC(&#34;license&#34;) = &#34;Dual BSD/GPL&#34;; SEC(&#34;tp/syscalls/sys_enter_write&#34;) int handle_tp(void *ctx) { pid_t pid = bpf_get_current_pid_tgid()"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-06-17 </span>
             
-            <span class="more-meta"> 约 1855 字 更新于 2023-06-17
+            <span class="more-meta"> 约 1926 字 更新于 2023-06-17
               <a class="article-tags" href=/tags/ebpf/>ebpf</a>
                 </span>
             
@@ -489,7 +489,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="xdp-拦截-icmp-协议">XDP 拦截 ICMP 协议</h2>
-<img src="http://inksnw.asuscomm.com:3001/blog/ebpf_79a9c2792be062eb095fa7e0146a80cf.webp" alt="Untitled.png" style="zoom: 33%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/ebpf_79a9c2792be062eb095fa7e0146a80cf.webp" alt="Untitled.png" style="zoom: 40%;" />
 <p>xdp_md 在头文件 /usr/include/linux/bpf.h 有定义：</p>
 <ul>
 <li>data： 数据包数据的地址。 指向数据包数据的开头。</li>
@@ -564,9 +564,22 @@
 </span><span class="lnt">29
 </span><span class="lnt">30
 </span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/bpf.h&gt; </span><span class="cp">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/bpf.h&gt;</span><span class="cp">
 </span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;bpf/bpf_helpers.h&gt;</span><span class="cp">
 </span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/if_ether.h&gt;</span><span class="cp">
 </span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/ip.h&gt;</span><span class="cp">
@@ -577,22 +590,35 @@
 </span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)(</span><span class="kt">long</span><span class="p">)</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">data_end</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)(</span><span class="kt">long</span><span class="p">)</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">data_end</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">pkt_sz</span> <span class="o">=</span> <span class="n">data_end</span> <span class="o">-</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">ethhdr</span> <span class="o">*</span><span class="n">eth</span> <span class="o">=</span> <span class="n">data</span><span class="p">;</span>  <span class="c1">// 链路层
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">eth</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">eth</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">data_end</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">//如果包不完整、或者被篡改， 我们直接DROP
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;Invalid ethernet header</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">XDP_DROP</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">iphdr</span> <span class="o">*</span><span class="n">ip</span> <span class="o">=</span> <span class="n">data</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">eth</span><span class="p">);</span> <span class="c1">// 得到了 ip层
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">ip</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">ip</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">data_end</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">        <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;Invalid IP header</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">XDP_DROP</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">   <span class="k">if</span> <span class="p">(</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">protocol</span> <span class="o">==</span> <span class="n">IPPROTO_ICMP</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">        <span class="c1">// 拦截 ICMP Ping 请求
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;Drop ICMP packets</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">XDP_DROP</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;output:Packet size is %d, protocol is %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">pkt_sz</span><span class="p">,</span> <span class="n">ip</span><span class="o">-&gt;</span><span class="n">protocol</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">src_ip</span> <span class="o">=</span> <span class="n">ip</span><span class="o">-&gt;</span><span class="n">saddr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">bytes</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">src_ip</span> <span class="o">&gt;&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">src_ip</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">src_ip</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bytes</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">src_ip</span> <span class="o">&gt;&gt;</span> <span class="mi">24</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;src ip : %d.%d.%d&#34;</span><span class="p">,</span> <span class="n">bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;.%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span><span class="n">bytes</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">XDP_PASS</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl">
@@ -654,19 +680,23 @@
 </span></span><span class="line"><span class="cl">    prog/xdp id <span class="m">81</span> tag 0720394bf900dfe8 jited 
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>此时再次访问容器，会发现无法通过 Ping 访问容器了，但是 curl 还是可以访问容器。查看 trace 日志。</p>
+</div><p>此时再次访问容器，会发现无法通过 Ping 访问容器了，但是 curl 还是可以访问容器。查看日志。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat /sys/kernel/debug/tracing/trace_pipe
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">ping-6367    <span class="o">[</span>003<span class="o">]</span> d.s31   511.259245: bpf_trace_printk: Drop ICMP packets
-</span></span><span class="line"><span class="cl">curl-6380    <span class="o">[</span>003<span class="o">]</span> d.s31   513.619792: bpf_trace_printk: output:Packet size is 74, protocol is <span class="m">6</span>
+</span></span><span class="line"><span class="cl">ping-9445    <span class="o">[</span>004<span class="o">]</span> d.s31  1505.470977: bpf_trace_printk: Drop ICMP packets
+</span></span><span class="line"><span class="cl">&lt;idle&gt;-0       <span class="o">[</span>004<span class="o">]</span> d.s31  1508.540894: bpf_trace_printk: output:Packet size is 42, protocol is <span class="m">66</span>
+</span></span><span class="line"><span class="cl">&lt;...&gt;-5315    <span class="o">[</span>004<span class="o">]</span> d.s31  1512.963304: bpf_trace_printk: src ip : 172.17.0
+</span></span><span class="line"><span class="cl">&lt;...&gt;-5315    <span class="o">[</span>004<span class="o">]</span> d.s31  1512.963304: bpf_trace_printk: .2
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>卸载 XDP：</p>

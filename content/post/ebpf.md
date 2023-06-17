@@ -193,7 +193,7 @@ cat /sys/kernel/debug/tracing/trace_pipe
 
 ## XDP 拦截 ICMP 协议
 
-<img src="http://inksnw.asuscomm.com:3001/blog/ebpf_79a9c2792be062eb095fa7e0146a80cf.webp" alt="Untitled.png" style="zoom: 33%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/ebpf_79a9c2792be062eb095fa7e0146a80cf.webp" alt="Untitled.png" style="zoom: 40%;" />
 
 xdp_md 在头文件 /usr/include/linux/bpf.h 有定义：
 - data： 数据包数据的地址。 指向数据包数据的开头。
@@ -228,7 +228,7 @@ __u16 h_proto ; //网络层所使用的协议类型
 修改代码
 
 ```c
-#include <linux/bpf.h> 
+#include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
 #include <linux/if_ether.h>
 #include <linux/ip.h>
@@ -239,22 +239,35 @@ int my_pass(struct xdp_md* ctx) {
     void *data = (void*)(long)ctx->data;
     void *data_end = (void*)(long)ctx->data_end;
     int pkt_sz = data_end - data;
+
     struct ethhdr *eth = data;  // 链路层
     if ((void*)eth + sizeof(*eth) > data_end) {  //如果包不完整、或者被篡改， 我们直接DROP
         bpf_printk("Invalid ethernet header\n");
         return XDP_DROP;
     }
+
     struct iphdr *ip = data + sizeof(*eth); // 得到了 ip层
     if ((void*)ip + sizeof(*ip) > data_end) {
         bpf_printk("Invalid IP header\n");
         return XDP_DROP;
     }
+
    if (ip->protocol == IPPROTO_ICMP) {
         // 拦截 ICMP Ping 请求
         bpf_printk("Drop ICMP packets\n");
         return XDP_DROP;
     }
+
     bpf_printk("output:Packet size is %d, protocol is %d\n", pkt_sz, ip->protocol);
+    unsigned int src_ip = ip->saddr;
+    unsigned char bytes[4];
+    bytes[0] = (src_ip >> 0) & 0xFF;
+    bytes[1] = (src_ip >> 8) & 0xFF;
+    bytes[2] = (src_ip >> 16) & 0xFF;
+    bytes[3] = (src_ip >> 24) & 0xFF;
+    bpf_printk("src ip : %d.%d.%d", bytes[0],bytes[1],bytes[2]);
+    bpf_printk(".%d\n",bytes[3]);
+
     return XDP_PASS;
 }
 
@@ -296,13 +309,16 @@ docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 xdpgeneric qdisc noqueue sta
     prog/xdp id 81 tag 0720394bf900dfe8 jited 
 ```
 
-此时再次访问容器，会发现无法通过 Ping 访问容器了，但是 curl 还是可以访问容器。查看 trace 日志。
+此时再次访问容器，会发现无法通过 Ping 访问容器了，但是 curl 还是可以访问容器。查看日志。
 
 ```bash
 cat /sys/kernel/debug/tracing/trace_pipe
 
-ping-6367    [003] d.s31   511.259245: bpf_trace_printk: Drop ICMP packets
-curl-6380    [003] d.s31   513.619792: bpf_trace_printk: output:Packet size is 74, protocol is 6
+ping-9445    [004] d.s31  1505.470977: bpf_trace_printk: Drop ICMP packets
+<idle>-0       [004] d.s31  1508.540894: bpf_trace_printk: output:Packet size is 42, protocol is 66
+<...>-5315    [004] d.s31  1512.963304: bpf_trace_printk: src ip : 172.17.0
+<...>-5315    [004] d.s31  1512.963304: bpf_trace_printk: .2
+
 ```
 
 卸载 XDP：
