@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Ebpf简单使用 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="第一个 eBPF 程序 安装ecli 1 wget https://aka.pw/bpf-ecli 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 #define BPF_NO_GLOBAL_DATA #include &amp;lt;linux/bpf.h&amp;gt; #include &amp;lt;bpf/bpf_helpers.h&amp;gt; #include &amp;lt;bpf/bpf_tracing.h&amp;gt; typedef unsigned int u32; typedef int pid_t; const pid_t pid_filter = 0; char LICENSE[] SEC(&amp;#34;license&amp;#34;) = &amp;#34;Dual BSD/GPL&amp;#34;; SEC(&amp;#34;tp/syscalls/sys_enter_write&amp;#34;) int handle_tp(void *ctx) { pid_t pid = bpf_get_current_pid_tgid()" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.111.3 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/ebpf/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="Ebpf简单使用" />
+<meta property="og:description" content="第一个 eBPF 程序 安装ecli 1 wget https://aka.pw/bpf-ecli 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 #define BPF_NO_GLOBAL_DATA #include &lt;linux/bpf.h&gt; #include &lt;bpf/bpf_helpers.h&gt; #include &lt;bpf/bpf_tracing.h&gt; typedef unsigned int u32; typedef int pid_t; const pid_t pid_filter = 0; char LICENSE[] SEC(&#34;license&#34;) = &#34;Dual BSD/GPL&#34;; SEC(&#34;tp/syscalls/sys_enter_write&#34;) int handle_tp(void *ctx) { pid_t pid = bpf_get_current_pid_tgid()" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/ebpf/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-06-17T14:04:53+08:00" />
+<meta property="article:modified_time" content="2023-06-17T14:04:53+08:00" />
+<meta itemprop="name" content="Ebpf简单使用">
+<meta itemprop="description" content="第一个 eBPF 程序 安装ecli 1 wget https://aka.pw/bpf-ecli 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 #define BPF_NO_GLOBAL_DATA #include &lt;linux/bpf.h&gt; #include &lt;bpf/bpf_helpers.h&gt; #include &lt;bpf/bpf_tracing.h&gt; typedef unsigned int u32; typedef int pid_t; const pid_t pid_filter = 0; char LICENSE[] SEC(&#34;license&#34;) = &#34;Dual BSD/GPL&#34;; SEC(&#34;tp/syscalls/sys_enter_write&#34;) int handle_tp(void *ctx) { pid_t pid = bpf_get_current_pid_tgid()"><meta itemprop="datePublished" content="2023-06-17T14:04:53+08:00" />
+<meta itemprop="dateModified" content="2023-06-17T14:04:53+08:00" />
+<meta itemprop="wordCount" content="1855">
+<meta itemprop="keywords" content="ebpf," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Ebpf简单使用"/>
+<meta name="twitter:description" content="第一个 eBPF 程序 安装ecli 1 wget https://aka.pw/bpf-ecli 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 #define BPF_NO_GLOBAL_DATA #include &lt;linux/bpf.h&gt; #include &lt;bpf/bpf_helpers.h&gt; #include &lt;bpf/bpf_tracing.h&gt; typedef unsigned int u32; typedef int pid_t; const pid_t pid_filter = 0; char LICENSE[] SEC(&#34;license&#34;) = &#34;Dual BSD/GPL&#34;; SEC(&#34;tp/syscalls/sys_enter_write&#34;) int handle_tp(void *ctx) { pid_t pid = bpf_get_current_pid_tgid()"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">Ebpf简单使用</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-06-17 </span>
+            
+            <span class="more-meta"> 约 1855 字 更新于 2023-06-17
+              <a class="article-tags" href=/tags/ebpf/>ebpf</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#第一个-ebpf-程序">第一个 eBPF 程序</a></li>
+        <li><a href="#监控-go-程序写入">监控 Go 程序写入</a></li>
+        <li><a href="#kprobe-监控-go-程序">kprobe 监控 Go 程序</a></li>
+        <li><a href="#xdp-拦截-icmp-协议">XDP 拦截 ICMP 协议</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h2 id="第一个-ebpf-程序">第一个 eBPF 程序</h2>
+<p>安装ecli</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://aka.pw/bpf-ecli 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define BPF_NO_GLOBAL_DATA
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/bpf.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;bpf/bpf_helpers.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;bpf/bpf_tracing.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">u32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">int</span> <span class="kt">pid_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">pid_t</span> <span class="n">pid_filter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">char</span> <span class="n">LICENSE</span><span class="p">[]</span> <span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;license&#34;</span><span class="p">)</span> <span class="o">=</span> <span class="s">&#34;Dual BSD/GPL&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;tp/syscalls/sys_enter_write&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">handle_tp</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ctx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="kt">pid_t</span> <span class="n">pid</span> <span class="o">=</span> <span class="nf">bpf_get_current_pid_tgid</span><span class="p">()</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"> <span class="k">if</span> <span class="p">(</span><span class="n">pid_filter</span> <span class="o">&amp;&amp;</span> <span class="n">pid</span> <span class="o">!=</span> <span class="n">pid_filter</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"> <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;BPF triggered from PID %d.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>编译程序：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run -it -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/:/src/ yunwei37/ebpm:latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后使用 ecli 运行编译后的程序</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── minimal.bpf.c
+</span></span><span class="line"><span class="cl">├── minimal.bpf.o
+</span></span><span class="line"><span class="cl">├── minimal.skel.json
+</span></span><span class="line"><span class="cl">└── package.json
+</span></span><span class="line"><span class="cl"><span class="c1"># 运行</span>
+</span></span><span class="line"><span class="cl">ecli run /root/Desktop/quickstart/package.json
+</span></span><span class="line"><span class="cl">Runing eBPF program...
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看日志</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat /sys/kernel/debug/tracing/trace_pipe
+</span></span><span class="line"><span class="cl">cat-38623   <span class="o">[</span>004<span class="o">]</span> d..31  7645.145301: bpf_trace_printk: BPF triggered from PID 38623.
+</span></span><span class="line"><span class="cl">cat-38623   <span class="o">[</span>004<span class="o">]</span> d..31  7645.145304: bpf_trace_printk: BPF triggered from PID 38623.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="监控-go-程序写入">监控 Go 程序写入</h2>
+<p>写一个简单go程序</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">writeFile</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">f</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">OpenFile</span><span class="p">(</span><span class="s">&#34;test.txt&#34;</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">O_CREATE</span><span class="p">|</span><span class="nx">os</span><span class="p">.</span><span class="nx">O_WRONLY</span><span class="p">|</span><span class="nx">os</span><span class="p">.</span><span class="nx">O_APPEND</span><span class="p">,</span> <span class="mo">0666</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">f</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">f</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">String</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;当前的PID是：&#34;</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getpid</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">writeFile</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;写入成功&#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>启动 Go 程序执行写入操作。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">当前的PID是： <span class="m">39228</span>
+</span></span><span class="line"><span class="cl">写入成功 2023-06-17 16:48:56.009876885 +0800 CST <span class="nv">m</span><span class="o">=</span>+0.001414184
+</span></span><span class="line"><span class="cl">写入成功 2023-06-17 16:49:01.011167331 +0800 CST <span class="nv">m</span><span class="o">=</span>+5.002704636
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改 tracepoint/test.bpf.c 文件，只对指定 PID 的程序进行跟踪。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define BPF_NO_GLOBAL_DATA
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/bpf.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;bpf/bpf_helpers.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;bpf/bpf_tracing.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">u32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">int</span> <span class="kt">pid_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">pid_t</span> <span class="n">pid_filter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">int</span> <span class="n">myappid</span><span class="o">=</span><span class="mi">39228</span><span class="p">;</span> <span class="c1">// 替换成 Go 程序的 PID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">char</span> <span class="n">LICENSE</span><span class="p">[]</span> <span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;license&#34;</span><span class="p">)</span> <span class="o">=</span> <span class="s">&#34;Dual BSD/GPL&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;tracepoint/syscalls/sys_enter_write&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">handle_tp</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ctx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="kt">pid_t</span> <span class="n">pid</span> <span class="o">=</span> <span class="nf">bpf_get_current_pid_tgid</span><span class="p">()</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"> <span class="k">if</span> <span class="p">(</span><span class="n">pid_filter</span> <span class="o">&amp;&amp;</span> <span class="n">pid</span> <span class="o">!=</span> <span class="n">pid_filter</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"> <span class="k">if</span><span class="p">(</span><span class="n">pid</span><span class="o">!=</span><span class="n">myappid</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"> <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;triggered from PID %d.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 ecc 编译程序：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#编译</span>
+</span></span><span class="line"><span class="cl">docker run -it -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/:/src/ yunwei37/ebpm:latest
+</span></span><span class="line"><span class="cl"><span class="c1">#执行</span>
+</span></span><span class="line"><span class="cl">ecli run /root/Desktop/quickstart/package.json
+</span></span><span class="line"><span class="cl"><span class="c1">#查看效果</span>
+</span></span><span class="line"><span class="cl">cat /sys/kernel/debug/tracing/trace_pipe
+</span></span><span class="line"><span class="cl"><span class="c1"># 输出</span>
+</span></span><span class="line"><span class="cl">___go_build_mai-39234   <span class="o">[</span>000<span class="o">]</span> d..31  8010.976013: bpf_trace_printk: triggered from PID 39228.
+</span></span><span class="line"><span class="cl">___go_build_mai-39234   <span class="o">[</span>000<span class="o">]</span> d..31  8010.976240: bpf_trace_printk: triggered from PID 39228.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="kprobe-监控-go-程序">kprobe 监控 Go 程序</h2>
+<p>kprobes ：动态内核跟踪技术，可以定义自己的回调函数，在内核几乎所有的函数中动态地插入探测点</p>
+<p>继续使用 kprobe 来监控上面运行的 Go 程序，修改 tracepoint/test.bpf.c 文件，只对指定 PID 的程序进行跟踪。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/bpf.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;bpf/bpf_helpers.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;bpf/bpf_tracing.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/limits.h&gt; // 定义了NAME_MAX</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stddef.h&gt; // size_t 无符号整数类型，通常被用来表示内存块的大小或元素的数量</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">char</span> <span class="n">LICENSE</span><span class="p">[]</span> <span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;license&#34;</span><span class="p">)</span> <span class="o">=</span> <span class="s">&#34;Dual BSD/GPL&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">u32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="kt">data_t</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">u32</span> <span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">comm</span><span class="p">[</span><span class="n">NAME_MAX</span><span class="p">];</span>  <span class="c1">//NAME_MAX 文件名的最大长度，通常也可以用于进程或线程名称的最大长度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;kprobe/__x64_sys_write&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">kprobe_write</span><span class="p">(</span><span class="k">struct</span> <span class="n">pt_regs</span> <span class="o">*</span><span class="n">ctx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">count</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="kt">data_t</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data</span><span class="p">.</span><span class="n">pid</span> <span class="o">=</span> <span class="nf">bpf_get_current_pid_tgid</span><span class="p">()</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">pid</span><span class="o">!=</span><span class="mi">39228</span><span class="p">){</span> <span class="c1">// 替换成 Go 程序的 PID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">bpf_get_current_comm</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">.</span><span class="n">comm</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">comm</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;pid= %d,name:%s. writing data</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span>  <span class="n">data</span><span class="p">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">data</span><span class="p">.</span><span class="n">comm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>运行查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#编译</span>
+</span></span><span class="line"><span class="cl">docker run -it -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/:/src/ yunwei37/ebpm:latest
+</span></span><span class="line"><span class="cl"><span class="c1">#执行</span>
+</span></span><span class="line"><span class="cl">ecli run /root/Desktop/quickstart/package.json
+</span></span><span class="line"><span class="cl"><span class="c1">#查看效果</span>
+</span></span><span class="line"><span class="cl">cat /sys/kernel/debug/tracing/trace_pipe
+</span></span><span class="line"><span class="cl"><span class="c1"># 输出</span>
+</span></span><span class="line"><span class="cl"> ___go_build_mai-39232   <span class="o">[</span>000<span class="o">]</span> d..31  8306.304318: bpf_trace_printk: <span class="nv">pid</span><span class="o">=</span> 39228,name:___go_build_mai. writing data
+</span></span><span class="line"><span class="cl"> ___go_build_mai-39232   <span class="o">[</span>000<span class="o">]</span> d..31  8306.304379: bpf_trace_printk: <span class="nv">pid</span><span class="o">=</span> 39228,name:___go_build_mai. writing data
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="xdp-拦截-icmp-协议">XDP 拦截 ICMP 协议</h2>
+<img src="http://inksnw.asuscomm.com:3001/blog/ebpf_79a9c2792be062eb095fa7e0146a80cf.webp" alt="Untitled.png" style="zoom:50%;" />
+<p>xdp_md 在头文件 /usr/include/linux/bpf.h 有定义：</p>
+<ul>
+<li>data： 数据包数据的地址。 指向数据包数据的开头。</li>
+<li>data_end： 数据包数据的结束地址。指向数据包的结尾。</li>
+<li>data_meta： 数据包元数据的地址。存储有关数据包的附加信息。</li>
+<li>ingress_ifindex： 接收数据包的网络接口的索引。</li>
+<li>rx_queue_index： 接收数据包的接收队列的索引。</li>
+</ul>
+<p>头文件中定义 if_ether.h。它代表以太网链路层报头。其主要目的是定义以太网报头的结构，其中包括源 MAC 地址和目的 MAC 地址，以及以太网协议类型。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">ethhdr</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">h_dest</span><span class="p">[</span><span class="n">ETH_ALEN</span><span class="p">];</span> <span class="c1">//目的MAC地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">h_source</span><span class="p">[</span><span class="n">ETH_ALEN</span><span class="p">];</span> <span class="c1">//源MAC地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">__u16</span> <span class="n">h_proto</span> <span class="p">;</span> <span class="c1">//网络层所使用的协议类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="nf">__attribute__</span><span class="p">((</span><span class="n">packed</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>头文件 iphdr 中定义 &lt;linux/ip.h&gt;。它用于描述 IPv4 数据包的 IP 标头。该结构包括 IP 版本、报头长度、服务类型、数据包总长度、标识号、标志、生存时间、协议、校验和、源 IP 地址和目标 IP 地址等字段。协议常见数值：</p>
+<ul>
+<li>1：ICMP（Internet 控制报文协议）</li>
+<li>2：IGMP（Internet 组管理协议）</li>
+<li>6：TCP（传输控制协议）</li>
+<li>17：UDP（用户数据报协议）</li>
+<li>41：IPv6 封装的 IPv6 数据报</li>
+<li>47：GRE（通用路由封装）</li>
+<li>50：ESP（封装安全载荷）</li>
+<li>51：AH（认证头部）</li>
+<li>89：OSPF（开放式最短路径优先协议）</li>
+<li>132：SCTP（流控制传输协议）</li>
+</ul>
+<p>修改代码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/bpf.h&gt; </span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;bpf/bpf_helpers.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/if_ether.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/ip.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/in.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;xdp&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">my_pass</span><span class="p">(</span><span class="k">struct</span> <span class="n">xdp_md</span><span class="o">*</span> <span class="n">ctx</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)(</span><span class="kt">long</span><span class="p">)</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">data_end</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)(</span><span class="kt">long</span><span class="p">)</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">data_end</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">pkt_sz</span> <span class="o">=</span> <span class="n">data_end</span> <span class="o">-</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">ethhdr</span> <span class="o">*</span><span class="n">eth</span> <span class="o">=</span> <span class="n">data</span><span class="p">;</span>  <span class="c1">// 链路层
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">eth</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">eth</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">data_end</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">//如果包不完整、或者被篡改， 我们直接DROP
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;Invalid ethernet header</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">XDP_DROP</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">iphdr</span> <span class="o">*</span><span class="n">ip</span> <span class="o">=</span> <span class="n">data</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">eth</span><span class="p">);</span> <span class="c1">// 得到了 ip层
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">ip</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">ip</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">data_end</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;Invalid IP header</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">XDP_DROP</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">   <span class="k">if</span> <span class="p">(</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">protocol</span> <span class="o">==</span> <span class="n">IPPROTO_ICMP</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 拦截 ICMP Ping 请求
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;Drop ICMP packets</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">XDP_DROP</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">bpf_printk</span><span class="p">(</span><span class="s">&#34;output:Packet size is %d, protocol is %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">pkt_sz</span><span class="p">,</span> <span class="n">ip</span><span class="o">-&gt;</span><span class="n">protocol</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">XDP_PASS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">char</span> <span class="n">__license</span><span class="p">[]</span> <span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;license&#34;</span><span class="p">)</span> <span class="o">=</span> <span class="s">&#34;GPL&#34;</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 ecc 编译程序：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run -it -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/:/src/ yunwei37/ebpm:latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>启用 XDP 之前先创建一个容器。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run -itd --name nginx nginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>获取容器的 IP 地址。此时 curl 和 ping 容器都是可以成功访问的。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker inspect -f <span class="s2">&#34;{{ .NetworkSettings.IPAddress }}&#34;</span> nginx
+</span></span><span class="line"><span class="cl"><span class="c1"># 输出</span>
+</span></span><span class="line"><span class="cl">172.17.0.2
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>启用 XDP, 试了下直接操作虚拟机的网卡会报错 Error: virtio_net: Can&rsquo;t set XDP while host is implementing GRO_HW/CSUM, disable GRO_HW/CSUM first. 所以操作docker0 试一下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># ip link set dev &lt;网卡&gt; xdp obj &lt;文件名&gt; sec xdp verbose</span>
+</span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> dev docker0 xdp obj xdp.bpf.o sec xdp verbose
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行 ip link 命令可以看到 docker0 网卡上挂载了 XDP 程序。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class="m">1500</span> xdpgeneric qdisc noqueue state UP mode DEFAULT group default 
+</span></span><span class="line"><span class="cl">    link/ether 02:42:c9:e3:96:da brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="cl">    prog/xdp id <span class="m">81</span> tag 0720394bf900dfe8 jited 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>此时再次访问容器，会发现无法通过 Ping 访问容器了，但是 curl 还是可以访问容器。查看 trace 日志。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat /sys/kernel/debug/tracing/trace_pipe
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ping-6367    <span class="o">[</span>003<span class="o">]</span> d.s31   511.259245: bpf_trace_printk: Drop ICMP packets
+</span></span><span class="line"><span class="cl">curl-6380    <span class="o">[</span>003<span class="o">]</span> d.s31   513.619792: bpf_trace_printk: output:Packet size is 74, protocol is <span class="m">6</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>卸载 XDP：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ip link <span class="nb">set</span> dev docker0 xdp off
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/ebpf/">ebpf</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/k8s%E4%BD%BF%E7%94%A8%E5%A4%96%E9%83%A8%E6%9D%83%E9%99%90%E8%AE%A4%E8%AF%81/">
+                <span class="next-text nav-default">K8s使用外部权限认证</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
