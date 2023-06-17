@@ -193,7 +193,7 @@ cat /sys/kernel/debug/tracing/trace_pipe
 
 ## XDP 拦截 ICMP 协议
 
-<img src="http://inksnw.asuscomm.com:3001/blog/ebpf_79a9c2792be062eb095fa7e0146a80cf.webp" alt="Untitled.png" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/ebpf_79a9c2792be062eb095fa7e0146a80cf.webp" alt="Untitled.png" style="zoom: 33%;" />
 
 xdp_md 在头文件 /usr/include/linux/bpf.h 有定义：
 - data： 数据包数据的地址。 指向数据包数据的开头。
