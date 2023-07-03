@@ -6,8 +6,6 @@ tags: ["工程化"]
 
 Pyroscope是一个开源的持续分析系统，使用Go语言实现。服务端使用web页面查看，提供丰富的分析的功能，客户端提供Go、Java、Python、Ruby、PHP、.NET等多种语言的支持
 
-
-
 ## 安装
 
 ```bash
