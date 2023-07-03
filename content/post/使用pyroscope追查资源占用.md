@@ -82,6 +82,8 @@ func highMem() {
 
 <img src="http://inksnw.asuscomm.com:3001/blog/使用pyroscope追查资源占用_9395294a94cc66a18cef093a6a139588.png" alt="image-20230703180710548" style="zoom:50%;" />
 
+### 选项解释
+
 - `accloc_objects`：表示在代码执行期间分配的对象总数。它反映了代码的内存使用情况，用于衡量代码中对象创建的频率。
 
 - `accloc_space`：表示代码执行期间已分配的对象的总内存占用量。它反映了代码的内存使用情况，用于衡量代码在执行过程中所占用的内存空间。
