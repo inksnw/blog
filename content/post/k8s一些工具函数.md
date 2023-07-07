@@ -245,6 +245,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
+
 func createClient(clusterName string) (*kubernetes.Clientset, error) {
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	configOverrides := &clientcmd.ConfigOverrides{
@@ -255,17 +256,19 @@ func createClient(clusterName string) (*kubernetes.Clientset, error) {
 	if err != nil {
 		return nil, err
 	}
-	clusterServer := rawConfig.Clusters[clusterName].Server
-	rawConfig.Clusters[clusterName] = &api.Cluster{
-		Server: clusterServer,
-	}
-
 	clientConfig := clientcmd.NewDefaultClientConfig(rawConfig, configOverrides)
 	config, err := clientConfig.ClientConfig()
 	if err != nil {
 		return nil, err
 	}
+	config.Host = rawConfig.Clusters[clusterName].Server
+	fmt.Printf("连接的地址是: %s", config.Host)
+	//跳过tls验证
+	config.TLSClientConfig = rest.TLSClientConfig{
+		Insecure: true,
+	}
 	clientset, err := kubernetes.NewForConfig(config)
+
 	return clientset, err
 }
 
