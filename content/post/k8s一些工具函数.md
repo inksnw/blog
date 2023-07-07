@@ -195,3 +195,96 @@ func main() {
 }
 ```
 
+### 多集群clientset获取
+
+config示例
+
+```yaml
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: xxx
+    server: https://127.0.0.1:8443/apis/clusterpedia.io/v1beta1/resources/clusters/cluster-example
+  name: cluster-example
+- cluster:
+    certificate-authority-data: xxx
+    server: https://192.168.50.50:6443
+  name: cluster.local
+- cluster:
+    certificate-authority-data: xxx
+    server: https://127.0.0.1:8443/apis/clusterpedia.io/v1beta1/resources
+  name: clusterpedia
+contexts:
+- context:
+    cluster: cluster.local
+    user: kubernetes-admin
+  name: kubernetes-admin@cluster.local
+current-context: kubernetes-admin@cluster.local
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: xxx
+    client-key-data: xxx
+```
+
+获取指定集群的clientset
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
+)
+
+func createClient(clusterName string) (*kubernetes.Clientset, error) {
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	configOverrides := &clientcmd.ConfigOverrides{
+		CurrentContext: "kubernetes-admin@cluster.local",
+	}
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	rawConfig, err := kubeConfig.RawConfig()
+	if err != nil {
+		return nil, err
+	}
+	clusterServer := rawConfig.Clusters[clusterName].Server
+	rawConfig.Clusters[clusterName] = &api.Cluster{
+		Server: clusterServer,
+	}
+
+	clientConfig := clientcmd.NewDefaultClientConfig(rawConfig, configOverrides)
+	config, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	return clientset, err
+}
+
+func main() {
+	clusterName := "cluster-example"
+	clientset, err := createClient(clusterName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	podsClient := clientset.CoreV1().Pods("default")
+	podList, err := podsClient.List(context.Background(), v1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range podList.Items {
+		fmt.Println("Pod:", pod.Name)
+	}
+}
+```
+
+
+
