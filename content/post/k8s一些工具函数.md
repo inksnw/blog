@@ -289,5 +289,12 @@ func main() {
 }
 ```
 
+### 开发授权
 
+> configmaps is forbidden: User “system:anonymous” cannot list resource “configmaps” in API group “” in the namespace “default”
 
+给匿名用户授权即可解决，测试环境可用此快速解决
+
+```bash
+kubectl create clusterrolebinding test:anonymous --clusterrole=cluster-admin --user=system:anonymous
+```
