@@ -100,7 +100,7 @@ root@base:~# gobgp neighbor 192.168.50.199 adj-in
 
 可以使用 `gobgp global rib del` 命令来删除特定的路由项。
 
-执行网络测试
+### 执行网络测试
 
 ```
 docker exec -it fe991dc687e0 curl 20.1.0.2
@@ -114,6 +114,33 @@ root@base:~# route -n
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 ...
 20.1.0.0        192.168.50.199  255.255.0.0     UG    0      0        0 enp1s0
+```
+
+或者使用代码添加
+
+```go
+package main
+
+import (
+	"fmt"
+	"net"
+
+	"github.com/vishvananda/netlink"
+)
+
+func main() {
+	// 路由的目标网络
+	dst, _ := netlink.ParseIPNet("20.1.0.0/16")
+	// 用于到达目标网络的网关 IP
+	gw := net.ParseIP("192.168.50.199")
+	route := netlink.Route{Dst: dst, Gw: gw}
+	// 添加路由
+	if err := netlink.RouteAdd(&route); err != nil {
+		fmt.Println("Error adding route:", err)
+	} else {
+		fmt.Println("Route added successfully")
+	}
+}
 ```
 
 再次执行
