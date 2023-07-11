@@ -320,10 +320,22 @@ func ConvertToUnstructured(obj runtime.Object) (*unstructured.Unstructured, erro
 
 ### unstructured 转成 runtime.object
 
+知道目标类型
+
 ```go
 func ConvertToRuntimeObject(unstructuredObj *unstructured.Unstructured, obj runtime.Object) error {
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj.UnstructuredContent(), obj)
 	return err
+}
+```
+
+不知道目标类型
+
+```go
+func ConvertToRuntimeObject(unstructuredObj *unstructured.Unstructured) (runtime.Object, error) {
+	runtimeObj := &runtime.Unknown{}
+	err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj.UnstructuredContent(), runtimeObj)
+	return runtimeObj, err
 }
 ```
 
