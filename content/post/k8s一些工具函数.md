@@ -298,3 +298,32 @@ func main() {
 ```bash
 kubectl create clusterrolebinding test:anonymous --clusterrole=cluster-admin --user=system:anonymous
 ```
+
+### runtime.object 转成 unstructured
+
+```go
+import (
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+)
+
+func ConvertToUnstructured(obj runtime.Object) (*unstructured.Unstructured, error) {
+	objMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
+	if err != nil {
+		return nil, err
+	}
+
+	unstructuredObj := &unstructured.Unstructured{Object: objMap}
+	return unstructuredObj, nil
+}
+```
+
+### unstructured 转成 runtime.object
+
+```go
+func ConvertToRuntimeObject(unstructuredObj *unstructured.Unstructured, obj runtime.Object) error {
+	err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj.UnstructuredContent(), obj)
+	return err
+}
+```
+
