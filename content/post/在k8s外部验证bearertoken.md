@@ -1,7 +1,7 @@
 ---
 title: "在k8s外部验证bearertoken"
 date: 2023-07-12T23:42:00+08:00
-draft: true
+tags: ["k8s"]
 ---
 
 ## 生成token
