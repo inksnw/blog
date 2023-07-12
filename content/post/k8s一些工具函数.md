@@ -299,7 +299,9 @@ func main() {
 kubectl create clusterrolebinding test:anonymous --clusterrole=cluster-admin --user=system:anonymous
 ```
 
-### runtime.object 转成 unstructured
+### k8s类型转换
+
+#### runtime.object 转成 unstructured
 
 ```go
 import (
@@ -318,7 +320,7 @@ func ConvertToUnstructured(obj runtime.Object) (*unstructured.Unstructured, erro
 }
 ```
 
-### unstructured 转成 runtime.object
+#### unstructured 转成 runtime.object
 
 知道目标类型
 
@@ -336,6 +338,24 @@ func ConvertToRuntimeObject(unstructuredObj *unstructured.Unstructured) (runtime
 	runtimeObj := &runtime.Unknown{}
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj.UnstructuredContent(), runtimeObj)
 	return runtimeObj, err
+}
+```
+
+any 转runtime.object
+
+```go
+func (n nodeHandle) OnDelete(obj interface{}) {
+	node := obj.(*corev1.Node)
+}
+```
+
+#### jsonBytes 转 unstructured
+
+```go
+func Decode(data []byte) (obj runtime.Object, err error) {
+	decoder := unstructured.UnstructuredJSONScheme
+	obj, _, err = decoder.Decode(data, nil, nil)
+	return obj, err
 }
 ```
 
