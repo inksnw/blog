@@ -349,7 +349,7 @@ func (n nodeHandle) OnDelete(obj interface{}) {
 }
 ```
 
-#### jsonBytes 转 unstructured
+#### jsonBytes 转 runtime.Object
 
 ```go
 func Decode(data []byte) (obj runtime.Object, err error) {
