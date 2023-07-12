@@ -359,3 +359,65 @@ func Decode(data []byte) (obj runtime.Object, err error) {
 }
 ```
 
+#### gvk 和 gvr互转
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/phuslu/log"
+	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/restmapper"
+	"k8s.io/client-go/tools/clientcmd"
+	"os"
+)
+
+var (
+	Mapper meta.RESTMapper
+)
+
+func InitMapper() {
+	//获取  所有api groupresource
+	config, err := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
+	client, err := kubernetes.NewForConfig(config)
+	gr, err := restmapper.GetAPIGroupResources(client.Discovery())
+	if err != nil {
+		log.Fatal().Msgf("初始化mapper失败,请检查k8s连接 %s", err)
+		os.Exit(1)
+	}
+	Mapper = restmapper.NewDiscoveryRESTMapper(gr)
+}
+
+func GvkToGvr(gvk schema.GroupVersionKind) (schema.GroupVersionResource, error) {
+	mapping, err := Mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	if meta.IsNoMatchError(err) || err != nil {
+		return schema.GroupVersionResource{}, err
+	}
+	return mapping.Resource, nil
+}
+
+func GvrToGvk(gvr schema.GroupVersionResource) (schema.GroupVersionKind, error) {
+	gvk, err := Mapper.KindFor(gvr)
+	return gvk, err
+}
+
+func main() {
+	InitMapper()
+	gvk := schema.GroupVersionKind{
+		Group:   "",
+		Version: "v1",
+		Kind:    "Pod",
+	}
+	gvr, err := GvkToGvr(gvk)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(gvr.Resource)
+	gvk1, _ := GvrToGvk(gvr)
+	fmt.Println(gvk1.Kind)
+}
+```
+
