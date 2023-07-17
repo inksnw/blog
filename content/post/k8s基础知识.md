@@ -375,7 +375,7 @@ apt install etcd-client
 #起个别名
 alias etcdctl='etcdctl --key=/etc/kubernetes/pki/etcd/server.key --cert=/etc/kubernetes/pki/etcd/server.crt --cacert=/etc/kubernetes/pki/etcd/ca.crt --endpoints 192.168.50.40:2379'
 #查看节点
-ETCDCTL_API=3 etcdctl -w table memeber list
+ETCDCTL_API=3 etcdctl -w table member list
 ```
 
 查看证书相关信息
