@@ -359,6 +359,35 @@ func Decode(data []byte) (obj runtime.Object, err error) {
 }
 ```
 
+#### jsonBytes 转 v1.Pod{}
+
+```go
+package main
+
+import (
+	"fmt"
+	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+)
+
+func main() {
+	jsonStr := `{"apiVersion":"v1","kind":"Pod","metadata":{"labels":{"app":"mytest"},"name":"mytest","namespace":"default"},"spec":{"containers":[{"image":"nginx","imagePullPolicy":"IfNotPresent","name":"mytest"}],"restartPolicy":"Always"}}`
+	// 设置序列化器和反序列化器
+	codec := serializer.NewCodecFactory(runtime.NewScheme()).UniversalDeserializer()
+	// 将JSON字符串解码到Pod对象中
+	ins := &v1.Pod{}
+	_, _, err := codec.Decode([]byte(jsonStr), nil, ins)
+	if err != nil {
+		fmt.Printf("Error decoding Pod: %v\n", err)
+		return
+	}
+	fmt.Printf("Decoded Pod: %v\n", ins.Name)
+}
+```
+
+
+
 #### gvk 和 gvr互转
 
 ```go
