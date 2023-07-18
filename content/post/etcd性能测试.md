@@ -172,3 +172,7 @@ sandbox: (groupid=0, jobs=1): err= 0: pid=5038: Tue Jul 18 02:33:32 2023
 - `--name=sandbox`: 这个选项指定了测试的名称，可以用来区分不同的测试。
 
 在这个命令中没有指定线程数，所以默认使用一个线程进行测试。如果你想指定线程数，可以添加`--numjobs=N`选项，其中`N`是线程数。
+
+## 参考
+
+- https://blog.happyhack.io/2021/08/05/fio-and-etcd/
