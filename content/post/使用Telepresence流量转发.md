@@ -143,3 +143,74 @@ demo: ready to intercept (traffic-agent not yet installed)
 ➜ telepresence quit
 ```
 
+## 暴力方法
+
+直接搞个nginx转发
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mynginx
+  namespace: kubesphere-system
+  labels:
+    app: ks-apiserver
+    tier: backend
+spec:
+  containers:
+    - name: mynginx
+      image: nginx
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 9090
+      volumeMounts:
+        - name: web-nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+  volumes:
+    - name: web-nginx-config
+      configMap:
+        name: web-nginx-config
+        items:
+          - key: nginx.conf
+            path: nginx.conf
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-nginx-config
+  namespace: kubesphere-system
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  auto;
+    error_log  /var/log/nginx/error.log notice;
+    pid        /var/run/nginx.pid;
+    events {
+        worker_connections  1024;
+    }
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+        access_log  /var/log/nginx/access.log  main;
+        sendfile        on;
+        keepalive_timeout  65;
+        server {
+          listen       9090;
+          listen  [::]:9090;
+          server_name  localhost;
+          location / {
+            proxy_pass http://10.8.0.2:9090$request_uri;
+          }
+    
+          error_page   500 502 503 504  /50x.html;
+          location = /50x.html {
+              root   /usr/share/nginx/html;
+          }
+      }
+    }
+```
+
