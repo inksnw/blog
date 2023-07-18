@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Etcd性能测试 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="基础配置 1 2 3 4 5 6 7 alias etcdctl=&amp;#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-node1-key.pem --cert=/etc/ssl/etcd/ssl/admin-node1.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.50:2379&amp;#39; etcdctl -w table member list &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ID | STATUS | NAME | PEER ADDRS | CLIENT ADDRS | IS LEARNER | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ae12e8bc550d8bfc | started | etcd-node1 | https://192.168.50.50:2380 | https://192.168.50.50:2379 | false | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; 压测 1 2 3 4 5 6 7 8 # 不同大小" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.115.3 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/etcd%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="Etcd性能测试" />
+<meta property="og:description" content="基础配置 1 2 3 4 5 6 7 alias etcdctl=&#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-node1-key.pem --cert=/etc/ssl/etcd/ssl/admin-node1.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.50:2379&#39; etcdctl -w table member list &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ID | STATUS | NAME | PEER ADDRS | CLIENT ADDRS | IS LEARNER | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ae12e8bc550d8bfc | started | etcd-node1 | https://192.168.50.50:2380 | https://192.168.50.50:2379 | false | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; 压测 1 2 3 4 5 6 7 8 # 不同大小" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/etcd%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-07-17T18:10:12+08:00" />
+<meta property="article:modified_time" content="2023-07-17T18:10:12+08:00" />
+<meta itemprop="name" content="Etcd性能测试">
+<meta itemprop="description" content="基础配置 1 2 3 4 5 6 7 alias etcdctl=&#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-node1-key.pem --cert=/etc/ssl/etcd/ssl/admin-node1.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.50:2379&#39; etcdctl -w table member list &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ID | STATUS | NAME | PEER ADDRS | CLIENT ADDRS | IS LEARNER | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ae12e8bc550d8bfc | started | etcd-node1 | https://192.168.50.50:2380 | https://192.168.50.50:2379 | false | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; 压测 1 2 3 4 5 6 7 8 # 不同大小"><meta itemprop="datePublished" content="2023-07-17T18:10:12+08:00" />
+<meta itemprop="dateModified" content="2023-07-17T18:10:12+08:00" />
+<meta itemprop="wordCount" content="2114">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Etcd性能测试"/>
+<meta name="twitter:description" content="基础配置 1 2 3 4 5 6 7 alias etcdctl=&#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-node1-key.pem --cert=/etc/ssl/etcd/ssl/admin-node1.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.50:2379&#39; etcdctl -w table member list &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ID | STATUS | NAME | PEER ADDRS | CLIENT ADDRS | IS LEARNER | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ae12e8bc550d8bfc | started | etcd-node1 | https://192.168.50.50:2380 | https://192.168.50.50:2379 | false | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; 压测 1 2 3 4 5 6 7 8 # 不同大小"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">Etcd性能测试</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-07-17 </span>
+            
+            <span class="more-meta"> 约 2114 字 更新于 2023-07-17
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#基础配置">基础配置</a></li>
+        <li><a href="#压测">压测</a></li>
+        <li><a href="#信息查看">信息查看</a>
+          <ul>
+            <li><a href="#lsof">lsof</a></li>
+            <li><a href="#iostat">iostat</a></li>
+          </ul>
+        </li>
+        <li><a href="#使用fio测试">使用Fio测试</a>
+          <ul>
+            <li><a href="#bs参数">bs参数</a></li>
+            <li><a href="#fdatasync参数">fdatasync参数</a></li>
+            <li><a href="#测试">测试</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h2 id="基础配置">基础配置</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">alias</span> <span class="nv">etcdctl</span><span class="o">=</span><span class="s1">&#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-node1-key.pem --cert=/etc/ssl/etcd/ssl/admin-node1.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.50:2379&#39;</span>
+</span></span><span class="line"><span class="cl">etcdctl -w table member list
+</span></span><span class="line"><span class="cl">+------------------+---------+------------+----------------------------+----------------------------+------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span>        ID        <span class="p">|</span> STATUS  <span class="p">|</span>    NAME    <span class="p">|</span>         PEER ADDRS         <span class="p">|</span>        CLIENT ADDRS        <span class="p">|</span> IS LEARNER <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+------------------+---------+------------+----------------------------+----------------------------+------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ae12e8bc550d8bfc <span class="p">|</span> started <span class="p">|</span> etcd-node1 <span class="p">|</span> https://192.168.50.50:2380 <span class="p">|</span> https://192.168.50.50:2379 <span class="p">|</span>      <span class="nb">false</span> <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+------------------+---------+------------+----------------------------+----------------------------+------------+
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="压测">压测</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 不同大小的集群负载，支持参数为：s,m,l,xl</span>
+</span></span><span class="line"><span class="cl">etcdctl check perf --load<span class="o">=</span>s
+</span></span><span class="line"><span class="cl">etcdctl check perf --load<span class="o">=</span>l
+</span></span><span class="line"><span class="cl"><span class="c1"># 测试失败。可以看到，集群可执行 3934/s 的写操作</span>
+</span></span><span class="line"><span class="cl">FAIL: Throughput too low: <span class="m">3934</span> writes/s
+</span></span><span class="line"><span class="cl">PASS: Slowest request took 0.461817s
+</span></span><span class="line"><span class="cl">PASS: Stddev is 0.046747s
+</span></span><span class="line"><span class="cl">FAIL
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="信息查看">信息查看</h2>
+<h3 id="lsof">lsof</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-basic" data-lang="basic"><span class="line"><span class="cl"><span class="vg">root@</span><span class="nl">node1:</span><span class="o">~</span><span class="err">#</span><span class="w"> </span><span class="vg">lsof</span><span class="w"> </span><span class="o">-</span><span class="vg">p</span><span class="w"> </span><span class="err">$</span><span class="p">(</span><span class="vg">pgrep</span><span class="w"> </span><span class="vg">etcd</span><span class="p">)</span><span class="o">|</span><span class="vg">egrep</span><span class="w"> </span><span class="c1">&#39;wal|COMMAND&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="vg">COMMAND</span><span class="w"> </span><span class="vg">PID</span><span class="w"> </span><span class="vg">USER</span><span class="w">   </span><span class="vg">FD</span><span class="w">      </span><span class="kr">TYPE</span><span class="w">             </span><span class="vg">DEVICE</span><span class="w">  </span><span class="vg">SIZE</span><span class="o">/</span><span class="k">OFF</span><span class="w">    </span><span class="vg">NODE</span><span class="w"> </span><span class="kr">NAME</span>
+</span></span><span class="line"><span class="cl"><span class="vg">etcd</span><span class="w">    </span><span class="il">593</span><span class="w"> </span><span class="vg">root</span><span class="w">   </span><span class="il">10</span><span class="vg">r</span><span class="w">      </span><span class="vg">DIR</span><span class="w">              </span><span class="il">252</span><span class="p">,</span><span class="il">2</span><span class="w">      </span><span class="il">4096</span><span class="w">  </span><span class="il">917520</span><span class="w"> </span><span class="o">/</span><span class="vg">var</span><span class="o">/</span><span class="vg">lib</span><span class="o">/</span><span class="vg">etcd</span><span class="o">/</span><span class="vg">member</span><span class="o">/</span><span class="vg">wal</span>
+</span></span><span class="line"><span class="cl"><span class="vg">etcd</span><span class="w">    </span><span class="il">593</span><span class="w"> </span><span class="vg">root</span><span class="w">  </span><span class="il">581</span><span class="vg">w</span><span class="w">      </span><span class="vg">REG</span><span class="w">              </span><span class="il">252</span><span class="p">,</span><span class="il">2</span><span class="w">  </span><span class="il">64000000</span><span class="w">  </span><span class="il">917576</span><span class="w"> </span><span class="o">/</span><span class="vg">var</span><span class="o">/</span><span class="vg">lib</span><span class="o">/</span><span class="vg">etcd</span><span class="o">/</span><span class="vg">member</span><span class="o">/</span><span class="vg">wal</span><span class="o">/</span><span class="il">0000000000000011-00000000000</span><span class="vg">d4a35</span><span class="o">.</span><span class="vg">wal</span>
+</span></span><span class="line"><span class="cl"><span class="vg">etcd</span><span class="w">    </span><span class="il">593</span><span class="w"> </span><span class="vg">root</span><span class="w">  </span><span class="il">601</span><span class="vg">w</span><span class="w">      </span><span class="vg">REG</span><span class="w">              </span><span class="il">252</span><span class="p">,</span><span class="il">2</span><span class="w">  </span><span class="il">64000000</span><span class="w">  </span><span class="il">917589</span><span class="w"> </span><span class="o">/</span><span class="vg">var</span><span class="o">/</span><span class="vg">lib</span><span class="o">/</span><span class="vg">etcd</span><span class="o">/</span><span class="vg">member</span><span class="o">/</span><span class="vg">wal</span><span class="o">/</span><span class="il">0</span><span class="o">.</span><span class="vg">tmp</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在etcd中，&lsquo;wal&rsquo;文件包含了所有待写入磁盘的数据，这样即使系统突然崩溃，也可以从&rsquo;wal&rsquo;文件中恢复数据。</p>
+<p>以下是每一列的含义：</p>
+<ul>
+<li><code>COMMAND</code>: 进程名，这里是etcd。</li>
+<li><code>PID</code>: 进程ID，这里是593。</li>
+<li><code>USER</code>: 执行这个进程的用户，这里是root。</li>
+<li><code>FD</code>: 文件描述符编号+类型，代表进程与文件之间的接口。这里包括10r，581w和601w，其中&rsquo;r&rsquo;代表读，&lsquo;w&rsquo;代表写。</li>
+<li><code>TYPE</code>: 文件类型，这里包括DIR（目录）和REG（普通文件）。</li>
+<li><code>DEVICE</code>: 设备号，是设备在系统中的标识。</li>
+<li><code>SIZE/OFF</code>: 文件的大小（对普通文件）或文件在文件系统中的偏移量（对目录）。</li>
+<li><code>NODE</code>: 节点，代表文件在文件系统中的位置。</li>
+<li><code>NAME</code>: 文件路径。</li>
+</ul>
+<h3 id="iostat">iostat</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">iostat <span class="m">2</span> -h
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+</span></span><span class="line"><span class="cl">          54.4%    0.0%   26.9%    8.2%    0.0%   10.5%
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd Device
+</span></span><span class="line"><span class="cl">   322.50         0.0k        15.2M         0.0k       0.0k      30.5M       0.0k vda
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>先来解释一下CPU统计的部分：</p>
+<ul>
+<li><code>%user</code>: 用户态CPU时间百分比。CPU花在执行用户进程（用户态）的时间百分比，不包括优先级调整为负的进程。</li>
+<li><code>%nice</code>: 用户态的低优先级CPU时间百分比。CPU花在执行优先级调整为负的用户进程的时间百分比。</li>
+<li><code>%system</code>: 内核态CPU时间百分比。CPU花在系统管理（内核态）的时间百分比。</li>
+<li><code>%iowait</code>: I/O等待时间百分比。CPU因为等待I/O操作（如读取磁盘数据）而空闲的时间百分比。</li>
+<li><code>%steal</code>: 被强占的CPU时间百分比。在虚拟环境中，一台物理机上的一个虚拟机（guest）可能会使用其他虚拟机的CPU资源，这个数值表示这种情况发生的时间百分比。</li>
+<li><code>%idle</code>: CPU空闲时间百分比。CPU没有执行任何任务，也没有等待I/O操作的时间百分比。</li>
+</ul>
+<p>再来看看设备统计的部分：</p>
+<ul>
+<li><code>tps</code>: 每秒传输的事务数。显示了每秒发生的读取和写入操作的总次数。</li>
+<li><code>kB_read/s</code>: 每秒读取的数据量（单位为KB）。</li>
+<li><code>kB_wrtn/s</code>: 每秒写入的数据量（单位为KB）。</li>
+<li><code>kB_dscd/s</code>: 每秒丢弃的数据量（单位为KB）。这通常涉及到虚拟内存和交换空间。</li>
+<li><code>kB_read</code>: 读取的总数据量（单位为KB）。</li>
+<li><code>kB_wrtn</code>: 写入的总数据量（单位为KB）。</li>
+<li><code>kB_dscd</code>: 丢弃的总数据量（单位为KB）。</li>
+<li><code>Device</code>: 设备名称。</li>
+</ul>
+<p>所以从这个输出中，我们可以看出：</p>
+<ul>
+<li>CPU的大部分时间都花在执行用户进程和系统管理上，有一部分时间在等待I/O操作，有一小部分时间是空闲的。</li>
+<li>设备<code>vda</code>每秒进行约322.5次读写操作，读取数据的速度几乎为0，写入数据的速度约为15.2MB/s，没有丢弃数据，总共写入了约30.5MB的数据。</li>
+</ul>
+<h2 id="使用fio测试">使用Fio测试</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># trace=write 只追踪特定的系统调用。表达式可以是signal, abbrev, verbose, raw, read 和 write等几种类型。</span>
+</span></span><span class="line"><span class="cl">strace -p <span class="k">$(</span>pgrep etcd<span class="k">)</span> -e <span class="nv">trace</span><span class="o">=</span>write
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="bs参数">bs参数</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">strace: Process <span class="m">572</span> attached
+</span></span><span class="line"><span class="cl">write<span class="o">(</span>79, <span class="s2">&#34;\27\3\3\0%\0\0\0\0\0\0\1!\306\0CG\344\215\262=\31\30W\245\213gQ\354\356\274_&#34;</span>..., 42<span class="o">)</span> <span class="o">=</span> <span class="m">42</span>
+</span></span><span class="line"><span class="cl">write<span class="o">(</span>79, <span class="s2">&#34;\27\3\3\0)\0\0\0\0\0\0\1\&#34;\340\217\267^t%W\214%\272\376,\254\201\33\26\227\25\361&#34;</span>..., 46<span class="o">)</span> <span class="o">=</span> <span class="m">46</span>
+</span></span><span class="line"><span class="cl">write<span class="o">(</span>79, <span class="s2">&#34;\27\3\3\0C\0\0\0\0\0\0\1#&lt;\371\341\205U^!I\254\306\234\341\203L\234\312\314\266Y&#34;</span>..., 72<span class="o">)</span> <span class="o">=</span> <span class="m">72</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在<code>strace</code>的输出中，<code>write</code>系统调用后面的数字，比如<code>42</code>，<code>46</code>和<code>72</code>，表示的是写入的字节数, write系统调用的原型如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">ssize_t</span> <span class="nf">write</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">count</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>fd</code>是文件描述符，代表要写入的文件或设备。</li>
+<li><code>buf</code>是一个指向要写入的数据的指针。</li>
+<li><code>count</code>是要写入的字节数。</li>
+</ul>
+<p>结果显示 WAL 文件写入大小几乎都在 100 字节这个范围， 客户环境中在 2200-2400 范围，因此设置参数<code>--bs=2300</code></p>
+<h3 id="fdatasync参数">fdatasync参数</h3>
+<p><code>fdatasync</code>函数的原型如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">fdatasync</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>追踪etcd使用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">strace -p <span class="k">$(</span>pgrep etcd<span class="k">)</span> -e <span class="nv">trace</span><span class="o">=</span>fdatasync
+</span></span><span class="line"><span class="cl">strace: Process <span class="m">572</span> attached
+</span></span><span class="line"><span class="cl">fdatasync<span class="o">(</span>9<span class="o">)</span>                            <span class="o">=</span> <span class="m">0</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>每当客户端添加或更新键值对数据时，etcd 会向 WAL 文件添加一条入库记录条目。再进一步处理之前，etcd 必须 100% 确保 WAL 条目已经被持久化。 要在 Linux 实现这一点，仅使用<strong>write</strong>系统调用是不够的，因为对物理存储的写入操作可能会发生延迟。比如， Linux 可能会将写入的 WAL 条目在内核内存缓存中保留一段时间（例如，页缓存）。如果要确保数据被写入持久化存储，你必须在 write 系统调用之后调用 fdatasync 系统调用</p>
+<h3 id="测试">测试</h3>
+<p>下面使用 fio 来查看 fdatasync 的延迟：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">fio --rw<span class="o">=</span>write --ioengine<span class="o">=</span>sync --fdatasync<span class="o">=</span><span class="m">1</span> --directory<span class="o">=</span>benchmark --size<span class="o">=</span>22m --bs<span class="o">=</span><span class="m">2300</span> --name<span class="o">=</span>sandbox
+</span></span><span class="line"><span class="cl">sandbox: <span class="o">(</span><span class="nv">g</span><span class="o">=</span>0<span class="o">)</span>: <span class="nv">rw</span><span class="o">=</span>write, <span class="nv">bs</span><span class="o">=(</span>R<span class="o">)</span> 2300B-2300B, <span class="o">(</span>W<span class="o">)</span> 2300B-2300B, <span class="o">(</span>T<span class="o">)</span> 2300B-2300B, <span class="nv">ioengine</span><span class="o">=</span>sync, <span class="nv">iodepth</span><span class="o">=</span><span class="m">1</span>
+</span></span><span class="line"><span class="cl">fio-3.16
+</span></span><span class="line"><span class="cl">Starting <span class="m">1</span> process
+</span></span><span class="line"><span class="cl">Jobs: <span class="m">1</span> <span class="o">(</span><span class="nv">f</span><span class="o">=</span>1<span class="o">)</span>: <span class="o">[</span>W<span class="o">(</span>1<span class="o">)][</span>100.0%<span class="o">][</span><span class="nv">w</span><span class="o">=</span>490KiB/s<span class="o">][</span><span class="nv">w</span><span class="o">=</span><span class="m">218</span> IOPS<span class="o">][</span>eta 00m:00s<span class="o">]</span>
+</span></span><span class="line"><span class="cl">sandbox: <span class="o">(</span><span class="nv">groupid</span><span class="o">=</span>0, <span class="nv">jobs</span><span class="o">=</span>1<span class="o">)</span>: <span class="nv">err</span><span class="o">=</span> 0: <span class="nv">pid</span><span class="o">=</span>5038: Tue Jul <span class="m">18</span> 02:33:32 <span class="m">2023</span>
+</span></span><span class="line"><span class="cl">  write: <span class="nv">IOPS</span><span class="o">=</span>294, <span class="nv">BW</span><span class="o">=</span>661KiB/s <span class="o">(</span>677kB/s<span class="o">)(</span>21.0MiB/34072msec<span class="o">)</span><span class="p">;</span> <span class="m">0</span> zone resets
+</span></span><span class="line"><span class="cl">    clat <span class="o">(</span>nsec<span class="o">)</span>: <span class="nv">min</span><span class="o">=</span>1873, <span class="nv">max</span><span class="o">=</span>5726.1k, <span class="nv">avg</span><span class="o">=</span>61779.17, <span class="nv">stdev</span><span class="o">=</span>139361.02
+</span></span><span class="line"><span class="cl">     lat <span class="o">(</span>usec<span class="o">)</span>: <span class="nv">min</span><span class="o">=</span>2, <span class="nv">max</span><span class="o">=</span>5727, <span class="nv">avg</span><span class="o">=</span>62.25, <span class="nv">stdev</span><span class="o">=</span>139.53
+</span></span><span class="line"><span class="cl">    clat percentiles <span class="o">(</span>usec<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">     <span class="p">|</span>  1.00th<span class="o">=[</span>    3<span class="o">]</span>,  5.00th<span class="o">=[</span>    4<span class="o">]</span>, 10.00th<span class="o">=[</span>    4<span class="o">]</span>, 20.00th<span class="o">=[</span>    5<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">     <span class="p">|</span> 30.00th<span class="o">=[</span>    6<span class="o">]</span>, 40.00th<span class="o">=[</span>    7<span class="o">]</span>, 50.00th<span class="o">=[</span>   17<span class="o">]</span>, 60.00th<span class="o">=[</span>   33<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">     <span class="p">|</span> 70.00th<span class="o">=[</span>   45<span class="o">]</span>, 80.00th<span class="o">=[</span>   73<span class="o">]</span>, 90.00th<span class="o">=[</span>  111<span class="o">]</span>, 95.00th<span class="o">=[</span>  412<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">     <span class="p">|</span> 99.00th<span class="o">=[</span>  529<span class="o">]</span>, 99.50th<span class="o">=[</span>  553<span class="o">]</span>, 99.90th<span class="o">=[</span>  701<span class="o">]</span>, 99.95th<span class="o">=[</span> 1123<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">     <span class="p">|</span> 99.99th<span class="o">=[</span> 4621<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到延迟的 99th 百分比为 <code>529 usec</code> (或0.5ms)，说明集群足够快 (etcd 官方建议最小 10ms)。IOPS 为 <code>w=218 IOPS</code></p>
+<ul>
+<li><code>--rw=write</code>: 这个选项指定了I/O的类型，<code>write</code>表示只进行写操作。</li>
+<li><code>--ioengine=sync</code>: 这个选项指定了I/O引擎类型。<code>sync</code>表示使用基于系统调用的同步I/O。</li>
+<li><code>--fdatasync=1</code>: 这个选项指定了在每次写操作后是否调用<code>fdatasync</code>来强制把数据写入存储设备。</li>
+<li><code>--directory=benchmark</code>: 这个选项指定了测试文件存放的目录。</li>
+<li><code>--size=22m</code>: 这个选项指定了每个线程写入的数据量，<code>22m</code>表示每个线程写入22MB的数据。</li>
+<li><code>--bs=2300</code>: 这个选项指定了块大小，<code>2300</code>表示每次写入2300字节的数据。</li>
+<li><code>--name=sandbox</code>: 这个选项指定了测试的名称，可以用来区分不同的测试。</li>
+</ul>
+<p>在这个命令中没有指定线程数，所以默认使用一个线程进行测试。如果你想指定线程数，可以添加<code>--numjobs=N</code>选项，其中<code>N</code>是线程数。</p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/%E5%9C%A8k8s%E5%A4%96%E9%83%A8%E9%AA%8C%E8%AF%81bearertoken/">
+                <span class="next-text nav-default">在k8s外部验证bearertoken</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>

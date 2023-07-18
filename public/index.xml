@@ -6,7 +6,255 @@
     <description>Recent content on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 12 Jul 2023 23:42:00 +0800</lastBuildDate><atom:link href="http://inksnw.asuscomm.com:3001/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 17 Jul 2023 18:10:12 +0800</lastBuildDate><atom:link href="http://inksnw.asuscomm.com:3001/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Etcd性能测试</title>
+      <link>http://inksnw.asuscomm.com:3001/post/etcd%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/</link>
+      <pubDate>Mon, 17 Jul 2023 18:10:12 +0800</pubDate>
+      
+      <guid>http://inksnw.asuscomm.com:3001/post/etcd%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/</guid>
+      <description>&lt;h2 id=&#34;基础配置&#34;&gt;基础配置&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;alias&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;etcdctl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-node1-key.pem --cert=/etc/ssl/etcd/ssl/admin-node1.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.50:2379&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;etcdctl -w table member list
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;+------------------+---------+------------+----------------------------+----------------------------+------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;        ID        &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; STATUS  &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;    NAME    &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;         PEER ADDRS         &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;        CLIENT ADDRS        &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; IS LEARNER &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;+------------------+---------+------------+----------------------------+----------------------------+------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; ae12e8bc550d8bfc &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; started &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; etcd-node1 &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; https://192.168.50.50:2380 &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; https://192.168.50.50:2379 &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;      &lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;+------------------+---------+------------+----------------------------+----------------------------+------------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;压测&#34;&gt;压测&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 不同大小的集群负载，支持参数为：s,m,l,xl&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;etcdctl check perf --load&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;s
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;etcdctl check perf --load&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;l
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 测试失败。可以看到，集群可执行 3934/s 的写操作&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;FAIL: Throughput too low: &lt;span class=&#34;m&#34;&gt;3934&lt;/span&gt; writes/s
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PASS: Slowest request took 0.461817s
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PASS: Stddev is 0.046747s
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;FAIL
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;信息查看&#34;&gt;信息查看&lt;/h2&gt;
+&lt;h3 id=&#34;lsof&#34;&gt;lsof&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-basic&#34; data-lang=&#34;basic&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;vg&#34;&gt;root@&lt;/span&gt;&lt;span class=&#34;nl&#34;&gt;node1:&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;~&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;#&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;lsof&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;p&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;pgrep&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;etcd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;egrep&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&amp;#39;wal|COMMAND&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;vg&#34;&gt;COMMAND&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;PID&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;USER&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;   &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;FD&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;kr&#34;&gt;TYPE&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;             &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;DEVICE&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;SIZE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;OFF&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;NODE&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;kr&#34;&gt;NAME&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;vg&#34;&gt;etcd&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;593&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;   &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;10&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;r&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;DIR&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;              &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;252&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;il&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;4096&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;917520&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;lib&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;etcd&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;member&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;wal&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;vg&#34;&gt;etcd&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;593&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;581&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;REG&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;              &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;252&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;il&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;64000000&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;917576&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;lib&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;etcd&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;member&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;wal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;il&#34;&gt;0000000000000011-00000000000&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;d4a35&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;wal&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;vg&#34;&gt;etcd&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;    &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;593&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;601&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;      &lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;REG&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;              &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;252&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;il&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;64000000&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;il&#34;&gt;917589&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;var&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;lib&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;etcd&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;member&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;wal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;il&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;vg&#34;&gt;tmp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;在etcd中，&amp;lsquo;wal&amp;rsquo;文件包含了所有待写入磁盘的数据，这样即使系统突然崩溃，也可以从&amp;rsquo;wal&amp;rsquo;文件中恢复数据。&lt;/p&gt;
+&lt;p&gt;以下是每一列的含义：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;COMMAND&lt;/code&gt;: 进程名，这里是etcd。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;PID&lt;/code&gt;: 进程ID，这里是593。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;USER&lt;/code&gt;: 执行这个进程的用户，这里是root。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;FD&lt;/code&gt;: 文件描述符编号+类型，代表进程与文件之间的接口。这里包括10r，581w和601w，其中&amp;rsquo;r&amp;rsquo;代表读，&amp;lsquo;w&amp;rsquo;代表写。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;TYPE&lt;/code&gt;: 文件类型，这里包括DIR（目录）和REG（普通文件）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;DEVICE&lt;/code&gt;: 设备号，是设备在系统中的标识。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;SIZE/OFF&lt;/code&gt;: 文件的大小（对普通文件）或文件在文件系统中的偏移量（对目录）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;NODE&lt;/code&gt;: 节点，代表文件在文件系统中的位置。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;NAME&lt;/code&gt;: 文件路径。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;iostat&#34;&gt;iostat&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;iostat &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; -h
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;          54.4%    0.0%   26.9%    8.2%    0.0%   10.5%
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd Device
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   322.50         0.0k        15.2M         0.0k       0.0k      30.5M       0.0k vda
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;先来解释一下CPU统计的部分：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;%user&lt;/code&gt;: 用户态CPU时间百分比。CPU花在执行用户进程（用户态）的时间百分比，不包括优先级调整为负的进程。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;%nice&lt;/code&gt;: 用户态的低优先级CPU时间百分比。CPU花在执行优先级调整为负的用户进程的时间百分比。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;%system&lt;/code&gt;: 内核态CPU时间百分比。CPU花在系统管理（内核态）的时间百分比。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;%iowait&lt;/code&gt;: I/O等待时间百分比。CPU因为等待I/O操作（如读取磁盘数据）而空闲的时间百分比。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;%steal&lt;/code&gt;: 被强占的CPU时间百分比。在虚拟环境中，一台物理机上的一个虚拟机（guest）可能会使用其他虚拟机的CPU资源，这个数值表示这种情况发生的时间百分比。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;%idle&lt;/code&gt;: CPU空闲时间百分比。CPU没有执行任何任务，也没有等待I/O操作的时间百分比。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;再来看看设备统计的部分：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;tps&lt;/code&gt;: 每秒传输的事务数。显示了每秒发生的读取和写入操作的总次数。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;kB_read/s&lt;/code&gt;: 每秒读取的数据量（单位为KB）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;kB_wrtn/s&lt;/code&gt;: 每秒写入的数据量（单位为KB）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;kB_dscd/s&lt;/code&gt;: 每秒丢弃的数据量（单位为KB）。这通常涉及到虚拟内存和交换空间。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;kB_read&lt;/code&gt;: 读取的总数据量（单位为KB）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;kB_wrtn&lt;/code&gt;: 写入的总数据量（单位为KB）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;kB_dscd&lt;/code&gt;: 丢弃的总数据量（单位为KB）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Device&lt;/code&gt;: 设备名称。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;所以从这个输出中，我们可以看出：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CPU的大部分时间都花在执行用户进程和系统管理上，有一部分时间在等待I/O操作，有一小部分时间是空闲的。&lt;/li&gt;
+&lt;li&gt;设备&lt;code&gt;vda&lt;/code&gt;每秒进行约322.5次读写操作，读取数据的速度几乎为0，写入数据的速度约为15.2MB/s，没有丢弃数据，总共写入了约30.5MB的数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;使用fio测试&#34;&gt;使用Fio测试&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# trace=write 只追踪特定的系统调用。表达式可以是signal, abbrev, verbose, raw, read 和 write等几种类型。&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;strace -p &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;pgrep etcd&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt; -e &lt;span class=&#34;nv&#34;&gt;trace&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;write
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;bs参数&#34;&gt;bs参数&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;strace: Process &lt;span class=&#34;m&#34;&gt;572&lt;/span&gt; attached
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;write&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;79, &lt;span class=&#34;s2&#34;&gt;&amp;#34;\27\3\3\0%\0\0\0\0\0\0\1!\306\0CG\344\215\262=\31\30W\245\213gQ\354\356\274_&amp;#34;&lt;/span&gt;..., 42&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;42&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;write&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;79, &lt;span class=&#34;s2&#34;&gt;&amp;#34;\27\3\3\0)\0\0\0\0\0\0\1\&amp;#34;\340\217\267^t%W\214%\272\376,\254\201\33\26\227\25\361&amp;#34;&lt;/span&gt;..., 46&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;46&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;write&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;79, &lt;span class=&#34;s2&#34;&gt;&amp;#34;\27\3\3\0C\0\0\0\0\0\0\1#&amp;lt;\371\341\205U^!I\254\306\234\341\203L\234\312\314\266Y&amp;#34;&lt;/span&gt;..., 72&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;72&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;在&lt;code&gt;strace&lt;/code&gt;的输出中，&lt;code&gt;write&lt;/code&gt;系统调用后面的数字，比如&lt;code&gt;42&lt;/code&gt;，&lt;code&gt;46&lt;/code&gt;和&lt;code&gt;72&lt;/code&gt;，表示的是写入的字节数, write系统调用的原型如下&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;ssize_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;write&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;fd&lt;/code&gt;是文件描述符，代表要写入的文件或设备。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;buf&lt;/code&gt;是一个指向要写入的数据的指针。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;count&lt;/code&gt;是要写入的字节数。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;结果显示 WAL 文件写入大小几乎都在 100 字节这个范围， 客户环境中在 2200-2400 范围，因此设置参数&lt;code&gt;--bs=2300&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&#34;fdatasync参数&#34;&gt;fdatasync参数&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;fdatasync&lt;/code&gt;函数的原型如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;fdatasync&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;追踪etcd使用&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;strace -p &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;pgrep etcd&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt; -e &lt;span class=&#34;nv&#34;&gt;trace&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;fdatasync
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;strace: Process &lt;span class=&#34;m&#34;&gt;572&lt;/span&gt; attached
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;fdatasync&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;9&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;                            &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;每当客户端添加或更新键值对数据时，etcd 会向 WAL 文件添加一条入库记录条目。再进一步处理之前，etcd 必须 100% 确保 WAL 条目已经被持久化。 要在 Linux 实现这一点，仅使用&lt;strong&gt;write&lt;/strong&gt;系统调用是不够的，因为对物理存储的写入操作可能会发生延迟。比如， Linux 可能会将写入的 WAL 条目在内核内存缓存中保留一段时间（例如，页缓存）。如果要确保数据被写入持久化存储，你必须在 write 系统调用之后调用 fdatasync 系统调用&lt;/p&gt;
+&lt;h3 id=&#34;测试&#34;&gt;测试&lt;/h3&gt;
+&lt;p&gt;下面使用 fio 来查看 fdatasync 的延迟：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;fio --rw&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;write --ioengine&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;sync --fdatasync&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; --directory&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;benchmark --size&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;22m --bs&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;2300&lt;/span&gt; --name&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;sandbox
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sandbox: &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;g&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;nv&#34;&gt;rw&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;write, &lt;span class=&#34;nv&#34;&gt;bs&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=(&lt;/span&gt;R&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; 2300B-2300B, &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;W&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; 2300B-2300B, &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;T&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; 2300B-2300B, &lt;span class=&#34;nv&#34;&gt;ioengine&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;sync, &lt;span class=&#34;nv&#34;&gt;iodepth&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;fio-3.16
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Starting &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; process
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Jobs: &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;W&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1&lt;span class=&#34;o&#34;&gt;)][&lt;/span&gt;100.0%&lt;span class=&#34;o&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;490KiB/s&lt;span class=&#34;o&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;w&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;218&lt;/span&gt; IOPS&lt;span class=&#34;o&#34;&gt;][&lt;/span&gt;eta 00m:00s&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sandbox: &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;groupid&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0, &lt;span class=&#34;nv&#34;&gt;jobs&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;nv&#34;&gt;err&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; 0: &lt;span class=&#34;nv&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;5038: Tue Jul &lt;span class=&#34;m&#34;&gt;18&lt;/span&gt; 02:33:32 &lt;span class=&#34;m&#34;&gt;2023&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  write: &lt;span class=&#34;nv&#34;&gt;IOPS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;294, &lt;span class=&#34;nv&#34;&gt;BW&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;661KiB/s &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;677kB/s&lt;span class=&#34;o&#34;&gt;)(&lt;/span&gt;21.0MiB/34072msec&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; zone resets
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    clat &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;nsec&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;nv&#34;&gt;min&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1873, &lt;span class=&#34;nv&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;5726.1k, &lt;span class=&#34;nv&#34;&gt;avg&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;61779.17, &lt;span class=&#34;nv&#34;&gt;stdev&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;139361.02
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     lat &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;usec&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: &lt;span class=&#34;nv&#34;&gt;min&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2, &lt;span class=&#34;nv&#34;&gt;max&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;5727, &lt;span class=&#34;nv&#34;&gt;avg&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;62.25, &lt;span class=&#34;nv&#34;&gt;stdev&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;139.53
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    clat percentiles &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;usec&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;  1.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;    3&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,  5.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;    4&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 10.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;    4&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 20.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;    5&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; 30.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;    6&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 40.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;    7&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 50.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;   17&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 60.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;   33&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; 70.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;   45&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 80.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;   73&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 90.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;  111&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 95.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;  412&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; 99.00th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;  529&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 99.50th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;  553&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 99.90th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt;  701&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;, 99.95th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt; 1123&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;     &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; 99.99th&lt;span class=&#34;o&#34;&gt;=[&lt;/span&gt; 4621&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;可以看到延迟的 99th 百分比为 &lt;code&gt;529 usec&lt;/code&gt; (或0.5ms)，说明集群足够快 (etcd 官方建议最小 10ms)。IOPS 为 &lt;code&gt;w=218 IOPS&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;--rw=write&lt;/code&gt;: 这个选项指定了I/O的类型，&lt;code&gt;write&lt;/code&gt;表示只进行写操作。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--ioengine=sync&lt;/code&gt;: 这个选项指定了I/O引擎类型。&lt;code&gt;sync&lt;/code&gt;表示使用基于系统调用的同步I/O。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--fdatasync=1&lt;/code&gt;: 这个选项指定了在每次写操作后是否调用&lt;code&gt;fdatasync&lt;/code&gt;来强制把数据写入存储设备。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--directory=benchmark&lt;/code&gt;: 这个选项指定了测试文件存放的目录。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--size=22m&lt;/code&gt;: 这个选项指定了每个线程写入的数据量，&lt;code&gt;22m&lt;/code&gt;表示每个线程写入22MB的数据。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--bs=2300&lt;/code&gt;: 这个选项指定了块大小，&lt;code&gt;2300&lt;/code&gt;表示每次写入2300字节的数据。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--name=sandbox&lt;/code&gt;: 这个选项指定了测试的名称，可以用来区分不同的测试。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在这个命令中没有指定线程数，所以默认使用一个线程进行测试。如果你想指定线程数，可以添加&lt;code&gt;--numjobs=N&lt;/code&gt;选项，其中&lt;code&gt;N&lt;/code&gt;是线程数。&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>在k8s外部验证bearertoken</title>
       <link>http://inksnw.asuscomm.com:3001/post/%E5%9C%A8k8s%E5%A4%96%E9%83%A8%E9%AA%8C%E8%AF%81bearertoken/</link>
@@ -3102,16 +3350,6 @@
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;以上代码实现了这个过程,但仅用于原理验证, 只实现了单次执行, 实际&lt;code&gt;kubectl exec -it&lt;/code&gt; 时, apiserver会通过&lt;code&gt;spdy&lt;/code&gt;协议解析到流中的输入命令,持续执行, 这个代码还未能调通&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>start all over again</title>
-      <link>http://inksnw.asuscomm.com:3001/life/start_all_over_again/</link>
-      <pubDate>Tue, 13 Jun 2023 20:27:24 +0800</pubDate>
-      
-      <guid>http://inksnw.asuscomm.com:3001/life/start_all_over_again/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/start_all_over_again_6b077d38ea969375ded82a9cb40af2bf.png&#34; alt=&#34;Snipaste_2023-06-13_20-26-09&#34;&gt;&lt;/p&gt;
 </description>
     </item>
     
