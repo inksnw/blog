@@ -1,5 +1,5 @@
 ---
-title: "使用go Libvirt操作kvm"
+title: "使用go-libvirt操作kvm"
 date: 2023-07-21T19:03:29+08:00
 tags: ["虚拟化"]
 ---
