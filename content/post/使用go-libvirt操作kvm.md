@@ -24,7 +24,7 @@ LIBVIRTD_ARGS="-l -f /etc/libvirt/libvirtd.conf"
 
 修改`/lib/systemd/system/libvirtd.service`
 
-网上的文章大多没提这点, 参考https://bugzilla.redhat.com/show_bug.cgi?id=1741403, 大意是手动监听socket就不能用systemd的了
+网上的文章大多没提这点, [参考这里](https://bugzilla.redhat.com/show_bug.cgi?id=1741403), 大意是手动监听socket就不能用systemd的了
 
 ```bash
 # 注释掉这几个服务
