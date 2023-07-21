@@ -109,5 +109,24 @@ func main() {
 }
 ```
 
+结果
 
+```bash
+Version: 9.0.0
+ID      Name            UUID
+--------------------------------------------------------
+3       node3   d5674adaa9104778a8785f1c6411b8f7
+4       node1   40adc7c6973a494380f87ad784a72dcb
+2       node2   d647d11ba9da4bdba43aeddbab732d5d
+```
 
+这个库还提供了事件机制
+
+```go
+	events, err := l.SubscribeEvents(ctx, libvirt.DomainEventIDDeviceAdded, []libvirt.Domain{})
+	if err != nil {
+		log.Fatal(err)
+	}
+```
+
+又想搞个kvm管理平台了...
