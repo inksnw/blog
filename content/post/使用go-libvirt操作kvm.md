@@ -120,6 +120,23 @@ ID      Name            UUID
 2       node2   d647d11ba9da4bdba43aeddbab732d5d
 ```
 
+查询网卡信息, 需要先安装`qemu-guest-agent`
+
+```bash
+apt-get install qemu-guest-agent
+systemctl start qemu-guest-agent
+```
+
+```go
+interfaces, err := client.DomainInterfaceAddresses(d, uint32(libvirt.DomainInterfaceAddressesSrcAgent), 0)
+		if err != nil {
+			fmt.Println(err)
+		}
+		for _, i := range interfaces {
+			fmt.Println(i)
+		}
+```
+
 这个库还提供了事件机制
 
 ```go
