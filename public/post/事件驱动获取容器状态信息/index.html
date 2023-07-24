@@ -48,11 +48,11 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E8%8E%B7%E5%8F%96%E5%AE%B9%E5%99%A8%E7%8A%B6%E6%80%81%E4%BF%A1%E6%81%AF/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-07-24T11:43:37+08:00" />
-<meta property="article:modified_time" content="2023-07-24T18:14:53+08:00" />
+<meta property="article:modified_time" content="2023-07-24T18:17:30+08:00" />
 <meta itemprop="name" content="事件驱动获取容器状态信息">
 <meta itemprop="description" content="配置containerd 1 2 3 wget https://github.com/containerd/containerd/releases/download/v1.7.2/containerd-1.7.2-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ tar -zxvf containerd-1.7.2-linux-amd64.tar.gz -C /usr/local/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/con"><meta itemprop="datePublished" content="2023-07-24T11:43:37+08:00" />
-<meta itemprop="dateModified" content="2023-07-24T18:14:53+08:00" />
-<meta itemprop="wordCount" content="1988">
+<meta itemprop="dateModified" content="2023-07-24T18:17:30+08:00" />
+<meta itemprop="wordCount" content="1957">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="事件驱动获取容器状态信息"/>
 <meta name="twitter:description" content="配置containerd 1 2 3 wget https://github.com/containerd/containerd/releases/download/v1.7.2/containerd-1.7.2-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ tar -zxvf containerd-1.7.2-linux-amd64.tar.gz -C /usr/local/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/con"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-07-24 </span>
             
-            <span class="more-meta"> 约 1988 字 更新于 2023-07-24
+            <span class="more-meta"> 约 1957 字 更新于 2023-07-24
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -626,44 +626,21 @@
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">CONTAINER_ID</span><span class="o">=</span><span class="k">$(</span>crictl create <span class="nv">$POD_ID</span> nginx-container.json pod.json<span class="k">)</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>查看发现已创建未启动</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@base:~# crictl ps -a
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动容器</span>
+</span></span><span class="line"><span class="cl">crictl start <span class="nv">$CONTAINER_ID</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看列表</span>
+</span></span><span class="line"><span class="cl">root@base:~# crictl ps
 </span></span><span class="line"><span class="cl">CONTAINER           IMAGE               CREATED             STATE               NAME                ATTEMPT             POD ID              POD
-</span></span><span class="line"><span class="cl">08765cad59ca9       nginx               <span class="m">5</span> seconds ago       Created             nginx               <span class="m">0</span>                   ee43a18bcc618       unknown
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p><strong>启动容器</strong>：</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">crictl start <span class="nv">$CONTAINER_ID</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>查看</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-basic" data-lang="basic"><span class="line"><span class="cl"><span class="vg">root@</span><span class="nl">base:</span><span class="o">~</span><span class="err">#</span><span class="w"> </span><span class="vg">crictl</span><span class="w"> </span><span class="vg">ps</span>
-</span></span><span class="line"><span class="cl"><span class="vg">CONTAINER</span><span class="w">           </span><span class="vg">IMAGE</span><span class="w">               </span><span class="vg">CREATED</span><span class="w">             </span><span class="vg">STATE</span><span class="w">               </span><span class="kr">NAME</span><span class="w">                </span><span class="vg">ATTEMPT</span><span class="w">             </span><span class="vg">POD</span><span class="w"> </span><span class="vg">ID</span><span class="w">              </span><span class="vg">POD</span>
-</span></span><span class="line"><span class="cl"><span class="nl">57</span><span class="vg">d6dadb08cd2</span><span class="w">       </span><span class="vg">nginx</span><span class="w">               </span><span class="il">25</span><span class="w"> </span><span class="vg">minutes</span><span class="w"> </span><span class="vg">ago</span><span class="w">      </span><span class="vg">Running</span><span class="w">             </span><span class="vg">nginx</span><span class="w">               </span><span class="il">0</span><span class="w">                   </span><span class="il">5</span><span class="vg">b730f4ef7f3a</span><span class="w">       </span><span class="vg">unknown</span>
+</span></span><span class="line"><span class="cl">57d6dadb08cd2       nginx               <span class="m">25</span> minutes ago      Running             nginx               <span class="m">0</span>                   5b730f4ef7f3a       unknown
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><strong>获取容器的 IP 地址</strong>,</p>
