@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>事件驱动获取容器状态信息 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="配置containerd 1 2 3 wget https://github.com/containerd/containerd/releases/download/v1.7.2/containerd-1.7.2-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ tar -zxvf containerd-1.7.2-linux-amd64.tar.gz -C /usr/local/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &amp;gt; /etc/containerd/config.toml 修改 /etc/containerd/con" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.115.3 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E8%8E%B7%E5%8F%96%E5%AE%B9%E5%99%A8%E7%8A%B6%E6%80%81%E4%BF%A1%E6%81%AF/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="事件驱动获取容器状态信息" />
+<meta property="og:description" content="配置containerd 1 2 3 wget https://github.com/containerd/containerd/releases/download/v1.7.2/containerd-1.7.2-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ tar -zxvf containerd-1.7.2-linux-amd64.tar.gz -C /usr/local/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/con" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E8%8E%B7%E5%8F%96%E5%AE%B9%E5%99%A8%E7%8A%B6%E6%80%81%E4%BF%A1%E6%81%AF/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-07-24T11:43:37+08:00" />
+<meta property="article:modified_time" content="2023-07-24T11:43:37+08:00" />
+<meta itemprop="name" content="事件驱动获取容器状态信息">
+<meta itemprop="description" content="配置containerd 1 2 3 wget https://github.com/containerd/containerd/releases/download/v1.7.2/containerd-1.7.2-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ tar -zxvf containerd-1.7.2-linux-amd64.tar.gz -C /usr/local/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/con"><meta itemprop="datePublished" content="2023-07-24T11:43:37+08:00" />
+<meta itemprop="dateModified" content="2023-07-24T11:43:37+08:00" />
+<meta itemprop="wordCount" content="2008">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="事件驱动获取容器状态信息"/>
+<meta name="twitter:description" content="配置containerd 1 2 3 wget https://github.com/containerd/containerd/releases/download/v1.7.2/containerd-1.7.2-linux-amd64.tar.gz # 解压包中的二进制到 /usr/local/bin/ tar -zxvf containerd-1.7.2-linux-amd64.tar.gz -C /usr/local/ 生成配置文件 1 2 mkdir -p /etc/containerd containerd config default &gt; /etc/containerd/config.toml 修改 /etc/containerd/con"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">事件驱动获取容器状态信息</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-07-24 </span>
+            
+            <span class="more-meta"> 约 2008 字 更新于 2023-07-24
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#配置containerd">配置containerd</a></li>
+        <li><a href="#配置cni">配置cni</a>
+          <ul>
+            <li><a href="#cni插件">cni插件</a></li>
+            <li><a href="#部署使用cni">部署使用cni</a></li>
+          </ul>
+        </li>
+        <li><a href="#事件驱动">事件驱动</a>
+          <ul>
+            <li><a href="#安装crictl">安装crictl</a></li>
+          </ul>
+        </li>
+        <li><a href="#安装nerdctl">安装nerdctl</a></li>
+        <li><a href="#查看日志">查看日志</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h2 id="配置containerd">配置containerd</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/containerd/containerd/releases/download/v1.7.2/containerd-1.7.2-linux-amd64.tar.gz
+</span></span><span class="line"><span class="cl"><span class="c1"># 解压包中的二进制到 /usr/local/bin/</span>
+</span></span><span class="line"><span class="cl">tar -zxvf containerd-1.7.2-linux-amd64.tar.gz -C /usr/local/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>生成配置文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir -p /etc/containerd
+</span></span><span class="line"><span class="cl">containerd config default &gt; /etc/containerd/config.toml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改 <code>/etc/containerd/config.toml</code>文件,允许远程访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="cl"><span class="p">[</span><span class="nx">grpc</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nx">tcp_address</span> <span class="p">=</span> <span class="s2">&#34;0.0.0.0:8989&#34;</span> 
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="nx">plugins</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="s2">&#34;io.containerd.grpc.v1.cri&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">disable_tcp_service</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>安装runc</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">apt install -y runc
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="配置cni">配置cni</h2>
+<h3 id="cni插件">cni插件</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz
+</span></span><span class="line"><span class="cl">mkdir -p /opt/cni/bin/
+</span></span><span class="line"><span class="cl">mkdir -p /etc/cni/net.d
+</span></span><span class="line"><span class="cl">tar -zxvf cni-plugins-linux-amd64-v1.3.0.tgz -C /opt/cni/bin/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这些可执行文件从功能的角度可以划分为以下三类:</p>
+<ul>
+<li>
+<p>主插件: 用于创建网络设备</p>
+<ul>
+<li>bridge: 创建一个网桥设备，并添加宿主机和容器到该网桥</li>
+<li>ipvlan: 为容器添加ipvlan网络接口</li>
+<li>loopback: 设置lo网络接口的状态为up</li>
+<li>macvlan: 创建一个新的MAC地址，并将所有流量转发到容器</li>
+<li>ptp: 创建Veth对</li>
+<li>vlan: 分配一个vlan设备</li>
+<li>host-device: 将已存在的设备移入容器内</li>
+</ul>
+</li>
+<li>
+<p>IPAM插件: 用于IP地址的分配</p>
+<ul>
+<li>dhcp: 在宿主机上运行dhcp守护程序，代表容器发出dhcp请求</li>
+<li>host-local: 维护一个分配ip的本地数据库</li>
+<li>static: 为容器分配一个静态IPv4/IPv6地址，主要用于调试</li>
+</ul>
+</li>
+<li>
+<p>Meta插件: 其他插件，非单独使用插件</p>
+<ul>
+<li>flannel: flannel网络方案的CNI插件，根据flannel的配置文件创建网络接口</li>
+<li>tuning: 调整现有网络接口的sysctl参数</li>
+<li>portmap: 一个基于iptables的portmapping插件。将端口从主机的地址空间映射到容器</li>
+<li>bandwidth: 允许使用TBF进行限流的插件</li>
+<li>sbr: 一个为网络接口配置基于源路由的插件</li>
+<li>firewall: 过iptables给容器网络的进出流量进行一系列限制的插件</li>
+</ul>
+</li>
+</ul>
+<h3 id="部署使用cni">部署使用cni</h3>
+<p>创建containerd容器使用cni的配置文件:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat <span class="s">&lt;&lt; EOF | tee /etc/cni/net.d/mynet.json
+</span></span></span><span class="line"><span class="cl"><span class="s">{
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;cniVersion&#34;: &#34;0.4.0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;name&#34;: &#34;mynet&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;type&#34;: &#34;bridge&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;bridge&#34;: &#34;cni0&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;isDefaultGateway&#34;: true,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;forceAddress&#34;: false,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;ipMasq&#34;: true,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;hairpinMode&#34;: true,
+</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;ipam&#34;: {
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;type&#34;: &#34;host-local&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">        &#34;subnet&#34;: &#34;10.88.0.0/16&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">    }
+</span></span></span><span class="line"><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>编辑 <code>/etc/containerd/config.toml</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="cl"><span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="nx">cri</span><span class="p">.</span><span class="nx">cni</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">conf_template</span> <span class="p">=</span> <span class="s2">&#34;/etc/cni/net.d/mynet.json&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>启动</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">containerd
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>但是并没有看到cni0的网卡</p>
+<p>CNI 插件如 <code>bridge</code> 和 <code>flannel</code> 在 Pod（或类似于 Pod 的实体，如 Kubernetes 的 Pod）启动时才会创建对应的网桥。仅仅启动 containerd 本身并不会创建 <code>cni0</code> 网桥，除非你使用 containerd 创建了一个使用 CNI 网络插件的容器。</p>
+<h2 id="事件驱动">事件驱动</h2>
+<p><strong>为什么要切换到事件驱动的 PLEG？</strong><a href="https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/switch-to-evented-pleg/">参考</a></p>
+<ul>
+<li>通用 PLEG 由于频繁轮询容器状态而产生了不可忽略的开销。</li>
+<li>这种开销会被 kubelet 的并行轮询容器状态的机制加剧， 限制了可扩缩性，还会导致性能和可靠性问题。</li>
+<li>事件驱动的 PLEG 的目标是通过替换定期轮询来减少闲置时的非必要任务。</li>
+</ul>
+<p>要求<code>containerd</code>版本大于 <code>1.7+</code></p>
+<p><strong>特性状态：</strong> <code>Kubernetes v1.27 [beta]</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;google.golang.org/grpc&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;google.golang.org/grpc/credentials/insecure&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/cri-api/pkg/apis/runtime/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">addr</span> <span class="p">=</span> <span class="s">&#34;192.168.50.89:8989&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">ContainerState</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">int32</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="mi">0</span><span class="p">:</span> <span class="s">&#34;CONTAINER_CREATED&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="mi">1</span><span class="p">:</span> <span class="s">&#34;CONTAINER_RUNNING&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="mi">2</span><span class="p">:</span> <span class="s">&#34;CONTAINER_EXITED&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="mi">3</span><span class="p">:</span> <span class="s">&#34;CONTAINER_UNKNOWN&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">svc</span> <span class="o">:=</span> <span class="nf">NewRuntimeService</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">containerEventsStreamingClient</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">svc</span><span class="p">.</span><span class="nf">GetContainerEvents</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">GetEventsRequest</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;启动事件监听...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">containerEventsStreamingClient</span><span class="p">.</span><span class="nf">Recv</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">resp</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Type</span> <span class="o">:=</span> <span class="nx">ContainerState</span><span class="p">[</span><span class="nb">int32</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">ContainerEventType</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">tm</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">CreatedAt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">tms</span> <span class="o">:=</span> <span class="nx">tm</span><span class="p">.</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s 接到到容器id: %s 的事件 %s \n&#34;</span><span class="p">,</span> <span class="nx">tms</span><span class="p">,</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">ContainerId</span><span class="p">,</span> <span class="nx">Type</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">for</span> <span class="nx">idx</span><span class="p">,</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">ContainersStatuses</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">tmc</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">CreatedAt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">tmsc</span> <span class="o">:=</span> <span class="nx">tmc</span><span class="p">.</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Typec</span> <span class="o">:=</span> <span class="nx">ContainerState</span><span class="p">[</span><span class="nb">int32</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">State</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s 接到到[%d/%d]容器id: %s 容器名: %s 的事件 %s \n&#34;</span><span class="p">,</span> <span class="nx">tmsc</span><span class="p">,</span> <span class="nx">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">ContainersStatuses</span><span class="p">),</span> <span class="nx">i</span><span class="p">.</span><span class="nx">Id</span><span class="p">,</span> <span class="nx">i</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">Typec</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewRuntimeService</span><span class="p">()</span> <span class="nx">v1</span><span class="p">.</span><span class="nx">RuntimeServiceClient</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">opts</span> <span class="o">:=</span> <span class="p">[]</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">DialOption</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">grpc</span><span class="p">.</span><span class="nf">WithTransportCredentials</span><span class="p">(</span><span class="nx">insecure</span><span class="p">.</span><span class="nf">NewCredentials</span><span class="p">()),</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">conn</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">grpc</span><span class="p">.</span><span class="nf">DialContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">addr</span><span class="p">,</span> <span class="nx">opts</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">v1</span><span class="p">.</span><span class="nf">NewRuntimeServiceClient</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="安装crictl">安装crictl</h3>
+<p>安装 <code>crictl</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.27.1/crictl-v1.27.1-linux-amd64.tar.gz
+</span></span><span class="line"><span class="cl">tar -zxvf crictl-v1.27.1-linux-amd64.tar.gz -C /usr/local/bin/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>设置<code>crictl</code>的配置文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat &gt; /etc/crictl.yaml <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">runtime-endpoint: unix:///run/containerd/containerd.sock
+</span></span></span><span class="line"><span class="cl"><span class="s">image-endpoint: unix:///run/containerd/containerd.sock
+</span></span></span><span class="line"><span class="cl"><span class="s">timeout: 10
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>crictl</code> 需要创建两个 JSON 文件（一个用于 Pod，一个用于容器）来启动一个容器。</p>
+<p>启动一个容器</p>
+<h4 id="拉取-nginx-镜像"><strong>拉取 nginx 镜像</strong>：</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@base:~# crictl pull nginx
+</span></span><span class="line"><span class="cl">Image is up to date <span class="k">for</span> sha256:021283c8eb95be02b23db0de7f609d603553c6714785e7a673c6594a624ffbda
+</span></span><span class="line"><span class="cl">root@base:~# crictl images
+</span></span><span class="line"><span class="cl">IMAGE                     TAG                 IMAGE ID            SIZE
+</span></span><span class="line"><span class="cl">docker.io/library/nginx   latest              021283c8eb95b       70.6MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="创建一个-pod-配置文件"><strong>创建一个 Pod 配置文件</strong></h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="err">cat</span> <span class="err">&gt;</span> <span class="err">pod.json</span> <span class="err">&lt;&lt;EOF</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;metadata&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;nginx-pod&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;namespace&#34;</span><span class="p">:</span> <span class="s2">&#34;default&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;attempt&#34;</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;log_directory&#34;</span><span class="p">:</span> <span class="s2">&#34;/tmp&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;linux&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>使用 crictl 创建 Pod</strong>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">POD_ID</span><span class="o">=</span><span class="k">$(</span>crictl runp pod.json<span class="k">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这将返回一个 Pod 的 ID。</p>
+<p>此时执行 <code>ip addr </code>可以看到已经增加了网卡<code>cni0</code>和<code>veth3a835bff</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-basic" data-lang="basic"><span class="line"><span class="cl"><span class="vg">root@</span><span class="nl">base:</span><span class="o">~</span><span class="err">#</span><span class="w"> </span><span class="vg">ip</span><span class="w"> </span><span class="vg">addr</span>
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nl">3</span><span class="o">:</span><span class="w"> </span><span class="nl">cni0:</span><span class="w"> </span><span class="o">&lt;</span><span class="vg">BROADCAST</span><span class="p">,</span><span class="vg">MULTICAST</span><span class="p">,</span><span class="vg">UP</span><span class="p">,</span><span class="vg">LOWER_UP</span><span class="o">&gt;</span><span class="w"> </span><span class="vg">mtu</span><span class="w"> </span><span class="il">1500</span><span class="w"> </span><span class="vg">qdisc</span><span class="w"> </span><span class="vg">noqueue</span><span class="w"> </span><span class="vg">state</span><span class="w"> </span><span class="vg">UP</span><span class="w"> </span><span class="vg">group</span><span class="w"> </span><span class="vg">default</span><span class="w"> </span><span class="vg">qlen</span><span class="w"> </span><span class="il">1000</span>
+</span></span><span class="line"><span class="cl"><span class="w">    </span><span class="vg">link</span><span class="o">/</span><span class="vg">ether</span><span class="w"> </span><span class="il">76</span><span class="o">:</span><span class="il">2</span><span class="nl">b:c5:a8:</span><span class="il">4</span><span class="nl">f:</span><span class="il">40</span><span class="w"> </span><span class="vg">brd</span><span class="w"> </span><span class="nl">ff:ff:ff:ff:ff:</span><span class="vg">ff</span>
+</span></span><span class="line"><span class="cl"><span class="w">    </span><span class="vg">inet</span><span class="w"> </span><span class="mf">10.88.0.1</span><span class="o">/</span><span class="il">16</span><span class="w"> </span><span class="vg">brd</span><span class="w"> </span><span class="mf">10.88.255.255</span><span class="w"> </span><span class="vg">scope</span><span class="w"> </span><span class="vg">global</span><span class="w"> </span><span class="vg">cni0</span>
+</span></span><span class="line"><span class="cl"><span class="w">       </span><span class="vg">valid_lft</span><span class="w"> </span><span class="vg">forever</span><span class="w"> </span><span class="vg">preferred_lft</span><span class="w"> </span><span class="vg">forever</span>
+</span></span><span class="line"><span class="cl"><span class="w">    </span><span class="vg">inet6</span><span class="w"> </span><span class="nl">fe80:</span><span class="o">:</span><span class="il">742</span><span class="nl">b:c5ff:fea8:</span><span class="il">4</span><span class="vg">f40</span><span class="o">/</span><span class="il">64</span><span class="w"> </span><span class="vg">scope</span><span class="w"> </span><span class="vg">link</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="vg">valid_lft</span><span class="w"> </span><span class="vg">forever</span><span class="w"> </span><span class="vg">preferred_lft</span><span class="w"> </span><span class="vg">forever</span>
+</span></span><span class="line"><span class="cl"><span class="nl">5</span><span class="o">:</span><span class="w"> </span><span class="vg">veth3a835bff@</span><span class="nl">if2:</span><span class="w"> </span><span class="o">&lt;</span><span class="vg">BROADCAST</span><span class="p">,</span><span class="vg">MULTICAST</span><span class="p">,</span><span class="vg">UP</span><span class="p">,</span><span class="vg">LOWER_UP</span><span class="o">&gt;</span><span class="w"> </span><span class="vg">mtu</span><span class="w"> </span><span class="il">1500</span><span class="w"> </span><span class="vg">qdisc</span><span class="w"> </span><span class="vg">noqueue</span><span class="w"> </span><span class="vg">master</span><span class="w"> </span><span class="vg">cni0</span><span class="w"> </span><span class="vg">state</span><span class="w"> </span><span class="vg">UP</span><span class="w"> </span><span class="vg">group</span><span class="w"> </span><span class="vg">default</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="vg">link</span><span class="o">/</span><span class="vg">ether</span><span class="w"> </span><span class="il">86</span><span class="o">:</span><span class="nl">a5:</span><span class="il">5</span><span class="nl">d:aa:</span><span class="il">37</span><span class="o">:</span><span class="vg">f3</span><span class="w"> </span><span class="vg">brd</span><span class="w"> </span><span class="nl">ff:ff:ff:ff:ff:</span><span class="vg">ff</span><span class="w"> </span><span class="vg">link</span><span class="o">-</span><span class="vg">netns</span><span class="w"> </span><span class="vg">cni</span><span class="il">-453874</span><span class="vg">a2</span><span class="il">-76</span><span class="vg">be</span><span class="il">-740</span><span class="vg">a</span><span class="il">-6</span><span class="vg">aa5</span><span class="o">-</span><span class="vg">ce48e8c20b92</span>
+</span></span><span class="line"><span class="cl"><span class="w">    </span><span class="vg">inet6</span><span class="w"> </span><span class="nl">fe80:</span><span class="o">:</span><span class="il">84</span><span class="nl">a5:</span><span class="il">5</span><span class="nl">dff:feaa:</span><span class="il">37</span><span class="vg">f3</span><span class="o">/</span><span class="il">64</span><span class="w"> </span><span class="vg">scope</span><span class="w"> </span><span class="vg">link</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="vg">valid_lft</span><span class="w"> </span><span class="vg">forever</span><span class="w"> </span><span class="vg">preferred_lft</span><span class="w"> </span><span class="vg">forever</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>创建一个容器配置文件</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="err">cat</span> <span class="err">&gt;</span> <span class="err">nginx-container.json</span> <span class="err">&lt;&lt;EOF</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;metadata&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;nginx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;image&#34;</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;image&#34;</span><span class="p">:</span> <span class="s2">&#34;nginx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;log_path&#34;</span><span class="p">:</span><span class="s2">&#34;nginx.log&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;linux&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>crictl 创建容器</strong>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">CONTAINER_ID</span><span class="o">=</span><span class="k">$(</span>crictl create <span class="nv">$POD_ID</span> nginx-container.json pod.json<span class="k">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看发现已创建未启动</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@base:~# crictl ps -a
+</span></span><span class="line"><span class="cl">CONTAINER           IMAGE               CREATED             STATE               NAME                ATTEMPT             POD ID              POD
+</span></span><span class="line"><span class="cl">08765cad59ca9       nginx               <span class="m">5</span> seconds ago       Created             nginx               <span class="m">0</span>                   ee43a18bcc618       unknown
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这将返回一个容器的 ID。</p>
+<p><strong>启动容器</strong>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">crictl start <span class="nv">$CONTAINER_ID</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-basic" data-lang="basic"><span class="line"><span class="cl"><span class="vg">root@</span><span class="nl">base:</span><span class="o">~</span><span class="err">#</span><span class="w"> </span><span class="vg">crictl</span><span class="w"> </span><span class="vg">ps</span>
+</span></span><span class="line"><span class="cl"><span class="vg">CONTAINER</span><span class="w">           </span><span class="vg">IMAGE</span><span class="w">               </span><span class="vg">CREATED</span><span class="w">             </span><span class="vg">STATE</span><span class="w">               </span><span class="kr">NAME</span><span class="w">                </span><span class="vg">ATTEMPT</span><span class="w">             </span><span class="vg">POD</span><span class="w"> </span><span class="vg">ID</span><span class="w">              </span><span class="vg">POD</span>
+</span></span><span class="line"><span class="cl"><span class="nl">57</span><span class="vg">d6dadb08cd2</span><span class="w">       </span><span class="vg">nginx</span><span class="w">               </span><span class="il">25</span><span class="w"> </span><span class="vg">minutes</span><span class="w"> </span><span class="vg">ago</span><span class="w">      </span><span class="vg">Running</span><span class="w">             </span><span class="vg">nginx</span><span class="w">               </span><span class="il">0</span><span class="w">                   </span><span class="il">5</span><span class="vg">b730f4ef7f3a</span><span class="w">       </span><span class="vg">unknown</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>获取容器的 IP 地址</strong>,</p>
+<blockquote>
+<p>不知道为何,在inspect信息中并未找到ip 地址, 安装nerdctl试一下</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">crictl inspect <span class="nv">$CONTAINER_ID</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="安装nerdctl">安装nerdctl</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">wget https://github.com/containerd/nerdctl/releases/download/v1.4.0/nerdctl-1.4.0-linux-amd64.tar.gz
+</span></span><span class="line"><span class="cl">tar -zxvf nerdctl-1.4.0-linux-amd64.tar.gz -C /usr/local/bin/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@base:~# nerdctl -n k8s.io ps 
+</span></span><span class="line"><span class="cl">CONTAINER ID    IMAGE                             COMMAND                   CREATED           STATUS    PORTS    NAMES
+</span></span><span class="line"><span class="cl">57d6dadb08cd    docker.io/library/nginx:latest    <span class="s2">&#34;/docker-entrypoint.…&#34;</span>    <span class="m">25</span> minutes ago    Up                 
+</span></span><span class="line"><span class="cl">5b730f4ef7f3    registry.k8s.io/pause:3.8         <span class="s2">&#34;/pause&#34;</span>                  <span class="m">27</span> minutes ago    Up
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看详情</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nerdctl -n k8s.io inspect 57d6dadb08cd<span class="p">|</span>grep IPAddress
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;IPAddress&#34;</span>: <span class="s2">&#34;10.88.0.2&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>使用 curl 验证 nginx 服务</strong>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl 10.88.0.2
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看到 nginx 的欢迎页面。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Welcome to nginx!<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>If you see this page, the nginx web server is successfully installed and
+</span></span><span class="line"><span class="cl">working. Further configuration is required.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看路由信息, 可以看到容器的mac地址信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@base:~# arp -n 
+</span></span><span class="line"><span class="cl">Address                  HWtype  HWaddress           Flags Mask            Iface
+</span></span><span class="line"><span class="cl">10.88.0.2                ether   82:67:f4:ad:0d:2e   C                     cni0
+</span></span><span class="line"><span class="cl">192.168.50.1             ether   24:4b:fe:d4:81:00   C                     enp1s0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="查看日志">查看日志</h2>
+<p>此时查看上文我们的程序可以看到通过事件的方式拿到了容器的变动信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">启动事件监听...
+</span></span><span class="line"><span class="cl">53560093312-11-15 08:03:50 接到到容器id: ffc2d1e72ed735e2dd908 的事件 CONTAINER_CREATED 
+</span></span><span class="line"><span class="cl">53560093312-11-15 11:06:01 接到到容器id: ffc2d1e72ed735e2dd908 的事件 CONTAINER_RUNNING 
+</span></span><span class="line"><span class="cl">53560094801-01-03 01:05:34 接到到容器id: fbfd36216076bf1ec8901 的事件 CONTAINER_CREATED 
+</span></span><span class="line"><span class="cl">53560094800-11-02 14:11:50 接到到<span class="o">[</span>1/1<span class="o">]</span>容器id: fbfd36216076bf1ec8901 容器名: nginx 的事件 CONTAINER_CREATED 
+</span></span><span class="line"><span class="cl">53560095194-08-04 23:17:09 接到到容器id: fbfd36216076bf1ec8901 的事件 CONTAINER_RUNNING 
+</span></span><span class="line"><span class="cl">53560094800-11-02 14:11:50 接到到<span class="o">[</span>1/1<span class="o">]</span>容器id: fbfd36216076bf1ec8901 容器名: nginx 的事件 CONTAINER_RUNNING 
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/%20tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/%E4%BD%BF%E7%94%A8go-libvirt%E6%93%8D%E4%BD%9Ckvm/">
+                <span class="next-text nav-default">使用go-libvirt操作kvm</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
