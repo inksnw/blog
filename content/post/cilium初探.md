@@ -1,7 +1,7 @@
 ---
 title: "Cilium初探"
 date: 2023-07-26T10:28:48+08:00
-tags: ["Cilium"]
+tags: ["cilium"]
 ---
 
 ## 安装
@@ -121,10 +121,8 @@ Cluster Pods:          5/5 managed by Cilium
 Helm chart version:    1.13.4
 ```
 
-## 
 
-Cilium 会自动以封装(隧道 tunnel)模式运行，因为这种模式**对底层网络基础设施的要求最低**。
 
-在这种模式下，所有集群节点都会使用基于 UDP 的封装协议 VXLAN 或 Geneve 形成网状隧道。
+Cilium 会自动以封装(隧道 tunnel)模式运行，helm安装时, 默认使用的是vxlan
 
 由于增加了封装头，有效载荷可用的 MTU 要低于本地路由, 这导致特定网络连接的最大吞吐率降低。
