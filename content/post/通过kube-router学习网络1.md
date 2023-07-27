@@ -507,16 +507,7 @@ bridge name     bridge id               STP enabled     interfaces
 kube-bridge             8000.4ae815f9f943       no              vethe5393dc7
 ```
 
-查看网络空间
-
-> docker 环境执行结果
->
-> root@node-1:~# ls -l /var/run/netns
-> total 0
->
-> 是因为docker创建在了这个目录 ls -l /var/run/docker/netns, 如果希望能用ip netns查看可以创建个链接过来
->
-> for i in $(ls /var/run/docker/netns); do ln -s /var/run/docker/netns/$i /var/run/netns/$i; done
+查看网络空间(containerd)
 
 ```bash
 root@node3:~# ip netns
@@ -535,5 +526,21 @@ root@node3:~# ip netns exec cni-c9f73dcd-802a-f008-f0e0-f052494c3d43 ip addr
        valid_lft forever preferred_lft forever
     inet6 fe80::e4c6:dcff:fe64:bfd9/64 scope link 
        valid_lft forever preferred_lft forever
+```
+
+查看网络空间(docker)
+
+```bash
+#docker 环境执行结果
+root@node-1:~# ls -l /var/run/netns
+total 0
+#是因为docker创建在了这个目录 ls -l /var/run/docker/netns, 如果希望能用ip netns查看可以创建个链接过来
+for i in $(ls /var/run/docker/netns); do ln -s /var/run/docker/netns/$i /var/run/netns/$i; done
+```
+
+如果不想全链接过来, 可以参考 [使用 nsenter 进入容器 netns ](http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8nsenter%E8%B0%83%E8%AF%95%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/)拿到pid
+
+```
+ls -l /proc/$pid/ns/net /var/run/netns/docker_idxxx
 ```
 

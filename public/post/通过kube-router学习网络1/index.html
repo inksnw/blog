@@ -48,11 +48,11 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E9%80%9A%E8%BF%87kube-router%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%BB%9C1/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-07-27T10:57:51+08:00" />
-<meta property="article:modified_time" content="2023-07-27T14:41:19+08:00" />
+<meta property="article:modified_time" content="2023-07-27T17:09:58+08:00" />
 <meta itemprop="name" content="通过kube Router学习网络1">
 <meta itemprop="description" content="一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了kube-router 这个项目, cni,bgp,ipvs全囊括了, 好吧就它"><meta itemprop="datePublished" content="2023-07-27T10:57:51+08:00" />
-<meta itemprop="dateModified" content="2023-07-27T14:41:19+08:00" />
-<meta itemprop="wordCount" content="4243">
+<meta itemprop="dateModified" content="2023-07-27T17:09:58+08:00" />
+<meta itemprop="wordCount" content="4307">
 <meta itemprop="keywords" content="cni," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="通过kube Router学习网络1"/>
 <meta name="twitter:description" content="一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了kube-router 这个项目, cni,bgp,ipvs全囊括了, 好吧就它"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-07-27 </span>
             
-            <span class="more-meta"> 约 4243 字 更新于 2023-07-27
+            <span class="more-meta"> 约 4307 字 更新于 2023-07-27
               <a class="article-tags" href=/tags/cni/>cni</a>
                 </span>
             
@@ -1075,14 +1075,7 @@
 </span></span><span class="line"><span class="cl">kube-bridge             8000.4ae815f9f943       no              vethe5393dc7
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>查看网络空间</p>
-<blockquote>
-<p>docker 环境执行结果</p>
-<p>root@node-1:~# ls -l /var/run/netns
-total 0</p>
-<p>是因为docker创建在了这个目录 ls -l /var/run/docker/netns, 如果希望能用ip netns查看可以创建个链接过来</p>
-<p>for i in $(ls /var/run/docker/netns); do ln -s /var/run/docker/netns/$i /var/run/netns/$i; done</p>
-</blockquote>
+</div><p>查看网络空间(containerd)</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -1119,6 +1112,32 @@ total 0</p>
 </span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
 </span></span><span class="line"><span class="cl">    inet6 fe80::e4c6:dcff:fe64:bfd9/64 scope link 
 </span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看网络空间(docker)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#docker 环境执行结果</span>
+</span></span><span class="line"><span class="cl">root@node-1:~# ls -l /var/run/netns
+</span></span><span class="line"><span class="cl">total <span class="m">0</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#是因为docker创建在了这个目录 ls -l /var/run/docker/netns, 如果希望能用ip netns查看可以创建个链接过来</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> i in <span class="k">$(</span>ls /var/run/docker/netns<span class="k">)</span><span class="p">;</span> <span class="k">do</span> ln -s /var/run/docker/netns/<span class="nv">$i</span> /var/run/netns/<span class="nv">$i</span><span class="p">;</span> <span class="k">done</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果不想全链接过来, 可以参考 <a href="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8nsenter%E8%B0%83%E8%AF%95%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/">使用 nsenter 进入容器 netns </a>拿到pid</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">ls -l /proc/$pid/ns/net /var/run/netns/docker_idxxx
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
