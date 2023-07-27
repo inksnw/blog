@@ -463,7 +463,17 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 192.168.50.1    0.0.0.0         255.255.255.255 UH    100    0        0 enp1s0
 ```
 
+> 为什么每个节点的ip cidr范围掩码是24?
+
+```bash
+# 配置在这里
+cat /etc/kubernetes/manifests/kube-controller-manager.yaml |grep node-cidr-mask-size
+    - --node-cidr-mask-size=24
+```
+
 ## 通信实现
+
+### 网络信息
 
 创建一个pod
 
@@ -544,3 +554,75 @@ for i in $(ls /var/run/docker/netns); do ln -s /var/run/docker/netns/$i /var/run
 ls -l /proc/$pid/ns/net /var/run/netns/docker_idxxx
 ```
 
+### 查看arp信息
+
+```bash
+root@node3:~# brctl showmacs kube-bridge
+port no mac addr                is local?       ageing timer
+  1     aa:f2:09:2c:26:2d       yes                0.00
+  1     aa:f2:09:2c:26:2d       yes                0.00
+```
+
+```bash
+root@node3:~# brctl showstp kube-bridge
+kube-bridge
+ bridge id              8000.4ae815f9f943
+ designated root        8000.4ae815f9f943
+ root port                 0                    path cost                  0
+ max age                  20.00                 bridge max age            20.00
+ hello time                2.00                 bridge hello time          2.00
+ forward delay            15.00                 bridge forward delay      15.00
+ ageing time             300.00
+ hello timer               0.00                 tcn timer                  0.00
+ topology change timer     0.00                 gc timer                 190.65
+ flags
+
+
+vethe5393dc7 (1)
+ port id                8001                    state                forwarding
+ designated root        8000.4ae815f9f943       path cost                  2
+ designated bridge      8000.4ae815f9f943       message age timer          0.00
+ designated port        8001                    forward delay timer        0.00
+ designated cost           0                    hold timer                 0.00
+ flags
+```
+
+1. `bridge id`: 是此桥的标识符，前四位是优先级，后面是桥的 MAC 地址。
+2. `designated root`: 是当前网络中选举出的根桥的 ID。
+3. `root port`: 是连接到根桥的端口。对于根桥，这个值是 0。
+4. `path cost`: 是到达根桥的代价，对于根桥，这个值是 0。
+5. `max age`, `hello time`, `forward delay` 以及 `ageing time` 都是 STP 的计时参数。
+6. `hello timer`, `tcn timer`, `topology change timer`, `gc timer` 是网桥维护的各种计时器。
+7. `flags` 是表示网桥当前状态的标志。
+
+接下来是网桥的每一个端口的详细信息，这些端口通常连接到其他网络设备。
+
+1. `port id` 是端口的标识符，前四位是优先级，后面是端口号。
+2. `state` 是端口的状态，可能的值有 "disabled", "listening", "learning", "forwarding" 和 "blocking"。
+3. `path cost` 是通过该端口到达根桥的代价。
+4. `designated root`, `designated bridge`, `designated port` 以及 `designated cost` 是此端口关于 STP 网络拓扑的信息。
+5. `message age timer`, `forward delay timer` 以及 `hold timer` 是此端口维护的计时器。
+6. `flags` 是表示端口当前状态的标志。
+
+### 网桥信息
+
+```bash
+root@node3:~# bridge -d link
+3: kube-bridge: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master kube-bridge kube-bridge
+7: vethe5393dc7@enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master kube-bridge state forwarding priority 32 cost 2 
+    hairpin off guard off root_block off fastleave off learning on flood on mcast_flood on mcast_to_unicast off neigh_suppress off vlan_tunnel off isolated off vethe5393dc7
+```
+
+这里有两个设备的信息：`kube-bridge` 和 `vethe5393dc7`。每个设备的详细信息如下：
+
+1. `3: kube-bridge: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master kube-bridge kube-bridge`:
+   - 这一行显示的是 `kube-bridge` 这个网桥的信息。它的编号是3。
+   - `<BROADCAST,MULTICAST,UP,LOWER_UP>` 是设备的状态标志。`BROADCAST` 和 `MULTICAST` 说明这个设备支持广播和多播，`UP` 说明设备处于活跃状态，`LOWER_UP` 说明设备的物理链路处于活跃状态。
+   - `mtu 1500` 表示设备的最大传输单元（MTU）是 1500 字节。
+   - `master kube-bridge` 表示这个设备的主设备是 `kube-bridge`。
+2. `7: vethe5393dc7@enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master kube-bridge state forwarding priority 32 cost 2`:
+   - 这一行显示的是 `vethe5393dc7` 这个设备的信息。它的编号是7，并且它与 `enp1s0` 设备关联（`@enp1s0`）。
+   - `state forwarding` 表示设备的状态是转发。
+   - `priority 32` 表示设备的优先级是 32。
+   - `cost 2` 表示设备的成本是 2，这通常用于路由选择。
+   - 后面的标志例如 `hairpin off`，`guard off`，`root_block off` 等，是针对网桥接口的特定设置。例如 `hairpin off` 表示关闭了发夹模式，这个模式决定了从一个网桥接口收到的数据是否可以在同一个接口上发送出去。

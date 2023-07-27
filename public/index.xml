@@ -839,7 +839,23 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;192.168.50.1    0.0.0.0         255.255.255.255 UH    100    0        0 enp1s0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
+&lt;/div&gt;&lt;blockquote&gt;
+&lt;p&gt;为什么每个节点的ip cidr范围掩码是24?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 配置在这里&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cat /etc/kubernetes/manifests/kube-controller-manager.yaml &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;grep node-cidr-mask-size
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - --node-cidr-mask-size&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;24&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
 &lt;/div&gt;&lt;h2 id=&#34;通信实现&#34;&gt;通信实现&lt;/h2&gt;
+&lt;h3 id=&#34;网络信息&#34;&gt;网络信息&lt;/h3&gt;
 &lt;p&gt;创建一个pod&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -980,7 +996,123 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ls -l /proc/$pid/ns/net /var/run/netns/docker_idxxx
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description>
+&lt;/div&gt;&lt;h3 id=&#34;查看arp信息&#34;&gt;查看arp信息&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@node3:~# brctl showmacs kube-bridge
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;port no mac addr                is local?       ageing timer
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;     aa:f2:09:2c:26:2d       yes                0.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;     aa:f2:09:2c:26:2d       yes                0.00
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@node3:~# brctl showstp kube-bridge
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;kube-bridge
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; bridge id              8000.4ae815f9f943
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; designated root        8000.4ae815f9f943
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; root port                 &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;                    path cost                  &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; max age                  20.00                 bridge max age            20.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; hello &lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt;                2.00                 bridge hello &lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt;          2.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; forward delay            15.00                 bridge forward delay      15.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; ageing &lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt;             300.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; hello timer               0.00                 tcn timer                  0.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; topology change timer     0.00                 gc timer                 190.65
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; flags
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;vethe5393dc7 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; port id                &lt;span class=&#34;m&#34;&gt;8001&lt;/span&gt;                    state                forwarding
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; designated root        8000.4ae815f9f943       path cost                  &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; designated bridge      8000.4ae815f9f943       message age timer          0.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; designated port        &lt;span class=&#34;m&#34;&gt;8001&lt;/span&gt;                    forward delay timer        0.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; designated cost           &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;                    hold timer                 0.00
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; flags
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;bridge id&lt;/code&gt;: 是此桥的标识符，前四位是优先级，后面是桥的 MAC 地址。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;designated root&lt;/code&gt;: 是当前网络中选举出的根桥的 ID。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;root port&lt;/code&gt;: 是连接到根桥的端口。对于根桥，这个值是 0。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;path cost&lt;/code&gt;: 是到达根桥的代价，对于根桥，这个值是 0。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;max age&lt;/code&gt;, &lt;code&gt;hello time&lt;/code&gt;, &lt;code&gt;forward delay&lt;/code&gt; 以及 &lt;code&gt;ageing time&lt;/code&gt; 都是 STP 的计时参数。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;hello timer&lt;/code&gt;, &lt;code&gt;tcn timer&lt;/code&gt;, &lt;code&gt;topology change timer&lt;/code&gt;, &lt;code&gt;gc timer&lt;/code&gt; 是网桥维护的各种计时器。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;flags&lt;/code&gt; 是表示网桥当前状态的标志。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;接下来是网桥的每一个端口的详细信息，这些端口通常连接到其他网络设备。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;port id&lt;/code&gt; 是端口的标识符，前四位是优先级，后面是端口号。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;state&lt;/code&gt; 是端口的状态，可能的值有 &amp;ldquo;disabled&amp;rdquo;, &amp;ldquo;listening&amp;rdquo;, &amp;ldquo;learning&amp;rdquo;, &amp;ldquo;forwarding&amp;rdquo; 和 &amp;ldquo;blocking&amp;rdquo;。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;path cost&lt;/code&gt; 是通过该端口到达根桥的代价。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;designated root&lt;/code&gt;, &lt;code&gt;designated bridge&lt;/code&gt;, &lt;code&gt;designated port&lt;/code&gt; 以及 &lt;code&gt;designated cost&lt;/code&gt; 是此端口关于 STP 网络拓扑的信息。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;message age timer&lt;/code&gt;, &lt;code&gt;forward delay timer&lt;/code&gt; 以及 &lt;code&gt;hold timer&lt;/code&gt; 是此端口维护的计时器。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;flags&lt;/code&gt; 是表示端口当前状态的标志。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;网桥信息&#34;&gt;网桥信息&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@node3:~# bridge -d link
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;3: kube-bridge: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu &lt;span class=&#34;m&#34;&gt;1500&lt;/span&gt; master kube-bridge kube-bridge
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;7: vethe5393dc7@enp1s0: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu &lt;span class=&#34;m&#34;&gt;1500&lt;/span&gt; master kube-bridge state forwarding priority &lt;span class=&#34;m&#34;&gt;32&lt;/span&gt; cost &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    hairpin off guard off root_block off fastleave off learning on flood on mcast_flood on mcast_to_unicast off neigh_suppress off vlan_tunnel off isolated off vethe5393dc7
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这里有两个设备的信息：&lt;code&gt;kube-bridge&lt;/code&gt; 和 &lt;code&gt;vethe5393dc7&lt;/code&gt;。每个设备的详细信息如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;3: kube-bridge: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu 1500 master kube-bridge kube-bridge&lt;/code&gt;:
+&lt;ul&gt;
+&lt;li&gt;这一行显示的是 &lt;code&gt;kube-bridge&lt;/code&gt; 这个网桥的信息。它的编号是3。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;&amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt;&lt;/code&gt; 是设备的状态标志。&lt;code&gt;BROADCAST&lt;/code&gt; 和 &lt;code&gt;MULTICAST&lt;/code&gt; 说明这个设备支持广播和多播，&lt;code&gt;UP&lt;/code&gt; 说明设备处于活跃状态，&lt;code&gt;LOWER_UP&lt;/code&gt; 说明设备的物理链路处于活跃状态。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;mtu 1500&lt;/code&gt; 表示设备的最大传输单元（MTU）是 1500 字节。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;master kube-bridge&lt;/code&gt; 表示这个设备的主设备是 &lt;code&gt;kube-bridge&lt;/code&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;7: vethe5393dc7@enp1s0: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu 1500 master kube-bridge state forwarding priority 32 cost 2&lt;/code&gt;:
+&lt;ul&gt;
+&lt;li&gt;这一行显示的是 &lt;code&gt;vethe5393dc7&lt;/code&gt; 这个设备的信息。它的编号是7，并且它与 &lt;code&gt;enp1s0&lt;/code&gt; 设备关联（&lt;code&gt;@enp1s0&lt;/code&gt;）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;state forwarding&lt;/code&gt; 表示设备的状态是转发。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;priority 32&lt;/code&gt; 表示设备的优先级是 32。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;cost 2&lt;/code&gt; 表示设备的成本是 2，这通常用于路由选择。&lt;/li&gt;
+&lt;li&gt;后面的标志例如 &lt;code&gt;hairpin off&lt;/code&gt;，&lt;code&gt;guard off&lt;/code&gt;，&lt;code&gt;root_block off&lt;/code&gt; 等，是针对网桥接口的特定设置。例如 &lt;code&gt;hairpin off&lt;/code&gt; 表示关闭了发夹模式，这个模式决定了从一个网桥接口收到的数据是否可以在同一个接口上发送出去。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
     </item>
     
     <item>
