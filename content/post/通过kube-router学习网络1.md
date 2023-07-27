@@ -626,3 +626,40 @@ root@node3:~# bridge -d link
    - `priority 32` 表示设备的优先级是 32。
    - `cost 2` 表示设备的成本是 2，这通常用于路由选择。
    - 后面的标志例如 `hairpin off`，`guard off`，`root_block off` 等，是针对网桥接口的特定设置。例如 `hairpin off` 表示关闭了发夹模式，这个模式决定了从一个网桥接口收到的数据是否可以在同一个接口上发送出去。
+
+## 修改为ipip
+
+```bash
+# 可选 full,subnet 
+kubectl edit ds kube-router -n kube-system
+- --overlay-type=full
+```
+
+查看路由表, 此时都变成了隧道模式
+
+```bash
+root@node1:~# route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
+10.233.66.0     0.0.0.0         255.255.255.0   U     0      0        0 tun-1921685051
+10.233.68.0     0.0.0.0         255.255.255.0   U     0      0        0 tun-1921685052
+192.168.50.0    0.0.0.0         255.255.255.0   U     0      0        0 enp1s0
+192.168.50.1    0.0.0.0         255.255.255.255 UH    100    0        0 enp1s0
+```
+
+查看网卡信息
+
+```bash
+root@node1:~# ip addr
+...
+6: tun-1921685052@enp1s0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1480 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ipip 192.168.50.50 peer 192.168.50.52
+    inet6 fe80::5efe:c0a8:3232/64 scope link 
+       valid_lft forever preferred_lft forever
+7: tun-1921685051@enp1s0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1480 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ipip 192.168.50.50 peer 192.168.50.51
+    inet6 fe80::5efe:c0a8:3232/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+
