@@ -1,10 +1,10 @@
 ---
-title: "通过kube Router学习网络1"
+title: "通过kube Router学习网络"
 date: 2023-07-27T10:57:51+08:00
 tags: ["cni"]
 ---
 
-一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了`kube-router` 这个项目, cni,bgp,ipvs全囊括了, 好吧就它了, 让我们一起把整个cni都梳理一遍
+一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了`kube-router` 这个项目, `cni,bgp,ipvs`全囊括了, 好吧就它了, 让我们一起把整个cni都梳理一遍
 
 ## 环境准备
 
@@ -97,11 +97,11 @@ kube-system   openebs-localpv-provisioner-7cc4c84b9-t4gr4   0/1     Pending   0 
 
 ### 路由信息
 
-CNI (Container Network Interface) 的主要任务之一是确保不同主机上的容器网络能够互相通信。实现这一目标通常有两种方法：`overlay` 和 `underlay`。
+CNI 的主要任务之一是确保不同主机上的容器网络能够互相通信。实现这一目标通常有两种方法：
 
-在 `overlay` 网络中，网络包被封装在其他网络包中，然后通过底层的物理网络进行传输。这种方法对底层网络的要求较低，但可能会引入一些额外的性能开销。
+- `overlay` : 网络包被封装在其他网络包中，然后通过底层的物理网络进行传输。这种方法对底层网络的要求较低，但可能会引入一些额外的性能开销。
 
-相比之下，`underlay` 网络则直接利用底层的物理网络。在这种情况下，我们需要在路由表中添加路由规则，以确保数据包可以正确地路由到目标容器。然而，随着主机的变动，手动配置路由表通常是不切实际的。为了解决这个问题，我们可以使用 BGP (Border Gateway Protocol) 等动态路由协议，让路由器能够自动地学习和配置路由规则。
+- `underlay` : 直接利用底层的物理网络。在这种情况下，我们需要在路由表中添加路由规则，以确保数据包可以正确地路由到目标容器。然而，随着主机的变动，手动配置路由表通常是不切实际的。为了解决这个问题，可以使用 BGP (Border Gateway Protocol) 等动态路由协议，让路由器能够自动地学习和配置路由规则。
 
 查看此时主机上的路由表, 并没有pod `cidr`相关的路由
 
@@ -115,74 +115,6 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 192.168.50.0    0.0.0.0         255.255.255.0   U     0      0        0 enp1s0
 192.168.50.1    0.0.0.0         255.255.255.255 UH    100    0        0 enp1s0
 ```
-### 网卡信息
-
-CNI（Container Network Interface）插件的任务之一就是负责在容器中创建和配置网络接口。所以，当一个新的 Pod 被创建时，CNI 插件通常会在这个 Pod 的网络命名空间中添加一个或多个新的网络接口（也就是虚拟网卡）。
-
-这些网络接口是 Pod 与外界通信的桥梁。每个接口都会被分配一个 IP 地址（通常来自节点的 Pod CIDR 范围）
-
-```
-➜ ip addr
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
-       valid_lft forever preferred_lft forever
-2: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
-    link/ether 52:54:00:34:d1:8a brd ff:ff:ff:ff:ff:ff
-    inet 192.168.50.50/24 brd 192.168.50.255 scope global dynamic enp1s0
-       valid_lft 74620sec preferred_lft 74620sec
-    inet6 fe80::5054:ff:fe34:d18a/64 scope link 
-       valid_lft forever preferred_lft forever
-➜ kubectl get pod -A
-NAMESPACE     NAME                                          READY   STATUS    RESTARTS   AGE
-kube-system   coredns-7f647946c8-4hr6d                      0/1     Pending   0          3h9m
-kube-system   coredns-7f647946c8-lngk8                      0/1     Pending   0          3h9m
-kube-system   kube-apiserver-node1                          1/1     Running   0          3h9m
-kube-system   kube-controller-manager-node1                 1/1     Running   0          3h9m
-kube-system   kube-scheduler-node1                          1/1     Running   0          3h9m
-kube-system   openebs-localpv-provisioner-7cc4c84b9-d5tpw   0/1     Pending   0          3h8m
-➜ kubectl get node
-NAME    STATUS     ROLES                  AGE    VERSION
-node1   NotReady   control-plane,worker   3h9m   v1.26.5
-node2   NotReady   worker                 3h9m   v1.26.5
-node3   NotReady   worker                 3h9m   v1.26.5
-➜ arp -n
-Address                  HWtype  HWaddress           Flags Mask            Iface
-192.168.50.51            ether   52:54:00:8b:47:fd   C                     enp1s0
-192.168.50.22            ether   40:ec:99:bb:84:b0   C                     enp1s0
-192.168.50.52            ether   52:54:00:19:ae:7d   C                     enp1s0
-192.168.50.1             ether   24:4b:fe:d4:81:00   C                     enp1s0
-```
-### iptables与ipvs
-
-```bash
-➜ iptables -L
-Chain INPUT (policy ACCEPT)
-target     prot opt source               destination         
-KUBE-FIREWALL  all  --  anywhere             anywhere            
-
-Chain FORWARD (policy ACCEPT)
-target     prot opt source               destination         
-
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination         
-KUBE-FIREWALL  all  --  anywhere             anywhere            
-
-Chain KUBE-FIREWALL (2 references)
-target     prot opt source               destination         
-DROP       all  -- !localhost/8          localhost/8          /* block incoming localnet connections */ ! ctstate RELATED,ESTABLISHED,DNAT
-DROP       all  --  anywhere             anywhere             /* kubernetes firewall for dropping marked packets */ mark match 0x8000/0x8000
-
-Chain KUBE-KUBELET-CANARY (0 references)
-target     prot opt source               destination         
-➜ ipvsadm
-IP Virtual Server version 1.2.1 (size=4096)
-Prot LocalAddress:Port Scheduler Flags
-  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
-```
-
 ## 安装插件
 
 ```bash
@@ -210,6 +142,8 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 实际环境中，受到各种因素的限制, 每个节点上可以运行的 Pod 数量可能会小于这个数字
 
 ### 查看网卡
+
+看到kube-router为主机新增了kube-bridge和kube-dummy-if网卡
 
 ```
 ➜ ip addr
@@ -248,7 +182,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 删除节点后, 可以看到, 相关的路由已被清理
 
 ```bash
-kubectl delete node node3
+➜ kubectl delete node node3
 ➜ route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
@@ -263,8 +197,8 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 > 当你使用 `kubectl delete node <node-name>` 命令时，Kubernetes 会从集群状态中移除节点，但并不会停止节点上的 kubelet 服务。因此，当你重启 kubelet 服务时，kubelet 会尝试重新将节点注册到 Kubernetes 集群。这就是为什么重启 kubelet 会使节点自动加回来的原因。
 
 ```bash
-systemctl restart kubelet
-kubectl label nodes node3  node-role.kubernetes.io/worker=
+➜ systemctl restart kubelet
+➜ kubectl label nodes node3  node-role.kubernetes.io/worker=
 ```
 
 ### 抓包查看BGP信息
@@ -272,21 +206,14 @@ kubectl label nodes node3  node-role.kubernetes.io/worker=
 删除node3上的 `kube-router` pod
 
 ```
-kubectl delete pod kube-router-nf9pb -n kube-system
+➜ kubectl delete pod kube-router-nf9pb -n kube-system
 ```
 
 在node1上抓包查看node3上的 `kube-router` pod被重新拉起的数据包
 
 ```bash
-tcpdump -i any 'port 179 and host 192.168.50.52' -v -n
-tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 262144 bytes
-08:11:50.770802 IP (tos 0x0, ttl 64, id 26890, offset 0, flags [DF], proto TCP (6), length 60)
-    192.168.50.50.54651 > 192.168.50.52.179: Flags [S], cksum 0xe5e5 (incorrect -> 0x2d26), seq 3986906876, win 64240, options [mss 1460,sackOK,TS val 3629793029 ecr 0,nop,wscale 10], length 0
-08:11:50.771428 IP (tos 0x0, ttl 255, id 0, offset 0, flags [DF], proto TCP (6), length 60)
-    192.168.50.52.179 > 192.168.50.50.54651: Flags [S.], cksum 0xe5e5 (incorrect -> 0x96d6), seq 3060303424, ack 3986906877, win 65160, options [mss 1460,sackOK,TS val 2666051348 ecr 3629793029,nop,wscale 10], length 0
-08:11:50.771502 IP (tos 0x0, ttl 64, id 26891, offset 0, flags [DF], proto TCP (6), length 52)
-    192.168.50.50.54651 > 192.168.50.52.179: Flags [.], cksum 0xe5dd (incorrect -> 0xc3ee), ack 1, win 63, options [nop,nop,TS val 3629793030 ecr 2666051348], length 0
-08:11:50.772053 IP (tos 0x0, ttl 64, id 26892, offset 0, flags [DF], proto TCP (6), length 122)
+➜ tcpdump -i any 'port 179 and host 192.168.50.52' -v -n
+...
     192.168.50.50.54651 > 192.168.50.52.179: Flags [P.], cksum 0xe623 (incorrect -> 0xf381), seq 1:71, ack 1, win 63, options [nop,nop,TS val 3629793031 ecr 2666051348], length 70: BGP
         Open Message (1), length: 70
           Version 4, my AS 64512, Holdtime 90s, ID 192.168.50.50
@@ -328,19 +255,7 @@ tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 2
               Extended Next Hop Encoding (5), length: 6
                 no decoder for Capability 5
                 0x0000:  0001 0001 0002
-08:11:50.772977 IP (tos 0x0, ttl 64, id 26893, offset 0, flags [DF], proto TCP (6), length 52)
-    192.168.50.50.54651 > 192.168.50.52.179: Flags [.], cksum 0xe5dd (incorrect -> 0xc35e), ack 71, win 63, options [nop,nop,TS val 3629793032 ecr 2666051350], length 0
-08:11:50.773312 IP (tos 0x0, ttl 255, id 38617, offset 0, flags [DF], proto TCP (6), length 71)
-    192.168.50.52.179 > 192.168.50.50.54651: Flags [P.], cksum 0xe5f0 (incorrect -> 0xbf30), seq 71:90, ack 71, win 64, options [nop,nop,TS val 2666051350 ecr 3629793031], length 19: BGP
-        Keepalive Message (4), length: 19
-08:11:50.773359 IP (tos 0x0, ttl 64, id 26894, offset 0, flags [DF], proto TCP (6), length 52)
-    192.168.50.50.54651 > 192.168.50.52.179: Flags [.], cksum 0xe5dd (incorrect -> 0xc34b), ack 90, win 63, options [nop,nop,TS val 3629793032 ecr 2666051350], length 0
-08:11:50.773866 IP (tos 0x0, ttl 64, id 26895, offset 0, flags [DF], proto TCP (6), length 71)
-    192.168.50.50.54651 > 192.168.50.52.179: Flags [P.], cksum 0xe5f0 (incorrect -> 0xbf1d), seq 71:90, ack 90, win 63, options [nop,nop,TS val 3629793032 ecr 2666051350], length 19: BGP
-        Keepalive Message (4), length: 19
-08:11:50.774194 IP (tos 0x0, ttl 255, id 38618, offset 0, flags [DF], proto TCP (6), length 52)
-    192.168.50.52.179 > 192.168.50.50.54651: Flags [.], cksum 0xe5dd (incorrect -> 0xc336), ack 90, win 64, options [nop,nop,TS val 2666051351 ecr 3629793032], length 0
-08:11:50.774963 IP (tos 0x0, ttl 64, id 26896, offset 0, flags [DF], proto TCP (6), length 100)
+...
     192.168.50.50.54651 > 192.168.50.52.179: Flags [P.], cksum 0xe60d (incorrect -> 0x8263), seq 90:138, ack 90, win 63, options [nop,nop,TS val 3629793034 ecr 2666051351], length 48: BGP
         Update Message (2), length: 48
           Origin (1), length: 1, Flags [T]: IGP
@@ -349,15 +264,7 @@ tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 2
           Local Preference (5), length: 4, Flags [T]: 100
           Updated routes:
             10.233.64.0/24
-08:11:50.775311 IP (tos 0x0, ttl 255, id 38619, offset 0, flags [DF], proto TCP (6), length 52)
-    192.168.50.52.179 > 192.168.50.50.54651: Flags [.], cksum 0xe5dd (incorrect -> 0xc303), ack 138, win 64, options [nop,nop,TS val 2666051352 ecr 3629793034], length 0
-08:11:50.775656 IP (tos 0x0, ttl 64, id 26897, offset 0, flags [DF], proto TCP (6), length 75)
-    192.168.50.50.54651 > 192.168.50.52.179: Flags [P.], cksum 0xe5f4 (incorrect -> 0xc0ce), seq 138:161, ack 90, win 63, options [nop,nop,TS val 3629793034 ecr 2666051352], length 23: BGP
-        Update Message (2), length: 23
-          End-of-Rib Marker (empty NLRI)
-08:11:50.775929 IP (tos 0x0, ttl 255, id 38620, offset 0, flags [DF], proto TCP (6), length 52)
-    192.168.50.52.179 > 192.168.50.50.54651: Flags [.], cksum 0xe5dd (incorrect -> 0xc2eb), ack 161, win 64, options [nop,nop,TS val 2666051353 ecr 3629793034], length 0
-08:11:51.777028 IP (tos 0x0, ttl 255, id 38621, offset 0, flags [DF], proto TCP (6), length 100)
+...
     192.168.50.52.179 > 192.168.50.50.54651: Flags [P.], cksum 0xe60d (incorrect -> 0x7c2c), seq 90:138, ack 161, win 64, options [nop,nop,TS val 2666052354 ecr 3629793034], length 48: BGP
         Update Message (2), length: 48
           Origin (1), length: 1, Flags [T]: IGP
@@ -366,10 +273,6 @@ tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 2
           Local Preference (5), length: 4, Flags [T]: 100
           Updated routes:
             10.233.68.0/24
-08:11:51.777029 IP (tos 0x0, ttl 255, id 38622, offset 0, flags [DF], proto TCP (6), length 75)
-    192.168.50.52.179 > 192.168.50.50.54651: Flags [P.], cksum 0xe5f4 (incorrect -> 0xbc9c), seq 138:161, ack 161, win 64, options [nop,nop,TS val 2666052354 ecr 3629793034], length 23: BGP
-        Update Message (2), length: 23
-          End-of-Rib Marker (empty NLRI)
 ```
 
 可以看到node1告诉了node3自己的pod子网段是`10.233.64.0/24`, node3告诉node1自己的pod子网段是`10.233.68.0/24`
@@ -391,22 +294,77 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 
 ```bash
 # 配置在这里
-cat /etc/kubernetes/manifests/kube-controller-manager.yaml |grep node-cidr-mask-size
+➜ cat /etc/kubernetes/manifests/kube-controller-manager.yaml |grep node-cidr-mask-size
     - --node-cidr-mask-size=24
 ```
 
-## 通信实现
+### 修改为ipip
+
+```bash
+# 可选 full,subnet 
+➜ kubectl edit ds kube-router -n kube-system
+- --overlay-type=full
+```
+
+查看路由表, 此时都变成了隧道模式
+
+```bash
+➜ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
+10.233.66.0     0.0.0.0         255.255.255.0   U     0      0        0 tun-1921685051
+10.233.68.0     0.0.0.0         255.255.255.0   U     0      0        0 tun-1921685052
+192.168.50.0    0.0.0.0         255.255.255.0   U     0      0        0 enp1s0
+192.168.50.1    0.0.0.0         255.255.255.255 UH    100    0        0 enp1s0
+```
+
+查看网卡信息
+
+```bash
+➜ ip addr
+...
+6: tun-1921685052@enp1s0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1480 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ipip 192.168.50.50 peer 192.168.50.52
+    inet6 fe80::5efe:c0a8:3232/64 scope link 
+       valid_lft forever preferred_lft forever
+7: tun-1921685051@enp1s0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1480 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ipip 192.168.50.50 peer 192.168.50.51
+    inet6 fe80::5efe:c0a8:3232/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+
+### BGP信息查看
+
+```bash
+➜ kubectl edit ds kube-router -n kube-system
+- --nodes-full-mesh=true
+```
+
+```bash
+➜ kubectl exec -it kube-router-7l2mf -n kube-system -- /bin/sh
+➜ gobgp global
+AS:        64512
+Router-ID: 192.168.50.50
+Listening Port: 179, Addresses: 192.168.50.50, ::1
+➜ gobgp neighbor
+Peer             AS  Up/Down State       |#Received  Accepted
+192.168.50.51 64512 00:03:49 Establ      |        1         1
+192.168.50.52 64512 00:03:51 Establ      |        1         1
+```
+
+## Veth对实现
 
 ### 网络信息
 
 创建一个pod
 
 ```bash
-kubectl run busybox --image=busybox -- /bin/sh -c "while true; do sleep 3600; done"
+➜ kubectl run busybox --image=busybox -- /bin/sh -c "while true; do sleep 3600; done"
 ```
 
 ```bash
-ip addr
+➜ ip addr
 ...
 7: vethe5393dc7@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue master kube-bridge state UP group default 
     link/ether aa:f2:09:2c:26:2d brd ff:ff:ff:ff:ff:ff link-netns cni-c9f73dcd-802a-f008-f0e0-f052494c3d43
@@ -417,8 +375,8 @@ ip addr
 可以看到veth网卡在宿主机的编号是7, 在容器里的编号是2, 我们进入容器看一下, 可以看到网卡编号与外部对应
 
 ```bash
-kubectl exec -it busybox -- /bin/sh
-/ # ip a
+➜ kubectl exec -it busybox -- /bin/sh
+➜ ip a
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -469,13 +427,13 @@ cni-c9f73dcd-802a-f008-f0e0-f052494c3d43 (id: 0)
 ➜ ls -l /var/run/netns
 total 0
 #是因为docker创建在了这个目录 ls -l /var/run/docker/netns, 如果希望能用ip netns查看可以创建个链接过来
-for i in $(ls /var/run/docker/netns); do ln -s /var/run/docker/netns/$i /var/run/netns/$i; done
+➜ for i in $(ls /var/run/docker/netns); do ln -s /var/run/docker/netns/$i /var/run/netns/$i; ➜ done
 ```
 
 如果不想全链接过来, 可以参考 [使用 nsenter 进入容器 netns ](http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8nsenter%E8%B0%83%E8%AF%95%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/)拿到pid
 
 ```
-ls -l /proc/$pid/ns/net /var/run/netns/docker_idxxx
+➜ ls -l /proc/$pid/ns/net /var/run/netns/docker_idxxx
 ```
 
 ### 查看arp信息
@@ -486,47 +444,6 @@ port no mac addr                is local?       ageing timer
   1     aa:f2:09:2c:26:2d       yes                0.00
   1     aa:f2:09:2c:26:2d       yes                0.00
 ```
-
-```bash
-➜ brctl showstp kube-bridge
-kube-bridge
- bridge id              8000.4ae815f9f943
- designated root        8000.4ae815f9f943
- root port                 0                    path cost                  0
- max age                  20.00                 bridge max age            20.00
- hello time                2.00                 bridge hello time          2.00
- forward delay            15.00                 bridge forward delay      15.00
- ageing time             300.00
- hello timer               0.00                 tcn timer                  0.00
- topology change timer     0.00                 gc timer                 190.65
- flags
-
-
-vethe5393dc7 (1)
- port id                8001                    state                forwarding
- designated root        8000.4ae815f9f943       path cost                  2
- designated bridge      8000.4ae815f9f943       message age timer          0.00
- designated port        8001                    forward delay timer        0.00
- designated cost           0                    hold timer                 0.00
- flags
-```
-
-1. `bridge id`: 是此桥的标识符，前四位是优先级，后面是桥的 MAC 地址。
-2. `designated root`: 是当前网络中选举出的根桥的 ID。
-3. `root port`: 是连接到根桥的端口。对于根桥，这个值是 0。
-4. `path cost`: 是到达根桥的代价，对于根桥，这个值是 0。
-5. `max age`, `hello time`, `forward delay` 以及 `ageing time` 都是 STP 的计时参数。
-6. `hello timer`, `tcn timer`, `topology change timer`, `gc timer` 是网桥维护的各种计时器。
-7. `flags` 是表示网桥当前状态的标志。
-
-接下来是网桥的每一个端口的详细信息，这些端口通常连接到其他网络设备。
-
-1. `port id` 是端口的标识符，前四位是优先级，后面是端口号。
-2. `state` 是端口的状态，可能的值有 "disabled", "listening", "learning", "forwarding" 和 "blocking"。
-3. `path cost` 是通过该端口到达根桥的代价。
-4. `designated root`, `designated bridge`, `designated port` 以及 `designated cost` 是此端口关于 STP 网络拓扑的信息。
-5. `message age timer`, `forward delay timer` 以及 `hold timer` 是此端口维护的计时器。
-6. `flags` 是表示端口当前状态的标志。
 
 ### 网桥信息
 
@@ -550,63 +467,6 @@ vethe5393dc7 (1)
    - `priority 32` 表示设备的优先级是 32。
    - `cost 2` 表示设备的成本是 2，这通常用于路由选择。
    - 后面的标志例如 `hairpin off`，`guard off`，`root_block off` 等，是针对网桥接口的特定设置。例如 `hairpin off` 表示关闭了发夹模式，这个模式决定了从一个网桥接口收到的数据是否可以在同一个接口上发送出去。
-
-## 修改为ipip
-
-```bash
-# 可选 full,subnet 
-➜ kubectl edit ds kube-router -n kube-system
-- --overlay-type=full
-```
-
-查看路由表, 此时都变成了隧道模式
-
-```bash
-➜ route -n
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
-10.233.66.0     0.0.0.0         255.255.255.0   U     0      0        0 tun-1921685051
-10.233.68.0     0.0.0.0         255.255.255.0   U     0      0        0 tun-1921685052
-192.168.50.0    0.0.0.0         255.255.255.0   U     0      0        0 enp1s0
-192.168.50.1    0.0.0.0         255.255.255.255 UH    100    0        0 enp1s0
-```
-
-查看网卡信息
-
-```bash
-➜ ip addr
-...
-6: tun-1921685052@enp1s0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1480 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/ipip 192.168.50.50 peer 192.168.50.52
-    inet6 fe80::5efe:c0a8:3232/64 scope link 
-       valid_lft forever preferred_lft forever
-7: tun-1921685051@enp1s0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1480 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/ipip 192.168.50.50 peer 192.168.50.51
-    inet6 fe80::5efe:c0a8:3232/64 scope link 
-       valid_lft forever preferred_lft forever
-```
-
-## BGP信息查看
-
-### full mesh
-
-```bash
-➜ kubectl edit ds kube-router -n kube-system
-- --nodes-full-mesh=true
-```
-
-```bash
-➜ kubectl exec -it kube-router-7l2mf -n kube-system -- /bin/sh
-➜ gobgp global
-AS:        64512
-Router-ID: 192.168.50.50
-Listening Port: 179, Addresses: 192.168.50.50, ::1
-➜ gobgp neighbor
-Peer             AS  Up/Down State       |#Received  Accepted
-192.168.50.51 64512 00:03:49 Establ      |        1         1
-192.168.50.52 64512 00:03:51 Establ      |        1         1
-```
 
 ## 数据平面
 
@@ -799,7 +659,7 @@ Members:
 
 <img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_6ca604634e8c6403b21587d64077648a.png" alt="image-20230728111722176" style="zoom:50%;" />
 
-#### iptables策略
+**iptables策略**
 
 ```bash
 ➜ iptables-save
