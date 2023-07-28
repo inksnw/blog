@@ -85,7 +85,7 @@ spec:
 安装完成后, 可以看到一个没有`kube-proxy`,没有`cni`的集群
 
 ```bash
-root@node1:~# kubectl get pod -A
+➜ kubectl get pod -A
 NAMESPACE     NAME                                          READY   STATUS    RESTARTS   AGE
 kube-system   coredns-7f647946c8-4pf2t                      0/1     Pending   0          11m
 kube-system   coredns-7f647946c8-5zw5f                      0/1     Pending   0          11m
@@ -108,7 +108,7 @@ CNI (Container Network Interface) 的主要任务之一是确保不同主机上�
 > 清空路由表命令 ip route flush table main , 注意清空可能导致无法远程连接, 重启后恢复一些默认的
 
 ```bash
-root@node1:~# route -n
+➜ route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
@@ -122,7 +122,7 @@ CNI（Container Network Interface）插件的任务之一就是负责在容器�
 这些网络接口是 Pod 与外界通信的桥梁。每个接口都会被分配一个 IP 地址（通常来自节点的 Pod CIDR 范围）
 
 ```
-root@node1:~# ip addr
+➜ ip addr
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -135,7 +135,7 @@ root@node1:~# ip addr
        valid_lft 74620sec preferred_lft 74620sec
     inet6 fe80::5054:ff:fe34:d18a/64 scope link 
        valid_lft forever preferred_lft forever
-root@node1:~# kubectl get pod -A
+➜ kubectl get pod -A
 NAMESPACE     NAME                                          READY   STATUS    RESTARTS   AGE
 kube-system   coredns-7f647946c8-4hr6d                      0/1     Pending   0          3h9m
 kube-system   coredns-7f647946c8-lngk8                      0/1     Pending   0          3h9m
@@ -143,12 +143,12 @@ kube-system   kube-apiserver-node1                          1/1     Running   0 
 kube-system   kube-controller-manager-node1                 1/1     Running   0          3h9m
 kube-system   kube-scheduler-node1                          1/1     Running   0          3h9m
 kube-system   openebs-localpv-provisioner-7cc4c84b9-d5tpw   0/1     Pending   0          3h8m
-root@node1:~# kubectl get node
+➜ kubectl get node
 NAME    STATUS     ROLES                  AGE    VERSION
 node1   NotReady   control-plane,worker   3h9m   v1.26.5
 node2   NotReady   worker                 3h9m   v1.26.5
 node3   NotReady   worker                 3h9m   v1.26.5
-root@node1:~# arp -n
+➜ arp -n
 Address                  HWtype  HWaddress           Flags Mask            Iface
 192.168.50.51            ether   52:54:00:8b:47:fd   C                     enp1s0
 192.168.50.22            ether   40:ec:99:bb:84:b0   C                     enp1s0
@@ -158,7 +158,7 @@ Address                  HWtype  HWaddress           Flags Mask            Iface
 ### iptables与ipvs
 
 ```bash
-root@node1:~# iptables -L
+➜ iptables -L
 Chain INPUT (policy ACCEPT)
 target     prot opt source               destination         
 KUBE-FIREWALL  all  --  anywhere             anywhere            
@@ -177,7 +177,7 @@ DROP       all  --  anywhere             anywhere             /* kubernetes fire
 
 Chain KUBE-KUBELET-CANARY (0 references)
 target     prot opt source               destination         
-root@node1:~# ipvsadm
+➜ ipvsadm
 IP Virtual Server version 1.2.1 (size=4096)
 Prot LocalAddress:Port Scheduler Flags
   -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
@@ -193,7 +193,7 @@ kubectl create -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/
 ### 查看路由表
 
 ```bash
-root@node1:~# route -n
+➜ route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
@@ -212,7 +212,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 ### 查看网卡
 
 ```
-root@node1:~# ip addr
+➜ ip addr
 ...
 3: kube-bridge: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
     link/ether ea:87:60:eb:65:e8 brd ff:ff:ff:ff:ff:ff
@@ -235,7 +235,7 @@ root@node1:~# ip addr
 当前路由
 
 ```bash
-root@node1:~# route -n 
+➜ route -n 
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
@@ -249,7 +249,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 
 ```bash
 kubectl delete node node3
-root@node1:~# route -n
+➜ route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
@@ -377,7 +377,7 @@ tcpdump: listening on any, link-type LINUX_SLL (Linux cooked v1), capture size 2
 查看路由表确认
 
 ```
-root@node1:~# route -n
+➜ route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
@@ -436,7 +436,7 @@ kubectl exec -it busybox -- /bin/sh
 查看一下网桥信息, 可以看到kube-bridge上挂的接口`vethe5393dc7`与网卡名也能对应上
 
 ```bash
-root@node3:~# brctl show
+➜ brctl show
 bridge name     bridge id               STP enabled     interfaces
 kube-bridge             8000.4ae815f9f943       no              vethe5393dc7
 ```
@@ -444,10 +444,10 @@ kube-bridge             8000.4ae815f9f943       no              vethe5393dc7
 查看网络空间(containerd)
 
 ```bash
-root@node3:~# ip netns
+➜ ip netns
 cni-c9f73dcd-802a-f008-f0e0-f052494c3d43 (id: 0)
 # 连接查看
-root@node3:~# ip netns exec cni-c9f73dcd-802a-f008-f0e0-f052494c3d43 ip addr
+➜ ip netns exec cni-c9f73dcd-802a-f008-f0e0-f052494c3d43 ip addr
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -466,7 +466,7 @@ root@node3:~# ip netns exec cni-c9f73dcd-802a-f008-f0e0-f052494c3d43 ip addr
 
 ```bash
 #docker 环境执行结果
-root@node-1:~# ls -l /var/run/netns
+➜ ls -l /var/run/netns
 total 0
 #是因为docker创建在了这个目录 ls -l /var/run/docker/netns, 如果希望能用ip netns查看可以创建个链接过来
 for i in $(ls /var/run/docker/netns); do ln -s /var/run/docker/netns/$i /var/run/netns/$i; done
@@ -481,14 +481,14 @@ ls -l /proc/$pid/ns/net /var/run/netns/docker_idxxx
 ### 查看arp信息
 
 ```bash
-root@node3:~# brctl showmacs kube-bridge
+➜ brctl showmacs kube-bridge
 port no mac addr                is local?       ageing timer
   1     aa:f2:09:2c:26:2d       yes                0.00
   1     aa:f2:09:2c:26:2d       yes                0.00
 ```
 
 ```bash
-root@node3:~# brctl showstp kube-bridge
+➜ brctl showstp kube-bridge
 kube-bridge
  bridge id              8000.4ae815f9f943
  designated root        8000.4ae815f9f943
@@ -531,7 +531,7 @@ vethe5393dc7 (1)
 ### 网桥信息
 
 ```bash
-root@node3:~# bridge -d link
+➜ bridge -d link
 3: kube-bridge: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master kube-bridge kube-bridge
 7: vethe5393dc7@enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master kube-bridge state forwarding priority 32 cost 2 
     hairpin off guard off root_block off fastleave off learning on flood on mcast_flood on mcast_to_unicast off neigh_suppress off vlan_tunnel off isolated off vethe5393dc7
@@ -555,14 +555,14 @@ root@node3:~# bridge -d link
 
 ```bash
 # 可选 full,subnet 
-kubectl edit ds kube-router -n kube-system
+➜ kubectl edit ds kube-router -n kube-system
 - --overlay-type=full
 ```
 
 查看路由表, 此时都变成了隧道模式
 
 ```bash
-root@node1:~# route -n
+➜ route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
@@ -575,7 +575,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 查看网卡信息
 
 ```bash
-root@node1:~# ip addr
+➜ ip addr
 ...
 6: tun-1921685052@enp1s0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1480 qdisc noqueue state UNKNOWN group default qlen 1000
     link/ipip 192.168.50.50 peer 192.168.50.52
@@ -592,17 +592,17 @@ root@node1:~# ip addr
 ### full mesh
 
 ```bash
-kubectl edit ds kube-router -n kube-system
+➜ kubectl edit ds kube-router -n kube-system
 - --nodes-full-mesh=true
 ```
 
 ```bash
-kubectl exec -it kube-router-7l2mf -n kube-system -- /bin/sh
-~ # gobgp global
+➜ kubectl exec -it kube-router-7l2mf -n kube-system -- /bin/sh
+➜ gobgp global
 AS:        64512
 Router-ID: 192.168.50.50
 Listening Port: 179, Addresses: 192.168.50.50, ::1
-~ # gobgp neighbor
+➜ gobgp neighbor
 Peer             AS  Up/Down State       |#Received  Accepted
 192.168.50.51 64512 00:03:49 Establ      |        1         1
 192.168.50.52 64512 00:03:51 Establ      |        1         1
@@ -644,14 +644,14 @@ busybox3   1/1     Running   0          7s      10.233.68.7    node3   <none>   
 进入容器
 
 ```bash
-root@node1:~# kubectl exec -it busybox1 -- /bin/sh
+➜ kubectl exec -it busybox1 -- /bin/sh
 # 查看arp -n 为空
 # 在node2宿主机上
-tcpdump -i kube-bridge arp
+➜ tcpdump -i kube-bridge arp
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on kube-bridge, link-type EN10MB (Ethernet), capture size 262144 bytes
 # ping一下busybox2,可以看到`ttl`值为**64**, 并未减少, 说明未经过三层路由设备
-ping -c 1 10.233.66.11
+➜ ping -c 1 10.233.66.11
 PING 10.233.66.11 (10.233.66.11): 56 data bytes
 64 bytes from 10.233.66.11: seq=0 ttl=64 time=0.260 ms
 # 查看抓包信息
@@ -662,7 +662,7 @@ listening on kube-bridge, link-type EN10MB (Ethernet), capture size 262144 bytes
 02:22:30.285761 ARP, Request who-has 10.233.66.10 tell 10.233.66.11, length 28
 02:22:30.285838 ARP, Reply 10.233.66.10 is-at ce:75:23:68:89:32 (oui Unknown), length 28
 # 可以看到通知了arp信息, 再次查看arp表
-arp -n
+➜ arp -n
 ? (10.233.66.11) at 16:02:00:ed:e1:c2 [ether]  on eth0
 ```
 
@@ -677,23 +677,23 @@ arp -n
 当前状态
 
 ```bash
-sysctl -a|grep net.ipv4.ip_forward
+➜ sysctl -a|grep net.ipv4.ip_forward
 net.ipv4.ip_forward = 1
 # 临时关闭
-sysctl -w net.ipv4.ip_forward=0
+➜ sysctl -w net.ipv4.ip_forward=0
 ```
 
 访问测试
 
 ```bash
 kubectl exec -it busybox1 -- /bin/sh
-/ # ping -c 1 10.233.68.7  
+➜ ping -c 1 10.233.68.7  
 PING 10.233.68.7 (10.233.68.7): 56 data bytes
 ^C
 --- 10.233.68.7 ping statistics ---
 1 packets transmitted, 0 packets received, 100% packet loss
 # 打开再测试 sysctl -w net.ipv4.ip_forward=1
-/ # ping -c 1 10.233.68.7  
+➜ ping -c 1 10.233.68.7  
 PING 10.233.68.7 (10.233.68.7): 56 data bytes
 64 bytes from 10.233.68.7: seq=0 ttl=62 time=0.836 ms
 ```
@@ -703,7 +703,7 @@ PING 10.233.68.7 (10.233.68.7): 56 data bytes
 可以看到关闭了ip_forward后, kube-bridge有收到数据包, 但是enp1s0并没有收到
 
 ```bash
-tcpdump -i kube-bridge icmp
+➜ tcpdump -i kube-bridge icmp
 02:38:52.272352 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 53, seq 0, length 64
 02:40:45.095682 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 54, seq 0, length 64
 02:40:46.095979 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 54, seq 1, length 64
@@ -717,9 +717,8 @@ tcpdump -i enp1s0 icmp
 #### 路由
 
 ```bash
-kubectl exec -it busybox1 -- /bin/sh
-
-/ # route -n
+➜ kubectl exec -it busybox1 -- /bin/sh
+➜ route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         10.233.66.1     0.0.0.0         UG    0      0        0 eth0
@@ -729,7 +728,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 这个`10.233.66.1` 就是所在主机的`kube-bridge`的ip 
 
 ```bash
-ip addr
+➜ ip addr
 ...
 3: kube-bridge: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
     link/ether fa:a8:05:23:99:d6 brd ff:ff:ff:ff:ff:ff
@@ -745,30 +744,25 @@ ip addr
 
 **查看iptables规则**
 
-语法如下：
-
-```
-iptables-save
-```
-
-其中对外访问的规则
-
 ```bash
+➜ iptables-save
 -A POSTROUTING -m set --match-set kube-router-pod-subnets src -m set ! --match-set kube-router-pod-subnets dst -m set ! --match-set kube-router-node-ips dst -j MASQUERADE --random-fully
 ```
 
 1. `-A POSTROUTING`：这部分表示该规则将被添加（-A）到iptables的POSTROUTING链中。这是在路由决策后对报文进行最后处理的链。
-2. `-m set --match-set kube-router-pod-subnets src`：使用set模块（-m set）来匹配来源IP地址（src）是否在"kube-router-pod-subnets"集合中。这个集合可能包含了分配给各个Pod的子网。
+2. `-m set --match-set kube-router-pod-subnets src`：使用set模块（-m set）来匹配来源IP地址（src）是否在"kube-router-pod-subnets"各个Pod的子网集合中。
 3. `-m set ! --match-set kube-router-pod-subnets dst`：使用set模块来匹配目标IP地址（dst）是否**不在**"kube-router-pod-subnets"集合中。
-4. `-m set ! --match-set kube-router-node-ips dst`：使用set模块来匹配目标IP地址（dst）是否**不在**"kube-router-node-ips"集合中。这个集合可能包含了集群中各个节点的IP地址。
+4. `-m set ! --match-set kube-router-node-ips dst`：使用set模块来匹配目标IP地址（dst）是否**不在**"kube-router-node-ips"各个节点集合中。
 5. `-j MASQUERADE --random-fully`：如果以上的所有条件都匹配，就对该包进行伪装（MASQUERADE）。"MASQUERADE"目标会在源地址变换(SNAT)时将报文的源IP地址更改为iptables所在主机的接口IP。"--random-fully"选项使得伪装的IP和端口随机分配，可以解决并发连接冲突的问题。
 
 简单来说，这个规则主要用于处理Kubernetes Pod到外部的出站流量，使用伪装来确保正确的网络通信。
 
 那这些 `kube-router-pod-subnets ` 的具体值是什么, 可以通过ipset查看
 
+> ipset --list 查看全部
+
 ```basic
-root@node1:~# ipset --list
+➜ ipset list kube-router-pod-subnets
 # 子网信息, 即上文的路由信息
 Name: kube-router-pod-subnets
 Type: hash:net
@@ -777,11 +771,16 @@ Header: family inet hashsize 1024 maxelem 65536 timeout 0
 Size in memory: 736
 References: 2
 Number of entries: 3
-Members: 
-10.233.64.0/24 timeout 0
-10.233.65.0/24 timeout 0
+Members:
 10.233.66.0/24 timeout 0
+10.233.68.0/24 timeout 0
+10.233.64.0/24 timeout 0
+```
 
+
+
+```bash
+➜ ipset list kube-router-node-ips
 # 节点信息
 Name: kube-router-node-ips
 Type: hash:ip
@@ -794,46 +793,9 @@ Members:
 192.168.50.51 timeout 0
 192.168.50.50 timeout 0
 192.168.50.52 timeout 0
-
-# 本机信息
-Name: kube-router-local-ips
-Type: hash:ip
-Revision: 4
-Header: family inet hashsize 1024 maxelem 65536 timeout 0
-Size in memory: 392
-References: 1
-Number of entries: 2
-Members:
-127.0.0.1 timeout 0
-192.168.50.50 timeout 0
-
-# service 信息
-Name: kube-router-service-ips
-Type: hash:ip
-Revision: 4
-Header: family inet hashsize 1024 maxelem 65536 timeout 0
-Size in memory: 392
-References: 1
-Number of entries: 2
-Members:
-10.233.0.1 timeout 0
-10.233.0.3 timeout 0
-
-# svc转发信息, 10.233.0.1 是kubernetes的clusterip, 10.233.0.3是coredns的clusterip
-Name: kube-router-ipvs-services
-Type: hash:ip,port
-Revision: 5
-Header: family inet hashsize 1024 maxelem 65536 timeout 0
-Size in memory: 576
-References: 1
-Number of entries: 4
-Members:
-10.233.0.1,tcp:443 timeout 0
-10.233.0.3,tcp:53 timeout 0
-10.233.0.3,tcp:9153 timeout 0
-10.233.0.3,udp:53 timeout 0
 ```
 
 ### outside到svc到pod
 
 ### pod到svc到pod
+
