@@ -48,11 +48,11 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E9%80%9A%E8%BF%87kube-router%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%BB%9C1/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-07-27T10:57:51+08:00" />
-<meta property="article:modified_time" content="2023-07-27T17:40:33+08:00" />
+<meta property="article:modified_time" content="2023-07-27T18:04:00+08:00" />
 <meta itemprop="name" content="通过kube Router学习网络1">
 <meta itemprop="description" content="一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了kube-router 这个项目, cni,bgp,ipvs全囊括了, 好吧就它"><meta itemprop="datePublished" content="2023-07-27T10:57:51+08:00" />
-<meta itemprop="dateModified" content="2023-07-27T17:40:33+08:00" />
-<meta itemprop="wordCount" content="5435">
+<meta itemprop="dateModified" content="2023-07-27T18:04:00+08:00" />
+<meta itemprop="wordCount" content="6901">
 <meta itemprop="keywords" content="cni," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="通过kube Router学习网络1"/>
 <meta name="twitter:description" content="一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了kube-router 这个项目, cni,bgp,ipvs全囊括了, 好吧就它"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-07-27 </span>
             
-            <span class="more-meta"> 约 5435 字 更新于 2023-07-27
+            <span class="more-meta"> 约 6901 字 更新于 2023-07-27
               <a class="article-tags" href=/tags/cni/>cni</a>
                 </span>
             
@@ -158,7 +158,6 @@
         </li>
         <li><a href="#操作验证">操作验证</a>
           <ul>
-            <li><a href="#关闭网络策略功能">关闭网络策略功能</a></li>
             <li><a href="#删除节点">删除节点</a></li>
             <li><a href="#抓包查看bgp信息">抓包查看BGP信息</a></li>
           </ul>
@@ -171,6 +170,20 @@
           </ul>
         </li>
         <li><a href="#修改为ipip">修改为ipip</a></li>
+        <li><a href="#bgp信息查看">BGP信息查看</a>
+          <ul>
+            <li><a href="#full-mesh">full mesh</a></li>
+          </ul>
+        </li>
+        <li><a href="#数据平面">数据平面</a>
+          <ul>
+            <li><a href="#pod到pod同主机">pod到pod(同主机)</a></li>
+            <li><a href="#pod到pod不同主机">pod到pod(不同主机)</a></li>
+            <li><a href="#pod到outside">pod到outside</a></li>
+            <li><a href="#outside到svc到pod">outside到svc到pod</a></li>
+            <li><a href="#pod到svc到pod">pod到svc到pod</a></li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ul>
@@ -574,153 +587,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="操作验证">操作验证</h2>
-<h3 id="关闭网络策略功能">关闭网络策略功能</h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># - --run-firewall=true改为false</span>
-</span></span><span class="line"><span class="cl">kubectl edit ds kube-router -n kube-system
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>查看ipset信息, 此时即使创建网络策略, 也不会有效果, ipset结果中不会有网络策略相关的信息</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span><span class="lnt">38
-</span><span class="lnt">39
-</span><span class="lnt">40
-</span><span class="lnt">41
-</span><span class="lnt">42
-</span><span class="lnt">43
-</span><span class="lnt">44
-</span><span class="lnt">45
-</span><span class="lnt">46
-</span><span class="lnt">47
-</span><span class="lnt">48
-</span><span class="lnt">49
-</span><span class="lnt">50
-</span><span class="lnt">51
-</span><span class="lnt">52
-</span><span class="lnt">53
-</span><span class="lnt">54
-</span><span class="lnt">55
-</span><span class="lnt">56
-</span><span class="lnt">57
-</span><span class="lnt">58
-</span><span class="lnt">59
-</span><span class="lnt">60
-</span><span class="lnt">61
-</span><span class="lnt">62
-</span><span class="lnt">63
-</span><span class="lnt">64
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-basic" data-lang="basic"><span class="line"><span class="cl"><span class="vg">root@</span><span class="nl">node1:</span><span class="o">~</span><span class="err">#</span><span class="w"> </span><span class="vg">ipset</span><span class="w"> </span><span class="o">--</span><span class="vg">list</span>
-</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="err">子网信息</span><span class="p">,</span><span class="w"> </span><span class="err">即上文的路由信息</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">pod</span><span class="o">-</span><span class="vg">subnets</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">net</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">6</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">736</span>
-</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">2</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">3</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Members:</span><span class="w"> 
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nl">10</span><span class="mf">.233.64.0</span><span class="o">/</span><span class="il">24</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.65.0</span><span class="o">/</span><span class="il">24</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.66.0</span><span class="o">/</span><span class="il">24</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="err">节点信息</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">node</span><span class="o">-</span><span class="vg">ips</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">ip</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">4</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">488</span>
-</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">1</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">3</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Members:</span>
-</span></span><span class="line"><span class="cl"><span class="nl">192</span><span class="mf">.168.50.51</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">192</span><span class="mf">.168.50.50</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">192</span><span class="mf">.168.50.52</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="err">本机信息</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">local</span><span class="o">-</span><span class="vg">ips</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">ip</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">4</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">392</span>
-</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">1</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">2</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Members:</span>
-</span></span><span class="line"><span class="cl"><span class="nl">127</span><span class="mf">.0.0.1</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">192</span><span class="mf">.168.50.50</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="vg">service</span><span class="w"> </span><span class="err">信息</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">service</span><span class="o">-</span><span class="vg">ips</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">ip</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">4</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">392</span>
-</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">1</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">2</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Members:</span>
-</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.1</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.3</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="vg">svc</span><span class="err">转发信息</span><span class="p">,</span><span class="w"> </span><span class="mf">10.233.0.1</span><span class="w"> </span><span class="err">是</span><span class="vg">kubernetes</span><span class="err">的</span><span class="vg">clusterip</span><span class="p">,</span><span class="w"> </span><span class="mf">10.233.0.3</span><span class="err">是</span><span class="vg">coredns</span><span class="err">的</span><span class="vg">clusterip</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">ipvs</span><span class="o">-</span><span class="vg">services</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">ip</span><span class="p">,</span><span class="vg">port</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">5</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">576</span>
-</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">1</span>
-</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">4</span>
-</span></span><span class="line"><span class="cl"><span class="nl">Members:</span>
-</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.1</span><span class="p">,</span><span class="nl">tcp:</span><span class="il">443</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.3</span><span class="p">,</span><span class="nl">tcp:</span><span class="il">53</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.3</span><span class="p">,</span><span class="nl">tcp:</span><span class="il">9153</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.3</span><span class="p">,</span><span class="nl">udp:</span><span class="il">53</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="删除节点">删除节点</h3>
+<h3 id="删除节点">删除节点</h3>
 <p>当前路由</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1342,7 +1209,422 @@
 </span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
 </span></span></code></pre></td></tr></table>
 </div>
+</div><h2 id="bgp信息查看">BGP信息查看</h2>
+<h3 id="full-mesh">full mesh</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl edit ds kube-router -n kube-system
+</span></span><span class="line"><span class="cl">- --nodes-full-mesh<span class="o">=</span><span class="nb">true</span>
+</span></span></code></pre></td></tr></table>
 </div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl <span class="nb">exec</span> -it kube-router-7l2mf -n kube-system -- /bin/sh
+</span></span><span class="line"><span class="cl">~ <span class="c1"># gobgp global</span>
+</span></span><span class="line"><span class="cl">AS:        <span class="m">64512</span>
+</span></span><span class="line"><span class="cl">Router-ID: 192.168.50.50
+</span></span><span class="line"><span class="cl">Listening Port: 179, Addresses: 192.168.50.50, ::1
+</span></span><span class="line"><span class="cl">~ <span class="c1"># gobgp neighbor</span>
+</span></span><span class="line"><span class="cl">Peer             AS  Up/Down State       <span class="p">|</span><span class="c1">#Received  Accepted</span>
+</span></span><span class="line"><span class="cl">192.168.50.51 <span class="m">64512</span> 00:03:49 Establ      <span class="p">|</span>        <span class="m">1</span>         <span class="m">1</span>
+</span></span><span class="line"><span class="cl">192.168.50.52 <span class="m">64512</span> 00:03:51 Establ      <span class="p">|</span>        <span class="m">1</span>         <span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="数据平面">数据平面</h2>
+<h3 id="pod到pod同主机">pod到pod(同主机)</h3>
+<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20230728095909030.png" alt="image-20230728095909030" style="zoom:50%;" />
+<p>创建两个同主机Pod</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">busybox1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">nodeName</span><span class="p">:</span><span class="w"> </span><span class="l">node2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">busybox1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">busybox</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">/bin/sh</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- -<span class="l">c</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;while true; do sleep 3600; done&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">NAME       READY   STATUS    RESTARTS   AGE     IP             NODE    NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">busybox1   1/1     Running   <span class="m">0</span>          9m40s   10.233.66.10   node2   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">busybox2   1/1     Running   <span class="m">0</span>          9m25s   10.233.66.11   node2   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">busybox3   1/1     Running   <span class="m">0</span>          7s      10.233.68.7    node3   &lt;none&gt;           &lt;none&gt;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>进入容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@node1:~# kubectl <span class="nb">exec</span> -it busybox1 -- /bin/sh
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看arp -n 为空</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 在node2宿主机上</span>
+</span></span><span class="line"><span class="cl">tcpdump -i kube-bridge arp
+</span></span><span class="line"><span class="cl">tcpdump: verbose output suppressed, use -v or -vv <span class="k">for</span> full protocol decode
+</span></span><span class="line"><span class="cl">listening on kube-bridge, link-type EN10MB <span class="o">(</span>Ethernet<span class="o">)</span>, capture size <span class="m">262144</span> bytes
+</span></span><span class="line"><span class="cl"><span class="c1"># ping一下busybox2,可以看到`ttl`值为**64**, 并未减少, 说明未经过三层路由设备</span>
+</span></span><span class="line"><span class="cl">ping -c <span class="m">1</span> 10.233.66.11
+</span></span><span class="line"><span class="cl">PING 10.233.66.11 <span class="o">(</span>10.233.66.11<span class="o">)</span>: <span class="m">56</span> data bytes
+</span></span><span class="line"><span class="cl"><span class="m">64</span> bytes from 10.233.66.11: <span class="nv">seq</span><span class="o">=</span><span class="m">0</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">64</span> <span class="nv">time</span><span class="o">=</span>0.260 ms
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看抓包信息</span>
+</span></span><span class="line"><span class="cl">tcpdump: verbose output suppressed, use -v or -vv <span class="k">for</span> full protocol decode
+</span></span><span class="line"><span class="cl">listening on kube-bridge, link-type EN10MB <span class="o">(</span>Ethernet<span class="o">)</span>, capture size <span class="m">262144</span> bytes
+</span></span><span class="line"><span class="cl">02:22:25.035236 ARP, Request who-has 10.233.66.11 tell 10.233.66.10, length <span class="m">28</span>
+</span></span><span class="line"><span class="cl">02:22:25.035316 ARP, Reply 10.233.66.11 is-at 16:02:00:ed:e1:c2 <span class="o">(</span>oui Unknown<span class="o">)</span>, length <span class="m">28</span>
+</span></span><span class="line"><span class="cl">02:22:30.285761 ARP, Request who-has 10.233.66.10 tell 10.233.66.11, length <span class="m">28</span>
+</span></span><span class="line"><span class="cl">02:22:30.285838 ARP, Reply 10.233.66.10 is-at ce:75:23:68:89:32 <span class="o">(</span>oui Unknown<span class="o">)</span>, length <span class="m">28</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 可以看到通知了arp信息, 再次查看arp表</span>
+</span></span><span class="line"><span class="cl">arp -n
+</span></span><span class="line"><span class="cl">? <span class="o">(</span>10.233.66.11<span class="o">)</span> at 16:02:00:ed:e1:c2 <span class="o">[</span>ether<span class="o">]</span>  on eth0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="pod到pod不同主机">pod到pod(不同主机)</h3>
+<p>![image-20230728104828121](/Users/inksnw/Library/Application Support/typora-user-images/image-20230728104828121.png)</p>
+<h4 id="ip-forward">ip-forward</h4>
+<p>当前状态</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sysctl -a<span class="p">|</span>grep net.ipv4.ip_forward
+</span></span><span class="line"><span class="cl">net.ipv4.ip_forward <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 临时关闭</span>
+</span></span><span class="line"><span class="cl">sysctl -w net.ipv4.ip_forward<span class="o">=</span><span class="m">0</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>访问测试</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl <span class="nb">exec</span> -it busybox1 -- /bin/sh
+</span></span><span class="line"><span class="cl">/ <span class="c1"># ping -c 1 10.233.68.7  </span>
+</span></span><span class="line"><span class="cl">PING 10.233.68.7 <span class="o">(</span>10.233.68.7<span class="o">)</span>: <span class="m">56</span> data bytes
+</span></span><span class="line"><span class="cl">^C
+</span></span><span class="line"><span class="cl">--- 10.233.68.7 ping statistics ---
+</span></span><span class="line"><span class="cl"><span class="m">1</span> packets transmitted, <span class="m">0</span> packets received, 100% packet loss
+</span></span><span class="line"><span class="cl"><span class="c1"># 打开再测试 sysctl -w net.ipv4.ip_forward=1</span>
+</span></span><span class="line"><span class="cl">/ <span class="c1"># ping -c 1 10.233.68.7  </span>
+</span></span><span class="line"><span class="cl">PING 10.233.68.7 <span class="o">(</span>10.233.68.7<span class="o">)</span>: <span class="m">56</span> data bytes
+</span></span><span class="line"><span class="cl"><span class="m">64</span> bytes from 10.233.68.7: <span class="nv">seq</span><span class="o">=</span><span class="m">0</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">62</span> <span class="nv">time</span><span class="o">=</span>0.836 ms
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>关闭ip_forward的情况下, 分别抓包node2主机的<code>kube-bridge</code>,和<code>eth0(主网卡)</code></p>
+<p>可以看到关闭了ip_forward后, kube-bridge有收到数据包, 但是enp1s0并没有收到</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tcpdump -i kube-bridge icmp
+</span></span><span class="line"><span class="cl">02:38:52.272352 IP 10.233.66.10 &gt; 10.233.68.7: ICMP <span class="nb">echo</span> request, id 53, seq 0, length <span class="m">64</span>
+</span></span><span class="line"><span class="cl">02:40:45.095682 IP 10.233.66.10 &gt; 10.233.68.7: ICMP <span class="nb">echo</span> request, id 54, seq 0, length <span class="m">64</span>
+</span></span><span class="line"><span class="cl">02:40:46.095979 IP 10.233.66.10 &gt; 10.233.68.7: ICMP <span class="nb">echo</span> request, id 54, seq 1, length <span class="m">64</span>
+</span></span><span class="line"><span class="cl">02:40:47.096254 IP 10.233.66.10 &gt; 10.233.68.7: ICMP <span class="nb">echo</span> request, id 54, seq 2, length <span class="m">64</span>
+</span></span><span class="line"><span class="cl">02:40:48.096528 IP 10.233.66.10 &gt; 10.233.68.7: ICMP <span class="nb">echo</span> request, id 54, seq 3, length <span class="m">64</span>
+</span></span><span class="line"><span class="cl">02:40:49.096815 IP 10.233.66.10 &gt; 10.233.68.7: ICMP <span class="nb">echo</span> request, id 54, seq 4, length <span class="m">64</span>
+</span></span><span class="line"><span class="cl">tcpdump -i enp1s0 icmp
+</span></span><span class="line"><span class="cl">空
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="路由">路由</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl <span class="nb">exec</span> -it busybox1 -- /bin/sh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/ <span class="c1"># route -n</span>
+</span></span><span class="line"><span class="cl">Kernel IP routing table
+</span></span><span class="line"><span class="cl">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+</span></span><span class="line"><span class="cl">0.0.0.0         10.233.66.1     0.0.0.0         UG    <span class="m">0</span>      <span class="m">0</span>        <span class="m">0</span> eth0
+</span></span><span class="line"><span class="cl">10.233.66.0     0.0.0.0         255.255.255.0   U     <span class="m">0</span>      <span class="m">0</span>        <span class="m">0</span> eth0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个<code>10.233.66.1</code> 就是所在主机的<code>kube-bridge</code>的ip</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ip addr
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">3: kube-bridge: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class="m">1500</span> qdisc noqueue state UP group default qlen <span class="m">1000</span>
+</span></span><span class="line"><span class="cl">    link/ether fa:a8:05:23:99:d6 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="cl">    inet 10.233.66.1/24 brd 10.233.66.255 scope global kube-bridge
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet6 fe80::f8a8:5ff:fe23:99d6/64 scope link 
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="pod到outside">pod到outside</h3>
+<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20230728105027087.png" alt="image-20230728105027087" style="zoom:50%;" />
+<p><strong>查看iptables规则</strong></p>
+<p>语法如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">iptables-save
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>其中对外访问的规则</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">-A POSTROUTING -m <span class="nb">set</span> --match-set kube-router-pod-subnets src -m <span class="nb">set</span> ! --match-set kube-router-pod-subnets dst -m <span class="nb">set</span> ! --match-set kube-router-node-ips dst -j MASQUERADE --random-fully
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li><code>-A POSTROUTING</code>：这部分表示该规则将被添加（-A）到iptables的POSTROUTING链中。这是在路由决策后对报文进行最后处理的链。</li>
+<li><code>-m set --match-set kube-router-pod-subnets src</code>：使用set模块（-m set）来匹配来源IP地址（src）是否在&quot;kube-router-pod-subnets&quot;集合中。这个集合可能包含了分配给各个Pod的子网。</li>
+<li><code>-m set ! --match-set kube-router-pod-subnets dst</code>：使用set模块来匹配目标IP地址（dst）是否<strong>不在</strong>&ldquo;kube-router-pod-subnets&quot;集合中。</li>
+<li><code>-m set ! --match-set kube-router-node-ips dst</code>：使用set模块来匹配目标IP地址（dst）是否<strong>不在</strong>&ldquo;kube-router-node-ips&quot;集合中。这个集合可能包含了集群中各个节点的IP地址。</li>
+<li><code>-j MASQUERADE --random-fully</code>：如果以上的所有条件都匹配，就对该包进行伪装（MASQUERADE）。&ldquo;MASQUERADE&quot;目标会在源地址变换(SNAT)时将报文的源IP地址更改为iptables所在主机的接口IP。&rdquo;&ndash;random-fully&quot;选项使得伪装的IP和端口随机分配，可以解决并发连接冲突的问题。</li>
+</ol>
+<p>简单来说，这个规则主要用于处理Kubernetes Pod到外部的出站流量，使用伪装来确保正确的网络通信。</p>
+<p>那这些 <code>kube-router-pod-subnets </code> 的具体值是什么, 可以通过ipset查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-basic" data-lang="basic"><span class="line"><span class="cl"><span class="vg">root@</span><span class="nl">node1:</span><span class="o">~</span><span class="err">#</span><span class="w"> </span><span class="vg">ipset</span><span class="w"> </span><span class="o">--</span><span class="vg">list</span>
+</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="err">子网信息</span><span class="p">,</span><span class="w"> </span><span class="err">即上文的路由信息</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">pod</span><span class="o">-</span><span class="vg">subnets</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">net</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">6</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">736</span>
+</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">2</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">3</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Members:</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nl">10</span><span class="mf">.233.64.0</span><span class="o">/</span><span class="il">24</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.65.0</span><span class="o">/</span><span class="il">24</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.66.0</span><span class="o">/</span><span class="il">24</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="err">节点信息</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">node</span><span class="o">-</span><span class="vg">ips</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">ip</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">4</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">488</span>
+</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">1</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">3</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Members:</span>
+</span></span><span class="line"><span class="cl"><span class="nl">192</span><span class="mf">.168.50.51</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">192</span><span class="mf">.168.50.50</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">192</span><span class="mf">.168.50.52</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="err">本机信息</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">local</span><span class="o">-</span><span class="vg">ips</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">ip</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">4</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">392</span>
+</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">1</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">2</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Members:</span>
+</span></span><span class="line"><span class="cl"><span class="nl">127</span><span class="mf">.0.0.1</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">192</span><span class="mf">.168.50.50</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="vg">service</span><span class="w"> </span><span class="err">信息</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">service</span><span class="o">-</span><span class="vg">ips</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">ip</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">4</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">392</span>
+</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">1</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">2</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Members:</span>
+</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.1</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.3</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">#</span><span class="w"> </span><span class="vg">svc</span><span class="err">转发信息</span><span class="p">,</span><span class="w"> </span><span class="mf">10.233.0.1</span><span class="w"> </span><span class="err">是</span><span class="vg">kubernetes</span><span class="err">的</span><span class="vg">clusterip</span><span class="p">,</span><span class="w"> </span><span class="mf">10.233.0.3</span><span class="err">是</span><span class="vg">coredns</span><span class="err">的</span><span class="vg">clusterip</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Name:</span><span class="w"> </span><span class="vg">kube</span><span class="o">-</span><span class="vg">router</span><span class="o">-</span><span class="vg">ipvs</span><span class="o">-</span><span class="vg">services</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Type:</span><span class="w"> </span><span class="nl">hash:</span><span class="vg">ip</span><span class="p">,</span><span class="vg">port</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Revision:</span><span class="w"> </span><span class="il">5</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Header:</span><span class="w"> </span><span class="vg">family</span><span class="w"> </span><span class="vg">inet</span><span class="w"> </span><span class="vg">hashsize</span><span class="w"> </span><span class="il">1024</span><span class="w"> </span><span class="vg">maxelem</span><span class="w"> </span><span class="il">65536</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Size</span><span class="w"> </span><span class="vg">in</span><span class="w"> </span><span class="nl">memory:</span><span class="w"> </span><span class="il">576</span>
+</span></span><span class="line"><span class="cl"><span class="nl">References:</span><span class="w"> </span><span class="il">1</span>
+</span></span><span class="line"><span class="cl"><span class="vg">Number</span><span class="w"> </span><span class="vg">of</span><span class="w"> </span><span class="nl">entries:</span><span class="w"> </span><span class="il">4</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Members:</span>
+</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.1</span><span class="p">,</span><span class="nl">tcp:</span><span class="il">443</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.3</span><span class="p">,</span><span class="nl">tcp:</span><span class="il">53</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.3</span><span class="p">,</span><span class="nl">tcp:</span><span class="il">9153</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">10</span><span class="mf">.233.0.3</span><span class="p">,</span><span class="nl">udp:</span><span class="il">53</span><span class="w"> </span><span class="vg">timeout</span><span class="w"> </span><span class="il">0</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="outside到svc到pod">outside到svc到pod</h3>
+<h3 id="pod到svc到pod">pod到svc到pod</h3>
+
     </div>
 
     

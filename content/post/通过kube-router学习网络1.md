@@ -230,82 +230,6 @@ root@node1:~# ip addr
 
 ## 操作验证
 
-### 关闭网络策略功能
-
-```bash
-# - --run-firewall=true改为false
-kubectl edit ds kube-router -n kube-system
-```
-
-查看ipset信息, 此时即使创建网络策略, 也不会有效果, ipset结果中不会有网络策略相关的信息 
-
-```basic
-root@node1:~# ipset --list
-# 子网信息, 即上文的路由信息
-Name: kube-router-pod-subnets
-Type: hash:net
-Revision: 6
-Header: family inet hashsize 1024 maxelem 65536 timeout 0
-Size in memory: 736
-References: 2
-Number of entries: 3
-Members: 
-10.233.64.0/24 timeout 0
-10.233.65.0/24 timeout 0
-10.233.66.0/24 timeout 0
-
-# 节点信息
-Name: kube-router-node-ips
-Type: hash:ip
-Revision: 4
-Header: family inet hashsize 1024 maxelem 65536 timeout 0
-Size in memory: 488
-References: 1
-Number of entries: 3
-Members:
-192.168.50.51 timeout 0
-192.168.50.50 timeout 0
-192.168.50.52 timeout 0
-
-# 本机信息
-Name: kube-router-local-ips
-Type: hash:ip
-Revision: 4
-Header: family inet hashsize 1024 maxelem 65536 timeout 0
-Size in memory: 392
-References: 1
-Number of entries: 2
-Members:
-127.0.0.1 timeout 0
-192.168.50.50 timeout 0
-
-# service 信息
-Name: kube-router-service-ips
-Type: hash:ip
-Revision: 4
-Header: family inet hashsize 1024 maxelem 65536 timeout 0
-Size in memory: 392
-References: 1
-Number of entries: 2
-Members:
-10.233.0.1 timeout 0
-10.233.0.3 timeout 0
-
-# svc转发信息, 10.233.0.1 是kubernetes的clusterip, 10.233.0.3是coredns的clusterip
-Name: kube-router-ipvs-services
-Type: hash:ip,port
-Revision: 5
-Header: family inet hashsize 1024 maxelem 65536 timeout 0
-Size in memory: 576
-References: 1
-Number of entries: 4
-Members:
-10.233.0.1,tcp:443 timeout 0
-10.233.0.3,tcp:53 timeout 0
-10.233.0.3,tcp:9153 timeout 0
-10.233.0.3,udp:53 timeout 0
-```
-
 ### 删除节点
 
 当前路由
@@ -663,3 +587,253 @@ root@node1:~# ip addr
        valid_lft forever preferred_lft forever
 ```
 
+## BGP信息查看
+
+### full mesh
+
+```bash
+kubectl edit ds kube-router -n kube-system
+- --nodes-full-mesh=true
+```
+
+```bash
+kubectl exec -it kube-router-7l2mf -n kube-system -- /bin/sh
+~ # gobgp global
+AS:        64512
+Router-ID: 192.168.50.50
+Listening Port: 179, Addresses: 192.168.50.50, ::1
+~ # gobgp neighbor
+Peer             AS  Up/Down State       |#Received  Accepted
+192.168.50.51 64512 00:03:49 Establ      |        1         1
+192.168.50.52 64512 00:03:51 Establ      |        1         1
+```
+
+## 数据平面
+
+### pod到pod(同主机)
+
+<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20230728095909030.png" alt="image-20230728095909030" style="zoom:50%;" />
+
+创建两个同主机Pod
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox1
+spec:
+  nodeName: node2
+  containers:
+  - name: busybox1
+    image: busybox
+    command:
+    - /bin/sh
+    - -c
+    - "while true; do sleep 3600; done"
+```
+
+查看
+
+```bash
+NAME       READY   STATUS    RESTARTS   AGE     IP             NODE    NOMINATED NODE   READINESS GATES
+busybox1   1/1     Running   0          9m40s   10.233.66.10   node2   <none>           <none>
+busybox2   1/1     Running   0          9m25s   10.233.66.11   node2   <none>           <none>
+busybox3   1/1     Running   0          7s      10.233.68.7    node3   <none>           <none>
+```
+
+进入容器
+
+```bash
+root@node1:~# kubectl exec -it busybox1 -- /bin/sh
+# 查看arp -n 为空
+# 在node2宿主机上
+tcpdump -i kube-bridge arp
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on kube-bridge, link-type EN10MB (Ethernet), capture size 262144 bytes
+# ping一下busybox2,可以看到`ttl`值为**64**, 并未减少, 说明未经过三层路由设备
+ping -c 1 10.233.66.11
+PING 10.233.66.11 (10.233.66.11): 56 data bytes
+64 bytes from 10.233.66.11: seq=0 ttl=64 time=0.260 ms
+# 查看抓包信息
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on kube-bridge, link-type EN10MB (Ethernet), capture size 262144 bytes
+02:22:25.035236 ARP, Request who-has 10.233.66.11 tell 10.233.66.10, length 28
+02:22:25.035316 ARP, Reply 10.233.66.11 is-at 16:02:00:ed:e1:c2 (oui Unknown), length 28
+02:22:30.285761 ARP, Request who-has 10.233.66.10 tell 10.233.66.11, length 28
+02:22:30.285838 ARP, Reply 10.233.66.10 is-at ce:75:23:68:89:32 (oui Unknown), length 28
+# 可以看到通知了arp信息, 再次查看arp表
+arp -n
+? (10.233.66.11) at 16:02:00:ed:e1:c2 [ether]  on eth0
+```
+
+
+
+### pod到pod(不同主机)
+
+![image-20230728104828121](/Users/inksnw/Library/Application Support/typora-user-images/image-20230728104828121.png)
+
+#### ip-forward
+
+当前状态
+
+```bash
+sysctl -a|grep net.ipv4.ip_forward
+net.ipv4.ip_forward = 1
+# 临时关闭
+sysctl -w net.ipv4.ip_forward=0
+```
+
+访问测试
+
+```bash
+kubectl exec -it busybox1 -- /bin/sh
+/ # ping -c 1 10.233.68.7  
+PING 10.233.68.7 (10.233.68.7): 56 data bytes
+^C
+--- 10.233.68.7 ping statistics ---
+1 packets transmitted, 0 packets received, 100% packet loss
+# 打开再测试 sysctl -w net.ipv4.ip_forward=1
+/ # ping -c 1 10.233.68.7  
+PING 10.233.68.7 (10.233.68.7): 56 data bytes
+64 bytes from 10.233.68.7: seq=0 ttl=62 time=0.836 ms
+```
+
+关闭ip_forward的情况下, 分别抓包node2主机的`kube-bridge`,和`eth0(主网卡)`
+
+可以看到关闭了ip_forward后, kube-bridge有收到数据包, 但是enp1s0并没有收到
+
+```bash
+tcpdump -i kube-bridge icmp
+02:38:52.272352 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 53, seq 0, length 64
+02:40:45.095682 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 54, seq 0, length 64
+02:40:46.095979 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 54, seq 1, length 64
+02:40:47.096254 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 54, seq 2, length 64
+02:40:48.096528 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 54, seq 3, length 64
+02:40:49.096815 IP 10.233.66.10 > 10.233.68.7: ICMP echo request, id 54, seq 4, length 64
+tcpdump -i enp1s0 icmp
+空
+```
+
+#### 路由
+
+```bash
+kubectl exec -it busybox1 -- /bin/sh
+
+/ # route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         10.233.66.1     0.0.0.0         UG    0      0        0 eth0
+10.233.66.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0
+```
+
+这个`10.233.66.1` 就是所在主机的`kube-bridge`的ip 
+
+```bash
+ip addr
+...
+3: kube-bridge: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether fa:a8:05:23:99:d6 brd ff:ff:ff:ff:ff:ff
+    inet 10.233.66.1/24 brd 10.233.66.255 scope global kube-bridge
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f8a8:5ff:fe23:99d6/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+
+### pod到outside
+
+<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20230728105027087.png" alt="image-20230728105027087" style="zoom:50%;" />
+
+**查看iptables规则**
+
+语法如下：
+
+```
+iptables-save
+```
+
+其中对外访问的规则
+
+```bash
+-A POSTROUTING -m set --match-set kube-router-pod-subnets src -m set ! --match-set kube-router-pod-subnets dst -m set ! --match-set kube-router-node-ips dst -j MASQUERADE --random-fully
+```
+
+1. `-A POSTROUTING`：这部分表示该规则将被添加（-A）到iptables的POSTROUTING链中。这是在路由决策后对报文进行最后处理的链。
+2. `-m set --match-set kube-router-pod-subnets src`：使用set模块（-m set）来匹配来源IP地址（src）是否在"kube-router-pod-subnets"集合中。这个集合可能包含了分配给各个Pod的子网。
+3. `-m set ! --match-set kube-router-pod-subnets dst`：使用set模块来匹配目标IP地址（dst）是否**不在**"kube-router-pod-subnets"集合中。
+4. `-m set ! --match-set kube-router-node-ips dst`：使用set模块来匹配目标IP地址（dst）是否**不在**"kube-router-node-ips"集合中。这个集合可能包含了集群中各个节点的IP地址。
+5. `-j MASQUERADE --random-fully`：如果以上的所有条件都匹配，就对该包进行伪装（MASQUERADE）。"MASQUERADE"目标会在源地址变换(SNAT)时将报文的源IP地址更改为iptables所在主机的接口IP。"--random-fully"选项使得伪装的IP和端口随机分配，可以解决并发连接冲突的问题。
+
+简单来说，这个规则主要用于处理Kubernetes Pod到外部的出站流量，使用伪装来确保正确的网络通信。
+
+那这些 `kube-router-pod-subnets ` 的具体值是什么, 可以通过ipset查看
+
+```basic
+root@node1:~# ipset --list
+# 子网信息, 即上文的路由信息
+Name: kube-router-pod-subnets
+Type: hash:net
+Revision: 6
+Header: family inet hashsize 1024 maxelem 65536 timeout 0
+Size in memory: 736
+References: 2
+Number of entries: 3
+Members: 
+10.233.64.0/24 timeout 0
+10.233.65.0/24 timeout 0
+10.233.66.0/24 timeout 0
+
+# 节点信息
+Name: kube-router-node-ips
+Type: hash:ip
+Revision: 4
+Header: family inet hashsize 1024 maxelem 65536 timeout 0
+Size in memory: 488
+References: 1
+Number of entries: 3
+Members:
+192.168.50.51 timeout 0
+192.168.50.50 timeout 0
+192.168.50.52 timeout 0
+
+# 本机信息
+Name: kube-router-local-ips
+Type: hash:ip
+Revision: 4
+Header: family inet hashsize 1024 maxelem 65536 timeout 0
+Size in memory: 392
+References: 1
+Number of entries: 2
+Members:
+127.0.0.1 timeout 0
+192.168.50.50 timeout 0
+
+# service 信息
+Name: kube-router-service-ips
+Type: hash:ip
+Revision: 4
+Header: family inet hashsize 1024 maxelem 65536 timeout 0
+Size in memory: 392
+References: 1
+Number of entries: 2
+Members:
+10.233.0.1 timeout 0
+10.233.0.3 timeout 0
+
+# svc转发信息, 10.233.0.1 是kubernetes的clusterip, 10.233.0.3是coredns的clusterip
+Name: kube-router-ipvs-services
+Type: hash:ip,port
+Revision: 5
+Header: family inet hashsize 1024 maxelem 65536 timeout 0
+Size in memory: 576
+References: 1
+Number of entries: 4
+Members:
+10.233.0.1,tcp:443 timeout 0
+10.233.0.3,tcp:53 timeout 0
+10.233.0.3,tcp:9153 timeout 0
+10.233.0.3,udp:53 timeout 0
+```
+
+### outside到svc到pod
+
+### pod到svc到pod
