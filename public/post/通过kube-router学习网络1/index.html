@@ -48,11 +48,11 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E9%80%9A%E8%BF%87kube-router%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%BB%9C1/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-07-27T10:57:51+08:00" />
-<meta property="article:modified_time" content="2023-07-28T11:13:29+08:00" />
+<meta property="article:modified_time" content="2023-07-28T11:32:29+08:00" />
 <meta itemprop="name" content="通过kube Router学习网络1">
 <meta itemprop="description" content="一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了kube-router 这个项目, cni,bgp,ipvs全囊括了, 好吧就它"><meta itemprop="datePublished" content="2023-07-27T10:57:51+08:00" />
-<meta itemprop="dateModified" content="2023-07-28T11:13:29+08:00" />
-<meta itemprop="wordCount" content="7127">
+<meta itemprop="dateModified" content="2023-07-28T11:32:29+08:00" />
+<meta itemprop="wordCount" content="7455">
 <meta itemprop="keywords" content="cni," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="通过kube Router学习网络1"/>
 <meta name="twitter:description" content="一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了kube-router 这个项目, cni,bgp,ipvs全囊括了, 好吧就它"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-07-27 </span>
             
-            <span class="more-meta"> 约 7127 字 更新于 2023-07-28
+            <span class="more-meta"> 约 7455 字 更新于 2023-07-28
               <a class="article-tags" href=/tags/cni/>cni</a>
                 </span>
             
@@ -1567,6 +1567,102 @@
 </ol>
 <h3 id="pod到svc到pod">pod到svc到pod</h3>
 <img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_34d789a9a265ed643f9579a7e32f514e.png" alt="image-20230728113136373" style="zoom: 50%;" />
+<p>创建示例</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl create deployment demo --image<span class="o">=</span>httpd --port<span class="o">=</span><span class="m">80</span>
+</span></span><span class="line"><span class="cl">➜ kubectl expose deployment demo
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看网卡信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ ip addr
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">7: kube-dummy-if: &lt;BROADCAST,NOARP,UP,LOWER_UP&gt; mtu <span class="m">1500</span> qdisc noqueue state UNKNOWN group default 
+</span></span><span class="line"><span class="cl">    link/ether 2e:db:66:f1:bb:ab brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="cl">    inet 10.233.0.1/32 scope link kube-dummy-if
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet 10.233.0.3/32 scope link kube-dummy-if
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet 10.233.5.92/32 scope link kube-dummy-if
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span><span class="line"><span class="cl">    inet6 fe80::2cdb:66ff:fef1:bbab/64 scope link 
+</span></span><span class="line"><span class="cl">       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到kube-dummy-if上多了一条ip地址, 即svc的地址<code>10.233.5.92</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ kubectl get svc
+</span></span><span class="line"><span class="cl">NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+</span></span><span class="line"><span class="cl">demo         ClusterIP   10.233.5.92   &lt;none&gt;        80/TCP    5m9s
+</span></span><span class="line"><span class="cl">kubernetes   ClusterIP   10.233.0.1    &lt;none&gt;        443/TCP   24h
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再通过ipvs规则转发到实际pod的ip</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ ipvsadm
+</span></span><span class="line"><span class="cl">TCP  node2:http rr
+</span></span><span class="line"><span class="cl">  -&gt; 10.233.68.8:http             Masq    <span class="m">1</span>      <span class="m">0</span>          <span class="m">0</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再通过路由表知道, 这个ip段应该发到<code>192.168.50.52</code>上</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ route -n
+</span></span><span class="line"><span class="cl">Kernel IP routing table
+</span></span><span class="line"><span class="cl">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+</span></span><span class="line"><span class="cl">0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
+</span></span><span class="line"><span class="cl">10.233.64.0     192.168.50.50   255.255.255.0   UG    0      0        0 enp1s0
+</span></span><span class="line"><span class="cl">10.233.66.0     0.0.0.0         255.255.255.0   U     0      0        0 kube-bridge
+</span></span><span class="line"><span class="cl">10.233.68.0     192.168.50.52   255.255.255.0   UG    0      0        0 enp1s0
+</span></span><span class="line"><span class="cl">192.168.50.0    0.0.0.0         255.255.255.0   U     0      0        0 enp1s0
+</span></span><span class="line"><span class="cl">192.168.50.1    0.0.0.0         255.255.255.255 UH    100    0        0 enp1s0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>192.168.50.52</code>收到后, 即进入了标准的收数据流程</p>
 
     </div>
 

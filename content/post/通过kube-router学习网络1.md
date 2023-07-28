@@ -816,3 +816,59 @@ Members:
 
 <img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_34d789a9a265ed643f9579a7e32f514e.png" alt="image-20230728113136373" style="zoom: 50%;" />
 
+创建示例
+
+```bash
+➜ kubectl create deployment demo --image=httpd --port=80
+➜ kubectl expose deployment demo
+```
+
+查看网卡信息
+
+```bash
+➜ ip addr
+...
+7: kube-dummy-if: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default 
+    link/ether 2e:db:66:f1:bb:ab brd ff:ff:ff:ff:ff:ff
+    inet 10.233.0.1/32 scope link kube-dummy-if
+       valid_lft forever preferred_lft forever
+    inet 10.233.0.3/32 scope link kube-dummy-if
+       valid_lft forever preferred_lft forever
+    inet 10.233.5.92/32 scope link kube-dummy-if
+       valid_lft forever preferred_lft forever
+    inet6 fe80::2cdb:66ff:fef1:bbab/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+
+可以看到kube-dummy-if上多了一条ip地址, 即svc的地址`10.233.5.92`
+
+```
+➜ kubectl get svc
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+demo         ClusterIP   10.233.5.92   <none>        80/TCP    5m9s
+kubernetes   ClusterIP   10.233.0.1    <none>        443/TCP   24h
+```
+
+再通过ipvs规则转发到实际pod的ip 
+
+```bash
+➜ ipvsadm
+TCP  node2:http rr
+  -> 10.233.68.8:http             Masq    1      0          0
+```
+
+再通过路由表知道, 这个ip段应该发到`192.168.50.52`上
+
+```
+➜ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.50.1    0.0.0.0         UG    100    0        0 enp1s0
+10.233.64.0     192.168.50.50   255.255.255.0   UG    0      0        0 enp1s0
+10.233.66.0     0.0.0.0         255.255.255.0   U     0      0        0 kube-bridge
+10.233.68.0     192.168.50.52   255.255.255.0   UG    0      0        0 enp1s0
+192.168.50.0    0.0.0.0         255.255.255.0   U     0      0        0 enp1s0
+192.168.50.1    0.0.0.0         255.255.255.255 UH    100    0        0 enp1s0
+```
+
+`192.168.50.52`收到后, 即进入了标准的收数据流程
