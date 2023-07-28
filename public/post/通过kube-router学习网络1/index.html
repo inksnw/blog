@@ -48,11 +48,11 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E9%80%9A%E8%BF%87kube-router%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%BB%9C1/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-07-27T10:57:51+08:00" />
-<meta property="article:modified_time" content="2023-07-28T11:04:17+08:00" />
+<meta property="article:modified_time" content="2023-07-28T11:13:29+08:00" />
 <meta itemprop="name" content="通过kube Router学习网络1">
 <meta itemprop="description" content="一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了kube-router 这个项目, cni,bgp,ipvs全囊括了, 好吧就它"><meta itemprop="datePublished" content="2023-07-27T10:57:51+08:00" />
-<meta itemprop="dateModified" content="2023-07-28T11:04:17+08:00" />
-<meta itemprop="wordCount" content="6664">
+<meta itemprop="dateModified" content="2023-07-28T11:13:29+08:00" />
+<meta itemprop="wordCount" content="7127">
 <meta itemprop="keywords" content="cni," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="通过kube Router学习网络1"/>
 <meta name="twitter:description" content="一直以来想详细的梳理清楚cni这块, 但知识总是比较零碎, 恰好看到了kube-router 这个项目, cni,bgp,ipvs全囊括了, 好吧就它"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-07-27 </span>
             
-            <span class="more-meta"> 约 6664 字 更新于 2023-07-28
+            <span class="more-meta"> 约 7127 字 更新于 2023-07-28
               <a class="article-tags" href=/tags/cni/>cni</a>
                 </span>
             
@@ -1247,7 +1247,7 @@
 </div>
 </div><h2 id="数据平面">数据平面</h2>
 <h3 id="pod到pod同主机">pod到pod(同主机)</h3>
-<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20230728095909030.png" alt="image-20230728095909030" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_52247654491a5c826a972cfff611648d.png" alt="image-20230728095909030" style="zoom:50%;" />
 <p>创建两个同主机Pod</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1344,7 +1344,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="pod到pod不同主机">pod到pod(不同主机)</h3>
-<p>![image-20230728104828121](/Users/inksnw/Library/Application Support/typora-user-images/image-20230728104828121.png)</p>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/%E9%80%9A%E8%BF%87kube-router%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%BB%9C1_f95047b417b24690ebe10a0de69b79da.png" alt="image-20230728104828121"></p>
 <h4 id="ip-forward">ip-forward</h4>
 <p>当前状态</p>
 <div class="highlight"><div class="chroma">
@@ -1457,7 +1457,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="pod到outside">pod到outside</h3>
-<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20230728105027087.png" alt="image-20230728105027087" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_e415d248c4d6991e7217ca5117c3b79a.png" alt="image-20230728105027087" style="zoom:50%;" />
 <p><strong>查看iptables规则</strong></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1546,7 +1546,27 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="outside到svc到pod">outside到svc到pod</h3>
+<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_6ca604634e8c6403b21587d64077648a.png" alt="image-20230728111722176" style="zoom:50%;" />
+<h4 id="iptables策略">iptables策略</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ iptables-save
+</span></span><span class="line"><span class="cl">-A POSTROUTING ! -s 10.233.66.0/24 ! -d 10.233.66.0/24 -m ipvs --vdir ORIGINAL --vmethod MASQ -m comment --comment <span class="s2">&#34;这是注释&#34;</span> -j SNAT --to-source 192.168.50.51 --random-fully
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li><code>-A POSTROUTING</code>：这部分表示该规则将被添加（-A）到iptables的POSTROUTING链中。这是在路由决策后对报文进行最后处理的链。</li>
+<li><code>! -s 10.233.66.0/24</code>：这部分表示来源IP地址不应该是10.233.66.0/24子网中的任何IP地址。感叹号（!）表示“不是”。</li>
+<li><code>! -d 10.233.66.0/24</code>：这部分表示目标IP地址不应该是10.233.66.0/24子网中的任何IP地址。</li>
+<li><code>-m ipvs --vdir ORIGINAL --vmethod MASQ</code>：这部分使用了ipvs模块（<code>-m ipvs</code>），并且匹配原始目的地（<code>--vdir ORIGINAL</code>）。<code>--vmethod MASQ</code>表示负载均衡器将使用伪装（MASQUERADE）方法。</li>
+<li><code>-j SNAT --to-source 192.168.50.51 --random-fully</code>：如果上述所有条件都满足，那么就执行源地址转换（SNAT），并将源IP地址更改为节点ip: 192.168.50.51。<code>--random-fully</code>选项使得源端口在伪装时完全随机，从而防止并发连接冲突。</li>
+</ol>
 <h3 id="pod到svc到pod">pod到svc到pod</h3>
+<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_34d789a9a265ed643f9579a7e32f514e.png" alt="image-20230728113136373" style="zoom: 50%;" />
 
     </div>
 

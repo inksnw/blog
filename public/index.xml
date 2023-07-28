@@ -1067,7 +1067,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;h2 id=&#34;数据平面&#34;&gt;数据平面&lt;/h2&gt;
 &lt;h3 id=&#34;pod到pod同主机&#34;&gt;pod到pod(同主机)&lt;/h3&gt;
-&lt;img src=&#34;http://inksnw.asuscomm.com:3001/Users/inksnw/Library/Application Support/typora-user-images/image-20230728095909030.png&#34; alt=&#34;image-20230728095909030&#34; style=&#34;zoom:50%;&#34; /&gt;
+&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_52247654491a5c826a972cfff611648d.png&#34; alt=&#34;image-20230728095909030&#34; style=&#34;zoom:50%;&#34; /&gt;
 &lt;p&gt;创建两个同主机Pod&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1164,7 +1164,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id=&#34;pod到pod不同主机&#34;&gt;pod到pod(不同主机)&lt;/h3&gt;
-&lt;p&gt;![image-20230728104828121](/Users/inksnw/Library/Application Support/typora-user-images/image-20230728104828121.png)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/%E9%80%9A%E8%BF%87kube-router%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%BB%9C1_f95047b417b24690ebe10a0de69b79da.png&#34; alt=&#34;image-20230728104828121&#34;&gt;&lt;/p&gt;
 &lt;h4 id=&#34;ip-forward&#34;&gt;ip-forward&lt;/h4&gt;
 &lt;p&gt;当前状态&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1277,7 +1277,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id=&#34;pod到outside&#34;&gt;pod到outside&lt;/h3&gt;
-&lt;img src=&#34;http://inksnw.asuscomm.com:3001/Users/inksnw/Library/Application Support/typora-user-images/image-20230728105027087.png&#34; alt=&#34;image-20230728105027087&#34; style=&#34;zoom:50%;&#34; /&gt;
+&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_e415d248c4d6991e7217ca5117c3b79a.png&#34; alt=&#34;image-20230728105027087&#34; style=&#34;zoom:50%;&#34; /&gt;
 &lt;p&gt;&lt;strong&gt;查看iptables规则&lt;/strong&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1366,7 +1366,27 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id=&#34;outside到svc到pod&#34;&gt;outside到svc到pod&lt;/h3&gt;
+&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_6ca604634e8c6403b21587d64077648a.png&#34; alt=&#34;image-20230728111722176&#34; style=&#34;zoom:50%;&#34; /&gt;
+&lt;h4 id=&#34;iptables策略&#34;&gt;iptables策略&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;➜ iptables-save
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;-A POSTROUTING ! -s 10.233.66.0/24 ! -d 10.233.66.0/24 -m ipvs --vdir ORIGINAL --vmethod MASQ -m comment --comment &lt;span class=&#34;s2&#34;&gt;&amp;#34;这是注释&amp;#34;&lt;/span&gt; -j SNAT --to-source 192.168.50.51 --random-fully
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;-A POSTROUTING&lt;/code&gt;：这部分表示该规则将被添加（-A）到iptables的POSTROUTING链中。这是在路由决策后对报文进行最后处理的链。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;! -s 10.233.66.0/24&lt;/code&gt;：这部分表示来源IP地址不应该是10.233.66.0/24子网中的任何IP地址。感叹号（!）表示“不是”。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;! -d 10.233.66.0/24&lt;/code&gt;：这部分表示目标IP地址不应该是10.233.66.0/24子网中的任何IP地址。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-m ipvs --vdir ORIGINAL --vmethod MASQ&lt;/code&gt;：这部分使用了ipvs模块（&lt;code&gt;-m ipvs&lt;/code&gt;），并且匹配原始目的地（&lt;code&gt;--vdir ORIGINAL&lt;/code&gt;）。&lt;code&gt;--vmethod MASQ&lt;/code&gt;表示负载均衡器将使用伪装（MASQUERADE）方法。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-j SNAT --to-source 192.168.50.51 --random-fully&lt;/code&gt;：如果上述所有条件都满足，那么就执行源地址转换（SNAT），并将源IP地址更改为节点ip: 192.168.50.51。&lt;code&gt;--random-fully&lt;/code&gt;选项使得源端口在伪装时完全随机，从而防止并发连接冲突。&lt;/li&gt;
+&lt;/ol&gt;
 &lt;h3 id=&#34;pod到svc到pod&#34;&gt;pod到svc到pod&lt;/h3&gt;
+&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_34d789a9a265ed643f9579a7e32f514e.png&#34; alt=&#34;image-20230728113136373&#34; style=&#34;zoom: 50%;&#34; /&gt;
 </description>
     </item>
     

@@ -612,7 +612,7 @@ Peer             AS  Up/Down State       |#Received  Accepted
 
 ### pod到pod(同主机)
 
-<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20230728095909030.png" alt="image-20230728095909030" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_52247654491a5c826a972cfff611648d.png" alt="image-20230728095909030" style="zoom:50%;" />
 
 创建两个同主机Pod
 
@@ -670,7 +670,7 @@ listening on kube-bridge, link-type EN10MB (Ethernet), capture size 262144 bytes
 
 ### pod到pod(不同主机)
 
-![image-20230728104828121](/Users/inksnw/Library/Application Support/typora-user-images/image-20230728104828121.png)
+![image-20230728104828121](http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_f95047b417b24690ebe10a0de69b79da.png)
 
 #### ip-forward
 
@@ -740,7 +740,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 
 ### pod到outside
 
-<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20230728105027087.png" alt="image-20230728105027087" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_e415d248c4d6991e7217ca5117c3b79a.png" alt="image-20230728105027087" style="zoom:50%;" />
 
 **查看iptables规则**
 
@@ -797,5 +797,22 @@ Members:
 
 ### outside到svc到pod
 
+<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_6ca604634e8c6403b21587d64077648a.png" alt="image-20230728111722176" style="zoom:50%;" />
+
+#### iptables策略
+
+```bash
+➜ iptables-save
+-A POSTROUTING ! -s 10.233.66.0/24 ! -d 10.233.66.0/24 -m ipvs --vdir ORIGINAL --vmethod MASQ -m comment --comment "这是注释" -j SNAT --to-source 192.168.50.51 --random-fully
+```
+
+1. `-A POSTROUTING`：这部分表示该规则将被添加（-A）到iptables的POSTROUTING链中。这是在路由决策后对报文进行最后处理的链。
+2. `! -s 10.233.66.0/24`：这部分表示来源IP地址不应该是10.233.66.0/24子网中的任何IP地址。感叹号（!）表示“不是”。
+3. `! -d 10.233.66.0/24`：这部分表示目标IP地址不应该是10.233.66.0/24子网中的任何IP地址。
+4. `-m ipvs --vdir ORIGINAL --vmethod MASQ`：这部分使用了ipvs模块（`-m ipvs`），并且匹配原始目的地（`--vdir ORIGINAL`）。`--vmethod MASQ`表示负载均衡器将使用伪装（MASQUERADE）方法。
+5. `-j SNAT --to-source 192.168.50.51 --random-fully`：如果上述所有条件都满足，那么就执行源地址转换（SNAT），并将源IP地址更改为节点ip: 192.168.50.51。`--random-fully`选项使得源端口在伪装时完全随机，从而防止并发连接冲突。
+
 ### pod到svc到pod
+
+<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_34d789a9a265ed643f9579a7e32f514e.png" alt="image-20230728113136373" style="zoom: 50%;" />
 
