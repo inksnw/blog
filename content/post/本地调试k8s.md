@@ -6,7 +6,7 @@ tags: ["k8s"]
 
 **背景**: 有时候想详细理解一下k8s的运作流程, 硬看代码实在很难调试, 所以试着在mac上搭建k8s控制平面的编译环境
 
-准备一台干净的ubuntu主机, 关闭防火墙, 关闭selinux, 开启Ipv4转发
+准备一台干净的ubuntu主机, 关闭防火墙, 关闭selinux, 开启Ipv4转发,禁用swap
 
 ## etcd
 
@@ -128,8 +128,6 @@ kube-system       Active   5h9m
 
 ```bash
 apt install containerd
-# 禁用swap
-swapoff -a
 ```
 
 ### kubelet
