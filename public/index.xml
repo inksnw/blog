@@ -15,8 +15,7 @@
       <guid>http://inksnw.asuscomm.com:3001/post/%E6%9C%AC%E5%9C%B0%E8%B0%83%E8%AF%95k8s/</guid>
       <description>&lt;p&gt;&lt;strong&gt;背景&lt;/strong&gt;: 有时候想详细理解一下k8s的运作流程, 硬看代码实在很难调试, 所以试着在mac上搭建k8s控制平面的编译环境&lt;/p&gt;
 &lt;p&gt;准备一台干净的ubuntu主机, 关闭防火墙, 关闭selinux, 开启Ipv4转发&lt;/p&gt;
-&lt;h2 id=&#34;apiserver&#34;&gt;apiserver&lt;/h2&gt;
-&lt;h3 id=&#34;etcd&#34;&gt;etcd&lt;/h3&gt;
+&lt;h2 id=&#34;etcd&#34;&gt;etcd&lt;/h2&gt;
 &lt;p&gt;在mac上安装etcd, 这里最简化安装, 无证书, 单节点&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -34,8 +33,8 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;etcdctl del --prefix /
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;apiserver-1&#34;&gt;apiserver&lt;/h3&gt;
-&lt;p&gt;在主机上创建一个kubeadm配置文件&lt;/p&gt;
+&lt;/div&gt;&lt;h2 id=&#34;apiserver&#34;&gt;apiserver&lt;/h2&gt;
+&lt;p&gt;在ubuntu主机上创建一个kubeadm配置文件, &lt;code&gt;172.31.164.151&lt;/code&gt; &lt;code&gt;10.8.0.2&lt;/code&gt;都是我mac的ip&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -135,7 +134,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/本地调试k8s_2f27f1a6e2a99465d21b16f178efb7b7.png&#34; alt=&#34;image-20230802163758775&#34; style=&#34;zoom:50%;&#34; /&gt;
 &lt;h3 id=&#34;kubectl&#34;&gt;kubectl&lt;/h3&gt;
-&lt;p&gt;在主机上生成kubectl使用的config文件, 默认会生成到 &lt;code&gt;/etc/kubernetes/admin.conf&lt;/code&gt; ,我们把它复制到mac和主机的家目录&lt;/p&gt;
+&lt;p&gt;在ubuntu主机上生成kubectl使用的config文件, 默认会生成到 &lt;code&gt;/etc/kubernetes/admin.conf&lt;/code&gt; ,我们把它复制到&lt;strong&gt;mac&lt;/strong&gt;和&lt;strong&gt;ubuntu主机&lt;/strong&gt;的家目录&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -171,7 +170,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;可以看到, 此时apiserver已经可以正常工作&lt;/p&gt;
 &lt;h2 id=&#34;kube-scheduler&#34;&gt;kube-scheduler&lt;/h2&gt;
-&lt;p&gt;配置启动参数, 参考上方apisever&lt;/p&gt;
+&lt;p&gt;配置启动参数, 参考上方apisever, 这里连接使用的rbac相关文件直接暴力的使用了kubectl的&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -181,7 +180,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h2 id=&#34;controller-manager&#34;&gt;controller-manager&lt;/h2&gt;
-&lt;p&gt;配置启动参数, 参考上方apisever&lt;/p&gt;
+&lt;p&gt;配置启动参数, 参考上方apisever, 这里连接使用的rbac相关文件直接暴力的使用了kubectl的&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -191,7 +190,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h2 id=&#34;节点配置&#34;&gt;节点配置&lt;/h2&gt;
-&lt;p&gt;由于&lt;code&gt;kubelet&lt;/code&gt;不支持运行在mac上, 且cni,cri等一般都是linux环境, 所以kubelet我们就不在mac上跑了&lt;/p&gt;
+&lt;p&gt;由于&lt;code&gt;kubelet &lt;/code&gt; 的 &lt;code&gt;cadvisor&lt;/code&gt;不支持运行在mac上, 且cni,cri等一般都是linux环境, 所以kubelet我们就不在mac上跑了(一时搞不定, 后续再想办法吧)&lt;/p&gt;
 &lt;h3 id=&#34;containerd&#34;&gt;containerd&lt;/h3&gt;
 &lt;p&gt;在主机安装 &lt;code&gt;containerd&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -396,7 +395,10 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemctl start kubelet
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;查看, node1处于NotReady状态 , 因为我们还未安装cni插件, 暂不清楚没有配置加节点的过程, 怎么就自动加上了&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;查看node1处于NotReady状态 , 因为我们还未安装cni插件&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;暂不清楚没有配置加节点的过程, 怎么就自动加上了&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -410,7 +412,9 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id=&#34;配置cni&#34;&gt;配置cni&lt;/h3&gt;
+&lt;blockquote&gt;
 &lt;p&gt;&lt;code&gt;kubelet&lt;/code&gt;和容器运行时,都有调用cni的代码, 在一起使用时, 实际工作的是kubelet&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1

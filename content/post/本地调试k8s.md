@@ -8,9 +8,7 @@ tags: ["k8s"]
 
 准备一台干净的ubuntu主机, 关闭防火墙, 关闭selinux, 开启Ipv4转发
 
-## apiserver
-
-### etcd
+## etcd
 
 在mac上安装etcd, 这里最简化安装, 无证书, 单节点
 
@@ -22,9 +20,9 @@ brew services list
 etcdctl del --prefix /
 ```
 
-### apiserver
+## apiserver
 
-在主机上创建一个kubeadm配置文件
+在ubuntu主机上创建一个kubeadm配置文件, `172.31.164.151` `10.8.0.2`都是我mac的ip
 
 ```yaml
 apiVersion: kubeadm.k8s.io/v1beta3
@@ -82,7 +80,7 @@ kubeadm init phase certs all --config=cc.yaml
 
 ### kubectl
 
-在主机上生成kubectl使用的config文件, 默认会生成到 `/etc/kubernetes/admin.conf` ,我们把它复制到mac和主机的家目录
+在ubuntu主机上生成kubectl使用的config文件, 默认会生成到 `/etc/kubernetes/admin.conf` ,我们把它复制到**mac**和**ubuntu主机**的家目录
 
 ```bash
 kubeadm init phase kubeconfig admin 
@@ -106,7 +104,7 @@ kube-system       Active   5h9m
 
 ## kube-scheduler
 
-配置启动参数, 参考上方apisever
+配置启动参数, 参考上方apisever, 这里连接使用的rbac相关文件直接暴力的使用了kubectl的
 
 ```bash
 --authentication-kubeconfig=/Users/inksnw/.kube/config --authorization-kubeconfig=/Users/inksnw/.kube/config --bind-address=0.0.0.0 --feature-gates=RotateKubeletServerCertificate=true,ExpandCSIVolumes=true,CSIStorageCapacity=true --kubeconfig=/Users/inksnw/.kube/config  
@@ -114,7 +112,7 @@ kube-system       Active   5h9m
 
 ## controller-manager
 
-配置启动参数, 参考上方apisever
+配置启动参数, 参考上方apisever, 这里连接使用的rbac相关文件直接暴力的使用了kubectl的
 
 ```bash
 --allocate-node-cidrs=true --authentication-kubeconfig=/Users/inksnw/.kube/config --authorization-kubeconfig=/Users/inksnw/.kube/config --bind-address=0.0.0.0 --client-ca-file=pki/ca.crt --cluster-cidr=10.233.64.0/18 --cluster-name=cluster.local --cluster-signing-cert-file=pki/ca.crt --cluster-signing-duration=87600h --cluster-signing-key-file=pki/ca.key --controllers=*,bootstrapsigner,tokencleaner --feature-gates=RotateKubeletServerCertificate=true,ExpandCSIVolumes=true,CSIStorageCapacity=true --kubeconfig=/Users/inksnw/.kube/config --leader-elect=true --node-cidr-mask-size=24 --requestheader-client-ca-file=pki/front-proxy-ca.crt --root-ca-file=pki/ca.crt --service-account-private-key-file=pki/sa.key --service-cluster-ip-range=10.233.0.0/18 --use-service-account-credentials=true
@@ -122,7 +120,7 @@ kube-system       Active   5h9m
 
 ## 节点配置
 
-由于`kubelet`不支持运行在mac上, 且cni,cri等一般都是linux环境, 所以kubelet我们就不在mac上跑了
+由于`kubelet ` 的 `cadvisor`不支持运行在mac上, 且cni,cri等一般都是linux环境, 所以kubelet我们就不在mac上跑了(一时搞不定, 后续再想办法吧)
 
 ### containerd
 
@@ -235,7 +233,9 @@ volumeStatsAggPeriod: 0s
 systemctl start kubelet
 ```
 
-查看, node1处于NotReady状态 , 因为我们还未安装cni插件, 暂不清楚没有配置加节点的过程, 怎么就自动加上了
+查看node1处于NotReady状态 , 因为我们还未安装cni插件
+
+>  暂不清楚没有配置加节点的过程, 怎么就自动加上了
 
 ```bash
 kubectl get node
@@ -245,7 +245,7 @@ node1   NotReady   <none>   50s   v1.26.5
 
 ### 配置cni
 
-`kubelet`和容器运行时,都有调用cni的代码, 在一起使用时, 实际工作的是kubelet
+>  `kubelet`和容器运行时,都有调用cni的代码, 在一起使用时, 实际工作的是kubelet
 
 ```bash
 wget https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz
