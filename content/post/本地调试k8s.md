@@ -89,7 +89,7 @@ mkdir -p /root/.kube/
 cp /etc/kubernetes/admin.conf /root/.kube/config
 ```
 
-启动apiserver查询
+启动apiserver, 查询测试
 
 ```bash
 kubectl get ns
@@ -104,7 +104,7 @@ kube-system       Active   5h9m
 
 ## kube-scheduler
 
-配置启动参数, 参考上方apisever, 这里连接使用的rbac相关文件直接暴力的使用了kubectl的
+配置启动参数, 参考上方apisever, 这里连接使用的rbac相关信息直接暴力的使用了kubectl的
 
 ```bash
 --authentication-kubeconfig=/Users/inksnw/.kube/config --authorization-kubeconfig=/Users/inksnw/.kube/config --bind-address=0.0.0.0 --feature-gates=RotateKubeletServerCertificate=true,ExpandCSIVolumes=true,CSIStorageCapacity=true --kubeconfig=/Users/inksnw/.kube/config  
@@ -112,7 +112,7 @@ kube-system       Active   5h9m
 
 ## controller-manager
 
-配置启动参数, 参考上方apisever, 这里连接使用的rbac相关文件直接暴力的使用了kubectl的
+配置启动参数, 参考上方apisever, 这里连接使用的rbac相关信息直接暴力的使用了kubectl的
 
 ```bash
 --allocate-node-cidrs=true --authentication-kubeconfig=/Users/inksnw/.kube/config --authorization-kubeconfig=/Users/inksnw/.kube/config --bind-address=0.0.0.0 --client-ca-file=pki/ca.crt --cluster-cidr=10.233.64.0/18 --cluster-name=cluster.local --cluster-signing-cert-file=pki/ca.crt --cluster-signing-duration=87600h --cluster-signing-key-file=pki/ca.key --controllers=*,bootstrapsigner,tokencleaner --feature-gates=RotateKubeletServerCertificate=true,ExpandCSIVolumes=true,CSIStorageCapacity=true --kubeconfig=/Users/inksnw/.kube/config --leader-elect=true --node-cidr-mask-size=24 --requestheader-client-ca-file=pki/front-proxy-ca.crt --root-ca-file=pki/ca.crt --service-account-private-key-file=pki/sa.key --service-cluster-ip-range=10.233.0.0/18 --use-service-account-credentials=true
@@ -120,7 +120,7 @@ kube-system       Active   5h9m
 
 ## 节点配置
 
-由于`kubelet ` 的 `cadvisor`不支持运行在mac上, 且cni,cri等一般都是linux环境, 所以kubelet我们就不在mac上跑了(一时搞不定, 后续再想办法吧)
+由于`kubelet` 的 `cadvisor`不支持运行在mac上, 且cni,cri等一般都是linux环境, 所以kubelet我们就不在mac上跑了(一时搞不定, 后续再想办法吧)
 
 ### containerd
 
@@ -254,7 +254,7 @@ mkdir -p /etc/cni/net.d
 tar -zxvf cni-plugins-linux-amd64-v1.3.0.tgz -C /opt/cni/bin/
 ```
 
-创建containerd容器使用cni的配置文件:
+创建cni的配置文件:
 
 ```bash
 cat << EOF | tee /etc/cni/net.d/mynet.json
