@@ -5,7 +5,7 @@ tags: ["k8s"]
 ---
 安装 `containerd`
 
-```
+```bash
 apt install containerd
 ```
 
