@@ -450,3 +450,11 @@ func main() {
 }
 ```
 
+### 调试容器
+
+一个网络工具很全的容器
+
+```bash
+kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot
+```
+
