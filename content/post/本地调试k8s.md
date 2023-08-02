@@ -8,6 +8,8 @@ tags: ["k8s"]
 
 准备一台干净的ubuntu主机, 关闭防火墙, 关闭selinux, 开启Ipv4转发,禁用swap
 
+k8s源码: `1.26.5`
+
 ## etcd
 
 在mac上安装etcd, 这里最简化安装, 无证书, 单节点
