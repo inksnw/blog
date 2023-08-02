@@ -78,7 +78,7 @@ kubeadm init phase certs all --config=cc.yaml
 
 <img src="http://inksnw.asuscomm.com:3001/blog/本地调试k8s_2f27f1a6e2a99465d21b16f178efb7b7.png" alt="image-20230802163758775" style="zoom:50%;" />
 
-### kubectl
+kubectl配置
 
 在ubuntu主机上生成kubectl使用的config文件, 默认会生成到 `/etc/kubernetes/admin.conf` ,我们把它复制到**mac**和**ubuntu主机**的家目录
 
@@ -89,7 +89,7 @@ mkdir -p /root/.kube/
 cp /etc/kubernetes/admin.conf /root/.kube/config
 ```
 
-### 启动apiserver查询
+启动apiserver查询
 
 ```bash
 kubectl get ns
