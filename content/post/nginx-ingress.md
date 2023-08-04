@@ -80,7 +80,7 @@ affinity:
 
 ```bash
 kubectl create deployment demo --image=httpd --port=80
-kubectl expose deployment demo
+kubectl expose deployment demo --type=NodePort
 ```
 
 创建一个`ingress`
