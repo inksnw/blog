@@ -235,7 +235,7 @@ systemctl start kubelet
 
 查看node1处于NotReady状态 , 因为我们还未安装cni插件
 
->  暂不清楚没有配置加节点的过程, 怎么就自动加上了
+>  由于设置了RotateCertificates , 因此kubelet会自动申请注册节点
 
 ```bash
 kubectl get node
