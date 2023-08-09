@@ -52,7 +52,7 @@
 <meta itemprop="name" content="在k8s外部验证bearertoken">
 <meta itemprop="description" content="生成token 创建一个sa账号 1 2 3 4 5 6 7 cat&lt;&lt;EOF | kubectl apply -f - apiVersion: v1 kind: ServiceAccount metadata: name: mysa namespace: default EOF Token controller检测service account的创建，并"><meta itemprop="datePublished" content="2023-07-12T23:42:00+08:00" />
 <meta itemprop="dateModified" content="2023-07-12T23:42:00+08:00" />
-<meta itemprop="wordCount" content="934">
+<meta itemprop="wordCount" content="1140">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="在k8s外部验证bearertoken"/>
 <meta name="twitter:description" content="生成token 创建一个sa账号 1 2 3 4 5 6 7 cat&lt;&lt;EOF | kubectl apply -f - apiVersion: v1 kind: ServiceAccount metadata: name: mysa namespace: default EOF Token controller检测service account的创建，并"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-07-12 </span>
             
-            <span class="more-meta"> 约 934 字 更新于 2023-07-12
+            <span class="more-meta"> 约 1140 字 更新于 2023-07-12
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -198,7 +198,29 @@
 </span></span><span class="line"><span class="cl">mysa-token-wskgr   kubernetes.io/service-account-token   <span class="m">3</span>      50s
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>这里使用代码手动生成token</p>
+</div><p>我们其实可以手动创建secret, 关联好serviceaccount, 让k8s帮我们填好永不过期token就可以了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">secret-sa-sample</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">kubernetes.io/service-account.name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;mysa&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">kubernetes.io/service-account-token</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>kubernetes.io/service-account.name 这个key所对应的值就代表其所需要关联的serviceaccount。apply之后, 再次查看就可以看到k8s会自动帮我们填充好token,ca.crt等信息。此时生成的token就永不过期了，我们就可以拿着这个token来访问k8s, apisever了。</p>
+<p>这里使用代码手动生成token</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1

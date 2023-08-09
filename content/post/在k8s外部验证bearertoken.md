@@ -29,6 +29,22 @@ NAME               TYPE                                  DATA   AGE
 mysa-token-wskgr   kubernetes.io/service-account-token   3      50s
 ```
 
+我们其实可以手动创建secret, 关联好serviceaccount, 让k8s帮我们填好永不过期token就可以了。
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-sa-sample
+  annotations:
+    kubernetes.io/service-account.name: "mysa"
+type: kubernetes.io/service-account-token
+```
+
+kubernetes.io/service-account.name 这个key所对应的值就代表其所需要关联的serviceaccount。apply之后, 再次查看就可以看到k8s会自动帮我们填充好token,ca.crt等信息。此时生成的token就永不过期了，我们就可以拿着这个token来访问k8s, apisever了。
+
+
+
 这里使用代码手动生成token
 
 ```go
