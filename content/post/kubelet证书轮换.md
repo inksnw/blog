@@ -1,8 +1,39 @@
 ---
-title: "Kubelet证书轮换"
+title: "Kubelet证书轮换与更新"
 date: 2023-08-08T21:03:59+08:00
 tags: ["k8s"]
 ---
+
+## 组件证书
+
+使用如下命令查看证书过期时间：
+
+```
+kubeadm  certs check-expiration 
+openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | egrep Not
+```
+
+### 手动更新证书
+
+```shell
+kubeadm certs renew all 
+```
+
+更新各种config
+
+```bash
+kubeadm init phase kubeconfig all 
+I0811 18:11:06.477258   61845 version.go:256] remote version is much newer: v1.27.4; falling back to: stable-1.26
+[kubeconfig] Using kubeconfig folder "/etc/kubernetes"
+[kubeconfig] Using existing kubeconfig file: "/etc/kubernetes/admin.conf"
+[kubeconfig] Using existing kubeconfig file: "/etc/kubernetes/kubelet.conf"
+[kubeconfig] Using existing kubeconfig file: "/etc/kubernetes/controller-manager.conf"
+[kubeconfig] Using existing kubeconfig file: "/etc/kubernetes/scheduler.conf"
+```
+
+> You must restart the kube-apiserver, kube-controller-manager, kube-scheduler and etcd, so that they can use the new certificates.
+
+## kubelet证书
 
 Kubelet 使用证书进行 Kubernetes API 的认证。 默认情况下，这些证书的签发期限为一年，所以不需要太频繁地进行更新。
 

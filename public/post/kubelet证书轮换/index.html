@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Kubelet证书轮换 - </title>
+  <title>Kubelet证书轮换与更新 - </title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="Kubelet 使用证书进行 Kubernetes API 的认证。 默认情况下，这些证书的签发期限为一年，所以不需要太频繁地进行更新。 源码 Kubernetes 包含特性 kubelet 证书轮换， 在当前证书即将过期时，" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="组件证书 使用如下命令查看证书过期时间： 1 2 kubeadm certs check-expiration openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | egrep Not 手动更新证书 1 kubeadm certs renew all 更新各种config 1 2 3 4 5 6 7 kubeadm init phase kubeconfig all I0811 18:11:06.477258 61845 version.go:256]" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -43,19 +43,19 @@
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:title" content="Kubelet证书轮换" />
-<meta property="og:description" content="Kubelet 使用证书进行 Kubernetes API 的认证。 默认情况下，这些证书的签发期限为一年，所以不需要太频繁地进行更新。 源码 Kubernetes 包含特性 kubelet 证书轮换， 在当前证书即将过期时，" />
+<meta property="og:title" content="Kubelet证书轮换与更新" />
+<meta property="og:description" content="组件证书 使用如下命令查看证书过期时间： 1 2 kubeadm certs check-expiration openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | egrep Not 手动更新证书 1 kubeadm certs renew all 更新各种config 1 2 3 4 5 6 7 kubeadm init phase kubeconfig all I0811 18:11:06.477258 61845 version.go:256]" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/kubelet%E8%AF%81%E4%B9%A6%E8%BD%AE%E6%8D%A2/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-08-08T21:03:59+08:00" />
 <meta property="article:modified_time" content="2023-08-08T21:14:59+08:00" />
-<meta itemprop="name" content="Kubelet证书轮换">
-<meta itemprop="description" content="Kubelet 使用证书进行 Kubernetes API 的认证。 默认情况下，这些证书的签发期限为一年，所以不需要太频繁地进行更新。 源码 Kubernetes 包含特性 kubelet 证书轮换， 在当前证书即将过期时，"><meta itemprop="datePublished" content="2023-08-08T21:03:59+08:00" />
+<meta itemprop="name" content="Kubelet证书轮换与更新">
+<meta itemprop="description" content="组件证书 使用如下命令查看证书过期时间： 1 2 kubeadm certs check-expiration openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | egrep Not 手动更新证书 1 kubeadm certs renew all 更新各种config 1 2 3 4 5 6 7 kubeadm init phase kubeconfig all I0811 18:11:06.477258 61845 version.go:256]"><meta itemprop="datePublished" content="2023-08-08T21:03:59+08:00" />
 <meta itemprop="dateModified" content="2023-08-08T21:14:59+08:00" />
-<meta itemprop="wordCount" content="637">
+<meta itemprop="wordCount" content="772">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Kubelet证书轮换"/>
-<meta name="twitter:description" content="Kubelet 使用证书进行 Kubernetes API 的认证。 默认情况下，这些证书的签发期限为一年，所以不需要太频繁地进行更新。 源码 Kubernetes 包含特性 kubelet 证书轮换， 在当前证书即将过期时，"/>
+<meta name="twitter:title" content="Kubelet证书轮换与更新"/>
+<meta name="twitter:description" content="组件证书 使用如下命令查看证书过期时间： 1 2 kubeadm certs check-expiration openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | egrep Not 手动更新证书 1 kubeadm certs renew all 更新各种config 1 2 3 4 5 6 7 kubeadm init phase kubeconfig all I0811 18:11:06.477258 61845 version.go:256]"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -123,12 +123,12 @@
     
 
     <header class="post-header">
-        <h1 class="post-title">Kubelet证书轮换</h1>
+        <h1 class="post-title">Kubelet证书轮换与更新</h1>
 
         <div class="post-meta">
             <span class="post-time"> 2023-08-08 </span>
             
-            <span class="more-meta"> 约 637 字 更新于 2023-08-08
+            <span class="more-meta"> 约 772 字 更新于 2023-08-08
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -143,7 +143,12 @@
   <ul>
     <li>
       <ul>
-        <li>
+        <li><a href="#组件证书">组件证书</a>
+          <ul>
+            <li><a href="#手动更新证书">手动更新证书</a></li>
+          </ul>
+        </li>
+        <li><a href="#kubelet证书">kubelet证书</a>
           <ul>
             <li><a href="#源码">源码</a></li>
             <li><a href="#demo">demo</a></li>
@@ -158,7 +163,53 @@
 
     
     <div class="post-content">
-        <p>Kubelet 使用证书进行 Kubernetes API 的认证。 默认情况下，这些证书的签发期限为一年，所以不需要太频繁地进行更新。</p>
+        <h2 id="组件证书">组件证书</h2>
+<p>使用如下命令查看证书过期时间：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">kubeadm  certs check-expiration 
+</span></span><span class="line"><span class="cl">openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | egrep Not
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="手动更新证书">手动更新证书</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubeadm certs renew all 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>更新各种config</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubeadm init phase kubeconfig all 
+</span></span><span class="line"><span class="cl">I0811 18:11:06.477258   <span class="m">61845</span> version.go:256<span class="o">]</span> remote version is much newer: v1.27.4<span class="p">;</span> falling back to: stable-1.26
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Using kubeconfig folder <span class="s2">&#34;/etc/kubernetes&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Using existing kubeconfig file: <span class="s2">&#34;/etc/kubernetes/admin.conf&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Using existing kubeconfig file: <span class="s2">&#34;/etc/kubernetes/kubelet.conf&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Using existing kubeconfig file: <span class="s2">&#34;/etc/kubernetes/controller-manager.conf&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Using existing kubeconfig file: <span class="s2">&#34;/etc/kubernetes/scheduler.conf&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>You must restart the kube-apiserver, kube-controller-manager, kube-scheduler and etcd, so that they can use the new certificates.</p>
+</blockquote>
+<h2 id="kubelet证书">kubelet证书</h2>
+<p>Kubelet 使用证书进行 Kubernetes API 的认证。 默认情况下，这些证书的签发期限为一年，所以不需要太频繁地进行更新。</p>
 <h3 id="源码">源码</h3>
 <p>Kubernetes 包含特性 <a href="https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/">kubelet 证书轮换</a>， 在当前证书即将过期时， 将自动生成新的秘钥，并从 Kubernetes API 申请新的证书。 一旦新的证书可用，它将被用于与 Kubernetes API 间的连接认证</p>
 <p><a href="https://kubernetes.io/zh-cn/docs/tasks/tls/certificate-rotation/">官方文档</a> 已经说的很清楚了, 这里简单分析下源码</p>
