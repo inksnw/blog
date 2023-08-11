@@ -6,6 +6,8 @@ tags: ["k8s"]
 
 ![kubectl-exec](http://inksnw.asuscomm.com:3001/blog/k8s的exec原理与实践_8f78e3983f575fbd9860b99d33b642b3.png)
 
+## exec原理
+
 ### 开启containerd远程连接
 
 修改 /etc/containerd/config.toml文件,允许远程访问
@@ -225,3 +227,71 @@ func main() {
 
 
 以上代码实现了这个过程,但仅用于原理验证, 只实现了单次执行, 实际`kubectl exec -it` 时, apiserver会通过`spdy`协议解析到流中的输入命令,持续执行, 这个代码还未能调通
+
+## 直连kubelet
+
+```go
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/remotecommand"
+	"net/url"
+)
+
+func main() {
+	// 此处我们直接使用了/root/.kube/config文件，因此我们有足够的权限
+	// 如果使用service account token的话，还需要额外创建role和rolebinding
+	// 当直接访问kubelet接口的时候，kubelet支持使用证书和token进行认证，
+	// 使用rbac对请求进行鉴权操作
+	config, err := clientcmd.BuildConfigFromFlags("", "/Users/inksnw/.kube/config")
+	if err != nil {
+		panic(err)
+	}
+
+	params := url.Values{}
+	params.Add("tty", "1")
+	params.Add("input", "0")
+	params.Add("output", "1")
+	params.Add("error", "0")
+	params.Add("command", "ls")
+	params.Add("command", "/")
+	path := &url.URL{
+		Scheme:   "https",
+		Host:     "192.168.50.51:10250",
+		Path:     "/exec/default/nginx/nginx",
+		RawQuery: params.Encode(),
+	}
+	// 此处配置证书相关配置，由于是测试，这块直接忽略了，在实际生产使用时可从文件读取
+	// 此处配置的CAFile在更新后，client-go能够定时自动刷新
+	config.TLSClientConfig.CAFile = ""
+	config.TLSClientConfig.CAData = nil
+	config.TLSClientConfig.Insecure = true
+	executor, err := remotecommand.NewSPDYExecutor(config, "POST", path)
+	if err != nil {
+		panic(err)
+	}
+
+	done := make(chan error)
+	var buf bytes.Buffer
+	wrap := func() {
+		err := executor.Stream(remotecommand.StreamOptions{
+			Stdout: &buf,
+			Tty:    true,
+		})
+		done <- err
+	}
+	go wrap()
+	fmt.Println("wait for out")
+	select {
+	case err := <-done:
+		if err != nil {
+			fmt.Println("Command exit with error", err)
+		}
+		fmt.Println(string(buf.Bytes()))
+	}
+}
+```
+
