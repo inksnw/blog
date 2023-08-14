@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>自定义日志库实现行号打印及跳转 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="为了方便调试和排查问题，我们经常需要在日志中包含详细的行号信息，并且最好能够直接跳转到相关代码位置。 要实现这个功能 在&amp;quot;文件名:行号" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.117.0 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E5%BA%93%E5%AE%9E%E7%8E%B0%E8%A1%8C%E5%8F%B7%E6%89%93%E5%8D%B0%E5%8F%8A%E8%B7%B3%E8%BD%AC/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="自定义日志库实现行号打印及跳转" />
+<meta property="og:description" content="为了方便调试和排查问题，我们经常需要在日志中包含详细的行号信息，并且最好能够直接跳转到相关代码位置。 要实现这个功能 在&quot;文件名:行号" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E5%BA%93%E5%AE%9E%E7%8E%B0%E8%A1%8C%E5%8F%B7%E6%89%93%E5%8D%B0%E5%8F%8A%E8%B7%B3%E8%BD%AC/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-08-14T16:55:30+08:00" />
+<meta property="article:modified_time" content="2023-08-14T16:55:30+08:00" />
+<meta itemprop="name" content="自定义日志库实现行号打印及跳转">
+<meta itemprop="description" content="为了方便调试和排查问题，我们经常需要在日志中包含详细的行号信息，并且最好能够直接跳转到相关代码位置。 要实现这个功能 在&quot;文件名:行号"><meta itemprop="datePublished" content="2023-08-14T16:55:30+08:00" />
+<meta itemprop="dateModified" content="2023-08-14T16:55:30+08:00" />
+<meta itemprop="wordCount" content="799">
+<meta itemprop="keywords" content="工程化," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="自定义日志库实现行号打印及跳转"/>
+<meta name="twitter:description" content="为了方便调试和排查问题，我们经常需要在日志中包含详细的行号信息，并且最好能够直接跳转到相关代码位置。 要实现这个功能 在&quot;文件名:行号"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">自定义日志库实现行号打印及跳转</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-08-14 </span>
+            
+            <span class="more-meta"> 约 799 字 更新于 2023-08-14
+              <a class="article-tags" href=/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/>工程化</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#示例">示例</a>
+          <ul>
+            <li><a href="#containerd">containerd</a></li>
+            <li><a href="#klogv2">klog/v2</a></li>
+          </ul>
+        </li>
+        <li><a href="#结论">结论</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>为了方便调试和排查问题，我们经常需要在日志中包含详细的行号信息，并且最好能够直接跳转到相关代码位置。</p>
+<p>要实现这个功能</p>
+<ul>
+<li>在&quot;文件名:行号&quot;的前后加空格，GoLand将自动将其识别为超链接路径。</li>
+<li>修改日志库的打印</li>
+</ul>
+<h2 id="示例">示例</h2>
+<h3 id="containerd">containerd</h3>
+<p><code>containerd</code>使用了<code>logrus</code>作为其日志库。我们可以通过修改<code>CallerPrettyfier</code>来实现在日志中打印文件名和行号。下面是一个示例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/sirupsen/logrus&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;runtime&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 修改logrus的CallerPrettyfier来实现行号打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">logrus</span><span class="p">.</span><span class="nf">SetReportCaller</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">logrus</span><span class="p">.</span><span class="nf">SetFormatter</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">logrus</span><span class="p">.</span><span class="nx">TextFormatter</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">TimestampFormat</span><span class="p">:</span> <span class="s">&#34;2006-01-02 15:04:05.999999&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">FullTimestamp</span><span class="p">:</span>   <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">CallerPrettyfier</span><span class="p">:</span> <span class="kd">func</span><span class="p">(</span><span class="nx">frame</span> <span class="o">*</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Frame</span><span class="p">)</span> <span class="p">(</span><span class="nx">function</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">file</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">//在&#34;文件名:行号&#34;的前后加空格
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">name</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34; %s:%d &#34;</span><span class="p">,</span> <span class="nx">frame</span><span class="p">.</span><span class="nx">File</span><span class="p">,</span> <span class="nx">frame</span><span class="p">.</span><span class="nx">Line</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">name</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">logrus</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;This log includes file location info.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在上面的示例中，我们通过修改<code>CallerPrettyfier</code>，在日志中添加了文件名和行号信息。</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/自定义日志库实现行号打印及跳转_3c370988be6e601fc6cd627aba15e4d6.png" alt="image-20230814165916930" style="zoom:50%;" />
+<h3 id="klogv2">klog/v2</h3>
+<p>k8s使用的日志库 <code>k8s.io/klog/v2</code> 本身没有提供自定义Caller的功能, 改源码太黑科技了, 但开发的时候我们可以把它使用的日志库临时替换掉</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">replace <span class="o">(</span>
+</span></span><span class="line"><span class="cl">	k8s.io/klog/v2  <span class="o">=</span>&gt; /Users/inksnw/Documents/klog
+</span></span><span class="line"><span class="cl"><span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改一  <code>klog/klog.go</code> 644行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">l</span> <span class="o">*</span><span class="nx">loggingT</span><span class="p">)</span> <span class="nf">header</span><span class="p">(</span><span class="nx">s</span> <span class="nx">severity</span><span class="p">.</span><span class="nx">Severity</span><span class="p">,</span> <span class="nx">depth</span> <span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">Buffer</span><span class="p">,</span> <span class="kt">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">_</span><span class="p">,</span> <span class="nx">file</span><span class="p">,</span> <span class="nx">line</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nf">Caller</span><span class="p">(</span><span class="mi">3</span> <span class="o">+</span> <span class="nx">depth</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">file</span> <span class="p">=</span> <span class="s">&#34;???&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">line</span> <span class="p">=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">//注释掉这里, 就会显示文件的全路径
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//if slash := strings.LastIndex(file, &#34;/&#34;); slash &gt;= 0 {
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//	path := file
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//	file = path[slash+1:]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//	if l.addDirHeader {
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//		if dirsep := strings.LastIndex(path[:slash], &#34;/&#34;); dirsep &gt;= 0 {
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//			file = path[dirsep+1:]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//		}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//	}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">l</span><span class="p">.</span><span class="nf">formatHeader</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="nx">file</span><span class="p">,</span> <span class="nx">line</span><span class="p">),</span> <span class="nx">file</span><span class="p">,</span> <span class="nx">line</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改二 <code>klog/internal/buffer/buffer.go</code> 115行 <code>FormatHeader</code> 函数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">//buf.Tmp[n+1] = &#39;]&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">//buf.Tmp[n+2] = &#39; &#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// 修改为在行号后面加个空格, 前面的空格默认已经带了
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">buf</span><span class="p">.</span><span class="nx">Tmp</span><span class="p">[</span><span class="nx">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="p">=</span> <span class="sc">&#39; &#39;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">buf</span><span class="p">.</span><span class="nx">Tmp</span><span class="p">[</span><span class="nx">n</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="p">=</span> <span class="sc">&#39;]&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><img src="http://inksnw.asuscomm.com:3001/blog/自定义日志库实现行号打印及跳转_fdf0f2a9aba76b0d8a5ae8db7219f3f2.png" alt="image-20230814171036703" style="zoom:50%;" />
+<p>可以看到已经显示了可跳转的超链接, 调试起来就方便了</p>
+<h2 id="结论">结论</h2>
+<p>通过修改日志库的输出格式，我们可以实现在日志中包含详细的行号信息，并且结合GoLand的超链接路径功能，能够更方便地跳转到相关的代码位置。以上示例分别演示了如何在<code>containerd</code>和<code>k8s</code>中实现这一功能，可以根据实际项目需要进行相应的修改和集成。这种方式不仅能提高开发效率，还能减少排查问题的时间，是Go开发中非常实用的技巧。</p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/">工程化</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/kubelet%E8%AF%81%E4%B9%A6%E8%BD%AE%E6%8D%A2/">
+                <span class="next-text nav-default">Kubelet证书轮换与更新</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
