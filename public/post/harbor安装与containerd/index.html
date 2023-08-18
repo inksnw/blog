@@ -52,7 +52,7 @@
 <meta itemprop="name" content="Harbor安装与containerd">
 <meta itemprop="description" content="harbor安装 下载离线安装包700M 1 wget https://mirrors.tuna.tsinghua.edu.cn/github-release/goharbor/harbor/v2.6.0/harbor-offline-installer-v2.6.0.tgz 解压从harbor.yml.tmpl复制一份harbor.yml 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16"><meta itemprop="datePublished" content="2022-09-30T17:14:14+08:00" />
 <meta itemprop="dateModified" content="2022-11-29T11:51:30+08:00" />
-<meta itemprop="wordCount" content="648">
+<meta itemprop="wordCount" content="915">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Harbor安装与containerd"/>
 <meta name="twitter:description" content="harbor安装 下载离线安装包700M 1 wget https://mirrors.tuna.tsinghua.edu.cn/github-release/goharbor/harbor/v2.6.0/harbor-offline-installer-v2.6.0.tgz 解压从harbor.yml.tmpl复制一份harbor.yml 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-09-30 </span>
             
-            <span class="more-meta"> 约 648 字 更新于 2022-11-29
+            <span class="more-meta"> 约 915 字 更新于 2022-11-29
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -147,6 +147,12 @@
         <li><a href="#配置containerd">配置containerd</a>
           <ul>
             <li><a href="#批量上传">批量上传</a></li>
+          </ul>
+        </li>
+        <li><a href="#nerdctl简单使用">nerdctl简单使用</a>
+          <ul>
+            <li><a href="#安装buildkit">安装buildkit</a></li>
+            <li><a href="#build镜像">build镜像</a></li>
           </ul>
         </li>
       </ul>
@@ -411,6 +417,131 @@
 </span></span><span class="line"><span class="cl">➜ nerdctl -n<span class="o">=</span>k8s.io images<span class="p">|</span>grep inksnw<span class="p">|</span>awk <span class="s1">&#39;{print &#34;nerdctl -n=k8s.io rmi &#34; $1&#34;:&#34;$2}&#39;</span><span class="p">|</span>sh
 </span></span><span class="line"><span class="cl"><span class="c1"># 查看删除后镜像</span>
 </span></span><span class="line"><span class="cl">nerdctl -n<span class="o">=</span>k8s.io images
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="nerdctl简单使用">nerdctl简单使用</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/containerd/nerdctl/releases/download/v1.4.0/nerdctl-1.4.0-linux-amd64.tar.gz
+</span></span><span class="line"><span class="cl">tar -zxvf nerdctl-1.4.0-linux-amd64.tar.gz -C /usr/local/bin/
+</span></span><span class="line"><span class="cl"><span class="c1"># 清理未用到的镜像 </span>
+</span></span><span class="line"><span class="cl">nerdctl -n<span class="o">=</span>k8s.io image prune -a
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="安装buildkit">安装buildkit</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/moby/buildkit/releases/download/v0.12.1/buildkit-v0.12.1.linux-amd64.tar.gz
+</span></span><span class="line"><span class="cl">tar -zxvf buildkit-v0.12.1.linux-amd64.tar.gz -C /usr/local/
+</span></span><span class="line"><span class="cl"><span class="c1">#/etc/buildkit/buildkitd.toml为buildkitd默认配置</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mkdir -p /etc/buildkit/
+</span></span><span class="line"><span class="cl">cat &gt; /etc/buildkit/buildkitd.toml <span class="s">&lt;&lt; &#39;EOF&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="cl"><span class="s">debug = true
+</span></span></span><span class="line"><span class="cl"><span class="s">root = &#34;/var/lib/buildkit&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s"># insecure-entitlements allows insecure entitlements, disabled by default.
+</span></span></span><span class="line"><span class="cl"><span class="s">insecure-entitlements = [ &#34;network.host&#34;, &#34;security.insecure&#34; ]
+</span></span></span><span class="line"><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="cl"><span class="s">[worker.oci]
+</span></span></span><span class="line"><span class="cl"><span class="s">  enabled = true
+</span></span></span><span class="line"><span class="cl"><span class="s">  platforms = [ &#34;linux/amd64&#34;, &#34;linux/arm64&#34; ]
+</span></span></span><span class="line"><span class="cl"><span class="s">  snapshotter = &#34;auto&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">  rootless = false
+</span></span></span><span class="line"><span class="cl"><span class="s">  noProcessSandbox = false
+</span></span></span><span class="line"><span class="cl"><span class="s">  gc = true
+</span></span></span><span class="line"><span class="cl"><span class="s">  gckeepstorage = 9000
+</span></span></span><span class="line"><span class="cl"><span class="s">  max-parallelism = 4
+</span></span></span><span class="line"><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="cl"><span class="s">  [[worker.oci.gcpolicy]]
+</span></span></span><span class="line"><span class="cl"><span class="s">    keepBytes = 512000000
+</span></span></span><span class="line"><span class="cl"><span class="s">    keepDuration = 172800
+</span></span></span><span class="line"><span class="cl"><span class="s">    filters = [ &#34;type==source.local&#34;, &#34;type==exec.cachemount&#34;, &#34;type==source.git.checkout&#34;]
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cat &gt; /etc/systemd/system/buildkit.service <span class="s">&lt;&lt; &#39;EOF&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s">[Unit]
+</span></span></span><span class="line"><span class="cl"><span class="s">Description=BuildKit
+</span></span></span><span class="line"><span class="cl"><span class="s">Documentation=https://github.com/moby/buildkit
+</span></span></span><span class="line"><span class="cl"><span class="s">[Service]
+</span></span></span><span class="line"><span class="cl"><span class="s">ExecStart=/usr/local/bin/buildkitd --oci-worker=false --containerd-worker=true
+</span></span></span><span class="line"><span class="cl"><span class="s">[Install]
+</span></span></span><span class="line"><span class="cl"><span class="s">WantedBy=multi-user.target
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">systemctl daemon-reload
+</span></span><span class="line"><span class="cl">systemctl <span class="nb">enable</span> buildkit
+</span></span><span class="line"><span class="cl">systemctl start buildkit
+</span></span><span class="line"><span class="cl">systemctl status buildkit
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="build镜像">build镜像</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir <span class="nb">test</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> <span class="nb">test</span>
+</span></span><span class="line"><span class="cl">cat &gt; Dockerfile <span class="s">&lt;&lt; &#39;EOF&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s">FROM alpine
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">nerdctl -n<span class="o">=</span>k8s.io build --platform arm64,amd64 -t  test1 .
 </span></span></code></pre></td></tr></table>
 </div>
 </div>

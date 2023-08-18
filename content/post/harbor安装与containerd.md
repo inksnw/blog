@@ -155,3 +155,70 @@ nerdctl -n=k8s.io --insecure-registry push harbor.inksnw.com:3002/calico/node:v3
 nerdctl -n=k8s.io images
 ```
 
+## nerdctl简单使用
+
+```bash
+wget https://github.com/containerd/nerdctl/releases/download/v1.4.0/nerdctl-1.4.0-linux-amd64.tar.gz
+tar -zxvf nerdctl-1.4.0-linux-amd64.tar.gz -C /usr/local/bin/
+# 清理未用到的镜像 
+nerdctl -n=k8s.io image prune -a
+```
+
+### 安装buildkit
+
+```bash
+wget https://github.com/moby/buildkit/releases/download/v0.12.1/buildkit-v0.12.1.linux-amd64.tar.gz
+tar -zxvf buildkit-v0.12.1.linux-amd64.tar.gz -C /usr/local/
+#/etc/buildkit/buildkitd.toml为buildkitd默认配置
+
+mkdir -p /etc/buildkit/
+cat > /etc/buildkit/buildkitd.toml << 'EOF'
+
+debug = true
+root = "/var/lib/buildkit"
+# insecure-entitlements allows insecure entitlements, disabled by default.
+insecure-entitlements = [ "network.host", "security.insecure" ]
+
+[worker.oci]
+  enabled = true
+  platforms = [ "linux/amd64", "linux/arm64" ]
+  snapshotter = "auto"
+  rootless = false
+  noProcessSandbox = false
+  gc = true
+  gckeepstorage = 9000
+  max-parallelism = 4
+
+  [[worker.oci.gcpolicy]]
+    keepBytes = 512000000
+    keepDuration = 172800
+    filters = [ "type==source.local", "type==exec.cachemount", "type==source.git.checkout"]
+EOF
+
+cat > /etc/systemd/system/buildkit.service << 'EOF'
+[Unit]
+Description=BuildKit
+Documentation=https://github.com/moby/buildkit
+[Service]
+ExecStart=/usr/local/bin/buildkitd --oci-worker=false --containerd-worker=true
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable buildkit
+systemctl start buildkit
+systemctl status buildkit
+```
+
+### build镜像
+
+```bash
+mkdir test
+cd test
+cat > Dockerfile << 'EOF'
+FROM alpine
+EOF
+nerdctl -n=k8s.io build --platform arm64,amd64 -t  test1 .
+```
+
