@@ -1,18 +1,14 @@
 ---
-title: "CGroups限制"
+title: "CGroups限制网络速度"
 date: 2023-08-21T09:48:35+08:00
 tags: ["k8s"]
 ---
-
-## 网络
 
 在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要的概念包括qdisc（队列调度器）、class（分类器）、和filter（过滤器）。qdisc又分为classless qdisc（无分类队列调度器）和classful qdisc（有分类队列调度器），区别主要在于**粒度**与**复杂性**, 具体如下：
 
 - **classless qdisc**：直接将一个classless qdisc 添加到网络接口上，用于对整个接口上的流量进行相同的限制限制, 没有进一步的分类。
 
 - **classful qdisc**：使用class和filter来创建更复杂的流量控制策略。首先，你会创建一个classful qdisc，然后在这个qdisc下创建多个class（子类），然后使用filter将流量分配到这些class中。每个class可以有自己的限制规则。在最后的subclass下，你可以挂载一个classless qdisc，用于实际的流量输出。
-
-Kubernetes（k8s）的CNI（Container Network Interface）插件限速，通常会使用classful qdisc 的方法。
 
 ### 创建网络配置
 
@@ -39,7 +35,7 @@ ip link set veth0-br up
 route add 10.233.1.1 dev veth0-br
 ```
 
-### 删除配置
+**删除配置**
 
 你可以按照以下步骤来撤销之前设置的网络配置：
 
@@ -52,7 +48,7 @@ ip link del veth0-br
 ip netns del ns0
 ```
 
-### 使用golang完成这个过程
+### golang实现
 
 ```go
 package main
@@ -170,7 +166,7 @@ tc qdisc add dev veth0-br handle 1:0 root tbf rate 1Mbit burst 10k latency 70ms
 
 ```bash
 # 创建 egress 限制
-ip link add ifb0 type ifb
+modprobe ifb numifbs=1
 ip link set dev ifb0 up
 tc qdisc add dev veth0-br handle ffff: ingress
 tc qdisc add dev ifb0 handle 1:0 root tbf rate 1Mbit burst 10k latency 70ms
@@ -200,7 +196,7 @@ qdisc tbf 1: dev ifb0 root refcnt 2 rate 1Mbit burst 10Kb lat 70ms
 >
 > https://github.com/containernetworking/plugins/blob/9d9ec6e3e18ea245b9cef0f8396e570247338d1f/plugins/meta/bandwidth/ifb_creator.go#L60
 
-### 取消限速
+**取消限速**
 
 ```bash
 # 停用 ifb 设备
@@ -256,4 +252,3 @@ iperf Done.
 
 可以看到流量进出网络命名空间 ns0 的时候流量大致被限制在了1Mbits/s。
 
-## 磁盘
