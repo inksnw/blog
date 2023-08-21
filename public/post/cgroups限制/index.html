@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>CGroups限制 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.117.0 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/cgroups%E9%99%90%E5%88%B6/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="CGroups限制" />
+<meta property="og:description" content="在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/cgroups%E9%99%90%E5%88%B6/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-08-21T09:48:35+08:00" />
+<meta property="article:modified_time" content="2023-08-21T09:48:35+08:00" />
+<meta itemprop="name" content="CGroups限制">
+<meta itemprop="description" content="在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要"><meta itemprop="datePublished" content="2023-08-21T09:48:35+08:00" />
+<meta itemprop="dateModified" content="2023-08-21T09:48:35+08:00" />
+<meta itemprop="wordCount" content="2267">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="CGroups限制"/>
+<meta name="twitter:description" content="在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">CGroups限制</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-08-21 </span>
+            
+            <span class="more-meta"> 约 2267 字 更新于 2023-08-21
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#创建网络配置">创建网络配置</a></li>
+            <li><a href="#删除配置">删除配置</a></li>
+            <li><a href="#使用golang完成这个过程">使用golang完成这个过程</a></li>
+            <li><a href="#限速">限速</a></li>
+            <li><a href="#golang实现">golang实现</a></li>
+            <li><a href="#取消限速">取消限速</a></li>
+            <li><a href="#测速">测速</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要的概念包括qdisc（队列调度器）、class（分类器）、和filter（过滤器）。qdisc又分为classless qdisc（无分类队列调度器）和classful qdisc（有分类队列调度器），而控制传输速度的方法主要有两种用法，区别主要在于<strong>粒度</strong>与<strong>复杂性</strong>具体如下：</p>
+<ol>
+<li><strong>对于classless qdisc</strong>：你可以直接将一个classless qdisc 添加到网络接口上，它会作为一个简单的限流工具，用于对整个接口上的流量进行限制。这意味着所有的流量都受到相同的限制，没有进一步的分类。</li>
+<li><strong>对于classful qdisc</strong>：在这种情况下，你可以使用class和filter来创建更复杂的流量控制策略。首先，你会创建一个classful qdisc，然后在这个qdisc下创建多个class（子类），然后使用filter将流量分配到这些class中。每个class可以有自己的限制规则，例如不同的带宽限制、延迟、或丢包率。在最后的subclass下，你可以挂载一个classless qdisc，用于实际的流量输出。</li>
+</ol>
+<p>Kubernetes（k8s）的CNI（Container Network Interface）插件限速，通常会使用classful qdisc 的方法。</p>
+<h3 id="创建网络配置">创建网络配置</h3>
+<p>在一个名为 <code>ns0</code> 的网络命名空间中创建一个虚拟网络设备 <code>veth0-ns</code>，分配 IP 地址，并设置默认路由，然后通过与默认命名空间中的虚拟网络设备 <code>veth0-br</code> 相连，实现跨命名空间的通信</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 创建一个网络空间</span>
+</span></span><span class="line"><span class="cl">ip netns add ns0
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建一对虚拟以太网设备，其中一个设备 veth0-ns 将位于 ns0 命名空间中，另一个设备 veth0-br 位于默认的命名空间中</span>
+</span></span><span class="line"><span class="cl">ip link add veth0-ns <span class="nb">type</span> veth peer name veth0-br
+</span></span><span class="line"><span class="cl"><span class="c1"># 将之前创建的虚拟以太网设备 veth0-ns 移动到 ns0 命名空间中</span>
+</span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> veth0-ns netns ns0
+</span></span><span class="line"><span class="cl"><span class="c1"># 在 ns0 命名空间中，启用回环接口</span>
+</span></span><span class="line"><span class="cl">ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> lo up
+</span></span><span class="line"><span class="cl"><span class="c1"># 在 ns0 命名空间中, 启用之前移动到命名空间内的 veth0-ns 接口</span>
+</span></span><span class="line"><span class="cl">ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> veth0-ns up
+</span></span><span class="line"><span class="cl"><span class="c1"># 在 ns0 命名空间中，为 veth0-ns 接口分配 IP 地址</span>
+</span></span><span class="line"><span class="cl">ip netns <span class="nb">exec</span> ns0 ip addr add 10.233.1.1/32 dev veth0-ns
+</span></span><span class="line"><span class="cl"><span class="c1"># 在 ns0 命名空间中，添加默认的路由，将所有流量发送到 veth0-ns 接口</span>
+</span></span><span class="line"><span class="cl">ip netns <span class="nb">exec</span> ns0 ip route add default dev veth0-ns
+</span></span><span class="line"><span class="cl"><span class="c1"># 默认命名空间中，启用之前创建的 veth0-br 接口</span>
+</span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> veth0-br up
+</span></span><span class="line"><span class="cl"><span class="c1"># 在默认命名空间中，添加一条静态路由</span>
+</span></span><span class="line"><span class="cl">route add 10.233.1.1 dev veth0-br
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="删除配置">删除配置</h3>
+<p>你可以按照以下步骤来撤销之前设置的网络配置：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 删除静态路由</span>
+</span></span><span class="line"><span class="cl">ip route del 10.233.1.1
+</span></span><span class="line"><span class="cl"><span class="c1"># 删除默认命名空间中的 veth0-br 设备</span>
+</span></span><span class="line"><span class="cl">ip link del veth0-br
+</span></span><span class="line"><span class="cl"><span class="c1"># 删除网络命名空间 ns0</span>
+</span></span><span class="line"><span class="cl">ip netns del ns0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="使用golang完成这个过程">使用golang完成这个过程</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span><span class="lnt">94
+</span><span class="lnt">95
+</span><span class="lnt">96
+</span><span class="lnt">97
+</span><span class="lnt">98
+</span><span class="lnt">99
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/vishvananda/netlink&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/vishvananda/netns&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;runtime&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">runtime</span><span class="p">.</span><span class="nf">LockOSThread</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">runtime</span><span class="p">.</span><span class="nf">UnlockOSThread</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Save the current network namespace
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">origns</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netns</span><span class="p">.</span><span class="nf">Get</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">origns</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Create a new network namespace
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">newns</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netns</span><span class="p">.</span><span class="nf">NewNamed</span><span class="p">(</span><span class="s">&#34;ns0&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">newns</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">newns</span><span class="p">.</span><span class="nf">String</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Switch back to the original namespace
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">err</span> <span class="p">=</span> <span class="nx">netns</span><span class="p">.</span><span class="nf">Set</span><span class="p">(</span><span class="nx">origns</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//	创建一对虚拟以太网设备
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">veth</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">netlink</span><span class="p">.</span><span class="nx">Veth</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">LinkAttrs</span><span class="p">:</span> <span class="nx">netlink</span><span class="p">.</span><span class="nx">LinkAttrs</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;veth0-ns&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">PeerName</span><span class="p">:</span> <span class="s">&#34;veth0-br&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">LinkAdd</span><span class="p">(</span><span class="nx">veth</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 将 veth0-ns 移动到 ns0 命名空间
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">LinkSetNsFd</span><span class="p">(</span><span class="nx">veth</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nx">newns</span><span class="p">));</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="p">=</span> <span class="nx">netns</span><span class="p">.</span><span class="nf">Set</span><span class="p">(</span><span class="nx">newns</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="nx">vethNS</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">LinkByName</span><span class="p">(</span><span class="s">&#34;veth0-ns&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 在 ns0 命名空间中启用设备
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">LinkSetUp</span><span class="p">(</span><span class="nx">vethNS</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl"><span class="c1">// 在 ns0 命名空间中设置 IP 地址和路由
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">addr</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">netlink</span><span class="p">.</span><span class="nx">Addr</span><span class="p">{</span><span class="nx">IPNet</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">net</span><span class="p">.</span><span class="nx">IPNet</span><span class="p">{</span><span class="nx">IP</span><span class="p">:</span> <span class="nx">net</span><span class="p">.</span><span class="nf">ParseIP</span><span class="p">(</span><span class="s">&#34;10.233.1.1&#34;</span><span class="p">),</span> <span class="nx">Mask</span><span class="p">:</span> <span class="nx">net</span><span class="p">.</span><span class="nf">CIDRMask</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)}}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">AddrAdd</span><span class="p">(</span><span class="nx">vethNS</span><span class="p">,</span> <span class="nx">addr</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">route</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">netlink</span><span class="p">.</span><span class="nx">Route</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">LinkIndex</span><span class="p">:</span> <span class="nx">vethNS</span><span class="p">.</span><span class="nf">Attrs</span><span class="p">().</span><span class="nx">Index</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Dst</span><span class="p">:</span>       <span class="kc">nil</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Gw</span><span class="p">:</span>        <span class="nx">net</span><span class="p">.</span><span class="nf">ParseIP</span><span class="p">(</span><span class="s">&#34;10.233.1.1&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">RouteAdd</span><span class="p">(</span><span class="nx">route</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">netns</span><span class="p">.</span><span class="nf">Set</span><span class="p">(</span><span class="nx">origns</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 在默认命名空间中启用 veth0-br
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">vethBR</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">LinkByName</span><span class="p">(</span><span class="s">&#34;veth0-br&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="p">=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">LinkSetUp</span><span class="p">(</span><span class="nx">vethBR</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 在默认命名空间中添加静态路由
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">defaultRoute</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">netlink</span><span class="p">.</span><span class="nx">Route</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">LinkIndex</span><span class="p">:</span> <span class="nx">vethBR</span><span class="p">.</span><span class="nf">Attrs</span><span class="p">().</span><span class="nx">Index</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Dst</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">net</span><span class="p">.</span><span class="nx">IPNet</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">IP</span><span class="p">:</span>   <span class="nx">net</span><span class="p">.</span><span class="nf">IPv4</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">233</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Mask</span><span class="p">:</span> <span class="nx">net</span><span class="p">.</span><span class="nf">IPv4Mask</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Gw</span><span class="p">:</span> <span class="nx">net</span><span class="p">.</span><span class="nf">ParseIP</span><span class="p">(</span><span class="s">&#34;0.0.0.0&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">netlink</span><span class="p">.</span><span class="nf">RouteAdd</span><span class="p">(</span><span class="nx">defaultRoute</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Setup complete!&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="限速">限速</h3>
+<p>对于 ingress（入站）流量的限速，不需要创建额外的设备。然而，对于 egress（出站）流量的限速，通常情况下需要使用 ifb 设备将出站流量重新定向到一个虚拟的网络接口，然后在该接口上进行限速。</p>
+<p><strong>限制 Ingress（入站）流量：</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tc qdisc add dev veth0-br handle 1:0 root tbf rate 1Mbit burst 10k latency 70ms
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>限制 Egress（出站）流量：</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 创建 egress 限制</span>
+</span></span><span class="line"><span class="cl">ip link add ifb0 <span class="nb">type</span> ifb
+</span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> dev ifb0 up
+</span></span><span class="line"><span class="cl">tc qdisc add dev veth0-br handle ffff: ingress
+</span></span><span class="line"><span class="cl">tc qdisc add dev ifb0 handle 1:0 root tbf rate 1Mbit burst 10k latency 70ms
+</span></span><span class="line"><span class="cl">tc filter add dev veth0-br parent ffff: protocol all pref <span class="m">1</span> u32 match u32 <span class="m">0</span> <span class="m">0</span> flowid 1:1 action mirred egress redirect dev ifb0 pass
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看限速信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@base:~# tc -s qdisc show
+</span></span><span class="line"><span class="cl">qdisc tbf 1: dev veth0-br root refcnt <span class="m">5</span> rate 1Mbit burst 10Kb lat 70ms 
+</span></span><span class="line"><span class="cl"> Sent <span class="m">280</span> bytes <span class="m">4</span> pkt <span class="o">(</span>dropped 0, overlimits <span class="m">0</span> requeues 0<span class="o">)</span> 
+</span></span><span class="line"><span class="cl"> backlog 0b 0p requeues <span class="m">0</span>
+</span></span><span class="line"><span class="cl">qdisc ingress ffff: dev veth0-br parent ffff:fff1 ---------------- 
+</span></span><span class="line"><span class="cl"> Sent <span class="m">56</span> bytes <span class="m">1</span> pkt <span class="o">(</span>dropped 0, overlimits <span class="m">0</span> requeues 0<span class="o">)</span> 
+</span></span><span class="line"><span class="cl"> backlog 0b 0p requeues <span class="m">0</span>
+</span></span><span class="line"><span class="cl">qdisc tbf 1: dev ifb0 root refcnt <span class="m">2</span> rate 1Mbit burst 10Kb lat 70ms 
+</span></span><span class="line"><span class="cl"> Sent <span class="m">210</span> bytes <span class="m">3</span> pkt <span class="o">(</span>dropped 0, overlimits <span class="m">0</span> requeues 0<span class="o">)</span> 
+</span></span><span class="line"><span class="cl"> backlog 0b 0p requeues <span class="m">0</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="golang实现">golang实现</h3>
+<p>可以参考https://github.com/containernetworking/plugins 的<code>CreateEgressQdisc</code> 与<code>CreateIngressQdisc</code>函数</p>
+<blockquote>
+<p><a href="https://github.com/containernetworking/plugins/blob/9d9ec6e3e18ea245b9cef0f8396e570247338d1f/plugins/meta/bandwidth/ifb_creator.go#L52">https://github.com/containernetworking/plugins/blob/9d9ec6e3e18ea245b9cef0f8396e570247338d1f/plugins/meta/bandwidth/ifb_creator.go#L52</a></p>
+<p><a href="https://github.com/containernetworking/plugins/blob/9d9ec6e3e18ea245b9cef0f8396e570247338d1f/plugins/meta/bandwidth/ifb_creator.go#L60">https://github.com/containernetworking/plugins/blob/9d9ec6e3e18ea245b9cef0f8396e570247338d1f/plugins/meta/bandwidth/ifb_creator.go#L60</a></p>
+</blockquote>
+<h3 id="取消限速">取消限速</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 停用 ifb 设备</span>
+</span></span><span class="line"><span class="cl">ip link <span class="nb">set</span> dev ifb0 down
+</span></span><span class="line"><span class="cl"><span class="c1"># 删除 ingress 队列调度规则</span>
+</span></span><span class="line"><span class="cl">tc qdisc del dev veth0-br ingress
+</span></span><span class="line"><span class="cl"><span class="c1"># 删除 ifb0 的根队列调度规则</span>
+</span></span><span class="line"><span class="cl">tc qdisc del dev ifb0 root
+</span></span><span class="line"><span class="cl"><span class="c1"># 删除 ingress 过滤器规则</span>
+</span></span><span class="line"><span class="cl">tc filter del dev veth0-br parent ffff:
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="测速">测速</h3>
+<h4 id="egress">egress</h4>
+<p>首先进行egress限制流量测试，打开一个会话，使用iperf创建一个server</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">ip netns exec ns0 iperf3 -s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再打开一个会话，创建一个client测试，结果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">iperf3 -c 10.233.1.1 -t <span class="m">20</span>
+</span></span><span class="line"><span class="cl">- - - - - - - - - - - - - - - - - - - - - - - - -
+</span></span><span class="line"><span class="cl"><span class="o">[</span> ID<span class="o">]</span> Interval           Transfer     Bitrate         Retr
+</span></span><span class="line"><span class="cl"><span class="o">[</span>  5<span class="o">]</span>   0.00-20.00  sec  2.38 MBytes  <span class="m">1000</span> Kbits/sec    <span class="m">0</span>             sender
+</span></span><span class="line"><span class="cl"><span class="o">[</span>  5<span class="o">]</span>   0.00-20.07  sec  2.29 MBytes   <span class="m">958</span> Kbits/sec                  receiver
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">iperf Done.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="ingress">ingress</h4>
+<p>然后进行ingress限制流量测试，打开一个会话，使用iperf创建一个server</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"> iperf3 -s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再打开一个会话，创建一个client测试，<code>192.168.50.181</code> 是主机ip, 结果如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">- - - - - - - - - - - - - - - - - - - - - - - - -
+</span></span><span class="line"><span class="cl"><span class="o">[</span> ID<span class="o">]</span> Interval           Transfer     Bitrate         Retr
+</span></span><span class="line"><span class="cl"><span class="o">[</span>  5<span class="o">]</span>   0.00-20.00  sec  2.51 MBytes  1.05 Mbits/sec    <span class="m">5</span>             sender
+</span></span><span class="line"><span class="cl"><span class="o">[</span>  5<span class="o">]</span>   0.00-20.09  sec  2.30 MBytes   <span class="m">958</span> Kbits/sec                  receiver
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">iperf Done.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到流量进出网络命名空间 ns0 的时候流量大致被限制在了1Mbits/s。</p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E5%BA%93%E5%AE%9E%E7%8E%B0%E8%A1%8C%E5%8F%B7%E6%89%93%E5%8D%B0%E5%8F%8A%E8%B7%B3%E8%BD%AC/">
+                <span class="next-text nav-default">自定义日志库实现行号打印及跳转</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
