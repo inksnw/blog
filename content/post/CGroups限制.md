@@ -4,10 +4,13 @@ date: 2023-08-21T09:48:35+08:00
 tags: ["k8s"]
 ---
 
-在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要的概念包括qdisc（队列调度器）、class（分类器）、和filter（过滤器）。qdisc又分为classless qdisc（无分类队列调度器）和classful qdisc（有分类队列调度器），而控制传输速度的方法主要有两种用法，区别主要在于**粒度**与**复杂性**具体如下：
+## 网络
 
-1. **对于classless qdisc**：你可以直接将一个classless qdisc 添加到网络接口上，它会作为一个简单的限流工具，用于对整个接口上的流量进行限制。这意味着所有的流量都受到相同的限制，没有进一步的分类。
-2. **对于classful qdisc**：在这种情况下，你可以使用class和filter来创建更复杂的流量控制策略。首先，你会创建一个classful qdisc，然后在这个qdisc下创建多个class（子类），然后使用filter将流量分配到这些class中。每个class可以有自己的限制规则，例如不同的带宽限制、延迟、或丢包率。在最后的subclass下，你可以挂载一个classless qdisc，用于实际的流量输出。
+在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要的概念包括qdisc（队列调度器）、class（分类器）、和filter（过滤器）。qdisc又分为classless qdisc（无分类队列调度器）和classful qdisc（有分类队列调度器），区别主要在于**粒度**与**复杂性**, 具体如下：
+
+- **classless qdisc**：直接将一个classless qdisc 添加到网络接口上，用于对整个接口上的流量进行相同的限制限制, 没有进一步的分类。
+
+- **classful qdisc**：使用class和filter来创建更复杂的流量控制策略。首先，你会创建一个classful qdisc，然后在这个qdisc下创建多个class（子类），然后使用filter将流量分配到这些class中。每个class可以有自己的限制规则。在最后的subclass下，你可以挂载一个classless qdisc，用于实际的流量输出。
 
 Kubernetes（k8s）的CNI（Container Network Interface）插件限速，通常会使用classful qdisc 的方法。
 
@@ -252,3 +255,5 @@ iperf Done.
 ```
 
 可以看到流量进出网络命名空间 ns0 的时候流量大致被限制在了1Mbits/s。
+
+## 磁盘

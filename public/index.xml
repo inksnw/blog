@@ -13,11 +13,16 @@
       <pubDate>Mon, 21 Aug 2023 09:48:35 +0800</pubDate>
       
       <guid>http://inksnw.asuscomm.com:3001/post/cgroups%E9%99%90%E5%88%B6/</guid>
-      <description>&lt;p&gt;在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要的概念包括qdisc（队列调度器）、class（分类器）、和filter（过滤器）。qdisc又分为classless qdisc（无分类队列调度器）和classful qdisc（有分类队列调度器），而控制传输速度的方法主要有两种用法，区别主要在于&lt;strong&gt;粒度&lt;/strong&gt;与&lt;strong&gt;复杂性&lt;/strong&gt;具体如下：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;对于classless qdisc&lt;/strong&gt;：你可以直接将一个classless qdisc 添加到网络接口上，它会作为一个简单的限流工具，用于对整个接口上的流量进行限制。这意味着所有的流量都受到相同的限制，没有进一步的分类。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;对于classful qdisc&lt;/strong&gt;：在这种情况下，你可以使用class和filter来创建更复杂的流量控制策略。首先，你会创建一个classful qdisc，然后在这个qdisc下创建多个class（子类），然后使用filter将流量分配到这些class中。每个class可以有自己的限制规则，例如不同的带宽限制、延迟、或丢包率。在最后的subclass下，你可以挂载一个classless qdisc，用于实际的流量输出。&lt;/li&gt;
-&lt;/ol&gt;
+      <description>&lt;h2 id=&#34;网络&#34;&gt;网络&lt;/h2&gt;
+&lt;p&gt;在Linux系统中，tc（Traffic Control）是一个用于控制网络流量的工具，它可以用来限制传输速率、模拟网络延迟、丢包等场景。主要的概念包括qdisc（队列调度器）、class（分类器）、和filter（过滤器）。qdisc又分为classless qdisc（无分类队列调度器）和classful qdisc（有分类队列调度器），区别主要在于&lt;strong&gt;粒度&lt;/strong&gt;与&lt;strong&gt;复杂性&lt;/strong&gt;, 具体如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;classless qdisc&lt;/strong&gt;：直接将一个classless qdisc 添加到网络接口上，用于对整个接口上的流量进行相同的限制限制, 没有进一步的分类。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;classful qdisc&lt;/strong&gt;：使用class和filter来创建更复杂的流量控制策略。首先，你会创建一个classful qdisc，然后在这个qdisc下创建多个class（子类），然后使用filter将流量分配到这些class中。每个class可以有自己的限制规则。在最后的subclass下，你可以挂载一个classless qdisc，用于实际的流量输出。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Kubernetes（k8s）的CNI（Container Network Interface）插件限速，通常会使用classful qdisc 的方法。&lt;/p&gt;
 &lt;h3 id=&#34;创建网络配置&#34;&gt;创建网络配置&lt;/h3&gt;
 &lt;p&gt;在一个名为 &lt;code&gt;ns0&lt;/code&gt; 的网络命名空间中创建一个虚拟网络设备 &lt;code&gt;veth0-ns&lt;/code&gt;，分配 IP 地址，并设置默认路由，然后通过与默认命名空间中的虚拟网络设备 &lt;code&gt;veth0-br&lt;/code&gt; 相连，实现跨命名空间的通信&lt;/p&gt;
@@ -436,6 +441,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;可以看到流量进出网络命名空间 ns0 的时候流量大致被限制在了1Mbits/s。&lt;/p&gt;
+&lt;h2 id=&#34;磁盘&#34;&gt;磁盘&lt;/h2&gt;
 </description>
     </item>
     
