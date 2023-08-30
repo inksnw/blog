@@ -44,9 +44,31 @@ ratelimit-remaining: 196;w=21600
 
 ### k8s使用登录信息
 
+查了一下, 并没有找到整个集群使用docker登录信息的办法, 只能配置`imagePullSecrets`
+
 ```bash
-docker login
-cp ~/.docker/config.json  /var/lib/kubelet/
-systemctl restart kubelet
+docker login 
+
+kubectl create secret generic regcred  --from-file=.dockerconfigjson=/root/.docker/config.json --type=kubernetes.io/dockerconfigjson
 ```
 
+创建一个使用你的 Secret 的 Pod
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-reg
+spec:
+  containers:
+  - name: private-reg-container
+    image: nginx
+  imagePullSecrets:
+  - name: regcred
+```
+
+源码位于
+
+`kubernetes-1.26.5/pkg/kubelet/kubelet.go` 1827行, syncPod的时候需要拉取镜像/验证镜像, 这时候就需要验证auth
+
+> 可以考虑搞一个准入控制, 自动为pod添加这个imagePullSecrets

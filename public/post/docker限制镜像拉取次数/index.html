@@ -52,7 +52,7 @@
 <meta itemprop="name" content="Docker限制镜像拉取次数">
 <meta itemprop="description" content="查看限制次数 在使用 docker pull 拉取镜像时，遇到如下报错： 1 Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit 2020 年 11 月 20 日，Docker Hub 基于个人 IP 地址对匿"><meta itemprop="datePublished" content="2023-02-27T15:53:36+08:00" />
 <meta itemprop="dateModified" content="2023-02-28T09:49:47+08:00" />
-<meta itemprop="wordCount" content="263">
+<meta itemprop="wordCount" content="436">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Docker限制镜像拉取次数"/>
 <meta name="twitter:description" content="查看限制次数 在使用 docker pull 拉取镜像时，遇到如下报错： 1 Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit 2020 年 11 月 20 日，Docker Hub 基于个人 IP 地址对匿"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-02-27 </span>
             
-            <span class="more-meta"> 约 263 字 更新于 2023-02-28
+            <span class="more-meta"> 约 436 字 更新于 2023-02-28
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -211,6 +211,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="k8s使用登录信息">k8s使用登录信息</h3>
+<p>查了一下, 并没有找到整个集群使用docker登录信息的办法, 只能配置<code>imagePullSecrets</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -218,12 +219,44 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker login
-</span></span><span class="line"><span class="cl">cp ~/.docker/config.json  /var/lib/kubelet/
-</span></span><span class="line"><span class="cl">systemctl restart kubelet
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker login 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl create secret generic regcred  --from-file<span class="o">=</span>.dockerconfigjson<span class="o">=</span>/root/.docker/config.json --type<span class="o">=</span>kubernetes.io/dockerconfigjson
 </span></span></code></pre></td></tr></table>
 </div>
+</div><p>创建一个使用你的 Secret 的 Pod</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">apiVersion: v1
+</span></span><span class="line"><span class="cl">kind: Pod
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  name: private-reg
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  containers:
+</span></span><span class="line"><span class="cl">  - name: private-reg-container
+</span></span><span class="line"><span class="cl">    image: nginx
+</span></span><span class="line"><span class="cl">  imagePullSecrets:
+</span></span><span class="line"><span class="cl">  - name: regcred
+</span></span></code></pre></td></tr></table>
 </div>
+</div><p>源码位于</p>
+<p><code>kubernetes-1.26.5/pkg/kubelet/kubelet.go</code> 1827行, syncPod的时候需要拉取镜像/验证镜像, 这时候就需要验证auth</p>
+<blockquote>
+<p>可以考虑搞一个准入控制, 自动为pod添加这个imagePullSecrets</p>
+</blockquote>
+
     </div>
 
     
