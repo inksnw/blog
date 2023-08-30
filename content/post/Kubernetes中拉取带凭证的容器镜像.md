@@ -6,6 +6,10 @@ tags: ["k8s"]
 
 ## 简单使用
 
+源码位于`kubernetes-1.26.5/pkg/kubelet/kubelet.go` 1827行, syncPod的时候需要拉取镜像/验证镜像, 这时候就需要验证auth
+
+在syncPod的步骤中会首先验证镜像是否存在, 发送grpc的拉取镜像请求, 这时会使用带上的认证信息, 直接配置容器运行时如`docker login` 是没有用的, k8s并不会使用这个登录信息
+
 ```bash
 docker login 
 kubectl create secret generic regcred  --from-file=.dockerconfigjson=/root/.docker/config.json --type=kubernetes.io/dockerconfigjson
@@ -23,10 +27,6 @@ spec:
   imagePullSecrets:
   - name: regcred
 ```
-
-源码位于
-
-`kubernetes-1.26.5/pkg/kubelet/kubelet.go` 1827行, syncPod的时候需要拉取镜像/验证镜像, 这时候就需要验证auth
 
 ## 指定名称空间
 
