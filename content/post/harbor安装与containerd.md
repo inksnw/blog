@@ -9,24 +9,25 @@ tags: ["k8s"]
 下载离线安装包`700M`
 
 ```bash
-wget https://mirrors.tuna.tsinghua.edu.cn/github-release/goharbor/harbor/v2.6.0/harbor-offline-installer-v2.6.0.tgz
+wget https://mirrors.tuna.tsinghua.edu.cn/github-release/goharbor/harbor/v2.9.0/harbor-offline-installer-v2.9.0.tgz
+tar -zxvf harbor-offline-installer-v2.9.0.tgz 
+cp harbor.yml.tmpl harbor.yml
 ```
 
-解压从`harbor.yml.tmpl`复制一份`harbor.yml`
+修改 `harbor.yml`
 
 ```yaml
-hostname: harbor.inksnw.com
+hostname: inksnw.asuscomm.com
 http:
-  port: 3002
-harbor_admin_password: Harbor12345
-# 数据库要提前建好
+  port: 3003
+harbor_admin_password: xxx
 external_database:
   harbor:
-    host: 192.168.50.xx
+    host: 192.168.50.209
     port: 5432
     db_name: harbor
-    username: xxx
-    password: xxx
+    username: postgres
+    password: postgres
     ssl_mode: disable
     max_idle_conns: 2
     max_open_conns: 0
@@ -35,20 +36,22 @@ trivy:
   ignore_unfixed: false
   skip_update: false
   offline_scan: false
+  security_check: vuln
   insecure: false
 jobservice:
   max_job_workers: 10
+  job_loggers:
+    - STD_OUTPUT
+    - FILE
 notification:
-  webhook_job_max_retry: 10
-chart:
-  absolute_url: disabled
+  webhook_job_max_retry: 3
 log:
   level: info
   local:
     rotate_count: 50
     rotate_size: 200M
     location: /var/log/harbor
-_version: 2.6.0
+_version: 2.9.0
 proxy:
   http_proxy:
   https_proxy:
@@ -77,9 +80,9 @@ cache:
 访问web界面
 
 ```
-http://192.168.50.209:3002/
+http://192.168.50.209:3003/
 用户名: admin
-默认密码: Harbor12345
+默认密码: xxx
 ```
 
 **踩坑**
@@ -108,12 +111,9 @@ http://192.168.50.209:3002/
     [plugins."io.containerd.grpc.v1.cri".registry]
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-          endpoint = ["https://registry-1.docker.io"]
-        #以下是新增的
-        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."harbor.inksnw.com:3002"]
-          endpoint = ["http://harbor.inksnw.com:3002"]
+          endpoint = ["http://inksnw.asuscomm.com:3003"]
         [plugins."io.containerd.grpc.v1.cri".registry.configs]
-          [plugins."io.containerd.grpc.v1.cri".registry.configs."harbor.inksnw.com:3002".tls]
+          [plugins."io.containerd.grpc.v1.cri".registry.configs."inksnw.asuscomm.com:3003".tls]
           insecure_skip_verify = true
 ```
 
@@ -126,13 +126,13 @@ systemctl restart containerd
 上传镜像
 
 ```bash
-# 登录
-nerdctl --insecure-registry login http://harbor.inksnw.com:3002
-# 要指定`-n=k8s.io` 否则会找不到镜像
-nerdctl -n=k8s.io tag calico/node:v3.23.2 harbor.inksnw.com:3002/calico/node:v3.23.2
+nerdctl --insecure-registry login http://inksnw.asuscomm.com:3003
 nerdctl -n=k8s.io images
-nerdctl -n=k8s.io --insecure-registry push harbor.inksnw.com:3002/calico/node:v3.23.2
+nerdctl -n=k8s.io tag 
+nerdctl -n=k8s.io --insecure-registry push inksnw.asuscomm.com:3003/calico/node:v3.23.2
 ```
+
+
 
 **踩坑**
 
