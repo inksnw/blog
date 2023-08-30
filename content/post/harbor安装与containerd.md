@@ -158,8 +158,8 @@ nerdctl -n=k8s.io images
 ## nerdctl简单使用
 
 ```bash
-wget https://github.com/containerd/nerdctl/releases/download/v1.4.0/nerdctl-1.4.0-linux-amd64.tar.gz
-tar -zxvf nerdctl-1.4.0-linux-amd64.tar.gz -C /usr/local/bin/
+wget https://github.com/containerd/nerdctl/releases/download/v1.5.0/nerdctl-1.5.0-linux-amd64.tar.gz
+tar -zxvf nerdctl-1.5.0-linux-amd64.tar.gz -C /usr/local/bin/
 # 清理未用到的镜像 
 nerdctl -n=k8s.io image prune -a
 ```
