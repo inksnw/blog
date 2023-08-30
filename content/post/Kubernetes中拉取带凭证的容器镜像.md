@@ -60,7 +60,9 @@ k8s并未提供全局设置的办法
 
 这里提供几种办法, 第一种算是上面方法的进阶
 
-### 对所有的ServiceAccount打patch
+### 打patch
+
+对所有的ServiceAccount打patch
 
 ```go
 package main
