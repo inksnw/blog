@@ -52,7 +52,7 @@
 <meta itemprop="name" content="Kubernetes中拉取带凭证的容器镜像">
 <meta itemprop="description" content="简单使用 源码位于kubernetes-1.26.5/pkg/kubelet/kubelet.go 1827行, syncPod的时候需要拉取镜像"><meta itemprop="datePublished" content="2023-08-30T20:29:51+08:00" />
 <meta itemprop="dateModified" content="2023-08-30T20:29:51+08:00" />
-<meta itemprop="wordCount" content="819">
+<meta itemprop="wordCount" content="889">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubernetes中拉取带凭证的容器镜像"/>
 <meta name="twitter:description" content="简单使用 源码位于kubernetes-1.26.5/pkg/kubelet/kubelet.go 1827行, syncPod的时候需要拉取镜像"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-08-30 </span>
             
-            <span class="more-meta"> 约 819 字 更新于 2023-08-30
+            <span class="more-meta"> 约 889 字 更新于 2023-08-30
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -375,10 +375,28 @@
 <p>拦截创建pod请求 , 并自动注入imagePullSecrets</p>
 </blockquote>
 <h3 id="给k8s提pr">给k8s提pr</h3>
-<blockquote>
-<p>^_</p>
-</blockquote>
-
+<p>理论上把上文的<code>pullSecrets := kl.getPullSecretsForPod(pod)</code> 这里加些类似的逻辑就可以, 但估计不太容易接受, 暂时先不考虑了吧</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">pullSecrets</span> <span class="nx">xxx</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsFromGlobal</span><span class="p">()&gt;</span><span class="mi">0</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nx">pullSecrets</span> <span class="p">=</span> <span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsFromGlobal</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">pullSecrets</span> <span class="p">=</span> <span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsForPod</span><span class="p">(</span><span class="nx">pod</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
     </div>
 
     

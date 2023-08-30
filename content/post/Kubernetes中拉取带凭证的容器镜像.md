@@ -137,4 +137,15 @@ func getPatchString(sa *corev1.ServiceAccount, secretName string) ([]byte, error
 
 ### 给k8s提pr
 
-> ^_
+理论上把上文的`pullSecrets := kl.getPullSecretsForPod(pod)` 这里加些类似的逻辑就可以, 但估计不太容易接受, 暂时先不考虑了吧
+
+```go
+var pullSecrets xxx
+if kl.getPullSecretsFromGlobal()>0{
+pullSecrets = kl.getPullSecretsFromGlobal()
+}else{
+  pullSecrets = kl.getPullSecretsForPod(pod)
+}
+  
+```
+
