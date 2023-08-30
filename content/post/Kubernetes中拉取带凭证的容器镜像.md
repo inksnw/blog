@@ -10,6 +10,10 @@ tags: ["k8s"]
 
 在syncPod的步骤中会首先验证镜像是否存在, 发送grpc的拉取镜像请求, 这时会使用带上的认证信息, 直接配置容器运行时如`docker login` 是没有用的, k8s并不会使用这个登录信息
 
+<img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_9b829e648e5360c9a165c4b5f6f58034.png" alt="image-20230830210358808" style="zoom:50%;" />
+
+简单使用, 手动注入
+
 ```bash
 docker login 
 kubectl create secret generic regcred  --from-file=.dockerconfigjson=/root/.docker/config.json --type=kubernetes.io/dockerconfigjson
@@ -30,26 +34,13 @@ spec:
 
 ## 指定名称空间
 
-每个名称空间会默认关联一个名为default的serviceAccount
+每个名称空间会默认关联一个名为default的serviceAccount, 而ServiceAccount 的属性可以被注入到Pod 中, 因此我们可以利用这个方法配置一个名称空间的拉取凭证
 
 ```bash
 kubectl create ns test
 kubectl edit serviceAccounts default -n test
-```
-
-增加属性`imagePullSecrets`
-
-```yaml
-apiVersion: v1
-imagePullSecrets:
-- name: regcred
-kind: ServiceAccount
-metadata:
-  creationTimestamp: "2023-08-30T12:28:02Z"
-  name: default
-  namespace: test
-  resourceVersion: "28176"
-  uid: df3db6fa-4913-4657-b7cf-a789a302faa6
+# 增加属性`imagePullSecrets`
+kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}' -n test
 ```
 
 在此空间下创建一个pod
@@ -65,10 +56,6 @@ kubectl get pod -n test -o jsonpath="{.items[*].spec.imagePullSecrets}"
 k8s并未提供全局设置的办法
 
 这里提供两种方法
-
-### webhook
-
-> 拦截创建pod请求 , 并自动注入imagePullSecrets
 
 ### 对所有的ServiceAccount打patch
 
@@ -139,3 +126,10 @@ func getPatchString(sa *corev1.ServiceAccount, secretName string) ([]byte, error
 }
 ```
 
+### webhook
+
+> 拦截创建pod请求 , 并自动注入imagePullSecrets
+
+### 给k8s提pr
+
+> ^_
