@@ -52,7 +52,7 @@
 <meta itemprop="name" content="Kubernetes中拉取带凭证的容器镜像">
 <meta itemprop="description" content="简单使用 源码位于kubernetes-1.26.5/pkg/kubelet/kubelet.go 1827行, syncPod的时候需要拉取镜像"><meta itemprop="datePublished" content="2023-08-30T20:29:51+08:00" />
 <meta itemprop="dateModified" content="2023-08-30T20:29:51+08:00" />
-<meta itemprop="wordCount" content="713">
+<meta itemprop="wordCount" content="813">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubernetes中拉取带凭证的容器镜像"/>
 <meta name="twitter:description" content="简单使用 源码位于kubernetes-1.26.5/pkg/kubelet/kubelet.go 1827行, syncPod的时候需要拉取镜像"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-08-30 </span>
             
-            <span class="more-meta"> 约 713 字 更新于 2023-08-30
+            <span class="more-meta"> 约 813 字 更新于 2023-08-30
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -202,18 +202,18 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">regcred</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="指定名称空间">指定名称空间</h2>
-<p>每个名称空间会默认关联一个名为default的serviceAccount, 而ServiceAccount 的属性可以被注入到Pod 中, 因此我们可以利用这个方法配置一个名称空间的拉取凭证</p>
+</div><p>这样, 这个pod的拉取就会使用regcred 里配置的用户名密码</p>
+<h2 id="指定名称空间">指定名称空间</h2>
+<p>但是总不能,每个pod都手动添加一下这个参数吧, 如下配置, 即可以一个名称空间指定<code>imagePullSecrets</code></p>
+<p>每个名称空间会默认关联一个名为default的serviceAccount, 而ServiceAccount 的属性会被注入到这个名称空间下的Pod 中, 因此我们可以利用这个方法配置一个名称空间的拉取凭证</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
-</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create ns <span class="nb">test</span>
-</span></span><span class="line"><span class="cl">kubectl edit serviceAccounts default -n <span class="nb">test</span>
 </span></span><span class="line"><span class="cl"><span class="c1"># 增加属性`imagePullSecrets`</span>
 </span></span><span class="line"><span class="cl">kubectl patch serviceaccount default -p <span class="s1">&#39;{&#34;imagePullSecrets&#34;: [{&#34;name&#34;: &#34;regcred&#34;}]}&#39;</span> -n <span class="nb">test</span>
 </span></span></code></pre></td></tr></table>
@@ -233,7 +233,7 @@
 </div>
 </div><h2 id="全局设置">全局设置</h2>
 <p>k8s并未提供全局设置的办法</p>
-<p>这里提供两种方法</p>
+<p>这里提供几种办法, 第一种算是上面方法的进阶</p>
 <h3 id="对所有的serviceaccount打patch">对所有的ServiceAccount打patch</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">

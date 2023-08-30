@@ -32,13 +32,16 @@ spec:
   - name: regcred
 ```
 
+这样, 这个pod的拉取就会使用regcred 里配置的用户名密码
+
 ## 指定名称空间
 
-每个名称空间会默认关联一个名为default的serviceAccount, 而ServiceAccount 的属性可以被注入到Pod 中, 因此我们可以利用这个方法配置一个名称空间的拉取凭证
+但是总不能,每个pod都手动添加一下这个参数吧, 如下配置, 即可以一个名称空间指定`imagePullSecrets`
+
+每个名称空间会默认关联一个名为default的serviceAccount, 而ServiceAccount 的属性会被注入到这个名称空间下的Pod 中, 因此我们可以利用这个方法配置一个名称空间的拉取凭证
 
 ```bash
 kubectl create ns test
-kubectl edit serviceAccounts default -n test
 # 增加属性`imagePullSecrets`
 kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}' -n test
 ```
@@ -55,7 +58,7 @@ kubectl get pod -n test -o jsonpath="{.items[*].spec.imagePullSecrets}"
 
 k8s并未提供全局设置的办法
 
-这里提供两种方法
+这里提供几种办法, 第一种算是上面方法的进阶
 
 ### 对所有的ServiceAccount打patch
 
