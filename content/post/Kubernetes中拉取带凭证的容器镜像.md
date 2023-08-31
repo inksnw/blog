@@ -6,7 +6,7 @@ tags: ["k8s"]
 
 ## 简单使用
 
-源码位于`kubernetes-1.26.5/pkg/kubelet/kubelet.go` 1827行, 在syncPod的步骤中会发送grpc的拉取镜像请求, 这时会使用带上的认证信息, 直接配置容器运行时如`nerdctl login` 是没有用的, k8s并不会使用这个登录信息
+源码位于`kubernetes-1.26.5/pkg/kubelet/kubelet.go` 1827行, 在syncPod的步骤中会发送grpc的拉取镜像请求, 这时会使用带上的认证信息, 对于containerd配置`nerdctl login` 是没有用的, k8s并不会使用这个登录信息
 
 > 使用docker login似乎是有用的, 推测是docker默认会保留登录状态
 
