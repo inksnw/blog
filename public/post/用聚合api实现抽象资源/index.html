@@ -48,11 +48,11 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E7%94%A8%E8%81%9A%E5%90%88api%E5%AE%9E%E7%8E%B0%E6%8A%BD%E8%B1%A1%E8%B5%84%E6%BA%90/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-09-05T17:10:45+08:00" />
-<meta property="article:modified_time" content="2023-09-05T17:10:45+08:00" />
+<meta property="article:modified_time" content="2023-09-05T17:11:40+08:00" />
 <meta itemprop="name" content="用聚合api实现抽象资源">
 <meta itemprop="description" content="背景 计算机行业, 没有什么不能加一层缓存实现, 但是也带来了一个常见问题, 如何保持数据一致. 比如你在阿里云和腾讯云各创建了三台主机, 现在要做一个"><meta itemprop="datePublished" content="2023-09-05T17:10:45+08:00" />
-<meta itemprop="dateModified" content="2023-09-05T17:10:45+08:00" />
-<meta itemprop="wordCount" content="1390">
+<meta itemprop="dateModified" content="2023-09-05T17:11:40+08:00" />
+<meta itemprop="wordCount" content="1441">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="用聚合api实现抽象资源"/>
 <meta name="twitter:description" content="背景 计算机行业, 没有什么不能加一层缓存实现, 但是也带来了一个常见问题, 如何保持数据一致. 比如你在阿里云和腾讯云各创建了三台主机, 现在要做一个"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-09-05 </span>
             
-            <span class="more-meta"> 约 1390 字 更新于 2023-09-05
+            <span class="more-meta"> 约 1441 字 更新于 2023-09-05
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -174,20 +174,23 @@
 <li>管理平台只存储一些需要筛选的元信息, 并实现一个事件机制,当云商的api被调动就向管理平台通知增加元信息记录, 查询详情的时候透传</li>
 </ul>
 <h2 id="k8s场景">k8s场景</h2>
-<p>k8s中也同样会有类似的问题, 比如实现一个应用商店, <code>redis</code> 和 <code>mysql</code> 是不同的crd, 要聚合在一起显示和上文描述的场景一样, 就也得在上层放一个对象, 我们假设用一个crd实现, 这里暂叫他 <code>manifest</code></p>
+<p>k8s中也同样会有类似的问题, 比如实现一个应用商店, <code>redis</code> 和 <code>mysql</code> 是不同的crd, 要聚合在一起显示, 和上文描述的场景一样, 也得在上层放一个对象, 我们假设用一个crd实现, 这里暂叫他 <code>manifest</code></p>
 <ul>
-<li>创建的时候创建 <code>manifest</code> 对象, 里面写上简化的实际资源的spec信息, 在controller的实现中, 解包<code>manifest</code> 提交实际的cr, <code>manifest</code> 中保留少量的元信息用于搜索,查看</li>
+<li>创建的时候创建 <code>manifest</code> 对象, 里面写上简化的实际资源的spec信息, 在controller的实现中, 解包<code>manifest</code> 提交实际的cr, <code>manifest</code> 中保留少量的元信息用于搜索, 查看 .</li>
 <li>通过informer 监听实例(mysql)信息, 把运行状态等同步到 <code>manifest</code></li>
 </ul>
 <p>搞定, 下班</p>
-<p>但是, 如果用户绕过ui, 直接编辑<code>mysql</code> 的配置怎么办, 数据不就不同步了么,  那简单, 我可以通过label等标记真实资源的信息, 让前端编辑时, 去查一下真实资源信息再编辑, 但这个会增大前端的复杂度.</p>
-<p>或者通过informer把全量信息同步到 <code>manifest</code> 不就可以了么, 是的, 但这会带来延迟和性能开销, 同时操作时可能会有数据冲突 (似乎也不是多大的事 -_- )</p>
+<blockquote>
+<p>但是, 如果用户绕过ui, 直接编辑<code>mysql</code> 的配置怎么办, 数据不就不同步了么</p>
+</blockquote>
+<p>那简单, 我们可以通过label等标记真实资源的信息, 让前端编辑时, 去查一下真实资源信息再编辑, 但这个会增大前端的复杂度 .</p>
+<p>或者 <code>manifest</code> 对象中不再只写简化的实际资源spec, 写全量的, 同时再通过informer把实际资源的状态变更全量同步到 <code>manifest</code> 不就可以了么, 是的, 但这会带来延迟和性能开销, 同时操作时可能会有数据冲突 ( 似乎也不是多大的事 -_- )</p>
 <h2 id="聚合api">聚合api</h2>
 <p>所以有没有其它的办法呢, 我们简化这个场景, 就是提交的是A, 实际操作的是B, 有另一个入口操作B时, A最好还能同步</p>
 <p>这里就引入k8s的AA <code>Aggregation Api</code>  官方文档 <a href="https://kubernetes.io/zh-cn/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/">可以参考</a></p>
-<p>我们只能定义crd 的增删改查的事件发生后做什么, 但并不改修改增删改查的逻辑, 而AA可以, 那么如果我们把创建时改成提交另一个资源, 查询/编辑时透传真实资源, 上面的问题不就解决了么</p>
+<p>crd资源我们只能定义cr 的增删改查的事件发生后做什么, 但并不能修改增删改查的逻辑, 而AA可以, 那么如果我们把创建时改成提交另一个资源, 查询/编辑时透传真实资源, 上面的问题不就解决了么</p>
 <h3 id="shadowresource">ShadowResource</h3>
-<p>为了解决上述问题，我们可以引入一个名为<code>ShadowResource</code> 虚拟资源概念</p>
+<p>为了解决上述问题, 我们可以引入一个名为<code>ShadowResource</code> 虚拟资源概念</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -250,13 +253,13 @@
 </div>
 </div><p>为ShadowResource实现以下功能：</p>
 <ol>
-<li><strong>批量提交</strong>: 创建时会循环flowList进行提交，实现了一次性创建多个资源的行为，如创建MySQL实例时提交多个CR。</li>
-<li><strong>资源信息存储</strong>: 记录相关资源的GVR,名称和命名空间等信息，可将这些信息存储在Etcd、CRD或关系型数据库中。</li>
-<li><strong>实时查询</strong>: 通过聚合API的可定制性，可以实时查询相关资源，并将其信息写回flowList，然后返回，确保用户编辑的是原生资源，避免与命令行编辑原生资源冲突。</li>
-<li><strong>删除</strong>: 在删除时，可以循环删除flowList中定义的资源，确保资源的清理。</li>
+<li><strong>批量提交</strong>: 创建时会循环flowList进行提交, 可以实现一次性创建多个资源, 如创建MySQL实例时提交多个CR。</li>
+<li><strong>资源信息存储</strong>: 记录相关资源的GVR,名称和命名空间等信息, 可存储在Etcd、CRD或关系型数据库中。</li>
+<li><strong>实时查询</strong>: 通过聚合API的可定制性, 可以实时查询相关资源, 并将其信息写回flowList, 确保用户编辑的是实时资源, 避免与命令行操作冲突。</li>
+<li><strong>删除</strong>: 在删除时, 可以循环删除flowList中定义的资源, 确保资源的清理。</li>
 </ol>
 <h3 id="实现">实现</h3>
-<p>实现参考 <a href="">https://github.com/inksnw/shadowresource</a>  代码的实现原理有空再写一下</p>
+<p>实现参考 <a href="">https://github.com/inksnw/shadowresource</a>  代码的实现原理有空再写一下, 参考文档 <a href="https://blog.gmem.cc/kubernetes-style-apiserver">编写Kubernetes风格的APIServer</a></p>
 <h2 id="优缺点">优缺点</h2>
 <p><strong>优点</strong></p>
 <ul>
@@ -264,16 +267,16 @@
 <p><strong>数据统一管理</strong>：可以实现<code>kubectl</code>和 <code>restapi</code>的统一。</p>
 </li>
 <li>
-<p><strong>实时查询</strong>：通过聚合API实时查询资源信息，保持用户编排的是原生资源，避免了数据不一致和冲突问题。</p>
+<p><strong>实时查询</strong>：通过聚合API实时查询资源信息, 保持用户编排的是原生资源, 避免了数据不一致和冲突问题。</p>
 </li>
 </ul>
 <p><strong>缺点</strong></p>
 <ul>
 <li>
-<p><strong>复杂性</strong>：引入AA会增加系统的复杂性，同步用于搜索和展示的元数据时, 值如何从真实资源中取得需要配置</p>
+<p><strong>复杂性</strong>：引入AA会增加系统的复杂性, 同步用于搜索和展示的元数据时, 值如何从真实资源中取得需要配置</p>
 </li>
 <li>
-<p><strong>抽象程度</strong>：并没有降低用户接触一个新的crd的时候的学习成本</p>
+<p><strong>抽象程度</strong>：并没有降低用户接触一个新的 crd 的时候的学习成本</p>
 </li>
 </ul>
 
