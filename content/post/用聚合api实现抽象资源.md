@@ -87,7 +87,7 @@ spec:
 
 ### 实现
 
-实现参考 [https://github.com/inksnw/shadowresource]()  代码的实现原理有空再写一下
+实现了个demo [https://github.com/inksnw/shadowresource](https://github.com/inksnw/shadowresource)  代码的实现原理有空再写一下
 
 参考文档 [编写Kubernetes风格的APIServer](https://blog.gmem.cc/kubernetes-style-apiserver)
 
