@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>用聚合api实现抽象资源 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="背景 计算机行业, 没有什么不能加一层缓存实现, 但是也带来了一个常见问题, 如何保持数据一致. 比如你在阿里云和腾讯云各创建了三台主机, 现在要做一个" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.117.0 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E7%94%A8%E8%81%9A%E5%90%88api%E5%AE%9E%E7%8E%B0%E6%8A%BD%E8%B1%A1%E8%B5%84%E6%BA%90/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="用聚合api实现抽象资源" />
+<meta property="og:description" content="背景 计算机行业, 没有什么不能加一层缓存实现, 但是也带来了一个常见问题, 如何保持数据一致. 比如你在阿里云和腾讯云各创建了三台主机, 现在要做一个" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E7%94%A8%E8%81%9A%E5%90%88api%E5%AE%9E%E7%8E%B0%E6%8A%BD%E8%B1%A1%E8%B5%84%E6%BA%90/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-09-05T17:10:45+08:00" />
+<meta property="article:modified_time" content="2023-09-05T17:10:45+08:00" />
+<meta itemprop="name" content="用聚合api实现抽象资源">
+<meta itemprop="description" content="背景 计算机行业, 没有什么不能加一层缓存实现, 但是也带来了一个常见问题, 如何保持数据一致. 比如你在阿里云和腾讯云各创建了三台主机, 现在要做一个"><meta itemprop="datePublished" content="2023-09-05T17:10:45+08:00" />
+<meta itemprop="dateModified" content="2023-09-05T17:10:45+08:00" />
+<meta itemprop="wordCount" content="1390">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="用聚合api实现抽象资源"/>
+<meta name="twitter:description" content="背景 计算机行业, 没有什么不能加一层缓存实现, 但是也带来了一个常见问题, 如何保持数据一致. 比如你在阿里云和腾讯云各创建了三台主机, 现在要做一个"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">用聚合api实现抽象资源</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-09-05 </span>
+            
+            <span class="more-meta"> 约 1390 字 更新于 2023-09-05
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#背景">背景</a></li>
+        <li><a href="#k8s场景">k8s场景</a></li>
+        <li><a href="#聚合api">聚合api</a>
+          <ul>
+            <li><a href="#shadowresource">ShadowResource</a></li>
+            <li><a href="#实现">实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#优缺点">优缺点</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h2 id="背景">背景</h2>
+<p>计算机行业, 没有什么不能加一层缓存实现,  但是也带来了一个常见问题, 如何保持数据一致.</p>
+<p>比如你在阿里云和腾讯云各创建了三台主机, 现在要做一个管理系统管理这些主机, 要如何做 .</p>
+<p>引入一个数据库, 创建一个主机就在数据库里记录一条</p>
+<blockquote>
+<p>但是如果有人绕过这个平台, 直接在阿里云创建了一个主机, 那数据就不同步了</p>
+</blockquote>
+<p>两种解决方案</p>
+<ul>
+<li>在管理平台查询主机列表时, 不记录真实的主机, 而是透传查询云商的主机列表api, 把结果合并, 但是这会带来分页和筛选的问题, 取前3条, 是阿里2条,腾讯1条, 还是反过来?</li>
+<li>管理平台只存储一些需要筛选的元信息, 并实现一个事件机制,当云商的api被调动就向管理平台通知增加元信息记录, 查询详情的时候透传</li>
+</ul>
+<h2 id="k8s场景">k8s场景</h2>
+<p>k8s中也同样会有类似的问题, 比如实现一个应用商店, <code>redis</code> 和 <code>mysql</code> 是不同的crd, 要聚合在一起显示和上文描述的场景一样, 就也得在上层放一个对象, 我们假设用一个crd实现, 这里暂叫他 <code>manifest</code></p>
+<ul>
+<li>创建的时候创建 <code>manifest</code> 对象, 里面写上简化的实际资源的spec信息, 在controller的实现中, 解包<code>manifest</code> 提交实际的cr, <code>manifest</code> 中保留少量的元信息用于搜索,查看</li>
+<li>通过informer 监听实例(mysql)信息, 把运行状态等同步到 <code>manifest</code></li>
+</ul>
+<p>搞定, 下班</p>
+<p>但是, 如果用户绕过ui, 直接编辑<code>mysql</code> 的配置怎么办, 数据不就不同步了么,  那简单, 我可以通过label等标记真实资源的信息, 让前端编辑时, 去查一下真实资源信息再编辑, 但这个会增大前端的复杂度.</p>
+<p>或者通过informer把全量信息同步到 <code>manifest</code> 不就可以了么, 是的, 但这会带来延迟和性能开销, 同时操作时可能会有数据冲突 (似乎也不是多大的事 -_- )</p>
+<h2 id="聚合api">聚合api</h2>
+<p>所以有没有其它的办法呢, 我们简化这个场景, 就是提交的是A, 实际操作的是B, 有另一个入口操作B时, A最好还能同步</p>
+<p>这里就引入k8s的AA <code>Aggregation Api</code>  官方文档 <a href="https://kubernetes.io/zh-cn/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/">可以参考</a></p>
+<p>我们只能定义crd 的增删改查的事件发生后做什么, 但并不改修改增删改查的逻辑, 而AA可以, 那么如果我们把创建时改成提交另一个资源, 查询/编辑时透传真实资源, 上面的问题不就解决了么</p>
+<h3 id="shadowresource">ShadowResource</h3>
+<p>为了解决上述问题，我们可以引入一个名为<code>ShadowResource</code> 虚拟资源概念</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apis.abc.com/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ShadowResource</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">task1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">flowList</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">foo1</span><span class="p">:</span><span class="w"> </span><span class="l">bar2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>为ShadowResource实现以下功能：</p>
+<ol>
+<li><strong>批量提交</strong>: 创建时会循环flowList进行提交，实现了一次性创建多个资源的行为，如创建MySQL实例时提交多个CR。</li>
+<li><strong>资源信息存储</strong>: 记录相关资源的GVR,名称和命名空间等信息，可将这些信息存储在Etcd、CRD或关系型数据库中。</li>
+<li><strong>实时查询</strong>: 通过聚合API的可定制性，可以实时查询相关资源，并将其信息写回flowList，然后返回，确保用户编辑的是原生资源，避免与命令行编辑原生资源冲突。</li>
+<li><strong>删除</strong>: 在删除时，可以循环删除flowList中定义的资源，确保资源的清理。</li>
+</ol>
+<h3 id="实现">实现</h3>
+<p>实现参考 <a href="">https://github.com/inksnw/shadowresource</a>  代码的实现原理有空再写一下</p>
+<h2 id="优缺点">优缺点</h2>
+<p><strong>优点</strong></p>
+<ul>
+<li>
+<p><strong>数据统一管理</strong>：可以实现<code>kubectl</code>和 <code>restapi</code>的统一。</p>
+</li>
+<li>
+<p><strong>实时查询</strong>：通过聚合API实时查询资源信息，保持用户编排的是原生资源，避免了数据不一致和冲突问题。</p>
+</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li>
+<p><strong>复杂性</strong>：引入AA会增加系统的复杂性，同步用于搜索和展示的元数据时, 值如何从真实资源中取得需要配置</p>
+</li>
+<li>
+<p><strong>抽象程度</strong>：并没有降低用户接触一个新的crd的时候的学习成本</p>
+</li>
+</ul>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/kubernetes%E4%B8%AD%E6%8B%89%E5%8F%96%E5%B8%A6%E5%87%AD%E8%AF%81%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F/">
+                <span class="next-text nav-default">Kubernetes中拉取带凭证的容器镜像</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
