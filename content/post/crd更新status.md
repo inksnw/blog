@@ -1,7 +1,7 @@
 ---
 title: "Crd更新status"
 date: 2023-09-13T15:42:13+08:00
-draft: true
+
 ---
 
 crd的status字段，如果要更新，需要使用`UpdateStatus`方法
