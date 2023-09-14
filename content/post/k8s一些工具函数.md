@@ -160,10 +160,13 @@ func updatePodLabelsWithRetry(clientset *kubernetes.Clientset, podName string, n
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/metadata"
 	"k8s.io/client-go/tools/clientcmd"
 	"net/http"
 )
@@ -174,7 +177,16 @@ type wrap struct {
 
 func (w wrap) RoundTrip(request *http.Request) (*http.Response, error) {
 	fmt.Println(request.URL.String())
-	return w.rt.RoundTrip(request)
+	rsp, err := w.rt.RoundTrip(request)
+	if err != nil {
+		return nil, err
+	}
+	b, _ := io.ReadAll(rsp.Body)
+	fmt.Println("响应长度是: ", len(b))
+	rsp.Body = io.NopCloser(bytes.NewBuffer(b))
+
+	return rsp, err
+	//return w.rt.RoundTrip(request)
 }
 
 func main() {
@@ -186,6 +198,9 @@ func main() {
 	config.WrapTransport = func(rt http.RoundTripper) http.RoundTripper {
 		return wrap{rt}
 	}
+	//使用 protobuf
+	config = metadata.ConfigFor(config)
+
 	client, err := kubernetes.NewForConfig(config)
 	pod, err := client.CoreV1().Pods("default").Get(context.TODO(), "nginx", metav1.GetOptions{})
 	if err != nil {
