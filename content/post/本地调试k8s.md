@@ -70,12 +70,12 @@ kubeadm init phase certs all --config=cc.yaml
     └── sa.pub
 ```
 
-在代码目录创建一个`config`目录,复制主机上的`pki`到`config`目录
+在代码目录创建一个`config`目录,复制主机上的`/etc/kubernetes/pki`到`config`目录
 
 配置apiserver启动参数
 
 ```bash
---advertise-address=0.0.0.0 --allow-privileged=true --authorization-mode=Node,RBAC --bind-address=0.0.0.0 --client-ca-file=pki/ca.crt --enable-admission-plugins=NodeRestriction --enable-bootstrap-token-auth=true  --etcd-servers=http://127.0.0.1:2379 --feature-gates=ExpandCSIVolumes=true,CSIStorageCapacity=true,RotateKubeletServerCertificate=true --kubelet-client-certificate=pki/apiserver-kubelet-client.crt --kubelet-client-key=pki/apiserver-kubelet-client.key --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --proxy-client-cert-file=pki/front-proxy-client.crt --proxy-client-key-file=pki/front-proxy-client.key --requestheader-allowed-names=front-proxy-client --requestheader-client-ca-file=pki/front-proxy-ca.crt --requestheader-extra-headers-prefix=X-Remote-Extra- --requestheader-group-headers=X-Remote-Group --requestheader-username-headers=X-Remote-User --secure-port=6443 --service-account-issuer=https://kubernetes.default.svc.cluster.local --service-account-key-file=pki/sa.pub --service-account-signing-key-file=pki/sa.key --service-cluster-ip-range=10.233.0.0/18 --tls-cert-file=pki/apiserver.crt --tls-private-key-file=pki/apiserver.key 
+--advertise-address=0.0.0.0 --allow-privileged=true --authorization-mode=Node,RBAC --bind-address=0.0.0.0 --client-ca-file=pki/ca.crt --enable-admission-plugins=NodeRestriction --enable-bootstrap-token-auth=true  --etcd-servers=http://127.0.0.1:2379 --feature-gates=ExpandCSIVolumes=true,CSIStorageCapacity=true,RotateKubeletServerCertificate=true --kubelet-client-certificate=pki/apiserver-kubelet-client.crt --kubelet-client-key=pki/apiserver-kubelet-client.key --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --proxy-client-cert-file=pki/front-proxy-client.crt --proxy-client-key-file=pki/front-proxy-client.key --requestheader-allowed-names=front-proxy-client --requestheader-client-ca-file=pki/front-proxy-ca.crt --requestheader-extra-headers-prefix=X-Remote-Extra- --requestheader-group-headers=X-Remote-Group --requestheader-username-headers=X-Remote-User --secure-port=6443 --service-account-issuer=https://kubernetes.default.svc.cluster.local --service-account-key-file=pki/sa.pub --service-account-signing-key-file=pki/sa.key --service-cluster-ip-range=10.233.0.0/18 --tls-cert-file=pki/apiserver.crt --tls-private-key-file=pki/apiserver.key --v=5
 ```
 
 <img src="http://inksnw.asuscomm.com:3001/blog/本地调试k8s_2f27f1a6e2a99465d21b16f178efb7b7.png" alt="image-20230802163758775" style="zoom:50%;" />

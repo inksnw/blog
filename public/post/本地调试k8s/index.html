@@ -52,7 +52,7 @@
 <meta itemprop="name" content="本地调试k8s">
 <meta itemprop="description" content="背景: 有时候想详细理解一下k8s的运作流程, 硬看代码实在很难调试, 所以试着在mac上搭建k8s控制平面的编译环境 准备一台干净的ubuntu主"><meta itemprop="datePublished" content="2023-08-02T10:53:21+08:00" />
 <meta itemprop="dateModified" content="2023-08-02T10:53:21+08:00" />
-<meta itemprop="wordCount" content="1426">
+<meta itemprop="wordCount" content="1443">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="本地调试k8s"/>
 <meta name="twitter:description" content="背景: 有时候想详细理解一下k8s的运作流程, 硬看代码实在很难调试, 所以试着在mac上搭建k8s控制平面的编译环境 准备一台干净的ubuntu主"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-08-02 </span>
             
-            <span class="more-meta"> 约 1426 字 更新于 2023-08-02
+            <span class="more-meta"> 约 1443 字 更新于 2023-08-02
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -274,14 +274,14 @@
 </span></span><span class="line"><span class="cl">    └── sa.pub
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>在代码目录创建一个<code>config</code>目录,复制主机上的<code>pki</code>到<code>config</code>目录</p>
+</div><p>在代码目录创建一个<code>config</code>目录,复制主机上的<code>/etc/kubernetes/pki</code>到<code>config</code>目录</p>
 <p>配置apiserver启动参数</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">--advertise-address<span class="o">=</span>0.0.0.0 --allow-privileged<span class="o">=</span><span class="nb">true</span> --authorization-mode<span class="o">=</span>Node,RBAC --bind-address<span class="o">=</span>0.0.0.0 --client-ca-file<span class="o">=</span>pki/ca.crt --enable-admission-plugins<span class="o">=</span>NodeRestriction --enable-bootstrap-token-auth<span class="o">=</span><span class="nb">true</span>  --etcd-servers<span class="o">=</span>http://127.0.0.1:2379 --feature-gates<span class="o">=</span><span class="nv">ExpandCSIVolumes</span><span class="o">=</span>true,CSIStorageCapacity<span class="o">=</span>true,RotateKubeletServerCertificate<span class="o">=</span><span class="nb">true</span> --kubelet-client-certificate<span class="o">=</span>pki/apiserver-kubelet-client.crt --kubelet-client-key<span class="o">=</span>pki/apiserver-kubelet-client.key --kubelet-preferred-address-types<span class="o">=</span>InternalIP,ExternalIP,Hostname --proxy-client-cert-file<span class="o">=</span>pki/front-proxy-client.crt --proxy-client-key-file<span class="o">=</span>pki/front-proxy-client.key --requestheader-allowed-names<span class="o">=</span>front-proxy-client --requestheader-client-ca-file<span class="o">=</span>pki/front-proxy-ca.crt --requestheader-extra-headers-prefix<span class="o">=</span>X-Remote-Extra- --requestheader-group-headers<span class="o">=</span>X-Remote-Group --requestheader-username-headers<span class="o">=</span>X-Remote-User --secure-port<span class="o">=</span><span class="m">6443</span> --service-account-issuer<span class="o">=</span>https://kubernetes.default.svc.cluster.local --service-account-key-file<span class="o">=</span>pki/sa.pub --service-account-signing-key-file<span class="o">=</span>pki/sa.key --service-cluster-ip-range<span class="o">=</span>10.233.0.0/18 --tls-cert-file<span class="o">=</span>pki/apiserver.crt --tls-private-key-file<span class="o">=</span>pki/apiserver.key 
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">--advertise-address<span class="o">=</span>0.0.0.0 --allow-privileged<span class="o">=</span><span class="nb">true</span> --authorization-mode<span class="o">=</span>Node,RBAC --bind-address<span class="o">=</span>0.0.0.0 --client-ca-file<span class="o">=</span>pki/ca.crt --enable-admission-plugins<span class="o">=</span>NodeRestriction --enable-bootstrap-token-auth<span class="o">=</span><span class="nb">true</span>  --etcd-servers<span class="o">=</span>http://127.0.0.1:2379 --feature-gates<span class="o">=</span><span class="nv">ExpandCSIVolumes</span><span class="o">=</span>true,CSIStorageCapacity<span class="o">=</span>true,RotateKubeletServerCertificate<span class="o">=</span><span class="nb">true</span> --kubelet-client-certificate<span class="o">=</span>pki/apiserver-kubelet-client.crt --kubelet-client-key<span class="o">=</span>pki/apiserver-kubelet-client.key --kubelet-preferred-address-types<span class="o">=</span>InternalIP,ExternalIP,Hostname --proxy-client-cert-file<span class="o">=</span>pki/front-proxy-client.crt --proxy-client-key-file<span class="o">=</span>pki/front-proxy-client.key --requestheader-allowed-names<span class="o">=</span>front-proxy-client --requestheader-client-ca-file<span class="o">=</span>pki/front-proxy-ca.crt --requestheader-extra-headers-prefix<span class="o">=</span>X-Remote-Extra- --requestheader-group-headers<span class="o">=</span>X-Remote-Group --requestheader-username-headers<span class="o">=</span>X-Remote-User --secure-port<span class="o">=</span><span class="m">6443</span> --service-account-issuer<span class="o">=</span>https://kubernetes.default.svc.cluster.local --service-account-key-file<span class="o">=</span>pki/sa.pub --service-account-signing-key-file<span class="o">=</span>pki/sa.key --service-cluster-ip-range<span class="o">=</span>10.233.0.0/18 --tls-cert-file<span class="o">=</span>pki/apiserver.crt --tls-private-key-file<span class="o">=</span>pki/apiserver.key --v<span class="o">=</span><span class="m">5</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><img src="http://inksnw.asuscomm.com:3001/blog/本地调试k8s_2f27f1a6e2a99465d21b16f178efb7b7.png" alt="image-20230802163758775" style="zoom:50%;" />

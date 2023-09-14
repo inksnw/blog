@@ -329,6 +329,32 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;另外可以看出&lt;code&gt;UpdateStatus&lt;/code&gt;, &lt;code&gt;Patch&lt;/code&gt;, 或者是 &lt;code&gt;Patch+subresources&lt;/code&gt;, 都是各自更新各自的, 不会一起更新, 所以, 如果你两个都要更新, 得调用两次&lt;/p&gt;
+&lt;h2 id=&#34;源码分析&#34;&gt;源码分析&lt;/h2&gt;
+&lt;p&gt;在&lt;code&gt;kubernetes-1.26.5/staging/src/k8s.io/apiextensions-apiserver/pkg/apiserver/customresource_handler.go&lt;/code&gt; 342行定义了如何处理&lt;code&gt;/status&lt;/code&gt;请求&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/crd%E6%9B%B4%E6%96%B0status_61f5f9a9c7d91d6f2180d2609a171748.png&#34; alt=&#34;image-20230914163904740&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;r.serveStatus&lt;/code&gt; 和 &lt;code&gt;r.serveResource&lt;/code&gt; 更新时都会调用 &lt;code&gt;handlers.UpdateResource(storage, requestScope, r.admission)&lt;/code&gt; ,但传入的 storage不同, 也印证了上文说的, 更新子资源与更新主资源各自是各自的逻辑&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;storage := crdInfo.storages[requestInfo.APIVersion].Status
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;storage := crdInfo.storages[requestInfo.APIVersion].CustomResource
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
@@ -1656,14 +1682,14 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    └── sa.pub
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;在代码目录创建一个&lt;code&gt;config&lt;/code&gt;目录,复制主机上的&lt;code&gt;pki&lt;/code&gt;到&lt;code&gt;config&lt;/code&gt;目录&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;在代码目录创建一个&lt;code&gt;config&lt;/code&gt;目录,复制主机上的&lt;code&gt;/etc/kubernetes/pki&lt;/code&gt;到&lt;code&gt;config&lt;/code&gt;目录&lt;/p&gt;
 &lt;p&gt;配置apiserver启动参数&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;--advertise-address&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0.0.0.0 --allow-privileged&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt; --authorization-mode&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;Node,RBAC --bind-address&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0.0.0.0 --client-ca-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/ca.crt --enable-admission-plugins&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;NodeRestriction --enable-bootstrap-token-auth&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;  --etcd-servers&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;http://127.0.0.1:2379 --feature-gates&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;ExpandCSIVolumes&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;true,CSIStorageCapacity&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;true,RotateKubeletServerCertificate&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt; --kubelet-client-certificate&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/apiserver-kubelet-client.crt --kubelet-client-key&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/apiserver-kubelet-client.key --kubelet-preferred-address-types&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;InternalIP,ExternalIP,Hostname --proxy-client-cert-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/front-proxy-client.crt --proxy-client-key-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/front-proxy-client.key --requestheader-allowed-names&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;front-proxy-client --requestheader-client-ca-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/front-proxy-ca.crt --requestheader-extra-headers-prefix&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;X-Remote-Extra- --requestheader-group-headers&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;X-Remote-Group --requestheader-username-headers&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;X-Remote-User --secure-port&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;6443&lt;/span&gt; --service-account-issuer&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https://kubernetes.default.svc.cluster.local --service-account-key-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/sa.pub --service-account-signing-key-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/sa.key --service-cluster-ip-range&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;10.233.0.0/18 --tls-cert-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/apiserver.crt --tls-private-key-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/apiserver.key 
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;--advertise-address&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0.0.0.0 --allow-privileged&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt; --authorization-mode&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;Node,RBAC --bind-address&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0.0.0.0 --client-ca-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/ca.crt --enable-admission-plugins&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;NodeRestriction --enable-bootstrap-token-auth&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;  --etcd-servers&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;http://127.0.0.1:2379 --feature-gates&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;ExpandCSIVolumes&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;true,CSIStorageCapacity&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;true,RotateKubeletServerCertificate&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt; --kubelet-client-certificate&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/apiserver-kubelet-client.crt --kubelet-client-key&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/apiserver-kubelet-client.key --kubelet-preferred-address-types&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;InternalIP,ExternalIP,Hostname --proxy-client-cert-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/front-proxy-client.crt --proxy-client-key-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/front-proxy-client.key --requestheader-allowed-names&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;front-proxy-client --requestheader-client-ca-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/front-proxy-ca.crt --requestheader-extra-headers-prefix&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;X-Remote-Extra- --requestheader-group-headers&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;X-Remote-Group --requestheader-username-headers&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;X-Remote-User --secure-port&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;6443&lt;/span&gt; --service-account-issuer&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https://kubernetes.default.svc.cluster.local --service-account-key-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/sa.pub --service-account-signing-key-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/sa.key --service-cluster-ip-range&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;10.233.0.0/18 --tls-cert-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/apiserver.crt --tls-private-key-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;pki/apiserver.key --v&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;5&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/本地调试k8s_2f27f1a6e2a99465d21b16f178efb7b7.png&#34; alt=&#34;image-20230802163758775&#34; style=&#34;zoom:50%;&#34; /&gt;
