@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>K8s运行流程追踪 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="k8s从1.27 开始 OpenTelemetry 进入了beta状态, 在此之前要开启还需要配置featureGates k8s自带追踪 安装jaeger 下载all in one 包约1" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.118.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/k8s%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B%E8%BF%BD%E8%B8%AA/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="K8s运行流程追踪" />
+<meta property="og:description" content="k8s从1.27 开始 OpenTelemetry 进入了beta状态, 在此之前要开启还需要配置featureGates k8s自带追踪 安装jaeger 下载all in one 包约1" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/k8s%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B%E8%BF%BD%E8%B8%AA/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-09-15T13:42:20+08:00" />
+<meta property="article:modified_time" content="2023-09-15T13:42:20+08:00" />
+<meta itemprop="name" content="K8s运行流程追踪">
+<meta itemprop="description" content="k8s从1.27 开始 OpenTelemetry 进入了beta状态, 在此之前要开启还需要配置featureGates k8s自带追踪 安装jaeger 下载all in one 包约1"><meta itemprop="datePublished" content="2023-09-15T13:42:20+08:00" />
+<meta itemprop="dateModified" content="2023-09-15T13:42:20+08:00" />
+<meta itemprop="wordCount" content="637">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="K8s运行流程追踪"/>
+<meta name="twitter:description" content="k8s从1.27 开始 OpenTelemetry 进入了beta状态, 在此之前要开启还需要配置featureGates k8s自带追踪 安装jaeger 下载all in one 包约1"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">K8s运行流程追踪</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-09-15 </span>
+            
+            <span class="more-meta"> 约 637 字 更新于 2023-09-15
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#k8s自带追踪">k8s自带追踪</a>
+          <ul>
+            <li><a href="#安装jaeger">安装jaeger</a></li>
+            <li><a href="#配置apiserver">配置apiserver</a></li>
+            <li><a href="#配置kubelet">配置kubelet</a></li>
+            <li><a href="#配置containerd">配置containerd</a></li>
+            <li><a href="#查看信息">查看信息</a></li>
+          </ul>
+        </li>
+        <li><a href="#kelemetry">Kelemetry</a>
+          <ul>
+            <li><a href="#安装">安装</a></li>
+            <li><a href="#测试">测试</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>k8s从<code>1.27</code>  开始 <a href="https://github.com/open-telemetry/opentelemetry-collector#-opentelemetry-collector">OpenTelemetry </a> 进入了beta状态, 在此之前要开启还需要配置featureGates</p>
+<h2 id="k8s自带追踪">k8s自带追踪</h2>
+<h3 id="安装jaeger">安装jaeger</h3>
+<p>下载<code>all in one </code>包约100M</p>
+<p><a href="https://www.jaegertracing.io/download/">https://www.jaegertracing.io/download/</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── example-hotrod
+</span></span><span class="line"><span class="cl">├── jaeger-agent
+</span></span><span class="line"><span class="cl">├── jaeger-all-in-one
+</span></span><span class="line"><span class="cl">├── jaeger-collector
+</span></span><span class="line"><span class="cl">├── jaeger-ingester
+</span></span><span class="line"><span class="cl">└── jaeger-query
+</span></span><span class="line"><span class="cl">./jaeger-all-in-one
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">http://127.0.0.1:16686/search
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="配置apiserver">配置apiserver</h3>
+<p>编辑 <code>/etc/kubernetes/manifests/kube-apiserver.yaml</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl">- --<span class="l">feature-gates=APIServerTracing=true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span>- --<span class="l">tracing-config-file=/etc/kubernetes/pki/TracingConfiguration.yaml</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>apiserver会自动重启, 由于<code>/etc/kubernetes/pki/</code>会被挂载进容器, 这里就偷懒放到这了</p>
+<p>grpc使用的端口是 <code>4317</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apiserver.config.k8s.io/v1alpha1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">TracingConfiguration</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c"># 1% sampling rate</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">samplingRatePerMillion</span><span class="p">:</span><span class="w"> </span><span class="m">10000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;10.6.0.2:4317&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="配置kubelet">配置kubelet</h3>
+<p>编辑 <code>/var/lib/kubelet/config.yaml</code>, 添加类似的信息, 每台主机都配置后, 重启kubelet</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">kubelet.config.k8s.io/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">KubeletConfiguration</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">featureGates</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">KubeletTracing</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">tracing</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">samplingRatePerMillion</span><span class="p">:</span><span class="w"> </span><span class="m">1000000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;10.6.0.2:4317&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="配置containerd">配置containerd</h3>
+<p>编辑<code>/etc/containerd/config.toml</code> , http使用的端口是<code>4318</code> , 每台主机都配置后, 重启containerd</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="cl"><span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="s2">&#34;io.containerd.tracing.processor.v1.otlp&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">endpoint</span> <span class="p">=</span> <span class="s2">&#34;http://10.6.0.2:4318&#34;</span> 
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="s2">&#34;io.containerd.internal.v1.tracing&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">sampling_ratio</span> <span class="p">=</span> <span class="mf">1.0</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">service_name</span> <span class="p">=</span> <span class="s2">&#34;containerd&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="查看信息">查看信息</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">http://127.0.0.1:16686/search
+</span></span></code></pre></td></tr></table>
+</div>
+</div><img src="http://inksnw.asuscomm.com:3001/blog/k8s运行流程追踪_08e48e93a114b7d2efda4c3eb128ddda.png" alt="image-20230915135617342" style="zoom:67%;" />
+<p>此时 jaeger 的界面上已可以看到运行的流程, 对jaeger 的ui不太熟悉, 没有找出一个很好的示例, 由于是开发者自己决定在代码的哪些位置添加追踪点, 可能并不能实现使用都对追踪的需求, 可以试下字节跳动开源的 Kelemetry</p>
+<h2 id="kelemetry">Kelemetry</h2>
+<p>核心原理是收集event信息, 然后根据元信息组合成一条链路</p>
+<p>修改一下配置文件中的  <a href="https://github.com/kubewharf/kelemetry/blob/main/charts/kelemetry/values.yaml">values.yaml</a>  <code>storageClassName</code> 为你实际的,<code>replicaCount</code>  为需要的副本数</p>
+<h3 id="安装">安装</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">helm install kelemetry oci://ghcr.io/kubewharf/kelemetry-chart --values values.yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看pod</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                                   READY   STATUS    RESTARTS      AGE
+</span></span><span class="line"><span class="cl">kelemetry-collector-79f879b44d-z5nw5   1/1     Running   2 (64s ago)   77s
+</span></span><span class="line"><span class="cl">kelemetry-consumer-77586595fb-xdlvp    1/1     Running   0             77s
+</span></span><span class="line"><span class="cl">kelemetry-etcd-0                       1/1     Running   0             77s
+</span></span><span class="line"><span class="cl">kelemetry-frontend-547ff76799-lqd94    2/2     Running   5 (40s ago)   77s
+</span></span><span class="line"><span class="cl">kelemetry-informers-745b845dbc-t22c9   1/1     Running   0             77s
+</span></span><span class="line"><span class="cl">kelemetry-storage-0                    1/1     Running   0             77s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="测试">测试</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create deployment demo --image<span class="o">=</span>httpd --port<span class="o">=</span><span class="m">80</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到以Kelemetry 这种方式收集, 可能更适合追踪</p>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/k8s%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B%E8%BF%BD%E8%B8%AA_fb13bd9e5ad48d7b6dd2d9ca2d637485.png" alt="image-20230915144115722"></p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/crd%E6%9B%B4%E6%96%B0status/">
+                <span class="next-text nav-default">Crd更新status</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
