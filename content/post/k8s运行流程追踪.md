@@ -4,9 +4,7 @@ date: 2023-09-15T13:42:20+08:00
 tags: ["k8s"]
 ---
 
-k8s从`1.27`  开始 [OpenTelemetry ](https://github.com/open-telemetry/opentelemetry-collector#-opentelemetry-collector) 进入了beta状态, 在此之前要开启还需要配置featureGates
-
-
+k8s从`1.27`  开始 [OpenTelemetry ](https://github.com/open-telemetry/opentelemetry-collector#-opentelemetry-collector) 进入了beta状态, 在此之前要开启还需要配置featureGates, 本以为通过这个追踪可以把很细的步骤都展示出来, 实际验证了一下, 体验一般(可能是我还没仔细研究), 不过既然能 [本地调试k8s](http://inksnw.asuscomm.com:3001/post/%E6%9C%AC%E5%9C%B0%E8%B0%83%E8%AF%95k8s/), 这个就当个补充吧
 
 ## k8s自带追踪
 
