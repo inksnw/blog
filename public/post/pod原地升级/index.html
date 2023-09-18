@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Pod原地升级 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="什么是原地升级？ 原地升级（In-place update）是一种 Kubernetes 中的 Pod 升级方式，这种升级方式可以更新 Pod 中某一个或多个容器的镜像版本，而不影响" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.118.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/pod%E5%8E%9F%E5%9C%B0%E5%8D%87%E7%BA%A7/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="Pod原地升级" />
+<meta property="og:description" content="什么是原地升级？ 原地升级（In-place update）是一种 Kubernetes 中的 Pod 升级方式，这种升级方式可以更新 Pod 中某一个或多个容器的镜像版本，而不影响" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/pod%E5%8E%9F%E5%9C%B0%E5%8D%87%E7%BA%A7/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-09-18T15:17:12+08:00" />
+<meta property="article:modified_time" content="2023-09-18T15:17:12+08:00" />
+<meta itemprop="name" content="Pod原地升级">
+<meta itemprop="description" content="什么是原地升级？ 原地升级（In-place update）是一种 Kubernetes 中的 Pod 升级方式，这种升级方式可以更新 Pod 中某一个或多个容器的镜像版本，而不影响"><meta itemprop="datePublished" content="2023-09-18T15:17:12+08:00" />
+<meta itemprop="dateModified" content="2023-09-18T15:17:12+08:00" />
+<meta itemprop="wordCount" content="1025">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Pod原地升级"/>
+<meta name="twitter:description" content="什么是原地升级？ 原地升级（In-place update）是一种 Kubernetes 中的 Pod 升级方式，这种升级方式可以更新 Pod 中某一个或多个容器的镜像版本，而不影响"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">Pod原地升级</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-09-18 </span>
+            
+            <span class="more-meta"> 约 1025 字 更新于 2023-09-18
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#什么是原地升级">什么是原地升级？</a></li>
+        <li><a href="#原理分析">原理分析</a>
+          <ul>
+            <li><a href="#sandbox重建">sandbox重建</a></li>
+            <li><a href="#重启container">重启container</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h2 id="什么是原地升级">什么是原地升级？</h2>
+<p>原地升级（In-place update）是一种 Kubernetes 中的 Pod 升级方式，这种升级方式可以更新 Pod 中某一个或多个容器的镜像版本，而不影响 Pod 中其余容器的运行，同时保持 Pod 的网络和存储状态不变。</p>
+<p>Kubernetes 原生工作负载，不论是 Deployment、StatefulSet 还是 Pod 本身，如果你想升级 Pod 中的镜像，那么 Kubernetes 就会重新销毁该 Pod 并重新调度并创建一个 Pod，对于 StatefulSet 虽然可以保持原有 Pod 的名字，但是实际 <strong>UID</strong> 及 <strong>Pod IP</strong> 都将发生改变。</p>
+<p>网上流传的方法,包括 <code>OpenKruise</code> 都是更新一下image内容, 就能实现 container 重建/启, 而不影响<strong>UID</strong> 及 <strong>Pod IP</strong></p>
+<p>那这个方法是最解么, 原理是什么</p>
+<h2 id="原理分析">原理分析</h2>
+<h3 id="sandbox重建">sandbox重建</h3>
+<p>我们知道, Pod IP 的网络名称空间等都是依附于sandbox容器的, 只要sandbox重建, 这些信息都会重建</p>
+<p>核心逻辑都在<code>kubernetes-1.26.5/pkg/kubelet/kuberuntime/kuberuntime_manager.go</code> 的 <strong>678</strong> 行 <code>func (m *kubeGenericRuntimeManager) SyncPod(...)</code> 中, 在一开始会检测<code>func PodSandboxChanged(pod *v1.Pod, podStatus *kubecontainer.PodStatus) (bool, uint32, string)</code></p>
+<img src="http://inksnw.asuscomm.com:3001/blog/pod原地升级_c957f90c907a280f9b9a2666154c5796.png" alt="image-20230918153847126" style="zoom:50%;" />
+<p>可以看到有几点判断条件,</p>
+<ul>
+<li>启动的sandbox数量大于 1</li>
+<li>sandbox不是ready</li>
+<li>网络信息不同</li>
+</ul>
+<p>改动了容器的image并不在这个范围内, 因此并不会重建sandbox, 但是这还没不能说明会重启业务container, 我们继续往下看</p>
+<h3 id="重启container">重启container</h3>
+<p>在<code>kubernetes-1.26.5/pkg/kubelet/kuberuntime/kuberuntime_manager.go</code> 的 <strong>900</strong> 行, 可以看到<code>podContainerChanges.ContainersToStart</code>中的容器会被启动,</p>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/pod%E5%8E%9F%E5%9C%B0%E5%8D%87%E7%BA%A7_5fbc7fdb7fd567c756473841aac9584e.png" alt="image-20230918154534223"></p>
+<p>那这个数组的数据是如何加入的, 在625 行看到, 当 <code>containerChanged(&amp;container, containerStatus)</code> 为真时, 即会被加入</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/pod原地升级_571dfacd2ee32a7d3f0f03d2983b3111.png" alt="image-20230918155019412" style="zoom:50%;" />
+<p>继续看<code>containerChanged</code>的逻辑, 这时就比较简单了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">containerChanged</span><span class="p">(</span><span class="nx">container</span> <span class="o">*</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Container</span><span class="p">,</span> <span class="nx">containerStatus</span> <span class="o">*</span><span class="nx">kubecontainer</span><span class="p">.</span><span class="nx">Status</span><span class="p">)</span> <span class="p">(</span><span class="kt">uint64</span><span class="p">,</span> <span class="kt">uint64</span><span class="p">,</span> <span class="kt">bool</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">expectedHash</span> <span class="o">:=</span> <span class="nx">kubecontainer</span><span class="p">.</span><span class="nf">HashContainer</span><span class="p">(</span><span class="nx">container</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">expectedHash</span><span class="p">,</span> <span class="nx">containerStatus</span><span class="p">.</span><span class="nx">Hash</span><span class="p">,</span> <span class="nx">containerStatus</span><span class="p">.</span><span class="nx">Hash</span> <span class="o">!=</span> <span class="nx">expectedHash</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">HashContainer</span><span class="p">(</span><span class="nx">container</span> <span class="o">*</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Container</span><span class="p">)</span> <span class="kt">uint64</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">hash</span> <span class="o">:=</span> <span class="nx">fnv</span><span class="p">.</span><span class="nf">New32a</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Omit nil or empty field when calculating hash value
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// Please see https://github.com/kubernetes/kubernetes/issues/53644
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">containerJSON</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">container</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">hashutil</span><span class="p">.</span><span class="nf">DeepHashObject</span><span class="p">(</span><span class="nx">hash</span><span class="p">,</span> <span class="nx">containerJSON</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">hash</span><span class="p">.</span><span class="nf">Sum32</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当<code>v1.Container</code> 的hash值变了, 就会判断为真, 查看<code>v1.Container</code>的数据结构, 发现其中有很多字段的, 但由于apiserver只允许更改<code>image</code>字段, 因此 <code>OpenKruise</code> 等工具就通过修改image字段实现 container 更新/重启而不重建sandbox, 感觉不是太优雅, 但是怎么说呢, 也算是种feature吧 ~</p>
+<blockquote>
+<p>改其它字段会提示: # * spec: Forbidden: pod updates may not change fields other than <code>spec.containers[*].image</code>, <code>spec.initContainers[*].image</code>, <code>spec.activeDeadlineSeconds</code>, <code>spec.tolerations</code> (only additions to existing tolerations) or <code>spec.terminationGracePeriodSeconds</code> (allow it to be set to 1 if it was previously negative)</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Container</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Name</span>                     <span class="kt">string</span>                   <span class="s">`json:&#34;name&#34; protobuf:&#34;bytes,1,opt,name=name&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Image</span>                    <span class="kt">string</span>                   <span class="s">`json:&#34;image,omitempty&#34; protobuf:&#34;bytes,2,opt,name=image&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Command</span>                  <span class="p">[]</span><span class="kt">string</span>                 <span class="s">`json:&#34;command,omitempty&#34; protobuf:&#34;bytes,3,rep,name=command&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Args</span>                     <span class="p">[]</span><span class="kt">string</span>                 <span class="s">`json:&#34;args,omitempty&#34; protobuf:&#34;bytes,4,rep,name=args&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">WorkingDir</span>               <span class="kt">string</span>                   <span class="s">`json:&#34;workingDir,omitempty&#34; protobuf:&#34;bytes,5,opt,name=workingDir&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/k8s%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B%E8%BF%BD%E8%B8%AA/">
+                <span class="next-text nav-default">K8s运行流程追踪</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
