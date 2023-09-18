@@ -133,7 +133,7 @@ func getPatchString(sa *corev1.ServiceAccount, secretName string) ([]byte, error
 
 ### webhook
 
-给对所有的ServiceAccount打patch还存在一个问题, 万一patch还没来得及打上, pod的配置已经生成了, 那此时还是不行, 所以也可以实现一个webhook
+给对所有的ServiceAccount打patch还存在一个问题, 万一patch还没来得及打上, pod的配置已经生成了, 那此时还是不行,持续执行上面的patch操作可以么,也不太好, 因为这个时间差不可控,  所以也可以实现一个webhook
 
 > 拦截创建pod请求 , 并自动注入imagePullSecrets
 
