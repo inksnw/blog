@@ -20,6 +20,14 @@ kubelet启动的时候会读取 `searchPaths` 中的配置文件
 
 <img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_00a60edd332da84e96262bb2f6f00a76.png" alt="image-20230922141216159" style="zoom:50%;" />
 
+查看运行日志
+
+```bash
+Sep 22 13:54:49 node1 kubelet[50702]:  provider.go:102] Refreshing cache for provider: *credentialprovider.defaultDockerConfigProvider
+Sep 22 13:54:49 node1 kubelet[50702]:  config.go:144] looking for config.json at /var/lib/kubelet/config.json
+Sep 22 13:54:49 node1 kubelet[50702]:  config.go:152] found valid config.json at /var/lib/kubelet/config.json
+```
+
 
 
 ## 配置到pod中

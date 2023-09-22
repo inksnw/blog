@@ -772,7 +772,20 @@
 &lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_35eee10da3d183008a977cff24752a25.png&#34; alt=&#34;image-20230922140925408&#34; style=&#34;zoom:50%;&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;实际获取凭据的时候会把 &lt;code&gt;imagePullSecrets&lt;/code&gt; 的信息和kubelet启动文件拿到的信息合并&lt;/p&gt;
 &lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_00a60edd332da84e96262bb2f6f00a76.png&#34; alt=&#34;image-20230922141216159&#34; style=&#34;zoom:50%;&#34; /&gt;
-&lt;h2 id=&#34;配置到pod中&#34;&gt;配置到pod中&lt;/h2&gt;
+&lt;p&gt;查看运行日志&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Sep &lt;span class=&#34;m&#34;&gt;22&lt;/span&gt; 13:54:49 node1 kubelet&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;50702&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:  provider.go:102&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; Refreshing cache &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; provider: *credentialprovider.defaultDockerConfigProvider
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Sep &lt;span class=&#34;m&#34;&gt;22&lt;/span&gt; 13:54:49 node1 kubelet&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;50702&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:  config.go:144&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; looking &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; config.json at /var/lib/kubelet/config.json
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Sep &lt;span class=&#34;m&#34;&gt;22&lt;/span&gt; 13:54:49 node1 kubelet&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;50702&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;:  config.go:152&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; found valid config.json at /var/lib/kubelet/config.json
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;配置到pod中&#34;&gt;配置到pod中&lt;/h2&gt;
 &lt;p&gt;源码位于&lt;code&gt;kubernetes-1.26.5/pkg/kubelet/kubelet.go&lt;/code&gt; 1827行, 在syncPod的步骤中会发送grpc的拉取镜像请求, 这时会使用带上的认证信息, 这个信息来自于pod的 &lt;code&gt;imagePullSecrets&lt;/code&gt;&lt;/p&gt;
 &lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_9b829e648e5360c9a165c4b5f6f58034.png&#34; alt=&#34;image-20230830210358808&#34; style=&#34;zoom:50%;&#34; /&gt;
 &lt;p&gt;简单使用, 手动注入&lt;/p&gt;

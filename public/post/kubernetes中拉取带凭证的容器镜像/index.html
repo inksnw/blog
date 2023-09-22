@@ -52,7 +52,7 @@
 <meta itemprop="name" content="Kubernetes中拉取带凭证的容器镜像">
 <meta itemprop="description" content="k8s 拉取带凭据的镜像源时, 需要配置拉取凭据, 有几种办法 配置到kubelet启动 1 2 3 nerdctl login cp ~/.docker/config.json /var/lib/kubelet/ systemctl restart kubelet kubelet启动的时候会读取 searchPaths 中的配置文"><meta itemprop="datePublished" content="2023-08-30T20:29:51+08:00" />
 <meta itemprop="dateModified" content="2023-08-30T20:29:51+08:00" />
-<meta itemprop="wordCount" content="1070">
+<meta itemprop="wordCount" content="1112">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubernetes中拉取带凭证的容器镜像"/>
 <meta name="twitter:description" content="k8s 拉取带凭据的镜像源时, 需要配置拉取凭据, 有几种办法 配置到kubelet启动 1 2 3 nerdctl login cp ~/.docker/config.json /var/lib/kubelet/ systemctl restart kubelet kubelet启动的时候会读取 searchPaths 中的配置文"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-08-30 </span>
             
-            <span class="more-meta"> 约 1070 字 更新于 2023-08-30
+            <span class="more-meta"> 约 1112 字 更新于 2023-08-30
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -180,7 +180,20 @@
 <img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_35eee10da3d183008a977cff24752a25.png" alt="image-20230922140925408" style="zoom:50%;" /></p>
 <p>实际获取凭据的时候会把 <code>imagePullSecrets</code> 的信息和kubelet启动文件拿到的信息合并</p>
 <img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_00a60edd332da84e96262bb2f6f00a76.png" alt="image-20230922141216159" style="zoom:50%;" />
-<h2 id="配置到pod中">配置到pod中</h2>
+<p>查看运行日志</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Sep <span class="m">22</span> 13:54:49 node1 kubelet<span class="o">[</span>50702<span class="o">]</span>:  provider.go:102<span class="o">]</span> Refreshing cache <span class="k">for</span> provider: *credentialprovider.defaultDockerConfigProvider
+</span></span><span class="line"><span class="cl">Sep <span class="m">22</span> 13:54:49 node1 kubelet<span class="o">[</span>50702<span class="o">]</span>:  config.go:144<span class="o">]</span> looking <span class="k">for</span> config.json at /var/lib/kubelet/config.json
+</span></span><span class="line"><span class="cl">Sep <span class="m">22</span> 13:54:49 node1 kubelet<span class="o">[</span>50702<span class="o">]</span>:  config.go:152<span class="o">]</span> found valid config.json at /var/lib/kubelet/config.json
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="配置到pod中">配置到pod中</h2>
 <p>源码位于<code>kubernetes-1.26.5/pkg/kubelet/kubelet.go</code> 1827行, 在syncPod的步骤中会发送grpc的拉取镜像请求, 这时会使用带上的认证信息, 这个信息来自于pod的 <code>imagePullSecrets</code></p>
 <img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_9b829e648e5360c9a165c4b5f6f58034.png" alt="image-20230830210358808" style="zoom:50%;" />
 <p>简单使用, 手动注入</p>
