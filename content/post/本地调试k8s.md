@@ -24,7 +24,7 @@ etcdctl del --prefix /
 
 ## apiserver
 
-在ubuntu主机上创建一个kubeadm配置文件, `172.31.164.151` `10.8.0.2`都是我mac的ip
+在ubuntu主机上创建一个kubeadm配置`cc.yaml`文件, `192.168.50.251` `10.6.0.2`都是我mac的ip
 
 ```yaml
 apiVersion: kubeadm.k8s.io/v1beta3
@@ -37,11 +37,10 @@ controllerManager:
     cluster-signing-key-file: /etc/kubernetes/pki/ca.key
 apiServer:
   certSANs:
-  - "10.96.0.1"
   - "127.0.0.1"
   - "inksnwdeiMac.local"
-  - "172.31.164.151"
-  - "10.8.0.2"
+  - "192.168.50.251"
+  - "10.6.0.2"
   extraArgs:
     tls-cert-file: /etc/kubernetes/pki/apiserver.crt
     tls-private-key-file: /etc/kubernetes/pki/apiserver.key
@@ -75,7 +74,7 @@ kubeadm init phase certs all --config=cc.yaml
 配置apiserver启动参数
 
 ```bash
---advertise-address=0.0.0.0 --allow-privileged=true --authorization-mode=Node,RBAC --bind-address=0.0.0.0 --client-ca-file=pki/ca.crt --enable-admission-plugins=NodeRestriction --enable-bootstrap-token-auth=true  --etcd-servers=http://127.0.0.1:2379 --feature-gates=ExpandCSIVolumes=true,CSIStorageCapacity=true,RotateKubeletServerCertificate=true --kubelet-client-certificate=pki/apiserver-kubelet-client.crt --kubelet-client-key=pki/apiserver-kubelet-client.key --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --proxy-client-cert-file=pki/front-proxy-client.crt --proxy-client-key-file=pki/front-proxy-client.key --requestheader-allowed-names=front-proxy-client --requestheader-client-ca-file=pki/front-proxy-ca.crt --requestheader-extra-headers-prefix=X-Remote-Extra- --requestheader-group-headers=X-Remote-Group --requestheader-username-headers=X-Remote-User --secure-port=6443 --service-account-issuer=https://kubernetes.default.svc.cluster.local --service-account-key-file=pki/sa.pub --service-account-signing-key-file=pki/sa.key --service-cluster-ip-range=10.233.0.0/18 --tls-cert-file=pki/apiserver.crt --tls-private-key-file=pki/apiserver.key --v=5
+--advertise-address=0.0.0.0 --allow-privileged=true --authorization-mode=Node,RBAC --bind-address=0.0.0.0 --client-ca-file=config/pki/ca.crt --enable-admission-plugins=NodeRestriction --enable-bootstrap-token-auth=true  --etcd-servers=http://127.0.0.1:2379 --feature-gates=ExpandCSIVolumes=true,CSIStorageCapacity=true,RotateKubeletServerCertificate=true --kubelet-client-certificate=config/pki/apiserver-kubelet-client.crt --kubelet-client-key=config/pki/apiserver-kubelet-client.key --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --proxy-client-cert-file=config/pki/front-proxy-client.crt --proxy-client-key-file=config/pki/front-proxy-client.key --requestheader-allowed-names=front-proxy-client --requestheader-client-ca-file=config/pki/front-proxy-ca.crt --requestheader-extra-headers-prefix=X-Remote-Extra- --requestheader-group-headers=X-Remote-Group --requestheader-username-headers=X-Remote-User --secure-port=6443 --service-account-issuer=https://kubernetes.default.svc.cluster.local --service-account-key-file=config/pki/sa.pub --service-account-signing-key-file=config/pki/sa.key --service-cluster-ip-range=10.233.0.0/18 --tls-cert-file=config/pki/apiserver.crt --tls-private-key-file=config/pki/apiserver.key --v=5
 ```
 
 <img src="http://inksnw.asuscomm.com:3001/blog/本地调试k8s_2f27f1a6e2a99465d21b16f178efb7b7.png" alt="image-20230802163758775" style="zoom:50%;" />
@@ -86,7 +85,7 @@ kubectl配置
 
 ```bash
 kubeadm init phase kubeconfig admin 
-# 修改配置文件中的server地址, 我这里是10.8.0.2
+# 修改配置文件中的server地址, 我这里是10.6.0.2
 mkdir -p /root/.kube/
 cp /etc/kubernetes/admin.conf /root/.kube/config
 ```
@@ -117,7 +116,7 @@ kube-system       Active   5h9m
 配置启动参数, 参考上方apisever, 这里连接使用的rbac相关信息直接暴力的使用了kubectl的
 
 ```bash
---allocate-node-cidrs=true --authentication-kubeconfig=/Users/inksnw/.kube/config --authorization-kubeconfig=/Users/inksnw/.kube/config --bind-address=0.0.0.0 --client-ca-file=pki/ca.crt --cluster-cidr=10.233.64.0/18 --cluster-name=cluster.local --cluster-signing-cert-file=pki/ca.crt --cluster-signing-duration=87600h --cluster-signing-key-file=pki/ca.key --controllers=*,bootstrapsigner,tokencleaner --feature-gates=RotateKubeletServerCertificate=true,ExpandCSIVolumes=true,CSIStorageCapacity=true --kubeconfig=/Users/inksnw/.kube/config --leader-elect=true --node-cidr-mask-size=24 --requestheader-client-ca-file=pki/front-proxy-ca.crt --root-ca-file=pki/ca.crt --service-account-private-key-file=pki/sa.key --service-cluster-ip-range=10.233.0.0/18 --use-service-account-credentials=true
+--allocate-node-cidrs=true --authentication-kubeconfig=/Users/inksnw/.kube/config --authorization-kubeconfig=/Users/inksnw/.kube/config --bind-address=0.0.0.0 --client-ca-file=config/pki/ca.crt --cluster-cidr=10.233.64.0/18 --cluster-name=cluster.local --cluster-signing-cert-file=config/pki/ca.crt --cluster-signing-duration=87600h --cluster-signing-key-file=config/pki/ca.key --controllers=*,bootstrapsigner,tokencleaner --feature-gates=RotateKubeletServerCertificate=true,ExpandCSIVolumes=true,CSIStorageCapacity=true --kubeconfig=/Users/inksnw/.kube/config --leader-elect=true --node-cidr-mask-size=24 --requestheader-client-ca-file=config/pki/front-proxy-ca.crt --root-ca-file=config/pki/ca.crt --service-account-private-key-file=config/pki/sa.key --service-cluster-ip-range=10.233.0.0/18 --use-service-account-credentials=true
 ```
 
 ## 节点配置
@@ -144,7 +143,7 @@ Documentation=http://kubernetes.io/docs/
 [Service]
 CPUAccounting=true
 MemoryAccounting=true
-ExecStart=/usr/local/bin/kubelet --kubeconfig=/root/.kube/config --config=/var/lib/kubelet/config.yaml --cgroup-driver=systemd --container-runtime-endpoint=unix:///run/containerd/containerd.sock --pod-infra-container-image=kubesphere/pause:3.9 --node-ip=192.168.50.127 --hostname-override=node1
+ExecStart=/usr/local/bin/kubelet --kubeconfig=/root/.kube/config --config=/var/lib/kubelet/config.yaml --cgroup-driver=systemd --container-runtime-endpoint=unix:///run/containerd/containerd.sock --pod-infra-container-image=kubesphere/pause:3.9 --node-ip=192.168.50.36 --hostname-override=node1
 Restart=always
 StartLimitInterval=0
 RestartSec=10
@@ -175,8 +174,9 @@ authorization:
     cacheAuthorizedTTL: 0s
     cacheUnauthorizedTTL: 0s
 cgroupDriver: systemd
+# 10.233.0.3 为 coredns 服务地址
 clusterDNS:
-- 169.254.25.10
+- 10.233.0.3
 clusterDomain: cluster.local
 containerLogMaxFiles: 3
 containerLogMaxSize: 5Mi
@@ -288,10 +288,9 @@ node1   Ready    <none>   14m   v1.26.5
 运行pod
 
 ```bash
-kubectl run nginx --image=nginx
-kubectl get pod
-NAME    READY   STATUS    RESTARTS   AGE
-nginx   1/1     Running   0          31s
+kubectl create deploy demo --image=nginx
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+demo   1/1     1            1           61s
 ```
 
 好了, 至此, 控制平面已经在本地跑起来, 单步调试什么的可以折腾起来了~

@@ -52,7 +52,7 @@
 <meta itemprop="name" content="本地调试k8s">
 <meta itemprop="description" content="背景: 有时候想详细理解一下k8s的运作流程, 硬看代码实在很难调试, 所以试着在mac上搭建k8s控制平面的编译环境 准备一台干净的ubuntu主"><meta itemprop="datePublished" content="2023-08-02T10:53:21+08:00" />
 <meta itemprop="dateModified" content="2023-08-02T10:53:21+08:00" />
-<meta itemprop="wordCount" content="1443">
+<meta itemprop="wordCount" content="1453">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="本地调试k8s"/>
 <meta name="twitter:description" content="背景: 有时候想详细理解一下k8s的运作流程, 硬看代码实在很难调试, 所以试着在mac上搭建k8s控制平面的编译环境 准备一台干净的ubuntu主"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-08-02 </span>
             
-            <span class="more-meta"> 约 1443 字 更新于 2023-08-02
+            <span class="more-meta"> 约 1453 字 更新于 2023-08-02
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -186,7 +186,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="apiserver">apiserver</h2>
-<p>在ubuntu主机上创建一个kubeadm配置文件, <code>172.31.164.151</code> <code>10.8.0.2</code>都是我mac的ip</p>
+<p>在ubuntu主机上创建一个kubeadm配置<code>cc.yaml</code>文件, <code>192.168.50.251</code> <code>10.6.0.2</code>都是我mac的ip</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -206,7 +206,6 @@
 </span><span class="lnt">15
 </span><span class="lnt">16
 </span><span class="lnt">17
-</span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">kubeadm.k8s.io/v1beta3</span><span class="w">
@@ -219,11 +218,10 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cluster-signing-key-file</span><span class="p">:</span><span class="w"> </span><span class="l">/etc/kubernetes/pki/ca.key</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiServer</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">certSANs</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;10.96.0.1&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;127.0.0.1&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;inksnwdeiMac.local&#34;</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;172.31.164.151&#34;</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;10.8.0.2&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;192.168.50.251&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;10.6.0.2&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tls-cert-file</span><span class="p">:</span><span class="w"> </span><span class="l">/etc/kubernetes/pki/apiserver.crt</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tls-private-key-file</span><span class="p">:</span><span class="w"> </span><span class="l">/etc/kubernetes/pki/apiserver.key</span><span class="w">
@@ -281,7 +279,7 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">--advertise-address<span class="o">=</span>0.0.0.0 --allow-privileged<span class="o">=</span><span class="nb">true</span> --authorization-mode<span class="o">=</span>Node,RBAC --bind-address<span class="o">=</span>0.0.0.0 --client-ca-file<span class="o">=</span>pki/ca.crt --enable-admission-plugins<span class="o">=</span>NodeRestriction --enable-bootstrap-token-auth<span class="o">=</span><span class="nb">true</span>  --etcd-servers<span class="o">=</span>http://127.0.0.1:2379 --feature-gates<span class="o">=</span><span class="nv">ExpandCSIVolumes</span><span class="o">=</span>true,CSIStorageCapacity<span class="o">=</span>true,RotateKubeletServerCertificate<span class="o">=</span><span class="nb">true</span> --kubelet-client-certificate<span class="o">=</span>pki/apiserver-kubelet-client.crt --kubelet-client-key<span class="o">=</span>pki/apiserver-kubelet-client.key --kubelet-preferred-address-types<span class="o">=</span>InternalIP,ExternalIP,Hostname --proxy-client-cert-file<span class="o">=</span>pki/front-proxy-client.crt --proxy-client-key-file<span class="o">=</span>pki/front-proxy-client.key --requestheader-allowed-names<span class="o">=</span>front-proxy-client --requestheader-client-ca-file<span class="o">=</span>pki/front-proxy-ca.crt --requestheader-extra-headers-prefix<span class="o">=</span>X-Remote-Extra- --requestheader-group-headers<span class="o">=</span>X-Remote-Group --requestheader-username-headers<span class="o">=</span>X-Remote-User --secure-port<span class="o">=</span><span class="m">6443</span> --service-account-issuer<span class="o">=</span>https://kubernetes.default.svc.cluster.local --service-account-key-file<span class="o">=</span>pki/sa.pub --service-account-signing-key-file<span class="o">=</span>pki/sa.key --service-cluster-ip-range<span class="o">=</span>10.233.0.0/18 --tls-cert-file<span class="o">=</span>pki/apiserver.crt --tls-private-key-file<span class="o">=</span>pki/apiserver.key --v<span class="o">=</span><span class="m">5</span>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">--advertise-address<span class="o">=</span>0.0.0.0 --allow-privileged<span class="o">=</span><span class="nb">true</span> --authorization-mode<span class="o">=</span>Node,RBAC --bind-address<span class="o">=</span>0.0.0.0 --client-ca-file<span class="o">=</span>config/pki/ca.crt --enable-admission-plugins<span class="o">=</span>NodeRestriction --enable-bootstrap-token-auth<span class="o">=</span><span class="nb">true</span>  --etcd-servers<span class="o">=</span>http://127.0.0.1:2379 --feature-gates<span class="o">=</span><span class="nv">ExpandCSIVolumes</span><span class="o">=</span>true,CSIStorageCapacity<span class="o">=</span>true,RotateKubeletServerCertificate<span class="o">=</span><span class="nb">true</span> --kubelet-client-certificate<span class="o">=</span>config/pki/apiserver-kubelet-client.crt --kubelet-client-key<span class="o">=</span>config/pki/apiserver-kubelet-client.key --kubelet-preferred-address-types<span class="o">=</span>InternalIP,ExternalIP,Hostname --proxy-client-cert-file<span class="o">=</span>config/pki/front-proxy-client.crt --proxy-client-key-file<span class="o">=</span>config/pki/front-proxy-client.key --requestheader-allowed-names<span class="o">=</span>front-proxy-client --requestheader-client-ca-file<span class="o">=</span>config/pki/front-proxy-ca.crt --requestheader-extra-headers-prefix<span class="o">=</span>X-Remote-Extra- --requestheader-group-headers<span class="o">=</span>X-Remote-Group --requestheader-username-headers<span class="o">=</span>X-Remote-User --secure-port<span class="o">=</span><span class="m">6443</span> --service-account-issuer<span class="o">=</span>https://kubernetes.default.svc.cluster.local --service-account-key-file<span class="o">=</span>config/pki/sa.pub --service-account-signing-key-file<span class="o">=</span>config/pki/sa.key --service-cluster-ip-range<span class="o">=</span>10.233.0.0/18 --tls-cert-file<span class="o">=</span>config/pki/apiserver.crt --tls-private-key-file<span class="o">=</span>config/pki/apiserver.key --v<span class="o">=</span><span class="m">5</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><img src="http://inksnw.asuscomm.com:3001/blog/本地调试k8s_2f27f1a6e2a99465d21b16f178efb7b7.png" alt="image-20230802163758775" style="zoom:50%;" />
@@ -296,7 +294,7 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubeadm init phase kubeconfig admin 
-</span></span><span class="line"><span class="cl"><span class="c1"># 修改配置文件中的server地址, 我这里是10.8.0.2</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 修改配置文件中的server地址, 我这里是10.6.0.2</span>
 </span></span><span class="line"><span class="cl">mkdir -p /root/.kube/
 </span></span><span class="line"><span class="cl">cp /etc/kubernetes/admin.conf /root/.kube/config
 </span></span></code></pre></td></tr></table>
@@ -338,7 +336,7 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">--allocate-node-cidrs<span class="o">=</span><span class="nb">true</span> --authentication-kubeconfig<span class="o">=</span>/Users/inksnw/.kube/config --authorization-kubeconfig<span class="o">=</span>/Users/inksnw/.kube/config --bind-address<span class="o">=</span>0.0.0.0 --client-ca-file<span class="o">=</span>pki/ca.crt --cluster-cidr<span class="o">=</span>10.233.64.0/18 --cluster-name<span class="o">=</span>cluster.local --cluster-signing-cert-file<span class="o">=</span>pki/ca.crt --cluster-signing-duration<span class="o">=</span>87600h --cluster-signing-key-file<span class="o">=</span>pki/ca.key --controllers<span class="o">=</span>*,bootstrapsigner,tokencleaner --feature-gates<span class="o">=</span><span class="nv">RotateKubeletServerCertificate</span><span class="o">=</span>true,ExpandCSIVolumes<span class="o">=</span>true,CSIStorageCapacity<span class="o">=</span><span class="nb">true</span> --kubeconfig<span class="o">=</span>/Users/inksnw/.kube/config --leader-elect<span class="o">=</span><span class="nb">true</span> --node-cidr-mask-size<span class="o">=</span><span class="m">24</span> --requestheader-client-ca-file<span class="o">=</span>pki/front-proxy-ca.crt --root-ca-file<span class="o">=</span>pki/ca.crt --service-account-private-key-file<span class="o">=</span>pki/sa.key --service-cluster-ip-range<span class="o">=</span>10.233.0.0/18 --use-service-account-credentials<span class="o">=</span><span class="nb">true</span>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">--allocate-node-cidrs<span class="o">=</span><span class="nb">true</span> --authentication-kubeconfig<span class="o">=</span>/Users/inksnw/.kube/config --authorization-kubeconfig<span class="o">=</span>/Users/inksnw/.kube/config --bind-address<span class="o">=</span>0.0.0.0 --client-ca-file<span class="o">=</span>config/pki/ca.crt --cluster-cidr<span class="o">=</span>10.233.64.0/18 --cluster-name<span class="o">=</span>cluster.local --cluster-signing-cert-file<span class="o">=</span>config/pki/ca.crt --cluster-signing-duration<span class="o">=</span>87600h --cluster-signing-key-file<span class="o">=</span>config/pki/ca.key --controllers<span class="o">=</span>*,bootstrapsigner,tokencleaner --feature-gates<span class="o">=</span><span class="nv">RotateKubeletServerCertificate</span><span class="o">=</span>true,ExpandCSIVolumes<span class="o">=</span>true,CSIStorageCapacity<span class="o">=</span><span class="nb">true</span> --kubeconfig<span class="o">=</span>/Users/inksnw/.kube/config --leader-elect<span class="o">=</span><span class="nb">true</span> --node-cidr-mask-size<span class="o">=</span><span class="m">24</span> --requestheader-client-ca-file<span class="o">=</span>config/pki/front-proxy-ca.crt --root-ca-file<span class="o">=</span>config/pki/ca.crt --service-account-private-key-file<span class="o">=</span>config/pki/sa.key --service-cluster-ip-range<span class="o">=</span>10.233.0.0/18 --use-service-account-credentials<span class="o">=</span><span class="nb">true</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="节点配置">节点配置</h2>
@@ -380,7 +378,7 @@
 </span></span><span class="line"><span class="cl"><span class="o">[</span>Service<span class="o">]</span>
 </span></span><span class="line"><span class="cl"><span class="nv">CPUAccounting</span><span class="o">=</span><span class="nb">true</span>
 </span></span><span class="line"><span class="cl"><span class="nv">MemoryAccounting</span><span class="o">=</span><span class="nb">true</span>
-</span></span><span class="line"><span class="cl"><span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/kubelet --kubeconfig<span class="o">=</span>/root/.kube/config --config<span class="o">=</span>/var/lib/kubelet/config.yaml --cgroup-driver<span class="o">=</span>systemd --container-runtime-endpoint<span class="o">=</span>unix:///run/containerd/containerd.sock --pod-infra-container-image<span class="o">=</span>kubesphere/pause:3.9 --node-ip<span class="o">=</span>192.168.50.127 --hostname-override<span class="o">=</span>node1
+</span></span><span class="line"><span class="cl"><span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/kubelet --kubeconfig<span class="o">=</span>/root/.kube/config --config<span class="o">=</span>/var/lib/kubelet/config.yaml --cgroup-driver<span class="o">=</span>systemd --container-runtime-endpoint<span class="o">=</span>unix:///run/containerd/containerd.sock --pod-infra-container-image<span class="o">=</span>kubesphere/pause:3.9 --node-ip<span class="o">=</span>192.168.50.36 --hostname-override<span class="o">=</span>node1
 </span></span><span class="line"><span class="cl"><span class="nv">Restart</span><span class="o">=</span>always
 </span></span><span class="line"><span class="cl"><span class="nv">StartLimitInterval</span><span class="o">=</span><span class="m">0</span>
 </span></span><span class="line"><span class="cl"><span class="nv">RestartSec</span><span class="o">=</span><span class="m">10</span>
@@ -465,6 +463,7 @@
 </span><span class="lnt">63
 </span><span class="lnt">64
 </span><span class="lnt">65
+</span><span class="lnt">66
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">kubelet.config.k8s.io/v1beta1</span><span class="w">
@@ -482,8 +481,9 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cacheAuthorizedTTL</span><span class="p">:</span><span class="w"> </span><span class="l">0s</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cacheUnauthorizedTTL</span><span class="p">:</span><span class="w"> </span><span class="l">0s</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">cgroupDriver</span><span class="p">:</span><span class="w"> </span><span class="l">systemd</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c"># 10.233.0.3 为 coredns 服务地址</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">clusterDNS</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span>- <span class="m">169.254.25.10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span>- <span class="m">10.233.0.3</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">clusterDomain</span><span class="p">:</span><span class="w"> </span><span class="l">cluster.local</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">containerLogMaxFiles</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">containerLogMaxSize</span><span class="p">:</span><span class="w"> </span><span class="l">5Mi</span><span class="w">
@@ -636,13 +636,11 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
-</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl run nginx --image<span class="o">=</span>nginx
-</span></span><span class="line"><span class="cl">kubectl get pod
-</span></span><span class="line"><span class="cl">NAME    READY   STATUS    RESTARTS   AGE
-</span></span><span class="line"><span class="cl">nginx   1/1     Running   <span class="m">0</span>          31s
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create deploy demo --image<span class="o">=</span>nginx
+</span></span><span class="line"><span class="cl">NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">demo   1/1     <span class="m">1</span>            <span class="m">1</span>           61s
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>好了, 至此, 控制平面已经在本地跑起来, 单步调试什么的可以折腾起来了~</p>
