@@ -308,7 +308,7 @@ func main() {
 
 > configmaps is forbidden: User “system:anonymous” cannot list resource “configmaps” in API group “” in the namespace “default”
 
-给匿名用户授权即可解决，测试环境可用此快速解决
+开发时可用此办法临时解决
 
 ```bash
 kubectl create clusterrolebinding test:anonymous --clusterrole=cluster-admin --user=system:anonymous
@@ -471,5 +471,63 @@ func main() {
 
 ```bash
 kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot
+```
+
+### 带缓存的client
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	corev1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/klog/v2"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/cluster"
+)
+
+var Scheme = runtime.NewScheme()
+
+func main() {
+	_ = clientgoscheme.AddToScheme(Scheme)
+	_ = apiextensionsv1.AddToScheme(Scheme)
+
+	config, _ := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
+	c, err := cluster.New(config, func(options *cluster.Options) {
+		options.Scheme = Scheme
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	//为特定资源增加筛选索引
+	indexerFunc := func(obj client.Object) []string {
+		e := obj.(*corev1.Event)
+		return []string{e.InvolvedObject.Name}
+	}
+	if err = c.GetCache().IndexField(context.Background(), &corev1.Event{}, "involvedObject.name", indexerFunc); err != nil {
+		klog.Fatalf("unable to create index field: %v", err)
+	}
+	//启动缓存同步
+	go c.GetCache().Start(context.Background())
+	if c.GetCache().WaitForCacheSync(context.Background()) {
+		fmt.Println("Cache sync success")
+	}
+
+	namespace := corev1.NamespaceList{}
+	err = c.GetClient().List(context.Background(), &namespace)
+	if err != nil {
+		panic(err)
+	}
+	for _, i := range namespace.Items {
+		fmt.Println(i.Name)
+	}
+
+}
 ```
 
