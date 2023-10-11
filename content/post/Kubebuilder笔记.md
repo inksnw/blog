@@ -65,6 +65,11 @@ func main() {
 func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	now := time.Now()
 	fmt.Printf("%s: %s reconcile\n", now, req.Name)
+	//出错立即重入
+	//return ctrl.Result{}, errors.New("test")
+	// 手动重入
+	//return ctrl.Result{Requeue: true}, nil
+	// 定时重入
 	return ctrl.Result{RequeueAfter: time.Second * 3}, nil
 }
 
