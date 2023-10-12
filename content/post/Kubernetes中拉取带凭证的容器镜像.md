@@ -13,6 +13,8 @@ nerdctl login
 cp ~/.docker/config.json /var/lib/kubelet/
 systemctl restart kubelet
 ```
+> 注意, 配置完了需要重启kubelet
+
 kubelet启动的时候会读取 `searchPaths` 中的配置文件
 <img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_35eee10da3d183008a977cff24752a25.png" alt="image-20230922140925408" style="zoom:50%;" />
 
