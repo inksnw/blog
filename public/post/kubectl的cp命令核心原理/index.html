@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 1 2 3 # !!!Important Note!!! # Requires that the &amp;#39;tar&amp;#39; binary" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 44行 !!!Important Note!!! Requires that" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,18 +44,18 @@
 
 
 <meta property="og:title" content="Kubectl的cp命令核心原理" />
-<meta property="og:description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 1 2 3 # !!!Important Note!!! # Requires that the &#39;tar&#39; binary" />
+<meta property="og:description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 44行 !!!Important Note!!! Requires that" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/kubectl%E7%9A%84cp%E5%91%BD%E4%BB%A4%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-10-16T11:45:56+08:00" />
 <meta property="article:modified_time" content="2023-10-16T11:45:56+08:00" />
 <meta itemprop="name" content="Kubectl的cp命令核心原理">
-<meta itemprop="description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 1 2 3 # !!!Important Note!!! # Requires that the &#39;tar&#39; binary"><meta itemprop="datePublished" content="2023-10-16T11:45:56+08:00" />
+<meta itemprop="description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 44行 !!!Important Note!!! Requires that"><meta itemprop="datePublished" content="2023-10-16T11:45:56+08:00" />
 <meta itemprop="dateModified" content="2023-10-16T11:45:56+08:00" />
-<meta itemprop="wordCount" content="948">
+<meta itemprop="wordCount" content="950">
 <meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubectl的cp命令核心原理"/>
-<meta name="twitter:description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 1 2 3 # !!!Important Note!!! # Requires that the &#39;tar&#39; binary"/>
+<meta name="twitter:description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 44行 !!!Important Note!!! Requires that"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-10-16 </span>
             
-            <span class="more-meta"> 约 948 字 更新于 2023-10-16
+            <span class="more-meta"> 约 950 字 更新于 2023-10-16
               </span>
             
         </div>
@@ -154,20 +154,12 @@
     
     <div class="post-content">
         <p>当使用 <code>kubectl cp</code> 命令核心原理是利用<code>exec</code>命令结合<code>tar</code>命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令</p>
+<p>源码位置  <code>staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go</code> 44行</p>
 <blockquote>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># !!!Important Note!!!
-</span></span><span class="line"><span class="cl"># Requires that the &#39;tar&#39; binary is present in your container
-</span></span><span class="line"><span class="cl"># image.  If &#39;tar&#39; is not present, &#39;kubectl cp&#39; will fail.
-</span></span></code></pre></td></tr></table>
-</div>
-</div></blockquote>
+<p>!!!Important Note!!!
+Requires that the &rsquo;tar&rsquo; binary is present in your container
+image.  If &rsquo;tar&rsquo; is not present, &lsquo;kubectl cp&rsquo; will fail.</p>
+</blockquote>
 <h2 id="示例">示例</h2>
 <p>实现 <code>kubectl cp</code> 命令的细节包括以下步骤：</p>
 <ol>

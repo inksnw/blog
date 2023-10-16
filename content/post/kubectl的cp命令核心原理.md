@@ -5,11 +5,11 @@ date: 2023-10-16T11:45:56+08:00
 
 当使用 `kubectl cp` 命令核心原理是利用`exec`命令结合`tar`命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令
 
-> ```
-> # !!!Important Note!!!
-> # Requires that the 'tar' binary is present in your container
-> # image.  If 'tar' is not present, 'kubectl cp' will fail.
-> ```
+源码位置  `staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go` 44行
+
+>  !!!Important Note!!!
+> Requires that the 'tar' binary is present in your container
+> image.  If 'tar' is not present, 'kubectl cp' will fail.
 
 ## 示例
 
