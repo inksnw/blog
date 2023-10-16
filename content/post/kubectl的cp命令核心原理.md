@@ -3,13 +3,13 @@ title: "Kubectl的cp命令核心原理"
 date: 2023-10-16T11:45:56+08:00
 ---
 
-当使用 `kubectl cp` 命令核心原理是利用`exec`命令结合`tar`命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令
+ `kubectl cp` 命令核心原理是利用`exec`命令调用`tar`命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令
 
 源码位置  `staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go` 44行
 
->  !!!Important Note!!!
-> Requires that the 'tar' binary is present in your container
-> image.  If 'tar' is not present, 'kubectl cp' will fail.
+>  !!!Important Note!!! 
+> Requires that the 'tar' binary is present in your container 
+> image.  If 'tar' is not present, 'kubectl cp' will fail. 
 
 ## 示例
 
@@ -18,9 +18,7 @@ date: 2023-10-16T11:45:56+08:00
 1. 本地系统中，`kubectl cp` 命令使用 `tar` 命令将文件和目录打包成一个压缩包。
 2. 压缩包的内容通过管道传输到目标 Pod。
 3. 在目标 Pod 中，`tar` 命令解压缩压缩包，并将文件和目录还原到指定的位置。
-4. 对于从 Pod 复制文件到本地系统的情况，`kubectl cp` 命令从 Pod 中读取文件，创建一个 `tar` 压缩包，并通过管道将其传输到本地系统，最后解压缩到指定目的地。
-
-这个过程中，`tar` 命令和 Linux 管道是关键要素，它们允许数据在本地系统和 Pod 之间进行有效传输和归档。
+4. Pod 复制文件到本地:  `kubectl cp` 命令从 Pod 中读取并创建一个 `tar` 压缩包，并通过管道将其传输到本地，再解压缩到指定目的地。
 
 示例：
 

@@ -13,7 +13,7 @@
       <pubDate>Mon, 16 Oct 2023 11:45:56 +0800</pubDate>
       
       <guid>http://inksnw.asuscomm.com:3001/post/kubectl%E7%9A%84cp%E5%91%BD%E4%BB%A4%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86/</guid>
-      <description>&lt;p&gt;当使用 &lt;code&gt;kubectl cp&lt;/code&gt; 命令核心原理是利用&lt;code&gt;exec&lt;/code&gt;命令结合&lt;code&gt;tar&lt;/code&gt;命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令&lt;/p&gt;
+      <description>&lt;p&gt;&lt;code&gt;kubectl cp&lt;/code&gt; 命令核心原理是利用&lt;code&gt;exec&lt;/code&gt;命令调用&lt;code&gt;tar&lt;/code&gt;命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令&lt;/p&gt;
 &lt;p&gt;源码位置  &lt;code&gt;staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go&lt;/code&gt; 44行&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;!!!Important Note!!!
@@ -26,9 +26,8 @@ image.  If &amp;rsquo;tar&amp;rsquo; is not present, &amp;lsquo;kubectl cp&amp;r
 &lt;li&gt;本地系统中，&lt;code&gt;kubectl cp&lt;/code&gt; 命令使用 &lt;code&gt;tar&lt;/code&gt; 命令将文件和目录打包成一个压缩包。&lt;/li&gt;
 &lt;li&gt;压缩包的内容通过管道传输到目标 Pod。&lt;/li&gt;
 &lt;li&gt;在目标 Pod 中，&lt;code&gt;tar&lt;/code&gt; 命令解压缩压缩包，并将文件和目录还原到指定的位置。&lt;/li&gt;
-&lt;li&gt;对于从 Pod 复制文件到本地系统的情况，&lt;code&gt;kubectl cp&lt;/code&gt; 命令从 Pod 中读取文件，创建一个 &lt;code&gt;tar&lt;/code&gt; 压缩包，并通过管道将其传输到本地系统，最后解压缩到指定目的地。&lt;/li&gt;
+&lt;li&gt;Pod 复制文件到本地:  &lt;code&gt;kubectl cp&lt;/code&gt; 命令从 Pod 中读取并创建一个 &lt;code&gt;tar&lt;/code&gt; 压缩包，并通过管道将其传输到本地，再解压缩到指定目的地。&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;这个过程中，&lt;code&gt;tar&lt;/code&gt; 命令和 Linux 管道是关键要素，它们允许数据在本地系统和 Pod 之间进行有效传输和归档。&lt;/p&gt;
 &lt;p&gt;示例：&lt;/p&gt;
 &lt;p&gt;从本地系统复制文件到 Pod&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;

@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="inksnw" /><meta name="description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 44行 !!!Important Note!!! Requires that" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="inksnw" /><meta name="description" content="kubectl cp 命令核心原理是利用exec命令调用tar命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 4" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -44,18 +44,18 @@
 
 
 <meta property="og:title" content="Kubectl的cp命令核心原理" />
-<meta property="og:description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 44行 !!!Important Note!!! Requires that" />
+<meta property="og:description" content="kubectl cp 命令核心原理是利用exec命令调用tar命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 4" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/kubectl%E7%9A%84cp%E5%91%BD%E4%BB%A4%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-10-16T11:45:56+08:00" />
 <meta property="article:modified_time" content="2023-10-16T11:45:56+08:00" />
 <meta itemprop="name" content="Kubectl的cp命令核心原理">
-<meta itemprop="description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 44行 !!!Important Note!!! Requires that"><meta itemprop="datePublished" content="2023-10-16T11:45:56+08:00" />
+<meta itemprop="description" content="kubectl cp 命令核心原理是利用exec命令调用tar命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 4"><meta itemprop="datePublished" content="2023-10-16T11:45:56+08:00" />
 <meta itemprop="dateModified" content="2023-10-16T11:45:56+08:00" />
-<meta itemprop="wordCount" content="950">
+<meta itemprop="wordCount" content="891">
 <meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubectl的cp命令核心原理"/>
-<meta name="twitter:description" content="当使用 kubectl cp 命令核心原理是利用exec命令结合tar命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 44行 !!!Important Note!!! Requires that"/>
+<meta name="twitter:description" content="kubectl cp 命令核心原理是利用exec命令调用tar命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 4"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-10-16 </span>
             
-            <span class="more-meta"> 约 950 字 更新于 2023-10-16
+            <span class="more-meta"> 约 891 字 更新于 2023-10-16
               </span>
             
         </div>
@@ -153,7 +153,7 @@
 
     
     <div class="post-content">
-        <p>当使用 <code>kubectl cp</code> 命令核心原理是利用<code>exec</code>命令结合<code>tar</code>命令实现, 因此kubectl源码中也写到, 需要保证容器有tar命令</p>
+        <p><code>kubectl cp</code> 命令核心原理是利用<code>exec</code>命令调用<code>tar</code>命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令</p>
 <p>源码位置  <code>staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go</code> 44行</p>
 <blockquote>
 <p>!!!Important Note!!!
@@ -166,9 +166,8 @@ image.  If &rsquo;tar&rsquo; is not present, &lsquo;kubectl cp&rsquo; will fail.
 <li>本地系统中，<code>kubectl cp</code> 命令使用 <code>tar</code> 命令将文件和目录打包成一个压缩包。</li>
 <li>压缩包的内容通过管道传输到目标 Pod。</li>
 <li>在目标 Pod 中，<code>tar</code> 命令解压缩压缩包，并将文件和目录还原到指定的位置。</li>
-<li>对于从 Pod 复制文件到本地系统的情况，<code>kubectl cp</code> 命令从 Pod 中读取文件，创建一个 <code>tar</code> 压缩包，并通过管道将其传输到本地系统，最后解压缩到指定目的地。</li>
+<li>Pod 复制文件到本地:  <code>kubectl cp</code> 命令从 Pod 中读取并创建一个 <code>tar</code> 压缩包，并通过管道将其传输到本地，再解压缩到指定目的地。</li>
 </ol>
-<p>这个过程中，<code>tar</code> 命令和 Linux 管道是关键要素，它们允许数据在本地系统和 Pod 之间进行有效传输和归档。</p>
 <p>示例：</p>
 <p>从本地系统复制文件到 Pod</p>
 <div class="highlight"><div class="chroma">
