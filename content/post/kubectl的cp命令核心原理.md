@@ -70,16 +70,7 @@ func main() {
 
 func copyFromPod(client *kubernetes.Clientset, config *restclient.Config) {
 	command := []string{"tar", "cf", "-", "/tmp/foo"}
-	req := client.CoreV1().RESTClient().Post().Resource("pods").
-		Name(podName).Namespace(namespace).SubResource("exec").
-		VersionedParams(&corev1.PodExecOptions{
-			Command: command,
-			Stdin:   true,
-			Stdout:  true,
-			Stderr:  true,
-			TTY:     false,
-		}, scheme.ParameterCodec)
-
+	req := getReq(client, command)
 	exec, err := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
 	if err != nil {
 		panic(err)
@@ -93,6 +84,7 @@ func copyFromPod(client *kubernetes.Clientset, config *restclient.Config) {
 	fmt.Println("从容器读取文件完成")
 
 	reader := tar.NewReader(pipReader)
+	
 	for {
 		header, err := reader.Next()
 		if err != nil {
@@ -115,15 +107,7 @@ func copyFromPod(client *kubernetes.Clientset, config *restclient.Config) {
 func copyToPod(client *kubernetes.Clientset, config *restclient.Config) {
 	command := []string{"tar", "xf", "-", "-C", "/tmp/"}
 
-	req := client.CoreV1().RESTClient().Post().Resource("pods").
-		Name(podName).Namespace(namespace).SubResource("exec").
-		VersionedParams(&corev1.PodExecOptions{
-			Command: command,
-			Stdin:   true,
-			Stdout:  true,
-			Stderr:  true,
-			TTY:     false,
-		}, scheme.ParameterCodec)
+	req := getReq(client, command)
 
 	exec, err := remotecommand.NewSPDYExecutor(config, "POST", req.URL())
 	if err != nil {
@@ -157,6 +141,19 @@ func copyToPod(client *kubernetes.Clientset, config *restclient.Config) {
 	}
 	fmt.Println("本地读取文件完成")
 	fmt.Println("写入容器完成")
+}
+
+func getReq(client *kubernetes.Clientset, command []string) *restclient.Request {
+	req := client.CoreV1().RESTClient().Post().Resource("pods").
+		Name(podName).Namespace(namespace).SubResource("exec").
+		VersionedParams(&corev1.PodExecOptions{
+			Command: command,
+			Stdin:   true,
+			Stdout:  true,
+			Stderr:  true,
+			TTY:     false,
+		}, scheme.ParameterCodec)
+	return req
 }
 
 func stream(exec remotecommand.Executor, pipReader io.Reader, write io.Writer) {

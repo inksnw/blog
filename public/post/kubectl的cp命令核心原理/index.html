@@ -52,7 +52,7 @@
 <meta itemprop="name" content="Kubectl的cp命令核心原理">
 <meta itemprop="description" content="kubectl cp 命令核心原理是利用exec命令调用tar命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 4"><meta itemprop="datePublished" content="2023-10-16T11:45:56+08:00" />
 <meta itemprop="dateModified" content="2023-10-16T11:45:56+08:00" />
-<meta itemprop="wordCount" content="891">
+<meta itemprop="wordCount" content="889">
 <meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubectl的cp命令核心原理"/>
 <meta name="twitter:description" content="kubectl cp 命令核心原理是利用exec命令调用tar命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令 源码位置 staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go 4"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-10-16 </span>
             
-            <span class="more-meta"> 约 891 字 更新于 2023-10-16
+            <span class="more-meta"> 约 889 字 更新于 2023-10-16
               </span>
             
         </div>
@@ -324,9 +324,6 @@ image.  If &rsquo;tar&rsquo; is not present, &lsquo;kubectl cp&rsquo; will fail.
 </span><span class="lnt">124
 </span><span class="lnt">125
 </span><span class="lnt">126
-</span><span class="lnt">127
-</span><span class="lnt">128
-</span><span class="lnt">129
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
@@ -358,16 +355,7 @@ image.  If &rsquo;tar&rsquo; is not present, &lsquo;kubectl cp&rsquo; will fail.
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">copyFromPod</span><span class="p">(</span><span class="nx">client</span> <span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span> <span class="nx">config</span> <span class="o">*</span><span class="nx">restclient</span><span class="p">.</span><span class="nx">Config</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">command</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;tar&#34;</span><span class="p">,</span> <span class="s">&#34;cf&#34;</span><span class="p">,</span> <span class="s">&#34;-&#34;</span><span class="p">,</span> <span class="s">&#34;/tmp/foo&#34;</span><span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">req</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">RESTClient</span><span class="p">().</span><span class="nf">Post</span><span class="p">().</span><span class="nf">Resource</span><span class="p">(</span><span class="s">&#34;pods&#34;</span><span class="p">).</span>
-</span></span><span class="line"><span class="cl">		<span class="nf">Name</span><span class="p">(</span><span class="nx">podName</span><span class="p">).</span><span class="nf">Namespace</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">SubResource</span><span class="p">(</span><span class="s">&#34;exec&#34;</span><span class="p">).</span>
-</span></span><span class="line"><span class="cl">		<span class="nf">VersionedParams</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">PodExecOptions</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Command</span><span class="p">:</span> <span class="nx">command</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Stdin</span><span class="p">:</span>   <span class="kc">true</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Stdout</span><span class="p">:</span>  <span class="kc">true</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Stderr</span><span class="p">:</span>  <span class="kc">true</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">TTY</span><span class="p">:</span>     <span class="kc">false</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span> <span class="nx">scheme</span><span class="p">.</span><span class="nx">ParameterCodec</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span> <span class="o">:=</span> <span class="nf">getReq</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">command</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">exec</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">remotecommand</span><span class="p">.</span><span class="nf">NewSPDYExecutor</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="s">&#34;POST&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nf">URL</span><span class="p">())</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
@@ -381,6 +369,7 @@ image.  If &rsquo;tar&rsquo; is not present, &lsquo;kubectl cp&rsquo; will fail.
 </span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;从容器读取文件完成&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="nx">reader</span> <span class="o">:=</span> <span class="nx">tar</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">pipReader</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	
 </span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">header</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">reader</span><span class="p">.</span><span class="nf">Next</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
@@ -403,15 +392,7 @@ image.  If &rsquo;tar&rsquo; is not present, &lsquo;kubectl cp&rsquo; will fail.
 </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">copyToPod</span><span class="p">(</span><span class="nx">client</span> <span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span> <span class="nx">config</span> <span class="o">*</span><span class="nx">restclient</span><span class="p">.</span><span class="nx">Config</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">command</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;tar&#34;</span><span class="p">,</span> <span class="s">&#34;xf&#34;</span><span class="p">,</span> <span class="s">&#34;-&#34;</span><span class="p">,</span> <span class="s">&#34;-C&#34;</span><span class="p">,</span> <span class="s">&#34;/tmp/&#34;</span><span class="p">}</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">req</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">RESTClient</span><span class="p">().</span><span class="nf">Post</span><span class="p">().</span><span class="nf">Resource</span><span class="p">(</span><span class="s">&#34;pods&#34;</span><span class="p">).</span>
-</span></span><span class="line"><span class="cl">		<span class="nf">Name</span><span class="p">(</span><span class="nx">podName</span><span class="p">).</span><span class="nf">Namespace</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">SubResource</span><span class="p">(</span><span class="s">&#34;exec&#34;</span><span class="p">).</span>
-</span></span><span class="line"><span class="cl">		<span class="nf">VersionedParams</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">PodExecOptions</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Command</span><span class="p">:</span> <span class="nx">command</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Stdin</span><span class="p">:</span>   <span class="kc">true</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Stdout</span><span class="p">:</span>  <span class="kc">true</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Stderr</span><span class="p">:</span>  <span class="kc">true</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">TTY</span><span class="p">:</span>     <span class="kc">false</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span> <span class="nx">scheme</span><span class="p">.</span><span class="nx">ParameterCodec</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span> <span class="o">:=</span> <span class="nf">getReq</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">command</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="nx">exec</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">remotecommand</span><span class="p">.</span><span class="nf">NewSPDYExecutor</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="s">&#34;POST&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nf">URL</span><span class="p">())</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
@@ -445,6 +426,19 @@ image.  If &rsquo;tar&rsquo; is not present, &lsquo;kubectl cp&rsquo; will fail.
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;本地读取文件完成&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;写入容器完成&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">getReq</span><span class="p">(</span><span class="nx">client</span> <span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span> <span class="nx">command</span> <span class="p">[]</span><span class="kt">string</span><span class="p">)</span> <span class="o">*</span><span class="nx">restclient</span><span class="p">.</span><span class="nx">Request</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">RESTClient</span><span class="p">().</span><span class="nf">Post</span><span class="p">().</span><span class="nf">Resource</span><span class="p">(</span><span class="s">&#34;pods&#34;</span><span class="p">).</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">Name</span><span class="p">(</span><span class="nx">podName</span><span class="p">).</span><span class="nf">Namespace</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">SubResource</span><span class="p">(</span><span class="s">&#34;exec&#34;</span><span class="p">).</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">VersionedParams</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">PodExecOptions</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Command</span><span class="p">:</span> <span class="nx">command</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Stdin</span><span class="p">:</span>   <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Stdout</span><span class="p">:</span>  <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Stderr</span><span class="p">:</span>  <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">TTY</span><span class="p">:</span>     <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span> <span class="nx">scheme</span><span class="p">.</span><span class="nx">ParameterCodec</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">req</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">stream</span><span class="p">(</span><span class="nx">exec</span> <span class="nx">remotecommand</span><span class="p">.</span><span class="nx">Executor</span><span class="p">,</span> <span class="nx">pipReader</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">write</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Writer</span><span class="p">)</span> <span class="p">{</span>
