@@ -7,9 +7,9 @@ date: 2023-10-16T11:45:56+08:00
 
 源码位置  `staging/src/k8s.io/kubectl/pkg/cmd/cp/cp.go` 44行
 
->  !!!Important Note!!! 
-> Requires that the 'tar' binary is present in your container 
-> image.  If 'tar' is not present, 'kubectl cp' will fail. 
+>  !!!Important Note!!!  
+> Requires that the 'tar' binary is present in your container  
+> image.  If 'tar' is not present, 'kubectl cp' will fail.  
 
 ## 示例
 
