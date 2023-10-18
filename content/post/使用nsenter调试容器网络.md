@@ -59,8 +59,17 @@ dockerd 运行时使用 docker 命令获取:
 在节点上使用 nsenter 进入 pod 的 netns:
 
 ```bash
-nsenter -n --target 910351
+nsenter --target 910351 --mount --uts --ipc --net --pid 
 ```
+
+nsenter指令中进程id之后的参数的含义：
+
+- – mount 参数是进去到mount namespace中
+- – uts 参数是进入到uts namespace中
+- – ipc 参数是进入到System V IPC namaspace中
+- – net 参数是进入到network namespace中
+- – pid 参数是进入到pid namespace中
+- – user 参数是进入到user namespace中
 
 ## 调试网络
 

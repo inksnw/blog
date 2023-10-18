@@ -52,7 +52,7 @@
 <meta itemprop="name" content="使用nsenter调试容器网络">
 <meta itemprop="description" content="获取容器 ID 使用 kubectl 获取 pod 中任意 cotnainer 的 id: 1 kubectl -n test describe pod debug-685b48bcf5-ggn5d containerd运行时 1 2 3 Containers: debug: Container ID: containerd://529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 dockerd运行时 1 2 3 Containers: debug: Container ID: docker://e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 获取 PID 拿到 container id"><meta itemprop="datePublished" content="2022-11-27T15:15:23+08:00" />
 <meta itemprop="dateModified" content="2022-11-27T15:15:23+08:00" />
-<meta itemprop="wordCount" content="332">
+<meta itemprop="wordCount" content="497">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用nsenter调试容器网络"/>
 <meta name="twitter:description" content="获取容器 ID 使用 kubectl 获取 pod 中任意 cotnainer 的 id: 1 kubectl -n test describe pod debug-685b48bcf5-ggn5d containerd运行时 1 2 3 Containers: debug: Container ID: containerd://529bbd5c935562a9ba66fc9b9ffa95d486c6324f26d8253d744ffe3dfd728289 dockerd运行时 1 2 3 Containers: debug: Container ID: docker://e64939086488a9302821566b0c1f193b755c805f5ff5370d5ce5e6f154ffc648 获取 PID 拿到 container id"/>
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2022-11-27 </span>
             
-            <span class="more-meta"> 约 332 字 更新于 2022-11-27
+            <span class="more-meta"> 约 497 字 更新于 2022-11-27
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -237,10 +237,19 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nsenter -n --target <span class="m">910351</span>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nsenter --target <span class="m">910351</span> --mount --uts --ipc --net --pid 
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="调试网络">调试网络</h2>
+</div><p>nsenter指令中进程id之后的参数的含义：</p>
+<ul>
+<li>– mount 参数是进去到mount namespace中</li>
+<li>– uts 参数是进入到uts namespace中</li>
+<li>– ipc 参数是进入到System V IPC namaspace中</li>
+<li>– net 参数是进入到network namespace中</li>
+<li>– pid 参数是进入到pid namespace中</li>
+<li>– user 参数是进入到user namespace中</li>
+</ul>
+<h2 id="调试网络">调试网络</h2>
 <p>成功进入容器的 netns，可以使用节点上的网络工具进行调试网络，可以首先使用 <code>ip a</code> 验证下 ip 地址是否为 pod ip:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
