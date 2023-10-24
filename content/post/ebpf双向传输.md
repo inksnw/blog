@@ -1,7 +1,7 @@
 ---
 title: "Ebpf双向传输"
 date: 2023-10-24T11:38:41+08:00
-draft: true
+tags: ["ebpf"]
 ---
 
 提供一个eBPF中内核态和用户态之间的双向数据传输的demo

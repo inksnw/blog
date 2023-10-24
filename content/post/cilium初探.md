@@ -1,7 +1,7 @@
 ---
 title: "Cilium初探"
 date: 2023-07-26T10:28:48+08:00
-tags: ["cilium"]
+tags: ["ebpf"]
 ---
 
 ## 安装
