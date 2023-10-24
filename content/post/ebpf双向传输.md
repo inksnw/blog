@@ -18,8 +18,6 @@ go install github.com/cilium/ebpf/cmd/bpf2go@latest
 
 接下来，我们需要一些eBPF相关的头文件。您可以从[cilium/ebpf](https://github.com/cilium/ebpf/tree/master/examples/headers)下载它们，并将它们保存到`headers`目录。
 
----
-
 ### 生成命令介绍
 
 使用`bpf2go`工具，我们可以从C代码生成Go代码，这样我们就可以在Go程序中使用eBPF程序和映射。以下是生成命令：
@@ -35,8 +33,6 @@ go install github.com/cilium/ebpf/cmd/bpf2go@latest
 
 这将生成eBPF程序和map，其中map用于内核态和用户态之间的数据交换，而函数用于实现具体的网络逻辑。
 
----
-
 ### 内核态逻辑
 
 #### 内核发送到用户
@@ -46,8 +42,6 @@ go install github.com/cilium/ebpf/cmd/bpf2go@latest
 #### 用户发送到内核
 
 eBPF程序还会检查数据包的源IP是否在一个特定的map（“deny_ips_map”）中。如果存在，则数据包将被丢弃。
-
----
 
 ### 用户态逻辑
 

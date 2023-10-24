@@ -177,7 +177,6 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>接下来，我们需要一些eBPF相关的头文件。您可以从<a href="https://github.com/cilium/ebpf/tree/master/examples/headers">cilium/ebpf</a>下载它们，并将它们保存到<code>headers</code>目录。</p>
-<hr>
 <h3 id="生成命令介绍">生成命令介绍</h3>
 <p>使用<code>bpf2go</code>工具，我们可以从C代码生成Go代码，这样我们就可以在Go程序中使用eBPF程序和映射。以下是生成命令：</p>
 <div class="highlight"><div class="chroma">
@@ -195,13 +194,11 @@
 <li><code>tproxy.c</code>：包含内核逻辑的C文件。</li>
 </ul>
 <p>这将生成eBPF程序和map，其中map用于内核态和用户态之间的数据交换，而函数用于实现具体的网络逻辑。</p>
-<hr>
 <h3 id="内核态逻辑">内核态逻辑</h3>
 <h4 id="内核发送到用户">内核发送到用户</h4>
 <p>当数据包到达XDP挂载点时，eBPF程序开始解析数据包的头部信息，例如来源IP。解析完成后，它会将这些信息通过map发送到用户态。</p>
 <h4 id="用户发送到内核">用户发送到内核</h4>
 <p>eBPF程序还会检查数据包的源IP是否在一个特定的map（“deny_ips_map”）中。如果存在，则数据包将被丢弃。</p>
-<hr>
 <h3 id="用户态逻辑">用户态逻辑</h3>
 <h4 id="读取内核信息">读取内核信息</h4>
 <p>在用户态，我们可以使用以下代码从ring buffer中读取数据包信息：</p>
