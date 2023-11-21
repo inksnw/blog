@@ -1,6 +1,7 @@
 ---
 title: "Kubectl的cp命令核心原理"
 date: 2023-10-16T11:45:56+08:00
+tags: ["k8s"]
 ---
 
  `kubectl cp` 命令核心原理是利用`exec`命令调用`tar`命令结合linux管道实现, 因此kubectl源码中也写到, 需要保证容器有tar命令

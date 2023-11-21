@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Webhook影响k8s全局gc - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="源于一次环境异常, 发现删除deploy时, pod不会被自动清除 复现 提交一个带Webhook 的crd 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.120.4 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/webhook%E5%BD%B1%E5%93%8Dk8s%E5%85%A8%E5%B1%80gc/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="Webhook影响k8s全局gc" />
+<meta property="og:description" content="源于一次环境异常, 发现删除deploy时, pod不会被自动清除 复现 提交一个带Webhook 的crd 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/webhook%E5%BD%B1%E5%93%8Dk8s%E5%85%A8%E5%B1%80gc/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-11-21T10:31:12+08:00" />
+<meta property="article:modified_time" content="2023-11-21T10:31:12+08:00" />
+
+<meta itemprop="name" content="Webhook影响k8s全局gc">
+<meta itemprop="description" content="源于一次环境异常, 发现删除deploy时, pod不会被自动清除 复现 提交一个带Webhook 的crd 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21"><meta itemprop="datePublished" content="2023-11-21T10:31:12+08:00" />
+<meta itemprop="dateModified" content="2023-11-21T10:31:12+08:00" />
+<meta itemprop="wordCount" content="463">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Webhook影响k8s全局gc"/>
+<meta name="twitter:description" content="源于一次环境异常, 发现删除deploy时, pod不会被自动清除 复现 提交一个带Webhook 的crd 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">Webhook影响k8s全局gc</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-11-21 </span>
+            
+            <span class="more-meta"> 约 463 字 更新于 2023-11-21
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#复现">复现</a></li>
+        <li><a href="#原因追踪">原因追踪</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>源于一次环境异常, 发现删除deploy时, pod不会被自动清除</p>
+<h2 id="复现">复现</h2>
+<p>提交一个带<code>Webhook</code> 的crd</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f - <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: apiextensions.k8s.io/v1
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: CustomResourceDefinition
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: examples.example.com
+</span></span></span><span class="line"><span class="cl"><span class="s">spec:
+</span></span></span><span class="line"><span class="cl"><span class="s">  conversion:
+</span></span></span><span class="line"><span class="cl"><span class="s">    strategy: Webhook
+</span></span></span><span class="line"><span class="cl"><span class="s">    webhook:
+</span></span></span><span class="line"><span class="cl"><span class="s">      clientConfig:
+</span></span></span><span class="line"><span class="cl"><span class="s">        caBundle: ZmFrZQ==
+</span></span></span><span class="line"><span class="cl"><span class="s">        service:
+</span></span></span><span class="line"><span class="cl"><span class="s">          name: mysql-webhook
+</span></span></span><span class="line"><span class="cl"><span class="s">          namespace: default
+</span></span></span><span class="line"><span class="cl"><span class="s">          path: /convert
+</span></span></span><span class="line"><span class="cl"><span class="s">          port: 443
+</span></span></span><span class="line"><span class="cl"><span class="s">      conversionReviewVersions:
+</span></span></span><span class="line"><span class="cl"><span class="s">      - v1
+</span></span></span><span class="line"><span class="cl"><span class="s">  group: example.com
+</span></span></span><span class="line"><span class="cl"><span class="s">  versions:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - name: v1
+</span></span></span><span class="line"><span class="cl"><span class="s">    served: true
+</span></span></span><span class="line"><span class="cl"><span class="s">    storage: true
+</span></span></span><span class="line"><span class="cl"><span class="s">    schema:
+</span></span></span><span class="line"><span class="cl"><span class="s">      openAPIV3Schema:
+</span></span></span><span class="line"><span class="cl"><span class="s">        type: object
+</span></span></span><span class="line"><span class="cl"><span class="s">        properties:
+</span></span></span><span class="line"><span class="cl"><span class="s">          spec:
+</span></span></span><span class="line"><span class="cl"><span class="s">            type: object
+</span></span></span><span class="line"><span class="cl"><span class="s">            properties:
+</span></span></span><span class="line"><span class="cl"><span class="s">              field1:
+</span></span></span><span class="line"><span class="cl"><span class="s">                type: string
+</span></span></span><span class="line"><span class="cl"><span class="s">              field2:
+</span></span></span><span class="line"><span class="cl"><span class="s">                type: string
+</span></span></span><span class="line"><span class="cl"><span class="s">  scope: Namespaced
+</span></span></span><span class="line"><span class="cl"><span class="s">  names:
+</span></span></span><span class="line"><span class="cl"><span class="s">    plural: examples
+</span></span></span><span class="line"><span class="cl"><span class="s">    singular: example
+</span></span></span><span class="line"><span class="cl"><span class="s">    kind: Example
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>验证gc</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create deployment my-deployment --image<span class="o">=</span>nginx
+</span></span><span class="line"><span class="cl">kubectl get pod 
+</span></span><span class="line"><span class="cl">kubectl delete deploy my-deployment
+</span></span><span class="line"><span class="cl"><span class="c1"># 发现还是存在</span>
+</span></span><span class="line"><span class="cl">kubectl get pod
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看kube-controller的日志会发现</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_7716fbb60d4999a9a203c277c9d34364.png" alt="image-20231121155432905" style="zoom:50%;" />
+<h2 id="原因追踪">原因追踪</h2>
+<p>逻辑在<code>pkg/controller/garbagecollector/garbagecollector.go</code> 183行</p>
+<p>gc会收集所有可删除的资源列表生成 <code>newResources</code></p>
+<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_d3f59a700dbbb28410a9f431edd093a3.png" alt="image-20231121154832747" style="zoom:50%;" />
+<p>为所有可删除的资源创建informer</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_58e3285164444b1947f774b7d938d89f.png" alt="image-20231121155058272" style="zoom:50%;" />
+<p>核心原因就在这里</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_999ae8cda743b50757b01fe654de56a6.png" alt="image-20231121155142767" style="zoom:50%;" />
+<p>k8s要求所有可删除的资源的informer都同步完成才行, 而informer会调用list方法, 但是由于我们的crd使用的webhook还未安装/运行错误, 因此这个同步一直无法完成, 所以也影响到了其它资源的gc, 感觉这块的实现并不是很合理</p>
+<p>官方issue中也有提到这个, 但目前来看, 还未修复</p>
+<p><a href="https://github.com/kubernetes/kubernetes/issues/110720">https://github.com/kubernetes/kubernetes/issues/110720</a></p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/ebpf%E5%8F%8C%E5%90%91%E4%BC%A0%E8%BE%93/">
+                <span class="next-text nav-default">Ebpf双向传输</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
