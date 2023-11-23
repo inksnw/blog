@@ -186,3 +186,14 @@ Patch+subresources 预期: 3, 实际spec: 2, 实际status: 3
 - ```
   storage := crdInfo.storages[requestInfo.APIVersion].CustomResource
   ```
+
+## 命令行操作
+
+如果想使用kubectl 更新子资源, 需要加上 `--subresource` 参数
+
+```bash
+kubectl patch OperatorApplicationVersion kafka --subresource='status' --type='merge' -p '{"status":{"state":"suspended"}}'
+```
+
+
+
