@@ -189,7 +189,7 @@ Patch+subresources 预期: 3, 实际spec: 2, 实际status: 3
 
 ## 命令行操作
 
-如果想使用kubectl 更新子资源, 需要加上 `--subresource` 参数
+如果想使用kubectl 更新子资源, 需要加上 `--subresource` 参数, 版本要求 `Kubernetes v1.24`
 
 ```bash
 kubectl patch OperatorApplicationVersion kafka --subresource='status' --type='merge' -p '{"status":{"state":"suspended"}}'
