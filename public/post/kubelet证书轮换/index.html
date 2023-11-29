@@ -53,7 +53,7 @@
 <meta itemprop="name" content="Kubelet证书轮换与更新">
 <meta itemprop="description" content="组件证书 使用如下命令查看证书过期时间： 1 2 kubeadm certs check-expiration openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | egrep Not 手动更新证书 1 kubeadm certs renew all 更新各种config 1 2 3 4 5 6 7 kubeadm init phase kubeconfig all I0811 18:11:06.477258 61845 version.go:256]"><meta itemprop="datePublished" content="2023-08-08T21:03:59+08:00" />
 <meta itemprop="dateModified" content="2023-08-08T21:03:59+08:00" />
-<meta itemprop="wordCount" content="772">
+<meta itemprop="wordCount" content="815">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubelet证书轮换与更新"/>
 <meta name="twitter:description" content="组件证书 使用如下命令查看证书过期时间： 1 2 kubeadm certs check-expiration openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | egrep Not 手动更新证书 1 kubeadm certs renew all 更新各种config 1 2 3 4 5 6 7 kubeadm init phase kubeconfig all I0811 18:11:06.477258 61845 version.go:256]"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-08-08 </span>
             
-            <span class="more-meta"> 约 772 字 更新于 2023-08-08
+            <span class="more-meta"> 约 815 字 更新于 2023-08-08
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -242,6 +242,25 @@
 </span></span><span class="line"><span class="cl">		<span class="nx">deadline</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">.</span><span class="nf">nextRotationDeadline</span><span class="p">()</span> <span class="c1">//获取下次更新时间, 默认是证书的有效时间剩下 30% 到 10% 之间的任意时间点
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//这里是更新逻辑, 默认一秒检测一次
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">},</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">stopCh</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>kubelet默认生成的证书位置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@node1:/var/lib/kubelet/pki# tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── kubelet-client-2023-11-24-14-19-43.pem
+</span></span><span class="line"><span class="cl">├── kubelet-client-current.pem -&gt; /var/lib/kubelet/pki/kubelet-client-2023-11-24-14-19-43.pem
+</span></span><span class="line"><span class="cl">├── kubelet.crt
+</span></span><span class="line"><span class="cl">└── kubelet.key
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="demo">demo</h3>

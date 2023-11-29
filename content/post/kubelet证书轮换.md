@@ -64,6 +64,17 @@ go wait.Until(func() {
 	}, time.Second, m.stopCh)
 ```
 
+kubelet默认生成的证书位置
+
+```bash
+root@node1:/var/lib/kubelet/pki# tree
+.
+├── kubelet-client-2023-11-24-14-19-43.pem
+├── kubelet-client-current.pem -> /var/lib/kubelet/pki/kubelet-client-2023-11-24-14-19-43.pem
+├── kubelet.crt
+└── kubelet.key
+```
+
 ### demo
 
 这里提供一个手动申请kubelet证书的demo
