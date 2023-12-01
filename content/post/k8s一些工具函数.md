@@ -531,3 +531,20 @@ func main() {
 }
 ```
 
+### 使用k8s仓库
+
+解决版本 `0.0.0` 问题
+
+```bash
+MODS=($(
+curl -sS https://raw.githubusercontent.com/kubernetes/kubernetes/v1.26.5/go.mod |
+sed -n 's|.*k8s.io/\(.*\) => ./staging/src/k8s.io/.*|k8s.io/\1|p'
+))
+for MOD in "${MODS[@]}"; do
+go mod edit "-replace=${MOD}=${MOD}@v0.26.5"
+done
+go get "k8s.io/kubernetes@v1.26.5"
+```
+
+
+
