@@ -69,6 +69,8 @@ func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	//return ctrl.Result{}, errors.New("test")
 	// 手动重入
 	//return ctrl.Result{Requeue: true}, nil
+  // 不重入
+	//return ctrl.Result{}, nil
 	// 定时重入
 	return ctrl.Result{RequeueAfter: time.Second * 3}, nil
 }
