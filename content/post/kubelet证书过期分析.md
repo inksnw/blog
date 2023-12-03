@@ -197,9 +197,4 @@ func createShortLivedBootstrapToken(client clientset.Interface) (string, error) 
 
 ```
 
-复制到节点上
-
-```bash
-scp bootstrap-kubelet.conf root@192.168.50.51:/etc/kubernetes/bootstrap-kubelet.conf
-```
 
