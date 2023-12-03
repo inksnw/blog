@@ -12,24 +12,12 @@ tags: ["k8s"]
 
 [官方文档](https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/#bootstrap-initialization) 已经说的很清楚了
 
-1. kubelet 启动
-2. kubelet 看到自己**没有**对应的 `kubeconfig` 文件
-3. kubelet 搜索并发现 `bootstrap-kubeconfig` 文件
-4. kubelet 读取该启动引导文件，从中获得 API 服务器的 URL 和用途有限的一个“令牌（Token）”
-5. kubelet 建立与 API 服务器的连接，使用上述令牌执行身份认证
-6. kubelet 现在拥有受限制的凭据来创建和取回证书签名请求（CSR）
-7. kubelet 为自己创建一个 CSR，并将其 signerName 设置为 `kubernetes.io/kube-apiserver-client-kubelet`
-8. CSR 被以如下两种方式之一批复：
-   - 如果配置了，kube-controller-manager 会自动批复该 CSR
-   - 如果配置了，一个外部进程，或者是人，使用 Kubernetes API 或者使用 `kubectl` 来批复该 CSR
-9. kubelet 所需要的证书被创建
-
-1. 证书被发放给 kubelet
-2. kubelet 取回该证书
-3. kubelet 创建一个合适的 `kubeconfig`，其中包含密钥和已签名的证书
-4. kubelet 开始正常操作
-5. 可选地，如果配置了，kubelet 在证书接近于过期时自动请求更新证书
-6. 更新的证书被批复并发放；取决于配置，这一过程可能是自动的或者手动完成
+1. kubelet 启动看到自己**没有**对应的 `kubeconfig` 文件, 于是去寻找 `bootstrap-kubeconfig` 文件
+2. kubelet 读取该启动引导文件，从中获得 API 服务器的 URL 和用途有限的一个“令牌（Token）”
+3. kubelet 建立与 API 服务器的连接，使用上述令牌执行身份认证, 使用受限制的凭据来创建和取回证书签名请求（CSR）
+4. 对于特定的CSR申请`SignerName`,`Usages`, kube-controller 内置了自动批复的逻辑
+1. kubelet 取回该证书并创建一个合适的 `kubeconfig`，其中包含密钥和已签名的证书
+3. 如果配置了证书轮转，kubelet 在证书接近于过期时自动请求更新证书
 
 简单来说, 就是首次启动时使用 `临时文件(bootstrap-kubelet)` 发起csr请求申请证书, 由于安全性考虑, 这个文件首次使用后一般会被安装工具删除,  后续kubelet 会自动轮转的更新证书  [参考kubelet证书轮换](http://inksnw.asuscomm.com:3001/post/kubelet%E8%AF%81%E4%B9%A6%E8%BD%AE%E6%8D%A2/)  , 但是由于某些原因这个轮转并未能工作, 再次启动时, 临时bootstrap文件没了, 旧证书也失效了, 因此无法启动
 
