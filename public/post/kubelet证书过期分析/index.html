@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Kubelet证书过期分析 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="源自一次环境问题, kubelet重启后, 报错 &amp;ldquo;command failed&amp;rdquo; err=&amp;ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&amp;rdquo; bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.120.4 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/kubelet%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E5%88%86%E6%9E%90/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="Kubelet证书过期分析" />
+<meta property="og:description" content="源自一次环境问题, kubelet重启后, 报错 &ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo; bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/kubelet%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E5%88%86%E6%9E%90/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-12-03T10:31:47+08:00" />
+<meta property="article:modified_time" content="2023-12-03T10:31:47+08:00" />
+
+<meta itemprop="name" content="Kubelet证书过期分析">
+<meta itemprop="description" content="源自一次环境问题, kubelet重启后, 报错 &ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo; bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文"><meta itemprop="datePublished" content="2023-12-03T10:31:47+08:00" />
+<meta itemprop="dateModified" content="2023-12-03T10:31:47+08:00" />
+<meta itemprop="wordCount" content="1030">
+<meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Kubelet证书过期分析"/>
+<meta name="twitter:description" content="源自一次环境问题, kubelet重启后, 报错 &ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo; bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">Kubelet证书过期分析</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2023-12-03 </span>
+            
+            <span class="more-meta"> 约 1030 字 更新于 2023-12-03
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#复现">复现</a></li>
+        <li><a href="#shell实现">shell实现</a></li>
+        <li><a href="#代码实现">代码实现</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>源自一次环境问题, kubelet重启后, 报错</p>
+<blockquote>
+<p>&ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo;</p>
+</blockquote>
+<p><code>bootstrap-kubelet.conf</code> 文件主机上确实没有, 他的作用是什么, 这里简单分析一下</p>
+<p><a href="https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/#bootstrap-initialization">官方文档</a> 已经说的很清楚了, 简单来说, 就是首次启动时使用 <code>临时token(bootstrap-kubelet)</code> 发起csr请求申请证书, 由于安全性考虑, 这个文件首次使用后一般会被安装工具删除,  后续kubelet 会自动轮转的更新证书  <a href="http://inksnw.asuscomm.com:3001/post/kubelet%E8%AF%81%E4%B9%A6%E8%BD%AE%E6%8D%A2/">参考kubelet证书轮换</a>  , 但是由于某些原因这个轮转并未能工作, 再次启动时, 临时bootstrap文件没了, 旧证书也失效了, 因此无法启动</p>
+<h2 id="复现">复现</h2>
+<p>将一个节点的证书文件, bootstrap-kubelet.conf 都删除, 这个操作等价于证书过期等证书不可用的情况</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">kubelet</span><span class="o">/</span><span class="n">pki</span><span class="o">/*</span>
+</span></span><span class="line"><span class="cl"><span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">kubernetes</span><span class="o">/</span><span class="n">bootstrap</span><span class="o">-</span><span class="n">kubelet</span><span class="o">.</span><span class="n">conf</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><img src="http://inksnw.asuscomm.com:3001/blog/kubelet证书过期分析_d3eb52476fd77144ec910bb59ef5af10.png" alt="image-20231203110835717" style="zoom:50%;" />
+<p>kubelet启动时, 检测<code>isClientConfigStillValid</code> 旧证书失败, 于是去寻找 bootstrap 文件也不存在, 于是报错</p>
+<p>所以, 两种修复思路</p>
+<ul>
+<li>把旧证书换成可用的</li>
+<li>生成bootstrap文件, 让kubelet自动发起csr请求, 更新证书</li>
+</ul>
+<p>这里提供一下第二种方法</p>
+<h2 id="shell实现">shell实现</h2>
+<p>在master节点创建一个<code>boot.sh</code>, 运行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">KUBE_APISERVER</span><span class="o">=</span><span class="s2">&#34;https://192.168.50.50:6443&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">node_name</span><span class="o">=</span>node2
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建 token</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">BOOTSTRAP_TOKEN</span><span class="o">=</span><span class="k">$(</span>kubeadm token create <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --description kubelet-bootstrap-token <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --groups system:bootstrappers:kubeadm:default-node-token <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --kubeconfig ~/.kube/config<span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置集群参数</span>
+</span></span><span class="line"><span class="cl">kubectl config set-cluster kubernetes <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --certificate-authority<span class="o">=</span>/etc/kubernetes/pki/ca.crt <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --embed-certs<span class="o">=</span><span class="nb">true</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --server<span class="o">=</span><span class="si">${</span><span class="nv">KUBE_APISERVER</span><span class="si">}</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --kubeconfig<span class="o">=</span>bootstrap-kubelet.conf
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置客户端认证参数</span>
+</span></span><span class="line"><span class="cl">kubectl config set-credentials tls-bootstrap-token-user <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --token<span class="o">=</span><span class="si">${</span><span class="nv">BOOTSTRAP_TOKEN</span><span class="si">}</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --kubeconfig<span class="o">=</span>bootstrap-kubelet.conf
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置上下文参数</span>
+</span></span><span class="line"><span class="cl">kubectl config set-context tls-bootstrap-token-user@kubernetes <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --cluster<span class="o">=</span>kubernetes <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --user<span class="o">=</span>tls-bootstrap-token-user <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --kubeconfig<span class="o">=</span>bootstrap-kubelet.conf
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置默认上下文</span>
+</span></span><span class="line"><span class="cl">kubectl config use-context tls-bootstrap-token-user@kubernetes --kubeconfig<span class="o">=</span>bootstrap-kubelet.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>将生成的<code>bootstrap-kubelet.conf</code>文件复制到节点上</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">scp bootstrap-kubelet.conf root@192.168.50.51:/etc/kubernetes/bootstrap-kubelet.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>重启kubelet, 可以看到已工作正常</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">systemctl start kubelet
+</span></span><span class="line"><span class="cl">systemctl status kubelet
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到证书文件已经重新生成</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@node2:/var/lib/kubelet/pki# tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── kubelet-client-2023-12-03-11-15-09.pem
+</span></span><span class="line"><span class="cl">├── kubelet-client-current.pem -&gt; /var/lib/kubelet/pki/kubelet-client-2023-12-03-11-15-09.pem
+</span></span><span class="line"><span class="cl">├── kubelet.crt
+</span></span><span class="line"><span class="cl">└── kubelet.key
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看csr申请, 可以看到已被自动批准</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">root@node1:~# kubectl get csr
+</span></span><span class="line"><span class="cl">NAME        AGE   SIGNERNAME                                    REQUESTOR                 REQUESTEDDURATION   CONDITION
+</span></span><span class="line"><span class="cl">csr-9rmfc   45s   kubernetes.io/kube-apiserver-client-kubelet   system:bootstrap:dwt5yr   &lt;none&gt;              Approved,Issued
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="代码实现">代码实现</h2>
+<p>提供一个从<code>kubeadm</code> 中扒出来的代码实现</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/pkg/errors&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">clientset</span> <span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">bootstraputil</span> <span class="s">&#34;k8s.io/cluster-bootstrap/token/util&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">bootstraptokenv1</span> <span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/apis/bootstraptoken/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">kubeadmconstants</span> <span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/constants&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/discovery&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">nodebootstraptokenphase</span> <span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/phases/bootstraptoken/node&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Endpoint</span> <span class="p">=</span> <span class="s">&#34;192.168.50.50:6443&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nx">RecommendedHomeFile</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">cli</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">token</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">createShortLivedBootstrapToken</span><span class="p">(</span><span class="nx">cli</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">boot</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="nx">Endpoint</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">boot</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="nx">Endpoint</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">cfg</span> <span class="o">:=</span> <span class="nx">kubeadm</span><span class="p">.</span><span class="nx">JoinConfiguration</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Discovery</span><span class="p">:</span> <span class="nx">kubeadm</span><span class="p">.</span><span class="nx">Discovery</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">TLSBootstrapToken</span><span class="p">:</span> <span class="nx">token</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Timeout</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Duration</span><span class="p">:</span> <span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">BootstrapToken</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">kubeadm</span><span class="p">.</span><span class="nx">BootstrapTokenDiscovery</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">APIServerEndpoint</span><span class="p">:</span> <span class="nx">Endpoint</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Token</span><span class="p">:</span>             <span class="nx">token</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">tlsBootstrapCfg</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">discovery</span><span class="p">.</span><span class="nf">For</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">cfg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="p">=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">WriteToFile</span><span class="p">(</span><span class="o">*</span><span class="nx">tlsBootstrapCfg</span><span class="p">,</span> <span class="s">&#34;./bootstrap-kubelet.conf&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">createShortLivedBootstrapToken</span><span class="p">(</span><span class="nx">client</span> <span class="nx">clientset</span><span class="p">.</span><span class="nx">Interface</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">tokenStr</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">bootstraputil</span><span class="p">.</span><span class="nf">GenerateBootstrapToken</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;error generating token to upload certs&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">token</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">bootstraptokenv1</span><span class="p">.</span><span class="nf">NewBootstrapTokenString</span><span class="p">(</span><span class="nx">tokenStr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;error creating upload certs token&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">tokens</span> <span class="o">:=</span> <span class="p">[]</span><span class="nx">bootstraptokenv1</span><span class="p">.</span><span class="nx">BootstrapToken</span><span class="p">{{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Token</span><span class="p">:</span>       <span class="nx">token</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Description</span><span class="p">:</span> <span class="s">&#34;Proxy for managing TTL for the kubeadm-certs secret&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">TTL</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Duration</span><span class="p">:</span> <span class="nx">kubeadmconstants</span><span class="p">.</span><span class="nx">DefaultCertTokenDuration</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Groups</span><span class="p">:</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">kubeadmconstants</span><span class="p">.</span><span class="nx">NodeBootstrapTokenAuthGroup</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Usages</span><span class="p">:</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;authentication&#34;</span><span class="p">,</span> <span class="s">&#34;signing&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">nodebootstraptokenphase</span><span class="p">.</span><span class="nf">CreateNewTokens</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">tokens</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;error creating token&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">tokenStr</span><span class="p">,</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>复制到节点上</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">scp bootstrap-kubelet.conf root@192.168.50.51:/etc/kubernetes/bootstrap-kubelet.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/webhook%E5%BD%B1%E5%93%8Dk8s%E5%85%A8%E5%B1%80gc/">
+                <span class="next-text nav-default">Webhook影响k8s全局gc</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
