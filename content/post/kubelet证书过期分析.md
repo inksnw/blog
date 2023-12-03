@@ -12,10 +12,10 @@ tags: ["k8s"]
 
 [官方文档](https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/#bootstrap-initialization) 已经说的很清楚了
 
-1. kubelet 启动看到自己**没有**对应的 `kubeconfig` 文件, 于是去寻找 `bootstrap-kubeconfig` 文件
+1. kubelet 启动检测kubeconfig文件已经失效`isClientConfigStillValid`,  于是去寻找 `bootstrap-kubeconfig` 文件
 2. kubelet 读取该启动引导文件，从中获得 API 服务器的 URL 和用途有限的一个“令牌（Token）”
 3. kubelet 建立与 API 服务器的连接，使用上述令牌执行身份认证, 使用受限制的凭据来创建和取回证书签名请求（CSR）
-4. 对于特定的CSR申请`SignerName`,`Usages`, kube-controller 内置了自动批复的逻辑
+4. 对于特定`SignerName`,`Usages `的CSR申请, kube-controller 内置了自动批复的逻辑
 1. kubelet 取回该证书并创建一个合适的 `kubeconfig`，其中包含密钥和已签名的证书
 3. 如果配置了证书轮转，kubelet 在证书接近于过期时自动请求更新证书
 
@@ -32,7 +32,7 @@ rm -rf /etc/kubernetes/bootstrap-kubelet.conf
 
 <img src="http://inksnw.asuscomm.com:3001/blog/kubelet证书过期分析_d3eb52476fd77144ec910bb59ef5af10.png" alt="image-20231203110835717" style="zoom:50%;" />
 
-kubelet启动时, 检测`isClientConfigStillValid` 旧证书失败, 于是去寻找 bootstrap 文件也不存在, 于是报错
+kubelet启动时, 检测`isClientConfigStillValid` 旧证书失败, 去寻找 bootstrap 文件也不存在, 于是报错
 
 所以, 两种修复思路
 
@@ -196,5 +196,4 @@ func createShortLivedBootstrapToken(client clientset.Interface) (string, error) 
 }
 
 ```
-
 

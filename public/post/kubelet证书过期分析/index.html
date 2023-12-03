@@ -53,7 +53,7 @@
 <meta itemprop="name" content="Kubelet证书过期分析">
 <meta itemprop="description" content="源自一次环境问题, kubelet重启后, 报错 &ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo; bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文"><meta itemprop="datePublished" content="2023-12-03T10:31:47+08:00" />
 <meta itemprop="dateModified" content="2023-12-03T10:31:47+08:00" />
-<meta itemprop="wordCount" content="1241">
+<meta itemprop="wordCount" content="1269">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubelet证书过期分析"/>
 <meta name="twitter:description" content="源自一次环境问题, kubelet重启后, 报错 &ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo; bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-12-03 </span>
             
-            <span class="more-meta"> 约 1241 字 更新于 2023-12-03
+            <span class="more-meta"> 约 1269 字 更新于 2023-12-03
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -163,10 +163,10 @@
 <p><code>bootstrap-kubelet.conf</code> 文件主机上确实没有, 他的作用是什么, 这里简单分析一下</p>
 <p><a href="https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/#bootstrap-initialization">官方文档</a> 已经说的很清楚了</p>
 <ol>
-<li>kubelet 启动看到自己<strong>没有</strong>对应的 <code>kubeconfig</code> 文件, 于是去寻找 <code>bootstrap-kubeconfig</code> 文件</li>
+<li>kubelet 启动检测kubeconfig文件已经失效<code>isClientConfigStillValid</code>,  于是去寻找 <code>bootstrap-kubeconfig</code> 文件</li>
 <li>kubelet 读取该启动引导文件，从中获得 API 服务器的 URL 和用途有限的一个“令牌（Token）”</li>
 <li>kubelet 建立与 API 服务器的连接，使用上述令牌执行身份认证, 使用受限制的凭据来创建和取回证书签名请求（CSR）</li>
-<li>对于特定的CSR申请<code>SignerName</code>,<code>Usages</code>, kube-controller 内置了自动批复的逻辑</li>
+<li>对于特定<code>SignerName</code>,<code>Usages </code>的CSR申请, kube-controller 内置了自动批复的逻辑</li>
 <li>kubelet 取回该证书并创建一个合适的 <code>kubeconfig</code>，其中包含密钥和已签名的证书</li>
 <li>如果配置了证书轮转，kubelet 在证书接近于过期时自动请求更新证书</li>
 </ol>
@@ -184,7 +184,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><img src="http://inksnw.asuscomm.com:3001/blog/kubelet证书过期分析_d3eb52476fd77144ec910bb59ef5af10.png" alt="image-20231203110835717" style="zoom:50%;" />
-<p>kubelet启动时, 检测<code>isClientConfigStillValid</code> 旧证书失败, 于是去寻找 bootstrap 文件也不存在, 于是报错</p>
+<p>kubelet启动时, 检测<code>isClientConfigStillValid</code> 旧证书失败, 去寻找 bootstrap 文件也不存在, 于是报错</p>
 <p>所以, 两种修复思路</p>
 <ul>
 <li>把旧证书换成可用的</li>

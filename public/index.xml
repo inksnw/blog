@@ -20,10 +20,10 @@
 &lt;p&gt;&lt;code&gt;bootstrap-kubelet.conf&lt;/code&gt; 文件主机上确实没有, 他的作用是什么, 这里简单分析一下&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/#bootstrap-initialization&#34;&gt;官方文档&lt;/a&gt; 已经说的很清楚了&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;kubelet 启动看到自己&lt;strong&gt;没有&lt;/strong&gt;对应的 &lt;code&gt;kubeconfig&lt;/code&gt; 文件, 于是去寻找 &lt;code&gt;bootstrap-kubeconfig&lt;/code&gt; 文件&lt;/li&gt;
+&lt;li&gt;kubelet 启动检测kubeconfig文件已经失效&lt;code&gt;isClientConfigStillValid&lt;/code&gt;,  于是去寻找 &lt;code&gt;bootstrap-kubeconfig&lt;/code&gt; 文件&lt;/li&gt;
 &lt;li&gt;kubelet 读取该启动引导文件，从中获得 API 服务器的 URL 和用途有限的一个“令牌（Token）”&lt;/li&gt;
 &lt;li&gt;kubelet 建立与 API 服务器的连接，使用上述令牌执行身份认证, 使用受限制的凭据来创建和取回证书签名请求（CSR）&lt;/li&gt;
-&lt;li&gt;对于特定的CSR申请&lt;code&gt;SignerName&lt;/code&gt;,&lt;code&gt;Usages&lt;/code&gt;, kube-controller 内置了自动批复的逻辑&lt;/li&gt;
+&lt;li&gt;对于特定&lt;code&gt;SignerName&lt;/code&gt;,&lt;code&gt;Usages &lt;/code&gt;的CSR申请, kube-controller 内置了自动批复的逻辑&lt;/li&gt;
 &lt;li&gt;kubelet 取回该证书并创建一个合适的 &lt;code&gt;kubeconfig&lt;/code&gt;，其中包含密钥和已签名的证书&lt;/li&gt;
 &lt;li&gt;如果配置了证书轮转，kubelet 在证书接近于过期时自动请求更新证书&lt;/li&gt;
 &lt;/ol&gt;
@@ -41,7 +41,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;img src=&#34;http://inksnw.asuscomm.com:3001/blog/kubelet证书过期分析_d3eb52476fd77144ec910bb59ef5af10.png&#34; alt=&#34;image-20231203110835717&#34; style=&#34;zoom:50%;&#34; /&gt;
-&lt;p&gt;kubelet启动时, 检测&lt;code&gt;isClientConfigStillValid&lt;/code&gt; 旧证书失败, 于是去寻找 bootstrap 文件也不存在, 于是报错&lt;/p&gt;
+&lt;p&gt;kubelet启动时, 检测&lt;code&gt;isClientConfigStillValid&lt;/code&gt; 旧证书失败, 去寻找 bootstrap 文件也不存在, 于是报错&lt;/p&gt;
 &lt;p&gt;所以, 两种修复思路&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;把旧证书换成可用的&lt;/li&gt;
