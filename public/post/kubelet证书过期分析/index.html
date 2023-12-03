@@ -53,7 +53,7 @@
 <meta itemprop="name" content="Kubelet证书过期分析">
 <meta itemprop="description" content="源自一次环境问题, kubelet重启后, 报错 &ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo; bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文"><meta itemprop="datePublished" content="2023-12-03T10:31:47+08:00" />
 <meta itemprop="dateModified" content="2023-12-03T10:31:47+08:00" />
-<meta itemprop="wordCount" content="1030">
+<meta itemprop="wordCount" content="1375">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubelet证书过期分析"/>
 <meta name="twitter:description" content="源自一次环境问题, kubelet重启后, 报错 &ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo; bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文"/>
@@ -129,7 +129,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-12-03 </span>
             
-            <span class="more-meta"> 约 1030 字 更新于 2023-12-03
+            <span class="more-meta"> 约 1375 字 更新于 2023-12-03
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -161,7 +161,59 @@
 <p>&ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo;</p>
 </blockquote>
 <p><code>bootstrap-kubelet.conf</code> 文件主机上确实没有, 他的作用是什么, 这里简单分析一下</p>
-<p><a href="https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/#bootstrap-initialization">官方文档</a> 已经说的很清楚了, 简单来说, 就是首次启动时使用 <code>临时token(bootstrap-kubelet)</code> 发起csr请求申请证书, 由于安全性考虑, 这个文件首次使用后一般会被安装工具删除,  后续kubelet 会自动轮转的更新证书  <a href="http://inksnw.asuscomm.com:3001/post/kubelet%E8%AF%81%E4%B9%A6%E8%BD%AE%E6%8D%A2/">参考kubelet证书轮换</a>  , 但是由于某些原因这个轮转并未能工作, 再次启动时, 临时bootstrap文件没了, 旧证书也失效了, 因此无法启动</p>
+<p><a href="https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/#bootstrap-initialization">官方文档</a> 已经说的很清楚了</p>
+<ol>
+<li>
+<p>kubelet 启动</p>
+</li>
+<li>
+<p>kubelet 看到自己<strong>没有</strong>对应的 <code>kubeconfig</code> 文件</p>
+</li>
+<li>
+<p>kubelet 搜索并发现 <code>bootstrap-kubeconfig</code> 文件</p>
+</li>
+<li>
+<p>kubelet 读取该启动引导文件，从中获得 API 服务器的 URL 和用途有限的一个“令牌（Token）”</p>
+</li>
+<li>
+<p>kubelet 建立与 API 服务器的连接，使用上述令牌执行身份认证</p>
+</li>
+<li>
+<p>kubelet 现在拥有受限制的凭据来创建和取回证书签名请求（CSR）</p>
+</li>
+<li>
+<p>kubelet 为自己创建一个 CSR，并将其 signerName 设置为 <code>kubernetes.io/kube-apiserver-client-kubelet</code></p>
+</li>
+<li>
+<p>CSR 被以如下两种方式之一批复：</p>
+<ul>
+<li>如果配置了，kube-controller-manager 会自动批复该 CSR</li>
+<li>如果配置了，一个外部进程，或者是人，使用 Kubernetes API 或者使用 <code>kubectl</code> 来批复该 CSR</li>
+</ul>
+</li>
+<li>
+<p>kubelet 所需要的证书被创建</p>
+</li>
+<li>
+<p>证书被发放给 kubelet</p>
+</li>
+<li>
+<p>kubelet 取回该证书</p>
+</li>
+<li>
+<p>kubelet 创建一个合适的 <code>kubeconfig</code>，其中包含密钥和已签名的证书</p>
+</li>
+<li>
+<p>kubelet 开始正常操作</p>
+</li>
+<li>
+<p>可选地，如果配置了，kubelet 在证书接近于过期时自动请求更新证书</p>
+</li>
+<li>
+<p>更新的证书被批复并发放；取决于配置，这一过程可能是自动的或者手动完成</p>
+</li>
+</ol>
+<p>简单来说, 就是首次启动时使用 <code>临时文件(bootstrap-kubelet)</code> 发起csr请求申请证书, 由于安全性考虑, 这个文件首次使用后一般会被安装工具删除,  后续kubelet 会自动轮转的更新证书  <a href="http://inksnw.asuscomm.com:3001/post/kubelet%E8%AF%81%E4%B9%A6%E8%BD%AE%E6%8D%A2/">参考kubelet证书轮换</a>  , 但是由于某些原因这个轮转并未能工作, 再次启动时, 临时bootstrap文件没了, 旧证书也失效了, 因此无法启动</p>
 <h2 id="复现">复现</h2>
 <p>将一个节点的证书文件, bootstrap-kubelet.conf 都删除, 这个操作等价于证书过期等证书不可用的情况</p>
 <div class="highlight"><div class="chroma">
