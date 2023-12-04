@@ -55,7 +55,7 @@ spec:
 ➜ echo "yes" | kk create cluster -f config-simple.yaml --with-local-storage --skip-pull-images
 ```
 
-安装 Cilium CLI
+安装 Cilium CLI, [官方文档](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#k8s-install-quick)
 
 ```bash
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
