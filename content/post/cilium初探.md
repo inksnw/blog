@@ -123,3 +123,12 @@ Image versions         cilium-operator    quay.io/cilium/operator-generic:v1.13.
                        cilium             quay.io/cilium/cilium:v1.13.4@sha256:xxx: 3
 ```
 
+## 开启Cilium Hubble
+
+```bash
+cilium hubble enable --ui
+# 改为nodeport
+kubectl edit svc hubble-ui -n kube-system
+```
+
+<img src="http://inksnw.asuscomm.com:3001/blog/cilium初探_95fc20d1b4f6747a098d6361cd489828.png" alt="image-20231204232622229" style="zoom:50%;" />
