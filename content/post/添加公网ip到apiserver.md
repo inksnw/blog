@@ -4,7 +4,7 @@ date: 2023-02-16T16:22:41+08:00
 tags: ["k8s"]
 ---
 
-通常情况下，我们的 kubernetes 集群是内网环境，如果想通过公网ip访问apiserver, 或者说主机增加了一个ip, 如何访问
+通常情况下，kubernetes 是内网环境，如果想通过公网ip访问, 或者主机增加了一个ip, 如何访问
 
 ## 测试
 
@@ -14,9 +14,11 @@ tags: ["k8s"]
 ip addr add 192.168.50.75/24 dev enp1s0
 ```
 
-报错, 可以看到提示 `192.168.50.75` 不在证书配置内
+执行kubectl命令报错, 可以看到提示 `192.168.50.75` 不在证书配置内
 
 ```bash
+kubectl get node
+
 E1207 16:23:20.198194   93365 memcache.go:265] couldn't get current server API group list: Get "https://192.168.50.75:6443/api?timeout=32s": tls: failed to verify certificate: x509: certificate is valid for 10.233.0.1, 192.168.50.50, 127.0.0.1, 192.168.50.51, 192.168.50.52, not 192.168.50.75
 Unable to connect to the server: tls: failed to verify certificate: x509: certificate is valid for 10.233.0.1, 192.168.50.50, 127.0.0.1, 192.168.50.51, 192.168.50.52, not 192.168.50.75
 ```
