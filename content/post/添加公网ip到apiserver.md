@@ -8,10 +8,22 @@ tags: ["k8s"]
 
 ## 测试
 
-为节点添加一个ip
+为 `master` 节点添加一个ip
 
 ```
 ip addr add 192.168.50.75/24 dev enp1s0
+```
+
+将本机的 `~/.kube/config` 配置文件中的地址改为这个新ip
+
+```bash
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: xxx
+    server: https://192.168.50.75:6443
+  name: cluster.local
+  ...
 ```
 
 执行kubectl命令报错, 可以看到提示 `192.168.50.75` 不在证书配置内
