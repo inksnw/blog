@@ -24,12 +24,21 @@ API version: 3.5
 
 ```bash
 # 创建
-etcdctl put /user/101/name inksnw
-etcdctl put /user/101/age 19
+etcdctl put /user/101/foo1 a
+etcdctl put /user/101/foo2 b
+etcdctl put /user/101/foo3 c
 # 查看
-etcdctl get /user/101/name
+etcdctl get /user/101/foo1
 # 前缀查看
-etcdctl get /user/101  --prefix
+etcdctl get /user/101  --prefix --limit=2
+# 范围查看, 左闭右开
+etcdctl get /user/101/foo1 /user/101/foo2
+# 特定版本
+etcdctl put foo 1
+etcdctl put foo 2
+etcdctl put foo 3
+etcdctl get foo --rev=2
+# 已被压缩会提示 Error: etcdserver: mvcc: required revision has been compacted
 ```
 
 租约
