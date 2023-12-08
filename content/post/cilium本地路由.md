@@ -109,6 +109,6 @@ iperf3 -c 10.0.2.141 -f M
 [  5]   0.00-10.00  sec  38.0 GBytes  3895 MBytes/sec                  receiver
 ```
 
-
+可以看到在本地路由模式下, 基本没有损失
 
 参考文档: [Cilium系列-14-Cilium NetworkPolicy 简介](https://mp.weixin.qq.com/s/nV0rT14D5WG8h71KjsxXMQ)
