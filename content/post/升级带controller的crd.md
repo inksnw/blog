@@ -4,9 +4,9 @@ date: 2023-12-11T17:08:47+08:00
 tags: ["k8s"]
 ---
 
-要升级一个crd,由crd1到crd2, 变更非常大,已经是不同的`group`, `version` 了, 所以不能用同一个crd的不同版本解决, 手动完成了两个cr的数据转换后, 打算把旧的crd1删除, 但是此时环境上还运行这crd1的controller, 因为一些原因controller不能停,
+要升级一个crd,由crd1到crd2, 变更非常大,已经是不同的`group`, `version` 了, 所以不能用同一个crd的不同版本解决, 手动完成了两个cr的数据转换后, 打算把旧的crd1删除,  但是此时环境上还运行这crd1的controller, 因为一些原因controller不能停,
 
-已知删除crd时会同时清理掉cr,所以如果直接删除crd1可能导致controller运行把关联的资源一起删了(比如crd1创建了一个数据库), 那么如何解决, 有没有办法在升级的时候关闭controller的运行
+已知删除crd时会同时清理掉cr, 所以如果直接删除crd1可能导致controller运行把关联的资源一起删了(比如cr创建了一个数据库),  那么如何解决, 有没有办法在升级的时候关闭controller的运行
 
 ## 复现
 
