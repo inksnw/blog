@@ -158,7 +158,7 @@ E1211 17:35:46.333746    2797 reflector.go:147] pkg/mod/k8s.io/client-go@v0.28.4
 kubectl delete crd crontabs.stable.example.com
 ```
 
-因此, 只需要配置`served`字段即可暂停controller的运行, 但删除crd又涉及到cr的`finalizers` 问题, 需要手动清除, 参考 [k8s删除crd会发生什么](http://inksnw.asuscomm.com:3001/post/k8s%E5%88%A0%E9%99%A4crd%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88/)
+因此, 只需要配置`served`字段即可暂停controller的运行,  但删除crd又涉及到cr的`finalizers` 问题,  需要手动清除, 原理可以参考 [k8s删除crd会发生什么](http://inksnw.asuscomm.com:3001/post/k8s%E5%88%A0%E9%99%A4crd%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88/)
 
 
 
