@@ -26,7 +26,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.121.0 with theme even" />
+<meta name="generator" content="Hugo 0.121.1 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/k8s%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7%E5%87%BD%E6%95%B0/" />
@@ -1102,9 +1102,9 @@
 </span></span><span class="line"><span class="cl">	<span class="nx">apiextensionsv1</span> <span class="s">&#34;k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1&#34;</span>
 </span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">clientgoscheme</span> <span class="s">&#34;k8s.io/client-go/kubernetes/scheme&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span>
 </span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/klog/v2&#34;</span>
 </span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">restconfig</span> <span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span>
 </span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/cluster&#34;</span>
 </span></span><span class="line"><span class="cl"><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
@@ -1113,8 +1113,8 @@
 </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">_</span> <span class="p">=</span> <span class="nx">clientgoscheme</span><span class="p">.</span><span class="nf">AddToScheme</span><span class="p">(</span><span class="nx">Scheme</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">_</span> <span class="p">=</span> <span class="nx">apiextensionsv1</span><span class="p">.</span><span class="nf">AddToScheme</span><span class="p">(</span><span class="nx">Scheme</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nx">RecommendedHomeFile</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">restconfig</span><span class="p">.</span><span class="nf">GetConfig</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cluster</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">options</span> <span class="o">*</span><span class="nx">cluster</span><span class="p">.</span><span class="nx">Options</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">options</span><span class="p">.</span><span class="nx">Scheme</span> <span class="p">=</span> <span class="nx">Scheme</span>
 </span></span><span class="line"><span class="cl">	<span class="p">})</span>

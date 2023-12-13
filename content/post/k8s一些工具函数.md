@@ -485,9 +485,9 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	restconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/cluster"
 )
 
@@ -496,8 +496,8 @@ var Scheme = runtime.NewScheme()
 func main() {
 	_ = clientgoscheme.AddToScheme(Scheme)
 	_ = apiextensionsv1.AddToScheme(Scheme)
-
-	config, _ := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
+  
+	config, _ := restconfig.GetConfig()
 	c, err := cluster.New(config, func(options *cluster.Options) {
 		options.Scheme = Scheme
 	})
