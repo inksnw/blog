@@ -53,7 +53,7 @@
 <meta itemprop="name" content="查看容器重启前日志">
 <meta itemprop="description" content="背景 pod已经重启, 如何查看重启前日志, 先说结论使用-p 参数即可 1 2 3 4 5 6 7 8 root@node1:~# kubectl logs demo -p=true Server listening on :8080 Request received panic: Overslept! goroutine 1 [running]: main.main() /Users/inksnw/Desktop/awesomeProject/main.go:15 &#43;0x59 复现 写一个程序 1 2 3 4"><meta itemprop="datePublished" content="2023-12-20T22:39:19+08:00" />
 <meta itemprop="dateModified" content="2023-12-20T22:39:19+08:00" />
-<meta itemprop="wordCount" content="798">
+<meta itemprop="wordCount" content="828">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="查看容器重启前日志"/>
 <meta name="twitter:description" content="背景 pod已经重启, 如何查看重启前日志, 先说结论使用-p 参数即可 1 2 3 4 5 6 7 8 root@node1:~# kubectl logs demo -p=true Server listening on :8080 Request received panic: Overslept! goroutine 1 [running]: main.main() /Users/inksnw/Desktop/awesomeProject/main.go:15 &#43;0x59 复现 写一个程序 1 2 3 4"/>
 
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-12-20 </span>
             
-            <span class="more-meta"> 约 798 字 更新于 2023-12-20
+            <span class="more-meta"> 约 828 字 更新于 2023-12-20
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -335,15 +335,9 @@
 </span><span class="lnt">26
 </span><span class="lnt">27
 </span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@node1:~# kubectl get pod
-</span></span><span class="line"><span class="cl">NAME   READY   STATUS    RESTARTS        AGE
-</span></span><span class="line"><span class="cl">demo   1/1     Running   <span class="m">1</span> <span class="o">(</span>2m22s ago<span class="o">)</span>   2m56s
-</span></span><span class="line"><span class="cl">root@node1:~# kubectl get pod
 </span></span><span class="line"><span class="cl">NAME   READY   STATUS    RESTARTS        AGE
 </span></span><span class="line"><span class="cl">demo   1/1     Running   <span class="m">1</span> <span class="o">(</span>2m22s ago<span class="o">)</span>   2m56s
 </span></span><span class="line"><span class="cl">root@node1:~# kubectl describe pod demo
@@ -373,8 +367,7 @@
 </span></span><span class="line"><span class="cl">  Normal  Pulled   2m44s                  kubelet  Successfully pulled image <span class="s2">&#34;alpine:latest&#34;</span> in 1.980326827s <span class="o">(</span>1.980340434s including waiting<span class="o">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>只能看到重启了一次, 上次状态为<code>Terminated</code>, 原因为 <code>Error</code></p>
-<p>查看当前日志, 并没有更多信息</p>
+</div><p>只能看到重启了一次, 上次状态为<code>Terminated</code>, 原因为 <code>Error</code>, 由于kubectl describe 本质上就是资源+event的聚合打印, 所以event里也不会有更多信息, 查看当前日志, 只有当前pod的日志</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
