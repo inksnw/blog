@@ -53,7 +53,7 @@
 <meta itemprop="name" content="查看容器重启前日志">
 <meta itemprop="description" content="背景 pod已经重启, 如何查看重启前日志, 先说结论使用-p 参数即可 1 2 3 4 5 6 7 8 root@node1:~# kubectl logs demo -p=true Server listening on :8080 Request received panic: Overslept! goroutine 1 [running]: main.main() /Users/inksnw/Desktop/awesomeProject/main.go:15 &#43;0x59 复现 写一个程序 1 2 3 4"><meta itemprop="datePublished" content="2023-12-20T22:39:19+08:00" />
 <meta itemprop="dateModified" content="2023-12-20T22:39:19+08:00" />
-<meta itemprop="wordCount" content="826">
+<meta itemprop="wordCount" content="924">
 <meta itemprop="keywords" content="k8s," /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="查看容器重启前日志"/>
 <meta name="twitter:description" content="背景 pod已经重启, 如何查看重启前日志, 先说结论使用-p 参数即可 1 2 3 4 5 6 7 8 root@node1:~# kubectl logs demo -p=true Server listening on :8080 Request received panic: Overslept! goroutine 1 [running]: main.main() /Users/inksnw/Desktop/awesomeProject/main.go:15 &#43;0x59 复现 写一个程序 1 2 3 4"/>
 
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-12-20 </span>
             
-            <span class="more-meta"> 约 826 字 更新于 2023-12-20
+            <span class="more-meta"> 约 924 字 更新于 2023-12-20
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -400,6 +400,56 @@
 </span></span><span class="line"><span class="cl">goroutine <span class="m">1</span> <span class="o">[</span>running<span class="o">]</span>:
 </span></span><span class="line"><span class="cl">main.main<span class="o">()</span>
 </span></span><span class="line"><span class="cl">        /Users/inksnw/Desktop/awesomeProject/main.go:15 +0x59
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看日志默认清理策略</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="err">kubectl</span> <span class="err">create</span> <span class="err">clusterrolebinding</span> <span class="err">test:anonymous</span> <span class="err">--clusterrole=cluster-admin</span> <span class="err">--user=system:anonymous</span>
+</span></span><span class="line"><span class="cl"><span class="err">curl</span> <span class="err">https:</span><span class="c1">//192.168.50.50:6443/api/v1/nodes/node1/proxy/configz
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;kubeletconfig&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="err">...</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;containerLogMaxSize&#34;</span><span class="p">:</span> <span class="s2">&#34;5Mi&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;containerLogMaxFiles&#34;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="err">...</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当日志过大, 或者份数过多时, 触发清理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">containerLogManager</span><span class="p">)</span> <span class="nf">rotateLogs</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="o">...</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">rotateLog</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">path</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">klog</span><span class="p">.</span><span class="nf">ErrorS</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;Failed to rotate log for container&#34;</span><span class="p">,</span> <span class="s">&#34;path&#34;</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="s">&#34;containerID&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">continue</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="源码分析">源码分析</h2>
