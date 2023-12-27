@@ -9,10 +9,10 @@ Pyroscope是一个开源的持续分析系统，使用Go语言实现。服务端
 ## 安装
 
 ```bash
-wget https://dl.pyroscope.io/release/pyroscope-0.37.2-1-x86_64.rpm
-rpm -ivh pyroscope-0.37.2-1-x86_64.rpm
+wget https://github.com/grafana/pyroscope/releases/download/v1.2.1/pyroscope_1.2.1_linux_amd64.rpm
+rpm -ivh pyroscope_1.2.1_linux_amd64.rpm
 rpm -ql pyroscope
-systemctl start pyroscope-server
+systemctl start pyroscope
 ```
 
 访问 `http://192.168.50.209:4040/` 即可
@@ -24,22 +24,36 @@ package main
 
 import (
 	"fmt"
-	"github.com/pyroscope-io/pyroscope/pkg/agent/profiler"
-	"log"
+	"github.com/grafana/pyroscope-go"
 	"math"
+	"os"
 	"runtime"
 	"time"
 )
 
 func main() {
-	// 初始化 Pyroscope 采样器
-	_, err := profiler.Start(profiler.Config{
-		ApplicationName: "my-go-app",
+	runtime.SetMutexProfileFraction(5)
+	runtime.SetBlockProfileRate(5)
+
+	pyroscope.Start(pyroscope.Config{
+		ApplicationName: "simple.golang.app",
 		ServerAddress:   "http://192.168.50.209:4040",
+		Logger:          pyroscope.StandardLogger,
+		Tags:            map[string]string{"hostname": os.Getenv("HOSTNAME")},
+		ProfileTypes: []pyroscope.ProfileType{
+			pyroscope.ProfileCPU,
+			pyroscope.ProfileAllocObjects,
+			pyroscope.ProfileAllocSpace,
+			pyroscope.ProfileInuseObjects,
+			pyroscope.ProfileInuseSpace,
+			pyroscope.ProfileGoroutines,
+			pyroscope.ProfileMutexCount,
+			pyroscope.ProfileMutexDuration,
+			pyroscope.ProfileBlockCount,
+			pyroscope.ProfileBlockDuration,
+		},
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	numCores := runtime.NumCPU()
 	// 设置使用的CPU核心数为全部可用核心
 	runtime.GOMAXPROCS(numCores)
