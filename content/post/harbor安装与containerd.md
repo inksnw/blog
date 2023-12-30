@@ -229,5 +229,8 @@ docker run -d -p 5000:5000 --name registry registry:2
 docker pull nginx
 docker tag d453dd892d93 localhost:5000/nginx:latest
 docker push localhost:5000/nginx:latest
+curl http://localhost:5000/v2/nginx/manifests/latest
+curl -X GET localhost:5000/v2/_catalog
+#如果推送出错，则需要修改 客户端/etc/docker/daemon.json, 加上 "insecure-registries":["192.168.50.209:5000"] 
 ```
 
