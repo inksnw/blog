@@ -222,3 +222,12 @@ EOF
 nerdctl -n=k8s.io build --platform arm64,amd64 -t  test1 .
 ```
 
+## 简单镜像源
+
+```bash
+docker run -d -p 5000:5000 --name registry registry:2
+docker pull nginx
+docker tag d453dd892d93 localhost:5000/nginx:latest
+docker push localhost:5000/nginx:latest
+```
+
