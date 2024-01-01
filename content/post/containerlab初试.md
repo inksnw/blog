@@ -266,3 +266,254 @@ PING 10.1.5.10 (10.1.5.10) 56(84) bytes of data.
 clab destroy -a
 ```
 
+### vxlan
+
+准备拓扑文件
+
+```bash
+#!/bin/bash
+set -v
+cat <<EOF> vxlan.yaml | clab deploy -t vxlan.yaml -
+name: vxlan
+topology:
+  nodes:
+    gw0:      
+      kind: linux
+      image: vyos/vyos:1.2.8
+      cmd: /sbin/init
+      binds:
+        - /lib/modules:/lib/modules
+        - ./gw0.cfg:/opt/vyatta/etc/config/config.boot
+        
+    gw1:      
+      kind: linux
+      image: vyos/vyos:1.2.8
+      cmd: /sbin/init
+      binds:
+        - /lib/modules:/lib/modules
+        - ./gw1.cfg:/opt/vyatta/etc/config/config.boot
+         
+    server1: 
+      kind: linux
+      image: nicolaka/netshoot
+      exec:
+      - ip addr add 10.1.5.10/24 dev net0
+      - ip route replace default via 10.1.5.1
+      
+    server2:
+      kind: linux
+      image: nicolaka/netshoot
+      exec:
+      - ip addr add 10.1.8.10/24 dev net0
+      - ip route replace default via 10.1.8.1
+      
+  links:
+    - endpoints: ["gw0:eth1", "server1:net0"]
+    - endpoints: ["gw1:eth1", "server2:net0"]
+    - endpoints: ["gw0:eth2", "gw1:eth2"]
+    
+EOF
+```
+
+路由配置文件
+
+`gw0.cfg  `
+
+```
+interfaces {
+    ethernet eth1 {
+    	address 10.1.5.1/24  
+    	duplex auto
+    	smp-affinity auto
+    	speed auto
+	}
+	ethernet eth2 {
+    	address 172.12.1.10/24
+    	duplex auto
+    	smp-affinity auto
+    	speed auto
+	}
+	loopback lo {
+    }
+	vxlan vxlan0 {
+        address 1.1.1.1/24
+        remote 172.12.1.11
+        vni 10
+    }
+}
+protocols {
+    static {
+    	route 10.1.8.0/24{
+    		next-hop 1.1.1.2 {  
+			}
+		}
+	}
+}
+
+system {
+    host-name "vyos"
+    login {
+        user vyos {
+            authentication {
+                encrypted-password "$6$QxPS.uk6mfo$9QBSo8u1FkH16gMyAVhus6fU3LOzvLR9Z9.82m3tiHFAxTtIkhaZSWssSgzt4v4dGAL8rhVQxTg0oAG9/q11h/"
+                plaintext-password ""
+            }
+            level "admin"
+        }
+    }
+    syslog {
+        global {
+            facility all {
+                level "info"
+            }
+            facility protocols {
+                level "debug"
+            }
+        }
+    }
+    ntp {
+        server "0.pool.ntp.org"
+        server "1.pool.ntp.org"
+        server "2.pool.ntp.org"
+    }
+    config-management {
+        commit-revisions "100"
+    }
+    console {
+        device ttyS0 {
+            speed 9600
+        }
+    }
+}
+interfaces {
+    loopback "lo"
+}
+
+
+/* Warning: Do not remove the following line. */
+/* === vyatta-config-version: "broadcast-relay@1:cluster@1:config-management@1:conntrack@1:conntrack-sync@1:dhcp-relay@2:dhcp-server@5:dns-forwarding@1:firewall@5:ipsec@5:l2tp@1:mdns@1:nat@4:ntp@1:pppoe-server@2:pptp@1:qos@1:quagga@7:snmp@1:ssh@1:system@10:vrrp@2:wanloadbalance@3:webgui@1:webproxy@1:zone-policy@1" === */
+/* Release version: 1.2.8 */
+
+```
+
+`gw1.cfg`
+
+```
+interfaces {
+    ethernet eth1 {
+    	address 10.1.8.1/24  
+    	duplex auto
+    	smp-affinity auto
+    	speed auto
+	}
+	ethernet eth2 {
+    	address 172.12.1.11/24
+    	duplex auto
+    	smp-affinity auto
+    	speed auto
+	}
+	loopback lo {
+    }
+	vxlan vxlan0 {
+        address 1.1.1.2/24
+        remote 172.12.1.10
+        vni 10
+    }
+}
+protocols {
+    static {
+    	route 10.1.5.0/24{
+    		next-hop 1.1.1.1 {  
+			}
+		}
+	}
+}
+
+system {
+    host-name "vyos"
+    login {
+        user vyos {
+            authentication {
+                encrypted-password "$6$QxPS.uk6mfo$9QBSo8u1FkH16gMyAVhus6fU3LOzvLR9Z9.82m3tiHFAxTtIkhaZSWssSgzt4v4dGAL8rhVQxTg0oAG9/q11h/"
+                plaintext-password ""
+            }
+            level "admin"
+        }
+    }
+    syslog {
+        global {
+            facility all {
+                level "info"
+            }
+            facility protocols {
+                level "debug"
+            }
+        }
+    }
+    ntp {
+        server "0.pool.ntp.org"
+        server "1.pool.ntp.org"
+        server "2.pool.ntp.org"
+    }
+    config-management {
+        commit-revisions "100"
+    }
+    console {
+        device ttyS0 {
+            speed 9600
+        }
+    }
+}
+interfaces {
+    loopback "lo"
+}
+
+
+/* Warning: Do not remove the following line. */
+/* === vyatta-config-version: "broadcast-relay@1:cluster@1:config-management@1:conntrack@1:conntrack-sync@1:dhcp-relay@2:dhcp-server@5:dns-forwarding@1:firewall@5:ipsec@5:l2tp@1:mdns@1:nat@4:ntp@1:pppoe-server@2:pptp@1:qos@1:quagga@7:snmp@1:ssh@1:system@10:vrrp@2:wanloadbalance@3:webgui@1:webproxy@1:zone-policy@1" === */
+/* Release version: 1.2.8 */
+```
+
+查看
+
+```bash
+clab inspect -t vxlan.yaml 
+INFO[0000] Parsing & checking topology file: vxlan.yaml 
++---+--------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+| # |        Name        | Container ID |       Image       | Kind  |  State  |  IPv4 Address  |     IPv6 Address     |
++---+--------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+| 1 | clab-vxlan-gw0     | 6117c8f4a823 | vyos/vyos:1.2.8   | linux | running | 172.20.20.3/24 | 2001:172:20:20::3/64 |
+| 2 | clab-vxlan-gw1     | 4b7510fc2a27 | vyos/vyos:1.2.8   | linux | running | 172.20.20.2/24 | 2001:172:20:20::2/64 |
+| 3 | clab-vxlan-server1 | 548291d7e5bd | nicolaka/netshoot | linux | running | 172.20.20.5/24 | 2001:172:20:20::5/64 |
+| 4 | clab-vxlan-server2 | 8b4c72fe856a | nicolaka/netshoot | linux | running | 172.20.20.4/24 | 2001:172:20:20::4/64 |
++---+--------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+```
+
+测试
+
+```
+ping 10.1.8.10
+PING 10.1.8.10 (10.1.8.10) 56(84) bytes of data.
+64 bytes from 10.1.8.10: icmp_seq=1 ttl=62 time=0.197 ms
+64 bytes from 10.1.8.10: icmp_seq=2 ttl=62 time=0.068 ms
+```
+
+ttl值 `-2` 与我们的拓扑一致
+
+登陆gw0 容器，在eth2 网卡上进行抓包： ` `
+
+1. `-p`: 禁用混杂模式。在混杂模式下，网络接口将接收通过网络传输的所有数据包，而不仅仅是目标地址是本地主机的数据包。使用 `-p` 选项会禁用混杂模式，只捕获发送到本地主机的数据包。
+2. `-n`: 禁用对IP地址和端口的网络解析。使用此选项，`tcpdump`将以数字形式显示IP地址和端口，而不会尝试将它们解析为主机名或服务名称。
+3. `-e`: 在输出中显示以太网头部信息。这包括源和目标MAC地址，以及以太网帧的类型字段。
+
+```bash
+docker exec -it clab-vxlan-gw0 /bin/bash
+cd ~
+tcpdump -pne -i eth2 -w vxlan_clab.cap
+exit
+docker cp clab-vxlan-gw0:/root/vxlan_clab.cap ./
+```
+
+>  在vyos中抓包，使用tcpdump -w xxx.cap 可能会报错： `permission denied`, 可以通过cd 命令切换到家目录或者cd /tmp 进行抓包
+
+待续..

@@ -53,7 +53,7 @@
 <meta itemprop="name" content="Containerlab基础使用">
 <meta itemprop="description" content="基本概念 Containerlab根据用户传递给它的拓扑信息来建立实验,构建网络交换和路由, 是一个很方便的学习工具 安装 官方文档(https:/"><meta itemprop="datePublished" content="2023-12-30T10:06:06+08:00" />
 <meta itemprop="dateModified" content="2023-12-30T10:06:06+08:00" />
-<meta itemprop="wordCount" content="1231">
+<meta itemprop="wordCount" content="2255">
 <meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Containerlab基础使用"/>
 <meta name="twitter:description" content="基本概念 Containerlab根据用户传递给它的拓扑信息来建立实验,构建网络交换和路由, 是一个很方便的学习工具 安装 官方文档(https:/"/>
 
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-12-30 </span>
             
-            <span class="more-meta"> 约 1231 字 更新于 2023-12-30
+            <span class="more-meta"> 约 2255 字 更新于 2023-12-30
               </span>
             
         </div>
@@ -149,6 +149,7 @@
             <li><a href="#veth直连">veth直连</a></li>
             <li><a href="#网桥连接">网桥连接</a></li>
             <li><a href="#路由连接">路由连接</a></li>
+            <li><a href="#vxlan">vxlan</a></li>
           </ul>
         </li>
       </ul>
@@ -630,7 +631,475 @@
 <pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">clab destroy -a
 </span></span></code></pre></td></tr></table>
 </div>
+</div><h3 id="vxlan">vxlan</h3>
+<p>准备拓扑文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="nb">set</span> -v
+</span></span><span class="line"><span class="cl">cat <span class="s">&lt;&lt;EOF&gt; vxlan.yaml | clab deploy -t vxlan.yaml -
+</span></span></span><span class="line"><span class="cl"><span class="s">name: vxlan
+</span></span></span><span class="line"><span class="cl"><span class="s">topology:
+</span></span></span><span class="line"><span class="cl"><span class="s">  nodes:
+</span></span></span><span class="line"><span class="cl"><span class="s">    gw0:      
+</span></span></span><span class="line"><span class="cl"><span class="s">      kind: linux
+</span></span></span><span class="line"><span class="cl"><span class="s">      image: vyos/vyos:1.2.8
+</span></span></span><span class="line"><span class="cl"><span class="s">      cmd: /sbin/init
+</span></span></span><span class="line"><span class="cl"><span class="s">      binds:
+</span></span></span><span class="line"><span class="cl"><span class="s">        - /lib/modules:/lib/modules
+</span></span></span><span class="line"><span class="cl"><span class="s">        - ./gw0.cfg:/opt/vyatta/etc/config/config.boot
+</span></span></span><span class="line"><span class="cl"><span class="s">        
+</span></span></span><span class="line"><span class="cl"><span class="s">    gw1:      
+</span></span></span><span class="line"><span class="cl"><span class="s">      kind: linux
+</span></span></span><span class="line"><span class="cl"><span class="s">      image: vyos/vyos:1.2.8
+</span></span></span><span class="line"><span class="cl"><span class="s">      cmd: /sbin/init
+</span></span></span><span class="line"><span class="cl"><span class="s">      binds:
+</span></span></span><span class="line"><span class="cl"><span class="s">        - /lib/modules:/lib/modules
+</span></span></span><span class="line"><span class="cl"><span class="s">        - ./gw1.cfg:/opt/vyatta/etc/config/config.boot
+</span></span></span><span class="line"><span class="cl"><span class="s">         
+</span></span></span><span class="line"><span class="cl"><span class="s">    server1: 
+</span></span></span><span class="line"><span class="cl"><span class="s">      kind: linux
+</span></span></span><span class="line"><span class="cl"><span class="s">      image: nicolaka/netshoot
+</span></span></span><span class="line"><span class="cl"><span class="s">      exec:
+</span></span></span><span class="line"><span class="cl"><span class="s">      - ip addr add 10.1.5.10/24 dev net0
+</span></span></span><span class="line"><span class="cl"><span class="s">      - ip route replace default via 10.1.5.1
+</span></span></span><span class="line"><span class="cl"><span class="s">      
+</span></span></span><span class="line"><span class="cl"><span class="s">    server2:
+</span></span></span><span class="line"><span class="cl"><span class="s">      kind: linux
+</span></span></span><span class="line"><span class="cl"><span class="s">      image: nicolaka/netshoot
+</span></span></span><span class="line"><span class="cl"><span class="s">      exec:
+</span></span></span><span class="line"><span class="cl"><span class="s">      - ip addr add 10.1.8.10/24 dev net0
+</span></span></span><span class="line"><span class="cl"><span class="s">      - ip route replace default via 10.1.8.1
+</span></span></span><span class="line"><span class="cl"><span class="s">      
+</span></span></span><span class="line"><span class="cl"><span class="s">  links:
+</span></span></span><span class="line"><span class="cl"><span class="s">    - endpoints: [&#34;gw0:eth1&#34;, &#34;server1:net0&#34;]
+</span></span></span><span class="line"><span class="cl"><span class="s">    - endpoints: [&#34;gw1:eth1&#34;, &#34;server2:net0&#34;]
+</span></span></span><span class="line"><span class="cl"><span class="s">    - endpoints: [&#34;gw0:eth2&#34;, &#34;gw1:eth2&#34;]
+</span></span></span><span class="line"><span class="cl"><span class="s">    
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
 </div>
+</div><p>路由配置文件</p>
+<p><code>gw0.cfg  </code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">interfaces</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ethernet</span> <span class="n">eth1</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">address</span> <span class="mf">10.1</span><span class="o">.</span><span class="mf">5.1</span><span class="o">/</span><span class="mi">24</span>  
+</span></span><span class="line"><span class="cl">    	<span class="n">duplex</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">smp</span><span class="o">-</span><span class="n">affinity</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">speed</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ethernet</span> <span class="n">eth2</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">address</span> <span class="mf">172.12</span><span class="o">.</span><span class="mf">1.10</span><span class="o">/</span><span class="mi">24</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">duplex</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">smp</span><span class="o">-</span><span class="n">affinity</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">speed</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">loopback</span> <span class="n">lo</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">vxlan</span> <span class="n">vxlan0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">address</span> <span class="mf">1.1</span><span class="o">.</span><span class="mf">1.1</span><span class="o">/</span><span class="mi">24</span>
+</span></span><span class="line"><span class="cl">        <span class="n">remote</span> <span class="mf">172.12</span><span class="o">.</span><span class="mf">1.11</span>
+</span></span><span class="line"><span class="cl">        <span class="n">vni</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">protocols</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">static</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">route</span> <span class="mf">10.1</span><span class="o">.</span><span class="mf">8.0</span><span class="o">/</span><span class="mi">24</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    		<span class="n">next</span><span class="o">-</span><span class="n">hop</span> <span class="mf">1.1</span><span class="o">.</span><span class="mf">1.2</span> <span class="p">{</span>  
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">system</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">host</span><span class="o">-</span><span class="n">name</span> <span class="s2">&#34;vyos&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">login</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">user</span> <span class="n">vyos</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">authentication</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">encrypted</span><span class="o">-</span><span class="n">password</span> <span class="s2">&#34;$6$QxPS.uk6mfo$9QBSo8u1FkH16gMyAVhus6fU3LOzvLR9Z9.82m3tiHFAxTtIkhaZSWssSgzt4v4dGAL8rhVQxTg0oAG9/q11h/&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="n">plaintext</span><span class="o">-</span><span class="n">password</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">level</span> <span class="s2">&#34;admin&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">syslog</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">global</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">facility</span> <span class="n">all</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">level</span> <span class="s2">&#34;info&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">facility</span> <span class="n">protocols</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">level</span> <span class="s2">&#34;debug&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ntp</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">server</span> <span class="s2">&#34;0.pool.ntp.org&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">server</span> <span class="s2">&#34;1.pool.ntp.org&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">server</span> <span class="s2">&#34;2.pool.ntp.org&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">config</span><span class="o">-</span><span class="n">management</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">commit</span><span class="o">-</span><span class="n">revisions</span> <span class="s2">&#34;100&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">console</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">device</span> <span class="n">ttyS0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">speed</span> <span class="mi">9600</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">interfaces</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loopback</span> <span class="s2">&#34;lo&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">/*</span> <span class="n">Warning</span><span class="p">:</span> <span class="n">Do</span> <span class="ow">not</span> <span class="n">remove</span> <span class="n">the</span> <span class="n">following</span> <span class="n">line</span><span class="o">.</span> <span class="o">*/</span>
+</span></span><span class="line"><span class="cl"><span class="o">/*</span> <span class="o">===</span> <span class="n">vyatta</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">version</span><span class="p">:</span> <span class="s2">&#34;broadcast-relay@1:cluster@1:config-management@1:conntrack@1:conntrack-sync@1:dhcp-relay@2:dhcp-server@5:dns-forwarding@1:firewall@5:ipsec@5:l2tp@1:mdns@1:nat@4:ntp@1:pppoe-server@2:pptp@1:qos@1:quagga@7:snmp@1:ssh@1:system@10:vrrp@2:wanloadbalance@3:webgui@1:webproxy@1:zone-policy@1&#34;</span> <span class="o">===</span> <span class="o">*/</span>
+</span></span><span class="line"><span class="cl"><span class="o">/*</span> <span class="n">Release</span> <span class="n">version</span><span class="p">:</span> <span class="mf">1.2</span><span class="o">.</span><span class="mi">8</span> <span class="o">*/</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>gw1.cfg</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">interfaces</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ethernet</span> <span class="n">eth1</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">address</span> <span class="mf">10.1</span><span class="o">.</span><span class="mf">8.1</span><span class="o">/</span><span class="mi">24</span>  
+</span></span><span class="line"><span class="cl">    	<span class="n">duplex</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">smp</span><span class="o">-</span><span class="n">affinity</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">speed</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ethernet</span> <span class="n">eth2</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">address</span> <span class="mf">172.12</span><span class="o">.</span><span class="mf">1.11</span><span class="o">/</span><span class="mi">24</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">duplex</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">smp</span><span class="o">-</span><span class="n">affinity</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">speed</span> <span class="n">auto</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">loopback</span> <span class="n">lo</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">vxlan</span> <span class="n">vxlan0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">address</span> <span class="mf">1.1</span><span class="o">.</span><span class="mf">1.2</span><span class="o">/</span><span class="mi">24</span>
+</span></span><span class="line"><span class="cl">        <span class="n">remote</span> <span class="mf">172.12</span><span class="o">.</span><span class="mf">1.10</span>
+</span></span><span class="line"><span class="cl">        <span class="n">vni</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">protocols</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">static</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">route</span> <span class="mf">10.1</span><span class="o">.</span><span class="mf">5.0</span><span class="o">/</span><span class="mi">24</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    		<span class="n">next</span><span class="o">-</span><span class="n">hop</span> <span class="mf">1.1</span><span class="o">.</span><span class="mf">1.1</span> <span class="p">{</span>  
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">system</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">host</span><span class="o">-</span><span class="n">name</span> <span class="s2">&#34;vyos&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">login</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">user</span> <span class="n">vyos</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">authentication</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">encrypted</span><span class="o">-</span><span class="n">password</span> <span class="s2">&#34;$6$QxPS.uk6mfo$9QBSo8u1FkH16gMyAVhus6fU3LOzvLR9Z9.82m3tiHFAxTtIkhaZSWssSgzt4v4dGAL8rhVQxTg0oAG9/q11h/&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="n">plaintext</span><span class="o">-</span><span class="n">password</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">level</span> <span class="s2">&#34;admin&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">syslog</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">global</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">facility</span> <span class="n">all</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">level</span> <span class="s2">&#34;info&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">facility</span> <span class="n">protocols</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">level</span> <span class="s2">&#34;debug&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ntp</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">server</span> <span class="s2">&#34;0.pool.ntp.org&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">server</span> <span class="s2">&#34;1.pool.ntp.org&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">server</span> <span class="s2">&#34;2.pool.ntp.org&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">config</span><span class="o">-</span><span class="n">management</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">commit</span><span class="o">-</span><span class="n">revisions</span> <span class="s2">&#34;100&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">console</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">device</span> <span class="n">ttyS0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">speed</span> <span class="mi">9600</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">interfaces</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loopback</span> <span class="s2">&#34;lo&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">/*</span> <span class="n">Warning</span><span class="p">:</span> <span class="n">Do</span> <span class="ow">not</span> <span class="n">remove</span> <span class="n">the</span> <span class="n">following</span> <span class="n">line</span><span class="o">.</span> <span class="o">*/</span>
+</span></span><span class="line"><span class="cl"><span class="o">/*</span> <span class="o">===</span> <span class="n">vyatta</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">version</span><span class="p">:</span> <span class="s2">&#34;broadcast-relay@1:cluster@1:config-management@1:conntrack@1:conntrack-sync@1:dhcp-relay@2:dhcp-server@5:dns-forwarding@1:firewall@5:ipsec@5:l2tp@1:mdns@1:nat@4:ntp@1:pppoe-server@2:pptp@1:qos@1:quagga@7:snmp@1:ssh@1:system@10:vrrp@2:wanloadbalance@3:webgui@1:webproxy@1:zone-policy@1&#34;</span> <span class="o">===</span> <span class="o">*/</span>
+</span></span><span class="line"><span class="cl"><span class="o">/*</span> <span class="n">Release</span> <span class="n">version</span><span class="p">:</span> <span class="mf">1.2</span><span class="o">.</span><span class="mi">8</span> <span class="o">*/</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">clab inspect -t vxlan.yaml 
+</span></span><span class="line"><span class="cl">INFO<span class="o">[</span>0000<span class="o">]</span> Parsing <span class="p">&amp;</span> checking topology file: vxlan.yaml 
+</span></span><span class="line"><span class="cl">+---+--------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="c1"># |        Name        | Container ID |       Image       | Kind  |  State  |  IPv4 Address  |     IPv6 Address     |</span>
+</span></span><span class="line"><span class="cl">+---+--------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">1</span> <span class="p">|</span> clab-vxlan-gw0     <span class="p">|</span> 6117c8f4a823 <span class="p">|</span> vyos/vyos:1.2.8   <span class="p">|</span> linux <span class="p">|</span> running <span class="p">|</span> 172.20.20.3/24 <span class="p">|</span> 2001:172:20:20::3/64 <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">2</span> <span class="p">|</span> clab-vxlan-gw1     <span class="p">|</span> 4b7510fc2a27 <span class="p">|</span> vyos/vyos:1.2.8   <span class="p">|</span> linux <span class="p">|</span> running <span class="p">|</span> 172.20.20.2/24 <span class="p">|</span> 2001:172:20:20::2/64 <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">3</span> <span class="p">|</span> clab-vxlan-server1 <span class="p">|</span> 548291d7e5bd <span class="p">|</span> nicolaka/netshoot <span class="p">|</span> linux <span class="p">|</span> running <span class="p">|</span> 172.20.20.5/24 <span class="p">|</span> 2001:172:20:20::5/64 <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">4</span> <span class="p">|</span> clab-vxlan-server2 <span class="p">|</span> 8b4c72fe856a <span class="p">|</span> nicolaka/netshoot <span class="p">|</span> linux <span class="p">|</span> running <span class="p">|</span> 172.20.20.4/24 <span class="p">|</span> 2001:172:20:20::4/64 <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+---+--------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>测试</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">ping 10.1.8.10
+</span></span><span class="line"><span class="cl">PING 10.1.8.10 (10.1.8.10) 56(84) bytes of data.
+</span></span><span class="line"><span class="cl">64 bytes from 10.1.8.10: icmp_seq=1 ttl=62 time=0.197 ms
+</span></span><span class="line"><span class="cl">64 bytes from 10.1.8.10: icmp_seq=2 ttl=62 time=0.068 ms
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>ttl值 <code>-2</code> 与我们的拓扑一致</p>
+<p>登陆gw0 容器，在eth2 网卡上进行抓包： <code> </code></p>
+<ol>
+<li><code>-p</code>: 禁用混杂模式。在混杂模式下，网络接口将接收通过网络传输的所有数据包，而不仅仅是目标地址是本地主机的数据包。使用 <code>-p</code> 选项会禁用混杂模式，只捕获发送到本地主机的数据包。</li>
+<li><code>-n</code>: 禁用对IP地址和端口的网络解析。使用此选项，<code>tcpdump</code>将以数字形式显示IP地址和端口，而不会尝试将它们解析为主机名或服务名称。</li>
+<li><code>-e</code>: 在输出中显示以太网头部信息。这包括源和目标MAC地址，以及以太网帧的类型字段。</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker <span class="nb">exec</span> -it clab-vxlan-gw0 /bin/bash
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> ~
+</span></span><span class="line"><span class="cl">tcpdump -pne -i eth2 -w vxlan_clab.cap
+</span></span><span class="line"><span class="cl"><span class="nb">exit</span>
+</span></span><span class="line"><span class="cl">docker cp clab-vxlan-gw0:/root/vxlan_clab.cap ./
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>在vyos中抓包，使用tcpdump -w xxx.cap 可能会报错： <code>permission denied</code>, 可以通过cd 命令切换到家目录或者cd /tmp 进行抓包</p>
+</blockquote>
+<p>待续..</p>
+
     </div>
 
     
@@ -676,7 +1145,7 @@
   <span class="copyright-year">
     &copy;
     2022 -
-    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
   </span>
 </div>
 
