@@ -500,3 +500,228 @@ PING 10.1.8.10 (10.1.8.10) 56(84) bytes of data.
 
 ttl值 `-2` 与我们的拓扑一致
 
+### Host-gw
+
+路由配置文件
+
+`gw0.cfg  `
+
+```bash
+interfaces {
+    ethernet eth1 {
+        address 10.1.5.1/24
+        duplex auto
+        smp-affinity auto
+        speed auto
+    }
+    ethernet eth2 {
+        address 172.12.1.10/24
+        duplex auto
+        smp-affinity auto
+        speed auto
+    }
+    loopback lo {
+    }
+}
+protocols {
+    static {
+        route 10.1.8.0/24 {
+            next-hop 172.12.1.11 {
+            }
+        }
+    }
+}
+system {
+    config-management {
+        commit-revisions 100
+    }
+    console {
+        device ttyS0 {
+            speed 9600
+        }
+    }
+    host-name vyos
+    login {
+        user vyos {
+            authentication {
+                encrypted-password $6$QxPS.uk6mfo$9QBSo8u1FkH16gMyAVhus6fU3LOzvLR9Z9.82m3tiHFAxTtIkhaZSWssSgzt4v4dGAL8rhVQxTg0oAG9/q11h/
+                plaintext-password ""
+            }
+            level admin
+        }
+    }
+    ntp {
+        server 0.pool.ntp.org {
+        }
+        server 1.pool.ntp.org {
+        }
+        server 2.pool.ntp.org {
+        }
+    }
+    syslog {
+        global {
+            facility all {
+                level info
+            }
+            facility protocols {
+                level debug
+            }
+        }
+    }
+    time-zone UTC
+}
+
+
+/* Warning: Do not remove the following line. */
+/* === vyatta-config-version: "dns-forwarding@1:mdns@1:ssh@1:webproxy@1:webgui@1:zone-policy@1:broadcast-relay@1:l2tp@1:cluster@1:snmp@1:pppoe-server@2:conntrack@1:wanloadbalance@3:webproxy@2:firewall@5:ntp@1:dhcp-server@5:dhcp-relay@2:system@10:nat@4:quagga@7:qos@1:ipsec@5:conntrack-sync@1:config-management@1:vrrp@2:pptp@1" === */
+/* Release version: 1.2.8 */
+
+```
+
+`gw1.cfg  `
+
+```bash
+interfaces {
+    ethernet eth1 {
+        address 10.1.8.1/24
+        duplex auto
+        smp-affinity auto
+        speed auto
+    }
+    ethernet eth2 {
+        address 172.12.1.11/24
+        duplex auto
+        smp-affinity auto
+        speed auto
+    }
+    loopback lo {
+    }
+}
+protocols {
+    static {
+        route 10.1.5.0/24 {
+            next-hop 172.12.1.10 {
+            }
+        }
+    }
+}
+system {
+    config-management {
+        commit-revisions 100
+    }
+    console {
+        device ttyS0 {
+            speed 9600
+        }
+    }
+    host-name vyos
+    login {
+        user vyos {
+            authentication {
+                encrypted-password $6$QxPS.uk6mfo$9QBSo8u1FkH16gMyAVhus6fU3LOzvLR9Z9.82m3tiHFAxTtIkhaZSWssSgzt4v4dGAL8rhVQxTg0oAG9/q11h/
+                plaintext-password ""
+            }
+            level admin
+        }
+    }
+    ntp {
+        server 0.pool.ntp.org {
+        }
+        server 1.pool.ntp.org {
+        }
+        server 2.pool.ntp.org {
+        }
+    }
+    syslog {
+        global {
+            facility all {
+                level info
+            }
+            facility protocols {
+                level debug
+            }
+        }
+    }
+    time-zone UTC
+}
+
+
+/* Warning: Do not remove the following line. */
+/* === vyatta-config-version: "dns-forwarding@1:mdns@1:ssh@1:webproxy@1:webgui@1:zone-policy@1:broadcast-relay@1:l2tp@1:cluster@1:snmp@1:pppoe-server@2:conntrack@1:wanloadbalance@3:webproxy@2:firewall@5:ntp@1:dhcp-server@5:dhcp-relay@2:system@10:nat@4:quagga@7:qos@1:ipsec@5:conntrack-sync@1:config-management@1:vrrp@2:pptp@1" === */
+/* Release version: 1.2.8 */
+
+```
+
+拓扑文件
+
+```bash
+#!/bin/bash
+set -v
+
+cat <<EOF>clab.yaml | clab deploy -t clab.yaml -
+name: host-gw
+topology:
+  nodes:
+    gw0:
+      kind: linux
+      image: vyos/vyos:1.2.8
+      cmd: /sbin/init
+      binds:
+        - /lib/modules:/lib/modules
+        - ./gw0.cfg:/opt/vyatta/etc/config/config.boot
+
+    gw1:
+      kind: linux
+      image: vyos/vyos:1.2.8
+      cmd: /sbin/init
+      binds:
+        - /lib/modules:/lib/modules
+        - ./gw1.cfg:/opt/vyatta/etc/config/config.boot
+
+    server1:
+      kind: linux
+      image: nicolaka/netshoot
+      exec:
+      - ip addr add 10.1.5.10/24 dev net0
+      - ip route replace default via 10.1.5.1
+
+    server2:
+      kind: linux
+      image: nicolaka/netshoot
+      exec:
+      - ip addr add 10.1.8.10/24 dev net0
+      - ip route replace default via 10.1.8.1
+
+
+  links:
+    - endpoints: ["gw0:eth1", "server1:net0"]
+    - endpoints: ["gw1:eth1", "server2:net0"]
+    - endpoints: ["gw0:eth2", "gw1:eth2"]
+
+EOF
+```
+
+查看
+
+```bash
++---+----------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+| # |         Name         | Container ID |       Image       | Kind  |  State  |  IPv4 Address  |     IPv6 Address     |
++---+----------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+| 1 | clab-host-gw-gw0     | 892b57b00d5d | vyos/vyos:1.2.8   | linux | running | 172.20.20.2/24 | 2001:172:20:20::2/64 |
+| 2 | clab-host-gw-gw1     | fa6639c5595d | vyos/vyos:1.2.8   | linux | running | 172.20.20.5/24 | 2001:172:20:20::5/64 |
+| 3 | clab-host-gw-server1 | 9206cb86e84d | nicolaka/netshoot | linux | running | 172.20.20.3/24 | 2001:172:20:20::3/64 |
+| 4 | clab-host-gw-server2 | 42427237d60f | nicolaka/netshoot | linux | running | 172.20.20.4/24 | 2001:172:20:20::4/64 |
++---+----------------------+--------------+-------------------+-------+---------+----------------+----------------------+
+root@node4:~/hgw# docker exec -it 9206cb86e84d /bin/bash
+docker exec -it 9206cb86e84d /bin/bash
+server1:~# ping 10.1.8.10
+PING 10.1.8.10 (10.1.8.10) 56(84) bytes of data.
+64 bytes from 10.1.8.10: icmp_seq=1 ttl=62 time=0.270 ms
+64 bytes from 10.1.8.10: icmp_seq=2 ttl=62 time=0.186 ms
+64 bytes from 10.1.8.10: icmp_seq=3 ttl=62 time=0.125 ms
+^C
+--- 10.1.8.10 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2038ms
+rtt min/avg/max/mdev = 0.125/0.193/0.270/0.059 ms
+```
+
