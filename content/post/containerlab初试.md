@@ -500,20 +500,3 @@ PING 10.1.8.10 (10.1.8.10) 56(84) bytes of data.
 
 ttl值 `-2` 与我们的拓扑一致
 
-登陆gw0 容器，在eth2 网卡上进行抓包： ` `
-
-1. `-p`: 禁用混杂模式。在混杂模式下，网络接口将接收通过网络传输的所有数据包，而不仅仅是目标地址是本地主机的数据包。使用 `-p` 选项会禁用混杂模式，只捕获发送到本地主机的数据包。
-2. `-n`: 禁用对IP地址和端口的网络解析。使用此选项，`tcpdump`将以数字形式显示IP地址和端口，而不会尝试将它们解析为主机名或服务名称。
-3. `-e`: 在输出中显示以太网头部信息。这包括源和目标MAC地址，以及以太网帧的类型字段。
-
-```bash
-docker exec -it clab-vxlan-gw0 /bin/bash
-cd ~
-tcpdump -pne -i eth2 -w vxlan_clab.cap
-exit
-docker cp clab-vxlan-gw0:/root/vxlan_clab.cap ./
-```
-
->  在vyos中抓包，使用tcpdump -w xxx.cap 可能会报错： `permission denied`, 可以通过cd 命令切换到家目录或者cd /tmp 进行抓包
-
-待续..
