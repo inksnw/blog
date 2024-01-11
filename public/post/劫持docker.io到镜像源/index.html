@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>劫持docker.io到镜像源 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="dockerhub限流真是烦人, 配置镜像源又得一台台的改docker配置, 有没有其它办法, 比如对截持一下, 直接转发到镜像源 自签证书 创建 CA 根证" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.121.1 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E5%8A%AB%E6%8C%81docker.io%E5%88%B0%E9%95%9C%E5%83%8F%E6%BA%90/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="劫持docker.io到镜像源" />
+<meta property="og:description" content="dockerhub限流真是烦人, 配置镜像源又得一台台的改docker配置, 有没有其它办法, 比如对截持一下, 直接转发到镜像源 自签证书 创建 CA 根证" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E5%8A%AB%E6%8C%81docker.io%E5%88%B0%E9%95%9C%E5%83%8F%E6%BA%90/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2024-01-11T18:07:55+08:00" />
+<meta property="article:modified_time" content="2024-01-11T18:07:55+08:00" />
+
+<meta itemprop="name" content="劫持docker.io到镜像源">
+<meta itemprop="description" content="dockerhub限流真是烦人, 配置镜像源又得一台台的改docker配置, 有没有其它办法, 比如对截持一下, 直接转发到镜像源 自签证书 创建 CA 根证"><meta itemprop="datePublished" content="2024-01-11T18:07:55+08:00" />
+<meta itemprop="dateModified" content="2024-01-11T18:07:55+08:00" />
+<meta itemprop="wordCount" content="651">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="劫持docker.io到镜像源"/>
+<meta name="twitter:description" content="dockerhub限流真是烦人, 配置镜像源又得一台台的改docker配置, 有没有其它办法, 比如对截持一下, 直接转发到镜像源 自签证书 创建 CA 根证"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">劫持docker.io到镜像源</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2024-01-11 </span>
+            
+            <span class="more-meta"> 约 651 字 更新于 2024-01-11
+              </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#自签证书">自签证书</a>
+          <ul>
+            <li><a href="#创建-ca-根证书">创建 CA 根证书</a></li>
+            <li><a href="#创建-dockerio-域名证书">创建 <code>*.docker.io</code> 域名证书</a></li>
+          </ul>
+        </li>
+        <li><a href="#nginx-代理转发">Nginx 代理转发</a></li>
+        <li><a href="#添加证书信任">添加证书信任</a>
+          <ul>
+            <li><a href="#配置hosts">配置hosts</a></li>
+          </ul>
+        </li>
+        <li><a href="#验证">验证</a></li>
+        <li><a href="#参考文档">参考文档</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>dockerhub限流真是烦人, 配置镜像源又得一台台的改docker配置, 有没有其它办法, 比如对截持一下, 直接转发到镜像源</p>
+<h2 id="自签证书">自签证书</h2>
+<h3 id="创建-ca-根证书">创建 CA 根证书</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">openssl genrsa -out ca.key <span class="m">4096</span>
+</span></span><span class="line"><span class="cl">openssl req -x509 -new -nodes -sha512 -days <span class="m">3650</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -subj <span class="s2">&#34;/C=CN/ST=Beijing/L=Beijing/O=example/OU=Personal&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -key ca.key <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -out ca.crt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="创建-dockerio-域名证书">创建 <code>*.docker.io</code> 域名证书</h3>
+<ul>
+<li>生成私钥</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">openssl genrsa -out docker.io.key <span class="m">4096</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>生成证书签名请求 CSR</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">openssl req -sha512 -new <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -subj <span class="s2">&#34;/C=CN/ST=Beijing/L=Beijing/O=example/OU=Personal/CN=*.docker.io&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -key docker.io.key <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -out docker.io.csr
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>生成 x509 v3 扩展</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat &gt; v3.ext <span class="s">&lt;&lt;-EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">authorityKeyIdentifier=keyid,issuer
+</span></span></span><span class="line"><span class="cl"><span class="s">basicConstraints=CA:FALSE
+</span></span></span><span class="line"><span class="cl"><span class="s">keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+</span></span></span><span class="line"><span class="cl"><span class="s">extendedKeyUsage = serverAuth
+</span></span></span><span class="line"><span class="cl"><span class="s">subjectAltName = @alt_names
+</span></span></span><span class="line"><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="cl"><span class="s">[alt_names]
+</span></span></span><span class="line"><span class="cl"><span class="s">DNS.1=docker.io
+</span></span></span><span class="line"><span class="cl"><span class="s">DNS.2=*.docker.io
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>生成 <code>*.docker.io</code> 域名证书</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">openssl x509 -req -sha512 -days <span class="m">3650</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -extfile v3.ext <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -CA ca.crt -CAkey ca.key -CAcreateserial <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -in docker.io.csr <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -out docker.io.crt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看生成的全部文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@node4:~/d# tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── ca.crt
+</span></span><span class="line"><span class="cl">├── ca.key
+</span></span><span class="line"><span class="cl">├── ca.srl
+</span></span><span class="line"><span class="cl">├── docker.io.crt
+</span></span><span class="line"><span class="cl">├── docker.io.csr
+</span></span><span class="line"><span class="cl">├── docker.io.key
+</span></span><span class="line"><span class="cl">└── v3.ext
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="nginx-代理转发">Nginx 代理转发</h2>
+<p>这里可以找到可用的镜像源</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">https://gist.github.com/y0ngb1n/7e8f16af3242c7815e7ca2f0833d3ea6
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>配置一个nginx</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir -p /usr/local/nginx/cert/
+</span></span><span class="line"><span class="cl">cp docker.io.crt /usr/local/nginx/cert/
+</span></span><span class="line"><span class="cl">cp docker.io.key  /usr/local/nginx/cert/
+</span></span><span class="line"><span class="cl">apt install nginx -y
+</span></span><span class="line"><span class="cl">vi  /etc/nginx/nginx.conf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>配置如下<code>nginx.conf</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">user</span> <span class="n">root</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">worker_processes</span> <span class="n">auto</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">error_log</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">error</span><span class="o">.</span><span class="n">log</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">pid</span> <span class="o">/</span><span class="n">run</span><span class="o">/</span><span class="n">nginx</span><span class="o">.</span><span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">include</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">modules</span><span class="o">/*.</span><span class="n">conf</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">events</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">worker_connections</span> <span class="mi">1024</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">http</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">log_format</span> <span class="n">main</span> <span class="s1">&#39;$remote_addr [$time_local] &#34;$request&#34; &#39;</span>
+</span></span><span class="line"><span class="cl">                    <span class="s1">&#39;&#34;$http_user_agent&#34;  $http_x_forwarded_for &#39;</span> <span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">access_log</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">access</span><span class="o">.</span><span class="n">log</span> <span class="n">main</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">sendfile</span> <span class="n">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tcp_nopush</span> <span class="n">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tcp_nodelay</span> <span class="n">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">keepalive_timeout</span> <span class="mi">65</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">types_hash_max_size</span> <span class="mi">4096</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">include</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">mime</span><span class="o">.</span><span class="n">types</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">default_type</span> <span class="n">application</span><span class="o">/</span><span class="n">octet</span><span class="o">-</span><span class="n">stream</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   
+</span></span><span class="line"><span class="cl">    <span class="n">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">listen</span>       <span class="mi">443</span> <span class="n">ssl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">server_name</span>  <span class="n">docker</span><span class="o">.</span><span class="n">io</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="n">ssl_certificate</span>     <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">cert</span><span class="o">/</span><span class="n">docker</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">crt</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ssl_certificate_key</span>  <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">cert</span><span class="o">/</span><span class="n">docker</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">key</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="n">ssl_session_timeout</span>  <span class="mi">5</span><span class="n">m</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ssl_ciphers</span> <span class="n">ECDHE</span><span class="o">-</span><span class="n">RSA</span><span class="o">-</span><span class="n">AES128</span><span class="o">-</span><span class="n">GCM</span><span class="o">-</span><span class="n">SHA256</span><span class="p">:</span><span class="n">ECDHE</span><span class="p">:</span><span class="n">ECDH</span><span class="p">:</span><span class="n">AES</span><span class="p">:</span><span class="n">HIGH</span><span class="p">:</span><span class="o">!</span><span class="n">NULL</span><span class="p">:</span><span class="o">!</span><span class="n">aNULL</span><span class="p">:</span><span class="o">!</span><span class="n">MD5</span><span class="p">:</span><span class="o">!</span><span class="n">ADH</span><span class="p">:</span><span class="o">!</span><span class="n">RC4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ssl_protocols</span> <span class="n">TLSv1</span> <span class="n">TLSv1</span><span class="o">.</span><span class="mi">1</span> <span class="n">TLSv1</span><span class="o">.</span><span class="mi">2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ssl_prefer_server_ciphers</span> <span class="n">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">location</span> <span class="o">/</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">proxy_pass</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">docker</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">daocloud</span><span class="o">.</span><span class="n">io</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>启动nginx</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">systemctl start nginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="添加证书信任">添加证书信任</h2>
+<p>ubuntu系统如下配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cp ca.crt /usr/local/share/ca-certificates
+</span></span><span class="line"><span class="cl">update-ca-certificates
+</span></span><span class="line"><span class="cl"><span class="c1">#重启 Docker，才会重新加载根证书</span>
+</span></span><span class="line"><span class="cl">systemctl restart docker 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>不重启docker会提示证书错误</p>
+<p>Using default tag: latest
+Error response from daemon: Get &ldquo;<a href="https://registry-1.docker.io/v2/%22">https://registry-1.docker.io/v2/&quot;</a>: tls: failed to verify certificate: x509: certificate signed by unknown authority</p>
+</blockquote>
+<h3 id="配置hosts">配置hosts</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">127.0.0.1 docker.io
+</span></span><span class="line"><span class="cl">127.0.0.1 registry-1.docker.io
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="验证">验证</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@node4:~# curl -I https://registry-1.docker.io/v2/
+</span></span><span class="line"><span class="cl">HTTP/1.1 <span class="m">200</span> OK
+</span></span><span class="line"><span class="cl">Server: nginx/1.18.0 <span class="o">(</span>Ubuntu<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Date: Thu, <span class="m">11</span> Jan <span class="m">2024</span> 10:44:01 GMT
+</span></span><span class="line"><span class="cl">Content-Type: application/json<span class="p">;</span> <span class="nv">charset</span><span class="o">=</span>utf-8
+</span></span><span class="line"><span class="cl">Content-Length: <span class="m">2</span>
+</span></span><span class="line"><span class="cl">Connection: keep-alive
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker pull nginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>另开一个终端查看日志</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">tail</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">access</span><span class="o">.</span><span class="n">log</span>
+</span></span><span class="line"><span class="cl"><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span> <span class="p">[</span><span class="mi">11</span><span class="o">/</span><span class="n">Jan</span><span class="o">/</span><span class="mi">2024</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">24</span><span class="p">:</span><span class="mi">32</span> <span class="o">+</span><span class="mi">0000</span><span class="p">]</span> <span class="s2">&#34;GET /v2/ HTTP/1.1&#34;</span> <span class="s2">&#34;docker/24.0.2 go/go1.20.4 git-commit/659604f kernel/5.4.0-169-generic os/linux arch/amd64 UpstreamClient(Docker-Client/24.0.2 </span><span class="se">\x5C</span><span class="s2">(linux</span><span class="se">\x5C</span><span class="s2">))&#34;</span>  <span class="o">-</span> 
+</span></span><span class="line"><span class="cl"><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span> <span class="p">[</span><span class="mi">11</span><span class="o">/</span><span class="n">Jan</span><span class="o">/</span><span class="mi">2024</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">24</span><span class="p">:</span><span class="mi">32</span> <span class="o">+</span><span class="mi">0000</span><span class="p">]</span> <span class="s2">&#34;HEAD /v2/library/nginx/manifests/latest HTTP/1.1&#34;</span> <span class="s2">&#34;docker/24.0.2 go/go1.20.4 git-commit/659604f kernel/5.4.0-169-generic os/linux arch/amd64 UpstreamClient(Docker-Client/24.0.2 </span><span class="se">\x5C</span><span class="s2">(linux</span><span class="se">\x5C</span><span class="s2">))&#34;</span>  <span class="o">-</span> 
+</span></span><span class="line"><span class="cl"><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span> <span class="p">[</span><span class="mi">11</span><span class="o">/</span><span class="n">Jan</span><span class="o">/</span><span class="mi">2024</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">24</span><span class="p">:</span><span class="mi">32</span> <span class="o">+</span><span class="mi">0000</span><span class="p">]</span> <span class="s2">&#34;GET /v2/library/nginx/manifests/sha256:2bdc49f2f8ae8d8dc50ed00f2ee56d00385c6f8bc8a8b320d0a294d9e3b49026 HTTP/1.1&#34;</span> <span class="s2">&#34;docker/24.0.2 go/go1.20.4 git-commit/659604f kernel/5.4.0-169-generic os/linux arch/amd64 UpstreamClient(Docker-Client/24.0.2 </span><span class="se">\x5C</span><span class="s2">(linux</span><span class="se">\x5C</span><span class="s2">))&#34;</span>  <span class="o">-</span> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="参考文档">参考文档</h2>
+<p><a href="https://www.chenshaowen.com/blog/hijack-docker-io-req-to-private-repository.html">https://www.chenshaowen.com/blog/hijack-docker-io-req-to-private-repository.html</a></p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/containerlab%E5%88%9D%E8%AF%95/">
+                <span class="next-text nav-default">Containerlab基础使用</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
