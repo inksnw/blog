@@ -77,11 +77,7 @@ root@node4:~/d# tree
 
 ## Nginx 代理转发
 
-这里可以找到可用的镜像源
-
-```
-https://gist.github.com/y0ngb1n/7e8f16af3242c7815e7ca2f0833d3ea6
-```
+这里可以找到可用的镜像源 [https://gist.github.com/y0ngb1n/7e8f16af3242c7815e7ca2f0833d3ea6](https://gist.github.com/y0ngb1n/7e8f16af3242c7815e7ca2f0833d3ea6)
 
 配置一个nginx
 
@@ -161,6 +157,8 @@ systemctl restart docker
 > Error response from daemon: Get "https://registry-1.docker.io/v2/": tls: failed to verify certificate: x509: certificate signed by unknown authority
 
 ### 配置hosts
+
+实际环境可以配置到路由器的域名解析, 或者统一做到镜像里
 
 ```
 127.0.0.1 docker.io
