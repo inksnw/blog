@@ -53,7 +53,7 @@
 <meta itemprop="name" content="自定义日志库实现行号打印及跳转">
 <meta itemprop="description" content="为了方便调试和排查问题，我们经常需要在日志中包含详细的行号信息，并且最好能够直接跳转到相关代码位置。 但很多时候日志库只有文件名, 并不能点击跳"><meta itemprop="datePublished" content="2023-08-14T16:55:30+08:00" />
 <meta itemprop="dateModified" content="2023-08-14T16:55:30+08:00" />
-<meta itemprop="wordCount" content="654">
+<meta itemprop="wordCount" content="500">
 <meta itemprop="keywords" content="工程化," /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="自定义日志库实现行号打印及跳转"/>
 <meta name="twitter:description" content="为了方便调试和排查问题，我们经常需要在日志中包含详细的行号信息，并且最好能够直接跳转到相关代码位置。 但很多时候日志库只有文件名, 并不能点击跳"/>
 
@@ -128,7 +128,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-08-14 </span>
             
-            <span class="more-meta"> 约 654 字 更新于 2023-08-14
+            <span class="more-meta"> 约 500 字 更新于 2023-08-14
               <a class="article-tags" href=/tags/%E5%B7%A5%E7%A8%8B%E5%8C%96/>工程化</a>
                 </span>
             
@@ -232,71 +232,22 @@
 </span></span><span class="line"><span class="cl"><span class="o">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>修改一  <code>klog/klog.go</code> 644行</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">l</span> <span class="o">*</span><span class="nx">loggingT</span><span class="p">)</span> <span class="nf">header</span><span class="p">(</span><span class="nx">s</span> <span class="nx">severity</span><span class="p">.</span><span class="nx">Severity</span><span class="p">,</span> <span class="nx">depth</span> <span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">Buffer</span><span class="p">,</span> <span class="kt">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">_</span><span class="p">,</span> <span class="nx">file</span><span class="p">,</span> <span class="nx">line</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nf">Caller</span><span class="p">(</span><span class="mi">3</span> <span class="o">+</span> <span class="nx">depth</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">file</span> <span class="p">=</span> <span class="s">&#34;???&#34;</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">line</span> <span class="p">=</span> <span class="mi">1</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="c1">//注释掉这里, 就会显示文件的全路径
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//if slash := strings.LastIndex(file, &#34;/&#34;); slash &gt;= 0 {
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//	path := file
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//	file = path[slash+1:]
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//	if l.addDirHeader {
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//		if dirsep := strings.LastIndex(path[:slash], &#34;/&#34;); dirsep &gt;= 0 {
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//			file = path[dirsep+1:]
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//		}
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//	}
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">//}
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">l</span><span class="p">.</span><span class="nf">formatHeader</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="nx">file</span><span class="p">,</span> <span class="nx">line</span><span class="p">),</span> <span class="nx">file</span><span class="p">,</span> <span class="nx">line</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>修改二 <code>klog/internal/buffer/buffer.go</code> 115行 <code>FormatHeader</code> 函数</p>
+</div><p>修改 <code>klog/internal/buffer/buffer.go</code> 115行 <code>FormatHeader</code> 函数</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
-</span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">//buf.Tmp[n+1] = &#39;]&#39;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">//buf.Tmp[n+2] = &#39; &#39;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// 修改为在行号后面加个空格, 前面的空格默认已经带了
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">buf</span><span class="p">.</span><span class="nx">Tmp</span><span class="p">[</span><span class="nx">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="p">=</span> <span class="sc">&#39; &#39;</span>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl">	<span class="nx">buf</span><span class="p">.</span><span class="nx">Tmp</span><span class="p">[</span><span class="nx">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="p">=</span> <span class="sc">&#39; &#39;</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">buf</span><span class="p">.</span><span class="nx">Tmp</span><span class="p">[</span><span class="nx">n</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="p">=</span> <span class="sc">&#39;]&#39;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">buf</span><span class="p">.</span><span class="nx">Tmp</span><span class="p">[</span><span class="nx">n</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="p">=</span> <span class="sc">&#39; &#39;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">buf</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">buf</span><span class="p">.</span><span class="nx">Tmp</span><span class="p">[:</span><span class="nx">n</span><span class="o">+</span><span class="mi">4</span><span class="p">])</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><img src="http://inksnw.asuscomm.com:3001/blog/自定义日志库实现行号打印及跳转_fdf0f2a9aba76b0d8a5ae8db7219f3f2.png" alt="image-20230814171036703" style="zoom:50%;" />
+</div><img src="http://inksnw.asuscomm.com:3001/blog/自定义日志库实现行号打印及跳转_8cce880b82d057990bfae8fe6e649fbd.png" alt="image-20240113224931657" style="zoom:50%;" />
 <p>可以看到已经显示了可跳转的超链接, 调试起来就方便了</p>
 
     </div>
