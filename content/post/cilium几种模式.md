@@ -4,13 +4,7 @@ date: 2024-01-15T21:43:59+08:00
 draft: true
 ---
 
-## cilium-kubeproxy
-
-```
-iptables -F
-```
-
-
+## kubeproxy
 
 ### direct-routing
 
@@ -76,19 +70,21 @@ iptables-save|grep 32000
 ### vxlan
 
 ```bash
-# 3.install cni[Cilium 1.14.5]
-helm repo add cilium https://helm.cilium.io > /dev/null 2>&1
-helm repo update > /dev/null 2>&1
-
 # VxLAN Options(default mode)
 helm install cilium cilium/cilium --set k8sServiceHost=$controller_node_ip --set k8sServicePort=6443 --version 1.14.5 --namespace kube-system --set debug.enabled=true --set debug.verbose=datapath --set monitorAggregation=none --set ipam.mode=cluster-pool --set cluster.name=cilium-kubeproxy-vxlan
-
-# 4. wait all pods ready
-kubectl wait --timeout=100s --for=condition=Ready=true pods --all -A
-
-# 5. cilium status
-kubectl -nkube-system exec -it ds/cilium -- cilium status
 ```
 
+## kubeproxy-replacement
 
+### direct-routing
+
+```bash
+helm install cilium cilium/cilium --set k8sServiceHost=$controller_node_ip --set k8sServicePort=6443 --version 1.14.0-rc.0 --namespace kube-system --set debug.enabled=true --set debug.verbose=datapath --set monitorAggregation=none --set ipam.mode=cluster-pool --set cluster.name=cilium-kubeproxy-replacement --set kubeProxyReplacement=true --set tunnel=disabled --set autoDirectNodeRoutes=true --set ipv4NativeRoutingCIDR="10.0.0.0/8"
+```
+
+### vxlan
+
+```bash
+helm install cilium cilium/cilium --set k8sServiceHost=$controller_node_ip --set k8sServicePort=6443 --version 1.14.0-rc.0 --namespace kube-system --set debug.enabled=true --set debug.verbose=datapath --set monitorAggregation=none --set ipam.mode=cluster-pool --set cluster.name=cilium-kubeproxy-replacement-vxlan --set kubeProxyReplacement=true
+```
 
