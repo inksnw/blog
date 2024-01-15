@@ -1,7 +1,7 @@
 ---
-title: "Cilium本地路由"
+title: "Cilium(二)本地路由"
 date: 2023-12-07T23:11:38+08:00
-tags: ["ebpf"]
+tags: ["ebpf","cni"]
 ---
 
 ## 安装
