@@ -1,7 +1,7 @@
 ---
-title: "Cilium初探"
+title: "Cilium(一)安装"
 date: 2023-07-26T10:28:48+08:00
-tags: ["ebpf"]
+tags: ["ebpf","cni"]
 ---
 
 ## 安装
@@ -55,17 +55,11 @@ spec:
 ➜ echo "yes" | kk create cluster -f config-simple.yaml --with-local-storage --skip-pull-images
 ```
 
-安装 Cilium CLI, [官方文档](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#k8s-install-quick)
+安装  [官方文档](https://docs.cilium.io/en/stable/installation/k8s-install-helm/)
 
 ```bash
-brew install cilium-cli
-cilium version
-```
-
-安装
-
-```bash
-➜ cilium install
+helm repo add cilium https://helm.cilium.io/
+helm install cilium cilium/cilium --version 1.14.5  --namespace kube-system
 ```
 
 查看配置状态
@@ -75,52 +69,43 @@ cilium version
 Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), clean-cilium-state (init), install-cni-binaries (init)
 KVStore:                 Ok   Disabled
 Kubernetes:              Ok   1.26 (v1.26.5) [linux/amd64]
-Kubernetes APIs:         ["cilium/v2::CiliumClusterwideNetworkPolicy", "cilium/v2::CiliumEndpoint", "cilium/v2::CiliumNetworkPolicy", "cilium/v2::CiliumNode", "core/v1::Namespace", "core/v1::Node", "core/v1::Pods", "core/v1::Service", "discovery/v1::EndpointSlice", "networking.k8s.io/v1::NetworkPolicy"]
-KubeProxyReplacement:    Strict   [enp1s0 192.168.50.52]
+Kubernetes APIs:         ["EndpointSliceOrEndpoint", "cilium/v2::CiliumClusterwideNetworkPolicy", "cilium/v2::CiliumEndpoint", "cilium/v2::CiliumNetworkPolicy", "cilium/v2::CiliumNode", "cilium/v2alpha1::CiliumCIDRGroup", "core/v1::Namespace", "core/v1::Pods", "core/v1::Service", "networking.k8s.io/v1::NetworkPolicy"]
+KubeProxyReplacement:    False   [enp1s0  (Direct Routing)]
 Host firewall:           Disabled
 CNI Chaining:            none
-CNI Config file:         CNI configuration file management disabled
-Cilium:                  Ok   1.13.4 (v1.13.4-4061cdfc)
+Cilium:                  Ok   1.14.5 (v1.14.5-85db28be)
 NodeMonitor:             Listening for events on 4 CPUs with 64x4096 of shared memory
 Cilium health daemon:    Ok   
-IPAM:                    IPv4: 2/254 allocated from 10.0.0.0/24, 
+IPAM:                    IPv4: 4/254 allocated from 10.0.0.0/24, 
+IPv4 BIG TCP:            Disabled
 IPv6 BIG TCP:            Disabled
 BandwidthManager:        Disabled
 Host Routing:            Legacy
 Masquerading:            IPTables [IPv4: Enabled, IPv6: Disabled]
-Controller Status:       18/18 healthy
-Proxy Status:            OK, ip 10.0.0.87, 0 redirects active on ports 10000-20000
+Controller Status:       30/30 healthy
+Proxy Status:            OK, ip 10.0.0.20, 0 redirects active on ports 10000-20000, Envoy: embedded
 Global Identity Range:   min 256, max 65535
-Hubble:                  Ok   Current/Max Flows: 263/4095 (6.42%), Flows/s: 0.86   Metrics: Disabled
-Encryption:              Disabled
-Cluster health:          3/3 reachable   (2023-08-03T07:23:39Z)
+Hubble:                  Ok               Current/Max Flows: 140/4095 (3.42%), Flows/s: 3.60   Metrics: Disabled
+Encryption:              Disabled         
+Cluster health:          0/1 reachable    (2024-01-15T13:27:46Z)
+  Name                   IP               Node        Endpoints
+  m1 (localhost)         192.168.50.218   reachable   unreachable
 ```
 
-查看信息
+## 重启未纳管pod
 
 ```bash
-➜ cilium status
-    /¯¯\
- /¯¯\__/¯¯\    Cilium:             OK
- \__/¯¯\__/    Operator:           OK
- /¯¯\__/¯¯\    Envoy DaemonSet:    disabled (using embedded mode)
- \__/¯¯\__/    Hubble Relay:       disabled
-    \__/       ClusterMesh:        disabled
-
-DaemonSet              cilium             Desired: 3, Ready: 3/3, Available: 3/3
-Deployment             cilium-operator    Desired: 1, Ready: 1/1, Available: 1/1
-Containers:            cilium-operator    Running: 1
-                       cilium             Running: 3
-Cluster Pods:          3/3 managed by Cilium
-Helm chart version:    1.13.4
-Image versions         cilium-operator    quay.io/cilium/operator-generic:v1.13.4@sha256:xxx: 1
-                       cilium             quay.io/cilium/cilium:v1.13.4@sha256:xxx: 3
+kubectl get pods --all-namespaces -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name,HOSTNETWORK:.spec.hostNetwork --no-headers=true | grep '<none>' | awk '{print "-n "$1" "$2}' | xargs -L 1 -r kubectl delete pod
 ```
 
 ## 开启Cilium Hubble
 
 ```bash
-cilium hubble enable --ui
+helm upgrade cilium cilium/cilium --version 1.14.5 \
+   --namespace kube-system \
+   --reuse-values \
+   --set hubble.relay.enabled=true \
+   --set hubble.ui.enabled=true
 # 改为nodeport
 kubectl edit svc hubble-ui -n kube-system
 ```
