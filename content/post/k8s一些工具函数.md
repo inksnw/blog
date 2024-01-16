@@ -17,7 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/tools/clientcmd"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 func main() {
@@ -52,8 +52,8 @@ func serverSideApply(version string) corev1.Pod {
 	return pod
 }
 func InitDynamicClient() dynamic.Interface {
-	config, _ := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
-	ci, _ := dynamic.NewForConfig(config)
+	conf := config.GetConfigOrDie()
+	ci, _ := dynamic.NewForConfig(conf)
 	return ci
 }
 
@@ -100,21 +100,14 @@ import (
 	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/retry"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 func main() {
-	kubeconfig := "/Users/inksnw/.kube/config"
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		panic(err)
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err)
-	}
-	
+
+	conf := config.GetConfigOrDie()
+	clientset := kubernetes.NewForConfigOrDie(conf)
 	//go updatePodLabels(clientset, "nginx", "default", "key1", "value1")
 	//go updatePodLabels(clientset, "nginx", "default", "key1", "value2")
 
@@ -167,8 +160,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/metadata"
-	"k8s.io/client-go/tools/clientcmd"
 	"net/http"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 type wrap struct {
@@ -190,24 +183,23 @@ func (w wrap) RoundTrip(request *http.Request) (*http.Response, error) {
 }
 
 func main() {
-	kubeconfig := "/Users/inksnw/.kube/config"
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		panic(err)
-	}
-	config.WrapTransport = func(rt http.RoundTripper) http.RoundTripper {
+
+	conf := config.GetConfigOrDie()
+
+	conf.WrapTransport = func(rt http.RoundTripper) http.RoundTripper {
 		return wrap{rt}
 	}
 	//使用 protobuf
-	config = metadata.ConfigFor(config)
-
-	client, err := kubernetes.NewForConfig(config)
+	conf = metadata.ConfigFor(conf)
+	client := kubernetes.NewForConfigOrDie(conf)
+	
 	pod, err := client.CoreV1().Pods("default").Get(context.TODO(), "nginx", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(pod.Name)
 }
+
 ```
 
 ### 多集群clientset获取
@@ -410,13 +402,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/phuslu/log"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/restmapper"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 var (
@@ -425,11 +416,10 @@ var (
 
 func InitMapper() {
 	//获取  所有api groupresource
-	config, err := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
-	client, err := kubernetes.NewForConfig(config)
+	conf := config.GetConfigOrDie()
+	client := kubernetes.NewForConfigOrDie(conf)
 	gr, err := restmapper.GetAPIGroupResources(client.Discovery())
 	if err != nil {
-		log.Fatal().Msgf("初始化mapper失败,请检查k8s连接 %s", err)
 		os.Exit(1)
 	}
 	Mapper = restmapper.NewDiscoveryRESTMapper(gr)
@@ -497,7 +487,7 @@ func main() {
 	_ = clientgoscheme.AddToScheme(Scheme)
 	_ = apiextensionsv1.AddToScheme(Scheme)
   
-	config, _ := restconfig.GetConfig()
+	config:= restconfig.GetConfigOrDie()
 	c, err := cluster.New(config, func(options *cluster.Options) {
 		options.Scheme = Scheme
 	})
