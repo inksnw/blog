@@ -244,7 +244,7 @@ func GetUserInfo(url string, token string) *OAuthUser {
 
 ```
 
-## server/main.go
+### server/main.go
 
 ```go
 package main
@@ -485,6 +485,15 @@ CREATE TABLE `users`
     UNIQUE(`source_id`, `source_userid`)
 );
 ```
+
+### 测试
+
+- 运行server
+- 运行client
+- 配置hosts `127.0.0.1 oauth.inksnw.com`
+- 访问 127.0.0.1:8080, 使用第三方登录
+- 注册在本站的信息(可选)
+- 返回认证信息
 
 
 
