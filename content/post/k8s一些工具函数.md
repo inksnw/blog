@@ -536,5 +536,23 @@ done
 go get "k8s.io/kubernetes@v1.26.5"
 ```
 
+一些命令
 
+```bash
+kubectl run nginx --image=nginx
+kubectl create deployment nginx --image=nginx
+kubectl create deployment nginx --image=nginx --dry-run=client  -oyaml 
+kubectl expose pod nginx --port=80
+kubectl expose deployment/nginx --port=80 --target-port=8080
+kubectl expose deployment/nginx --port=80 --type=LoadBalancer
+kubectl port-forward svc/web 8080:80
+kubectl port-forward pod nginx 8888:80
+kubectl set image deployment/web web=nginx:1.20
+kubectl rollout history deployment/web
+kubectl rollout undo deployment/web --to-revision=2
+kubectl rollout restart deployment/web
+kubectl scale --replicas=3 deployment/web
+kubectl label pods web platform=www
+kubectl config set-context --current --namespace production
+```
 
