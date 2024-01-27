@@ -536,7 +536,7 @@ done
 go get "k8s.io/kubernetes@v1.26.5"
 ```
 
-一些命令
+### 一些命令
 
 ```bash
 kubectl run nginx --image=nginx
