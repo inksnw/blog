@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	endpoint   = "192.168.50.209:9000"
+	endpoint   = "192.168.50.87:9000"
 	bucketName = "blog"
 	url        = "http://inksnw.asuscomm.com:3001"
 )
