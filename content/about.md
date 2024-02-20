@@ -9,12 +9,12 @@ date: 2022-04-29T21:35:16+08:00
 ### 主机1
 
 - 12x Intel(R) Core(TM) i5-10600KF CPU @ 4.10GHz
-- 47 GiB
+- 48 GiB
 - kvm 虚拟化
 
 ### 主机2
 
-- 4x Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+- 8x Intel(R) Core(TM) i5-8259U CPU @ 2.30GHz
 - 16 GiB
 
 
