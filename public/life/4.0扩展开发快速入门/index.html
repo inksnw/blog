@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>4.0扩展开发快速入门 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="inksnw" /><meta name="description" content="环境准备 准备 Kubernetes 集群 KubeSphere Luban 在任何 Kubernetes 集群上均可安装。可以使用 KubeKey 快速部署 K8s 集群。 1 2 curl -sfL https://get-kk.kubesphere.io | sh - ./kk create cluster --with-local-storage --with-kubernetes v1.25.4 --container-manager containerd -y 安装 KubeSphere Luban。 1 helm upgrade --install -n kubesphere-system --create-namespace ks-core" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.122.0 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/life/4.0%E6%89%A9%E5%B1%95%E5%BC%80%E5%8F%91%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:title" content="4.0扩展开发快速入门" />
+<meta property="og:description" content="环境准备 准备 Kubernetes 集群 KubeSphere Luban 在任何 Kubernetes 集群上均可安装。可以使用 KubeKey 快速部署 K8s 集群。 1 2 curl -sfL https://get-kk.kubesphere.io | sh - ./kk create cluster --with-local-storage --with-kubernetes v1.25.4 --container-manager containerd -y 安装 KubeSphere Luban。 1 helm upgrade --install -n kubesphere-system --create-namespace ks-core" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/life/4.0%E6%89%A9%E5%B1%95%E5%BC%80%E5%8F%91%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" /><meta property="article:section" content="life" />
+<meta property="article:published_time" content="2022-09-21T15:01:41+08:00" />
+<meta property="article:modified_time" content="2022-09-21T15:01:41+08:00" />
+
+<meta itemprop="name" content="4.0扩展开发快速入门">
+<meta itemprop="description" content="环境准备 准备 Kubernetes 集群 KubeSphere Luban 在任何 Kubernetes 集群上均可安装。可以使用 KubeKey 快速部署 K8s 集群。 1 2 curl -sfL https://get-kk.kubesphere.io | sh - ./kk create cluster --with-local-storage --with-kubernetes v1.25.4 --container-manager containerd -y 安装 KubeSphere Luban。 1 helm upgrade --install -n kubesphere-system --create-namespace ks-core"><meta itemprop="datePublished" content="2022-09-21T15:01:41+08:00" />
+<meta itemprop="dateModified" content="2022-09-21T15:01:41+08:00" />
+<meta itemprop="wordCount" content="6977">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="4.0扩展开发快速入门"/>
+<meta name="twitter:description" content="环境准备 准备 Kubernetes 集群 KubeSphere Luban 在任何 Kubernetes 集群上均可安装。可以使用 KubeKey 快速部署 K8s 集群。 1 2 curl -sfL https://get-kk.kubesphere.io | sh - ./kk create cluster --with-local-storage --with-kubernetes v1.25.4 --container-manager containerd -y 安装 KubeSphere Luban。 1 helm upgrade --install -n kubesphere-system --create-namespace ks-core"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+  
+
+  <header class="post-header">
+    <h1 class="post-title">4.0扩展开发快速入门</h1>
+
+    <div class="post-meta">
+      <span class="post-time"> 2022-09-21 </span>
+      
+      <span class="more-meta"> 约 6977 字 更新于 2022-09-21
+              </span>
+      
+    </div>
+  </header>
+
+  
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#环境准备">环境准备</a></li>
+        <li><a href="#基础示例">基础示例</a></li>
+        <li><a href="#场景与示例">场景与示例</a>
+          <ul>
+            <li><a href="#iframe-嵌入">iframe 嵌入</a></li>
+            <li><a href="#问题1-js无法加载">问题1: js无法加载</a></li>
+            <li><a href="#问题2-资源绝对路径">问题2: 资源绝对路径</a></li>
+            <li><a href="#问题3-用户信息获取">问题3: 用户信息获取</a></li>
+            <li><a href="#问题4-oauth对接">问题4: oauth对接</a></li>
+          </ul>
+        </li>
+        <li><a href="#打包发布">打包发布</a>
+          <ul>
+            <li><a href="#镜像制作">镜像制作</a></li>
+            <li><a href="#chart制作">chart制作</a></li>
+            <li><a href="#测试">测试</a></li>
+            <li><a href="#发布">发布</a></li>
+          </ul>
+        </li>
+        <li><a href="#权限相关">权限相关</a>
+          <ul>
+            <li><a href="#基础权限集成">基础权限集成</a></li>
+            <li><a href="#深度权限集成可选">深度权限集成(可选)</a></li>
+          </ul>
+        </li>
+        <li><a href="#平台功能">平台功能</a>
+          <ul>
+            <li><a href="#监控api">监控api</a></li>
+            <li><a href="#告警api">告警api</a></li>
+            <li><a href="#license-api">license api</a></li>
+            <li><a href="#kubesphere-api">KubeSphere API</a></li>
+          </ul>
+        </li>
+        <li><a href="#qa">Q&amp;A</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+  
+  <div class="post-content">
+    <h2 id="环境准备">环境准备</h2>
+<ol>
+<li>
+<p>准备 Kubernetes 集群</p>
+<p>KubeSphere Luban 在任何 Kubernetes 集群上均可安装。可以使用 <a href="https://github.com/kubesphere/kubekey">KubeKey</a> 快速部署 K8s 集群。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -sfL https://get-kk.kubesphere.io <span class="p">|</span> sh -
+</span></span><span class="line"><span class="cl">./kk create cluster --with-local-storage  --with-kubernetes v1.25.4 --container-manager containerd  -y
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>安装 KubeSphere Luban。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">helm upgrade --install -n kubesphere-system --create-namespace ks-core  https://charts.kubesphere.io/test/ks-core-0.6.3.tgz --set apiserver.nodePort<span class="o">=</span><span class="m">30881</span> --debug --wait
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>配置连接</p>
+<p>复制 K8s 集群的 <a href="https://kubernetes.io/zh-cn/docs/concepts/configuration/organize-cluster-access-kubeconfig/">kubeconfig</a> 配置文件到开发主机的<code>~/.kube/config</code>，确保使用 kubectl 可以正常访问 K8s 集群。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜  kubectl -n kubesphere-system get po
+</span></span><span class="line"><span class="cl">NAME                                     READY   STATUS    RESTARTS       AGE
+</span></span><span class="line"><span class="cl">ks-apiserver-7c67b4577b-tqqmd            1/1     Running   <span class="m">0</span>              10d
+</span></span><span class="line"><span class="cl">ks-console-7ffb5954d8-qr8tx              1/1     Running   <span class="m">0</span>              10d
+</span></span><span class="line"><span class="cl">ks-controller-manager-758dc948f5-8n4ll   1/1     Running   <span class="m">0</span>              10d
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<h2 id="基础示例">基础示例</h2>
+<p>初始化扩展组件</p>
+<ol>
+<li>
+<p>执行以下命令初始化扩展组件开发项目：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir -p ~/kubesphere-extensions
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> ~/kubesphere-extensions
+</span></span><span class="line"><span class="cl">yarn add global create-ks-project
+</span></span><span class="line"><span class="cl">yarn create ks-project ks-console
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>执行以下命令创建 Hello World 扩展组件：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> ks-console
+</span></span><span class="line"><span class="cl">yarn create:ext
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>根据命令提示，设置扩展组件的名称、显示名称、描述、作者和语言等基础信息，完成扩展组件创建。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Extension Name hello-world
+</span></span><span class="line"><span class="cl">Display Name Hello World
+</span></span><span class="line"><span class="cl">Description Hello World!
+</span></span><span class="line"><span class="cl">Author demo
+</span></span><span class="line"><span class="cl">Language JavaScript
+</span></span><span class="line"><span class="cl">Create extension <span class="o">[</span>hello-world<span class="o">]</span>? Yes
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>配置本地运行环境</p>
+<p>在 <code>kubesphere-extensions/ks-console/configs/local_config.yaml</code> 文件中进行如下配置。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w"> </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="nt">apiServer</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l">http://192.168.50.218:30881</span><span class="w"> </span><span class="c"># ks-apiserver 的 IP 与端口地址</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="nt">wsUrl</span><span class="p">:</span><span class="w"> </span><span class="l">ws://192.168.50.218:30881</span><span class="w"> </span><span class="c"># ks-apiserver 的 IP 与端口地址</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>执行以下命令运行：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> ~/kubesphere-extensions/ks-console/
+</span></span><span class="line"><span class="cl">yarn dev
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>打开浏览器，访问 <code>http://localhost:8000</code>，使用默认用户名 <code>admin</code> 和密码 <code>P@88w0rd</code> 登录,顶部导航栏将出现 <code>Hello World</code> 扩展组件的访问入口。</p>
+<p><img src="./hello-world-extension-dashboard.png?width=1080px" alt="demo-plugin-dashboard.png"></p>
+</li>
+</ol>
+<p>挂载位置</p>
+<p>可修改<code>kubesphere-extensions/ks-console/extensions/hello-world/src/index.js</code> 设置挂载位置，例如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">menu</span> <span class="o">=</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">  <span class="nx">parent</span><span class="o">:</span> <span class="s1">&#39;topbar&#39;</span><span class="p">,</span> <span class="c1">//topbar:顶部菜单栏; global:扩展组件菜单; toolbox:工具箱菜单; access:用户和角色管理页面左侧导航栏; cluster/workspace/project:集群/企业空间/项目管理左侧导航栏; platformSettings:平台设置页面左侧导航栏;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;hello-world&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">link</span><span class="o">:</span> <span class="s1">&#39;/hellow-world&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;HELLO_WORLD&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">icon</span><span class="o">:</span> <span class="s1">&#39;cluster&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">order</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">desc</span><span class="o">:</span> <span class="s1">&#39;HELLO_WORLD_DESC&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">authKey</span><span class="o">:</span> <span class="s1">&#39;hello&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">authAction</span><span class="o">:</span> <span class="s1">&#39;hello-view&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">skipAuth</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>位置示例: 顶部菜单栏</p>
+<img src="./top-menu.png" style="max-width: 1000px; margin: 0px; zoom: 50%;">
+<p>位置示例: 扩展组件菜单</p>
+<p>在顶部菜单栏点击 <img src="./grid.svg" style="max-width: 20px; margin: 0px; display: inline; vertical-align: top"> 图标打开菜单。</p>
+<img src="./platform-menu.png" style="max-width: 1000px; margin: 0px; zoom: 50%;">
+<h2 id="场景与示例">场景与示例</h2>
+<p>插件一般有以下几种集成场景</p>
+<table>
+<thead>
+<tr>
+<th><strong>集成方式</strong></th>
+<th><strong>开发成本</strong></th>
+<th>采用度</th>
+<th><strong>用户体验</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>编排为 Helm Chart 通过应用商店上架</td>
+<td>低</td>
+<td>较少</td>
+<td>适用于不需要 UI 界面的扩展组件，例如后台任务、数据处理等。</td>
+</tr>
+<tr>
+<td>通过 iframe 嵌入已有的页面</td>
+<td>中</td>
+<td>最常见</td>
+<td>适用于已有 UI 界面的扩展组件，  UI 风格可调整</td>
+</tr>
+<tr>
+<td>基于 KubeDesign  打造自己的可视化控制台</td>
+<td>高</td>
+<td>较少</td>
+<td>风格统一</td>
+</tr>
+</tbody>
+</table>
+<h3 id="iframe-嵌入">iframe 嵌入</h3>
+<p>写一个简单web, 并用nginx运行起来</p>
+<p>首页:<code> index.html</code></p>
+<blockquote>
+<p>注意, 这里资源都使用的相对路径, 下文会提到这一点</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="cp">&lt;!doctype html&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&#34;en&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#34;UTF-8&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">&#34;stylesheet&#34;</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;./a.css&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text/javascript&#34;</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;./a.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    hello
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>样式:  <code>a.css</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-css" data-lang="css"><span class="line"><span class="cl"><span class="nt">body</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">display</span><span class="p">:</span> <span class="kc">flex</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">justify-content</span><span class="p">:</span> <span class="kc">center</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">align-items</span><span class="p">:</span> <span class="kc">center</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>js文件: <code>a.js</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;DOMContentLoaded&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;hello iframe&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>找一台主机运行这个web, 我这里使用<code>nginx</code>代理它, 监听于<code>10.8.0.2</code></p>
+<p>配置反向代理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">extensions.kubesphere.io/v1alpha1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ReverseProxy</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">weave.works</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">directives</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">headerUp</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- -<span class="l">Authorization</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">stripPathPrefix</span><span class="p">:</span><span class="w"> </span><span class="l">/proxy/abc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">matcher</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/proxy/abc/*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">upstream</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l">http://10.8.0.2</span><span class="w"> </span><span class="c"># 简单web的运行地址, 10.8.0.2是我的开发主机, 实际环境为业务的svc地址</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">status</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l">Available</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改hello-world代码</p>
+<p><code>kubesphere-extensions/ks-console/extensions/hello-world/src/App.jsx</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kr">import</span> <span class="nx">React</span><span class="p">,</span> <span class="p">{</span><span class="nx">useState</span><span class="p">,</span> <span class="nx">useRef</span><span class="p">,</span> <span class="nx">useEffect</span><span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;react&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span><span class="nx">Loading</span><span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;@kubed/components&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">App</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="p">[</span><span class="nx">loading</span><span class="p">,</span> <span class="nx">setLoading</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="nx">FRAME_URL</span> <span class="o">=</span> <span class="s1">&#39;/proxy/abc/&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="nx">iframeRef</span> <span class="o">=</span> <span class="nx">useRef</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="nx">onIframeLoad</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">setLoading</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="o">&lt;&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span><span class="nx">loading</span> <span class="o">&amp;&amp;</span> <span class="o">&lt;</span><span class="nx">Loading</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&#34;page-loading&#34;</span><span class="o">/&gt;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">&lt;</span><span class="nx">iframe</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">ref</span><span class="o">=</span><span class="p">{</span><span class="nx">iframeRef</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">src</span><span class="o">=</span><span class="p">{</span><span class="nx">FRAME_URL</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">width</span><span class="o">=</span><span class="s2">&#34;100%&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">height</span><span class="o">=</span><span class="s2">&#34;100%&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">frameBorder</span><span class="o">=</span><span class="s2">&#34;0&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">style</span><span class="o">=</span><span class="p">{{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">height</span><span class="o">:</span> <span class="s1">&#39;calc(100vh - 68px)&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">display</span><span class="o">:</span> <span class="nx">loading</span> <span class="o">?</span> <span class="s1">&#39;none&#39;</span> <span class="o">:</span> <span class="s1">&#39;block&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}}</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">onLoad</span><span class="o">=</span><span class="p">{</span><span class="nx">onIframeLoad</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">&lt;</span><span class="err">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>此时, 访问即可看到已经嵌入了页面</p>
+<p><img src="./Snipaste_2024-02-21_18-47-41.png" alt="Snipaste_2024-02-21_18-47-41"></p>
+<h3 id="问题1-js无法加载">问题1: js无法加载</h3>
+<p>虽然页面正常显示, 但是打开f12会发现js没有正常载入</p>
+<img src="./Snipaste_2024-02-21_11-25-21.png" alt="Snipaste_2024-02-21_11-25-21" style="zoom:50%;" />
+<p>解决方案
+配置 <code>kubesphere-extensions/ks-console/configs/webpack.config.js</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kr">const</span> <span class="p">{</span> <span class="nx">merge</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;webpack-merge&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">baseConfig</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;@ks-console/bootstrap/webpack/webpack.dev.conf&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">webpackDevConfig</span> <span class="o">=</span> <span class="nx">merge</span><span class="p">(</span><span class="nx">baseConfig</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">devServer</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">proxy</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s1">&#39;/proxy&#39;</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">target</span><span class="o">:</span> <span class="s1">&#39;http://192.168.50.218:30881&#39;</span><span class="p">,</span> <span class="c1">// 修改为目标 ks-apiserver 的地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">onProxyReq</span><span class="o">:</span> <span class="p">(</span><span class="nx">proxyReq</span><span class="p">,</span> <span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">const</span> <span class="nx">username</span> <span class="o">=</span> <span class="s1">&#39;admin&#39;</span>        <span class="c1">// 请求代理时的用户凭证
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="kr">const</span> <span class="nx">password</span> <span class="o">=</span> <span class="s1">&#39;P@88w0rd&#39;</span>
+</span></span><span class="line"><span class="cl">            <span class="kr">const</span> <span class="nx">auth</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">from</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">username</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="nx">password</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">toString</span><span class="p">(</span><span class="s2">&#34;base64&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">proxyReq</span><span class="p">.</span><span class="nx">setHeader</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="sb">`Basic </span><span class="si">${</span><span class="nx">auth</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">webpackDevConfig</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>1.能不能直接整合进脚手架</p>
+<p>2.请求代理时的用户名和密码只能更编码么, 修改了怎么办(这个只在开发模式用到, 所以没关系?)</p>
+</blockquote>
+<h3 id="问题2-资源绝对路径">问题2: 资源绝对路径</h3>
+<p>资源文件使用的是绝对路径, 此时使用iframe载入会出现加载不了的情况, 例如我们修改<code>index.html</code>中的<code>&quot;/a.css&quot;</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="cp">&lt;!doctype html&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&#34;en&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#34;UTF-8&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">&#34;stylesheet&#34;</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;/a.css&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text/javascript&#34;</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;./a.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    hello
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>此时查看页面</p>
+<img src="./Snipaste_2024-02-21_18-53-09.png" alt="Snipaste_2024-02-21_18-53-09" style="zoom:50%;" />
+<p>虽然css文件显示200, 但实际并未获取到预期的css, 文字没有居中</p>
+<h4 id="解决方案一">解决方案一</h4>
+<p>修改应用代码, 将资源改为相对路径, 如果项目是webpack打包的, 可以配置编译文件统一修改加载路径</p>
+<p>@安东亦 补充示例操作</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"></code></pre></td></tr></table>
+</div>
+</div><h4 id="解决方案二">解决方案二</h4>
+<p>通过域名加载iframe,   实际环境中, 可以通过<code>ingress</code> 配置实现域名, 我这里简单配置hosts实现</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kr">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">App</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="p">[</span><span class="nx">loading</span><span class="p">,</span> <span class="nx">setLoading</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// const FRAME_URL = &#39;/proxy/abc/&#39;;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kr">const</span> <span class="nx">FRAME_URL</span> <span class="o">=</span> <span class="s1">&#39;http://www.imac.com&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这种情况不再需要配置 <code>ReverseProxy</code> ,当然由于不再经过ks的代理, 也就无法使用权限限制了</p>
+<h3 id="问题3-用户信息获取">问题3: 用户信息获取</h3>
+<p>默认的token信息由于是<code>HttpOnly</code>的,js无法取得, 我们可以在扩展代码中可以通过<code>globals.user</code>拿到用户信息, 再传给iframe组件即可</p>
+<p>在<code>kubesphere-extensions/ks-console/extensions/hello-world/src/App.jsx</code>中添加如下代码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">useEffect</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;message&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">event</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">try</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="kr">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                        <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">event_id</span> <span class="o">===</span> <span class="s1">&#39;getUserInfo&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nx">event</span><span class="p">.</span><span class="nx">source</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                                <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nx">event_id</span><span class="o">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">cb_event_id</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="nx">data</span><span class="o">:</span> <span class="nx">globals</span><span class="p">.</span><span class="nx">user</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="p">}),</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">);</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1">//console.error(error);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;*&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span> <span class="p">[]);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在业务代码<code>a.js</code>中添加如下代码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nb">window</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span> <span class="nx">event</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="kr">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">event_id</span> <span class="o">===</span> <span class="s1">&#39;getUserInfo&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;iframe中取得&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nb">window</span><span class="p">.</span><span class="nx">parent</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">event_id</span><span class="o">:</span> <span class="s1">&#39;getUserInfo&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">cb_event_id</span><span class="o">:</span> <span class="s1">&#39;getUserInfo&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}),</span>
+</span></span><span class="line"><span class="cl">        <span class="s1">&#39;*&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><img src="./Snipaste_2024-02-21_17-30-31.png" alt="Snipaste_2024-02-21_17-30-31" style="zoom:50%;" />
+<p>即可在iframe的页面中, 取得用户信息</p>
+<blockquote>
+<p>域名的方式拿不到? @安东亦</p>
+</blockquote>
+<h3 id="问题4-oauth对接">问题4: oauth对接</h3>
+<h4 id="代码示例">代码示例</h4>
+<p>创建 <code>OAuth Client</code> 配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt; EOF | kubectl apply -f -</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">stringData</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">configuration.yaml</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">    name: test 
+</span></span></span><span class="line"><span class="cl"><span class="sd">    secret: fake 
+</span></span></span><span class="line"><span class="cl"><span class="sd">    grantMethod: auto
+</span></span></span><span class="line"><span class="cl"><span class="sd">    scopeRestrictions:
+</span></span></span><span class="line"><span class="cl"><span class="sd">      - &#39;openid&#39;
+</span></span></span><span class="line"><span class="cl"><span class="sd">      - &#39;email&#39;
+</span></span></span><span class="line"><span class="cl"><span class="sd">      - &#39;profile&#39;
+</span></span></span><span class="line"><span class="cl"><span class="sd">    redirectURIs:
+</span></span></span><span class="line"><span class="cl"><span class="sd">      - http://10.8.0.2:5556/auth/google/callback </span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">oauthclient</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">kubesphere-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">config.kubesphere.io/type</span><span class="p">:</span><span class="w"> </span><span class="l">oauthclient</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">config.kubesphere.io/oauthclient-name</span><span class="p">:</span><span class="w"> </span><span class="l">kubesphere</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">config.kubesphere.io/oauthclient</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用示例代码, <a href="https://github.com/coreos/go-oidc/blob/v3/example/idtoken/app.go">参考代码</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">This is an example application to demonstrate parsing an ID Token.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;crypto/rand&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;encoding/base64&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;encoding/json&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;io&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;github.com/coreos/go-oidc/v3/oidc&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;golang.org/x/net/context&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;golang.org/x/oauth2&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">clientID</span>     <span class="p">=</span> <span class="s">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">clientSecret</span> <span class="p">=</span> <span class="s">&#34;fake&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">randString</span><span class="p">(</span><span class="nx">nByte</span> <span class="kt">int</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">b</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">nByte</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">ReadFull</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">b</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">RawURLEncoding</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">(</span><span class="nx">b</span><span class="p">),</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">setCallbackCookie</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">value</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Cookie</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Name</span><span class="p">:</span>     <span class="nx">name</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Value</span><span class="p">:</span>    <span class="nx">value</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">MaxAge</span><span class="p">:</span>   <span class="nb">int</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">.</span><span class="nf">Seconds</span><span class="p">()),</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Secure</span><span class="p">:</span>   <span class="nx">r</span><span class="p">.</span><span class="nx">TLS</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">HttpOnly</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">http</span><span class="p">.</span><span class="nf">SetCookie</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">provider</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">oidc</span><span class="p">.</span><span class="nf">NewProvider</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="s">&#34;http://ks-console.kubesphere-system.svc:30880&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">oidcConfig</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">ClientID</span><span class="p">:</span> <span class="nx">clientID</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">verifier</span> <span class="o">:=</span> <span class="nx">provider</span><span class="p">.</span><span class="nf">Verifier</span><span class="p">(</span><span class="nx">oidcConfig</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">config</span> <span class="o">:=</span> <span class="nx">oauth2</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">ClientID</span><span class="p">:</span>     <span class="nx">clientID</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">ClientSecret</span><span class="p">:</span> <span class="nx">clientSecret</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Endpoint</span><span class="p">:</span>     <span class="nx">provider</span><span class="p">.</span><span class="nf">Endpoint</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">RedirectURL</span><span class="p">:</span>  <span class="s">&#34;http://10.8.0.2:5556/auth/google/callback&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Scopes</span><span class="p">:</span>       <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">ScopeOpenID</span><span class="p">,</span> <span class="s">&#34;profile&#34;</span><span class="p">,</span> <span class="s">&#34;email&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">state</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">randString</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;Internal error&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">nonce</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">randString</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;Internal error&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">setCallbackCookie</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="s">&#34;state&#34;</span><span class="p">,</span> <span class="nx">state</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">setCallbackCookie</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="s">&#34;nonce&#34;</span><span class="p">,</span> <span class="nx">nonce</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">http</span><span class="p">.</span><span class="nf">Redirect</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">r</span><span class="p">,</span> <span class="nx">config</span><span class="p">.</span><span class="nf">AuthCodeURL</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">oidc</span><span class="p">.</span><span class="nf">Nonce</span><span class="p">(</span><span class="nx">nonce</span><span class="p">)),</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusFound</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/auth/google/callback&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">state</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Cookie</span><span class="p">(</span><span class="s">&#34;state&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;state not found&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nf">Query</span><span class="p">().</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;state&#34;</span><span class="p">)</span> <span class="o">!=</span> <span class="nx">state</span><span class="p">.</span><span class="nx">Value</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;state did not match&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">oauth2Token</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">config</span><span class="p">.</span><span class="nf">Exchange</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nf">Query</span><span class="p">().</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;code&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;Failed to exchange token: &#34;</span><span class="o">+</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">rawIDToken</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">oauth2Token</span><span class="p">.</span><span class="nf">Extra</span><span class="p">(</span><span class="s">&#34;id_token&#34;</span><span class="p">).(</span><span class="kt">string</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;No id_token field in oauth2 token.&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">idToken</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">verifier</span><span class="p">.</span><span class="nf">Verify</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">rawIDToken</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;Failed to verify ID Token: &#34;</span><span class="o">+</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">nonce</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Cookie</span><span class="p">(</span><span class="s">&#34;nonce&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;nonce not found&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">idToken</span><span class="p">.</span><span class="nx">Nonce</span> <span class="o">!=</span> <span class="nx">nonce</span><span class="p">.</span><span class="nx">Value</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;nonce did not match&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">oauth2Token</span><span class="p">.</span><span class="nx">AccessToken</span> <span class="p">=</span> <span class="s">&#34;*REDACTED*&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">resp</span> <span class="o">:=</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">OAuth2Token</span>   <span class="o">*</span><span class="nx">oauth2</span><span class="p">.</span><span class="nx">Token</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">IDTokenClaims</span> <span class="o">*</span><span class="nx">json</span><span class="p">.</span><span class="nx">RawMessage</span> <span class="c1">// ID Token payload is just JSON.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">}{</span><span class="nx">oauth2Token</span><span class="p">,</span> <span class="nb">new</span><span class="p">(</span><span class="nx">json</span><span class="p">.</span><span class="nx">RawMessage</span><span class="p">)}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">idToken</span><span class="p">.</span><span class="nf">Claims</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">resp</span><span class="p">.</span><span class="nx">IDTokenClaims</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">data</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">MarshalIndent</span><span class="p">(</span><span class="nx">resp</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="s">&#34;    &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">w</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;listening on http://%s/&#34;</span><span class="p">,</span> <span class="s">&#34;10.8.0.2:5556&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;10.8.0.2:5556&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>访问<code>10.8.0.2:5556</code> 会触发登录, 登录后再访问<code>10.8.0.2:5556</code>可以看到已经可以拿到oauth信息</p>
+<img src="./Snipaste_2024-02-21_17-56-43.png" alt="Snipaste_2024-02-21_17-56-43" style="zoom:50%;" />
+<p><strong>几点注意</strong>:</p>
+<ol>
+<li>
+<p>Secret的配置中, <code>name</code>与<code>secret</code>要与代码中的<code>clientID</code>和<code>clientSecret</code>一致</p>
+</li>
+<li>
+<p>回调地址要一致</p>
+</li>
+<li>
+<p><code>oidc.NewProvider(ctx, &quot;http://ks-console.kubesphere-system.svc:30880&quot;)</code> 中的这个url配置于<code>kubectl get cm -n kubesphere-system kubesphere-config</code> 的<code>authentication.issuer.host</code>中, 如果你的程序并不在k8s中, 需要把它改成实际的地址, 本地调试可通过配置hosts实现不修改</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@m1:~# kubectl get cm -n kubesphere-system kubesphere-config -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: v1
+</span></span><span class="line"><span class="cl">data:
+</span></span><span class="line"><span class="cl">  kubesphere.yaml: <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    authentication:
+</span></span><span class="line"><span class="cl">      authenticateRateLimiterMaxTries: <span class="m">10</span>
+</span></span><span class="line"><span class="cl">      authenticateRateLimiterDuration: 10m0s
+</span></span><span class="line"><span class="cl">      loginHistoryRetentionPeriod: 168h
+</span></span><span class="line"><span class="cl">      multipleLogin: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">      issuer:
+</span></span><span class="line"><span class="cl">        host: <span class="s2">&#34;http://ks-console.kubesphere-system.svc:30880&#34;</span>
+</span></span><span class="line"><span class="cl">        ...
+</span></span><span class="line"><span class="cl">kind: ConfigMap
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  name: kubesphere-config
+</span></span><span class="line"><span class="cl">  namespace: kubesphere-system
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cat /etc/hosts
+</span></span><span class="line"><span class="cl">192.168.50.218 ks-console.kubesphere-system.svc
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<h4 id="harbor示例">harbor示例</h4>
+<p>配置harbor使用oidc登录, 注意harbor要求使用<code>https</code> , 因此需要为ks的web配置https(操作略), 并修改上文中提到的<code>authentication.issuer.host</code> 为实际的值</p>
+<img src="./Snipaste_2024-02-21_18-20-19.png" alt="Snipaste_2024-02-21_18-20-19" style="zoom:50%;" />
+<p>通过OIDC 登录Harbor</p>
+<img src="./Snipaste_2024-02-21_18-24-26.png" alt="Snipaste_2024-02-21_18-24-26" style="zoom:50%;" />
+<h2 id="打包发布">打包发布</h2>
+<h3 id="镜像制作">镜像制作</h3>
+<ol>
+<li>编译</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> kubesphere-extensions/ks-console
+</span></span><span class="line"><span class="cl">yarn build:ext hello-world
+</span></span><span class="line"><span class="cl"><span class="c1"># 生成文件</span>
+</span></span><span class="line"><span class="cl">ls kubesphere-extensions/ks-console/extensions/hello-world/dist/index.js
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>制作镜像</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> kubesphere-extensions/ks-console/extensions/hello-world/
+</span></span><span class="line"><span class="cl">docker build .
+</span></span><span class="line"><span class="cl">docker tag 500c030399f6 zichenkkkk/hello:latest
+</span></span><span class="line"><span class="cl">docker push zichenkkkk/hello:latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="chart制作">chart制作</h3>
+<p>下载 <a href="https://github.com/kubesphere/ksbuilder/releases">latest ksbuilder release</a> 并移动到 <code>/usr/local/bin/</code>, 执行以下命令创建一个示例chart</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ ksbuilder create
+</span></span><span class="line"><span class="cl">Please input extension name: hello-world
+</span></span><span class="line"><span class="cl">✔ other
+</span></span><span class="line"><span class="cl">Please input extension author: fake
+</span></span><span class="line"><span class="cl">Please input Email <span class="o">(</span>optional<span class="o">)</span>: 
+</span></span><span class="line"><span class="cl">Please input author<span class="err">&#39;</span>s URL <span class="o">(</span>optional<span class="o">)</span>: 
+</span></span><span class="line"><span class="cl">Directory: /Users/inksnw/Desktop/hello-world
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">The extension charts has been created.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>生成的chart项目<code>hello-world</code> 中, 由于我们只有前端 , 所以在<code>hello-world/value.yaml</code> 中, 关闭后端, 并修改前端镜像为我们刚推送的<code>zichenkkkk/hello:latest</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">frontend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l">zichenkkkk/hello</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l">latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l">kubespheredev/hello-world-api</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l">latest</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>打包</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ ksbuilder package hello-world
+</span></span><span class="line"><span class="cl">package extension hello-world
+</span></span><span class="line"><span class="cl">package saved to /Users/inksnw/Desktop/hello-world-0.1.0.tgz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="测试">测试</h3>
+<p>推送安装包到集群</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ ksbuilder publish hello-world-0.1.0.tgz
+</span></span><span class="line"><span class="cl">publish extension hello-world-0.1.0.tgz
+</span></span><span class="line"><span class="cl">creating Extension hello-world
+</span></span><span class="line"><span class="cl">creating ExtensionVersion hello-world-0.1.0
+</span></span><span class="line"><span class="cl">creating ConfigMap extension-hello-world-0.1.0-chart
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>此时在界面上即可看到我们的扩展已经提交</p>
+<img src="./Snipaste_2024-02-22_11-37-56.png" alt="Snipaste_2024-02-22_11-37-56" style="zoom:50%;" />
+<p>点击安装</p>
+<img src="./Snipaste_2024-02-22_11-49-27.png" alt="Snipaste_2024-02-22_11-49-27" style="zoom:50%;" />
+<p>访问,可以看到我们开发的扩展已经正常工作</p>
+<img src="./Snipaste_2024-02-22_11-51-43.png" alt="Snipaste_2024-02-22_11-51-43" style="zoom:50%;" />
+<p>调用链</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">graph LR
+</span></span><span class="line"><span class="cl">A(用户) --&gt;B(ks前端)
+</span></span><span class="line"><span class="cl">    B --&gt; C(后端ReverseProxy)
+</span></span><span class="line"><span class="cl">    C --&gt; D(扩展代码svc)
+</span></span><span class="line"><span class="cl">    D --&gt; E(iframe svc)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>以下配置也要整合进安装chart文件,测试阶段可以先不整合, 操作略</p>
+<ul>
+<li>为你的iframe网页创建一个svc与pod, 即上图中的最后一步</li>
+<li>后端ReverseProxy配置的yaml</li>
+</ul>
+<h3 id="发布">发布</h3>
+<p>目前还未实现自动化发布, 请联系我们的商务人员手动提交chart包</p>
+<h2 id="权限相关">权限相关</h2>
+<h3 id="基础权限集成">基础权限集成</h3>
+<p>可以通过上文中的<code>oauth</code>或<code>iframe 消息</code> 的方式拿到登录信息</p>
+<p>建议将<code>admin</code>用户(超管)用户也映射到扩展的超管,普通用户则调用自身api创建一个普通用户(无权限), 再由超管用户手动分配权限, 用户点击扩展入口时, 通过映射好的用户直接进入界面, 跳过登录(代码帮忙登录)</p>
+<h3 id="深度权限集成可选">深度权限集成(可选)</h3>
+<p>将应用的后端代码也使用ks的代理实现, 这样就可以通过ks的ui配置权限, 实现特定的路由与资源是否允许增删改查</p>
+<blockquote>
+<p>注意! 需要后端的路由改造, 路由规则满足如下几种, 如您的代码无法修改请跳过本章节</p>
+</blockquote>
+<ul>
+<li>
+<p>平台作用域的 （<code>(apis/kapis)/GROUP/VERSION/*</code>）</p>
+</li>
+<li>
+<p>集群作用域的（<code>/clusters/CLUSTER/(apis/kapis)/GROUP/VERSION/*</code>）</p>
+</li>
+<li>
+<p>企业空间作用域的 （<code>(apis/kapis)/GROUP/VERSION/workspaces/WORKSPACE/*</code>）</p>
+</li>
+<li>
+<p>名字空间作用域的（<code>/clusters/CLUSTER/(apis/kapis)/GROUP/VERSION/namespaces/NAMESPACE/*</code>）</p>
+</li>
+</ul>
+<h4 id="kubesphere-中的访问控制">KubeSphere 中的访问控制</h4>
+<p>KubeSphere 是一个支持多租户的容器管理平台，与 Kubernetes 相同，KubeSphere 通过基于角色的访问控制（RBAC）对用户的权限加以控制，实现逻辑层面的资源隔离。</p>
+<p>KubeSphere 中的资源被划分为平台、企业空间、集群、项目四个层级，所有的资源都会归属到这四个资源层级之中，各层级可以通过角色来控制用户的资源访问权限。</p>
+<p><strong>平台角色：</strong> 主要控制用户对平台资源的访问权限，如集群的管理、企业空间的管理、平台用户的管理等。</p>
+<p><strong>企业空间角色：</strong> 主要控制企业空间成员在企业空间下的资源访问权限，如企业空间下项目、企业空间成员的管理等。</p>
+<p><strong>项目角色：</strong> 主要控制项目下资源的访问权限，如工作负载的管理、流水线的管理、项目成员的管理等。</p>
+<img src="rbac.png?width=900px" alt="rbac" style="zoom:50%;" />
+<h4 id="roletemplate-示例">RoleTemplate 示例</h4>
+<p><code>RoleTemplate</code> 是由 KubeSphere 提供的 CRD， 用于声明权限项，是 KubeSphere UI 中最小的权限分割单元，通常用来定义某一类型资源的访问权限。各资源层级中的角色都由权限组合而成，基于权限项，用户可以灵活地创建自定义角色，实现精细的访问控制。</p>
+<p>假设扩展组件中定义了 CRD <code>custom-resource</code>, 以下 YAML 文件创建了 <code>global-custom-resource-viewing</code> 和 <code>global-custom-resource-creation</code> 两个自定义权限，分别授权用户查看和创建 <code>custom-resource</code> 类型的资源，其中 <code>global-custom-resource-creation</code> 依赖于 <code>global-custom-resource-viewing</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">iam.kubesphere.io/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">RoleTemplate</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">global-custom-resource-view</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">iam.kubesphere.io/category</span><span class="p">:</span><span class="w"> </span><span class="l">custom-resource-management</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">iam.kubesphere.io/scope</span><span class="p">:</span><span class="w"> </span><span class="l">global</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">kubesphere.io/managed</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="l">Custom Resource Viewing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">apiGroups</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">custom-api-group</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">custom-resource</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">custom-resource-version</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">verbs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">list</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">get</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">watch</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">iam.kubesphere.io/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">RoleTemplate</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">global-custom-resource-manage</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">iam.kubesphere.io/dependencies</span><span class="p">:</span><span class="w"> </span><span class="l">global-custom-resource-view</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">iam.kubesphere.io/category</span><span class="p">:</span><span class="w"> </span><span class="l">custom-resource-management</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">iam.kubesphere.io/scope</span><span class="p">:</span><span class="w"> </span><span class="l">global</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">kubesphere.io/managed</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="l">Custom Resource Management</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">apiGroups</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">custom-api-group</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">custom-resource</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">custom-resource-version</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">verbs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="s1">&#39;*&#39;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>RoleTemplate 参数说明</strong></p>
+<p>以下介绍如何设置自定义权限的参数。</p>
+<ul>
+<li><code>apiVersion</code>：KubeSphere 访问控制 API 的版本。当前版本为 <code>iam.kubesphere.io/v1beta1</code>。</li>
+<li><code>kind</code>：自定义权限的资源类型。请将参数值设置为 <code>RoleTemplate</code>。</li>
+<li><code>metadata</code>：自定义权限的元数据。
+<ul>
+<li><code>name</code>：自定义权限的资源名称。</li>
+<li><code>annotations</code>：
+<ul>
+<li><code>iam.kubesphere.io/dependencies</code>: 在 Console 中会显示为依赖关系，当选中这个权限项时会自动选中依赖的权限项。</li>
+<li><code>iam.kubesphere.io/role-template-rules</code>: 具体控制 Console 权限规则，相见下文 <a href="./#console-%E5%89%8D%E7%AB%AF%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6">Console 前端权限控制</a>。</li>
+</ul>
+</li>
+<li><code>labels</code>：
+<ul>
+<li><code>iam.kubesphere.io/scope</code>：自定义权限的资源标签。KubeSphere 将权限分为平台、集群、企业空间和项目权限。取值 <code>global</code> 表示当前权限为平台级别的权限。可选的值有 <code>global</code>、<code>cluster</code>、<code>workspace</code> 和 <code>namespace</code>。</li>
+<li><code>iam.kubespere.io/category</code>：标记权限项所属的类别。</li>
+<li><code>iam.kubespere.io/managed</code>：KubeSphere 管理的授权项。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>spec</code>
+<ul>
+<li><code>displayName</code>：显示名称，支持国际化
+<ul>
+<li><code>en</code>：英文显示名称。</li>
+<li><code>zh</code>：中文显示名称。</li>
+</ul>
+</li>
+<li><code>rules</code>：自定义权限向用户授权的资源和操作。此参数为自定义权限内容的实际定义。
+<ul>
+<li><code>apiGroups</code>：向用户授权的资源类型所属的 API 组。取值 <code>'*'</code> 表示当前权限级别的所有 API 组。</li>
+<li><code>resources</code>：向用户授权的资源类型，可以为 CRD（例如本节示例中的 <code>custom-resource</code>，<code>custom-resource-version</code>）或 Kubernetes 默认资源类型（例如 <code>deployment</code>）。取值 <code>'*'</code> 表示当前权限级别的所有资源类型。</li>
+<li><code>verbs</code>：向用户授权的操作。取值 <code>'*'</code> 当前权限级别的所有操作。有关资源操作类型的更多信息，请参阅 <a href="https://kubernetes.io/docs/reference/access-authn-authz/authorization/">Kubernetes 官方文档</a>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="category">Category</h4>
+<p>Category 用于标记 RoleTemplate 所属的类别。KubeSphere Console 将根据权限项的类别将权限项分组显示。对应 RoleTemplate 的 label <code>iam.kubesphere.io/category: custom-resource-management</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">iam.kubesphere.io/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Category</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">custom-resource-management</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">iam.kubesphere.io/scope</span><span class="p">:</span><span class="w"> </span><span class="l">global</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">kubesphere.io/managed</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w">        
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="l">Custom Resource Management</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Category 参数说明</p>
+<ul>
+<li><code>apiVersion</code>：KubeSphere 访问控制 API 的版本。当前版本为 <code>iam.kubesphere.io/v1beta1</code>。</li>
+<li><code>kind</code>：自定义权限的资源类型。请将参数值设置为 <code>Category</code>。</li>
+<li><code>metadata</code>：自定义权限的元数据。
+<ul>
+<li><code>name</code>：自定义权限的资源名称。</li>
+<li><code>labels</code>：
+<ul>
+<li><code>iam.kubesphere.io/scope</code>：自定义权限的资源标签。KubeSphere 将权限分为平台、集群、企业空间和项目权限。取值 <code>global</code> 表示当前权限为平台级别的权限。可选的值有 <code>global</code>、<code>cluster</code>、<code>workspace</code> 和 <code>namespace</code>。</li>
+<li><code>spec</code>
+<ul>
+<li><code>displayName</code>：显示名称，支持国际化
+<ul>
+<li><code>en</code>：英文显示名称。</li>
+<li><code>zh</code>：中文显示名称。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="自定义角色创建">自定义角色创建</h4>
+<p>声明 RoleTemplate、Category 后，创建自定义角色：</p>
+<p><img src="custom-role-template.png" alt="custom-role-template"></p>
+<p>配置好角色后, 给一个用户添加这个角色, 如果这个角色只分配了view权限, 那么当他调用后端相应路由的post方法就会被阻止</p>
+<blockquote>
+<p>再次强调这要求后端被代理, 并满足我们约定的路由规则</p>
+</blockquote>
+<h4 id="console-前端权限控制">Console 前端权限控制</h4>
+<p>menu 权限设置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-JavaScript" data-lang="JavaScript"><span class="line"><span class="cl"><span class="c1">// menu 涉及权限字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">const</span> <span class="nx">menu</span> <span class="o">=</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">  <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;hello-world&#39;</span><span class="p">,</span>     <span class="c1">// name 必填字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">ksModule</span><span class="o">:</span> <span class="s1">&#39;hello-world&#39;</span><span class="p">,</span>    
+</span></span><span class="line"><span class="cl">  <span class="nx">authKey</span><span class="o">:</span> <span class="s1">&#39;hello-world&#39;</span><span class="p">,</span>  
+</span></span><span class="line"><span class="cl">  <span class="nx">authAction</span><span class="o">:</span><span class="s1">&#39;view&#39;</span><span class="p">,</span>   
+</span></span><span class="line"><span class="cl">  <span class="nx">skipAuth</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>      
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>权限过滤效果</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>权限</th>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>是否为平台管理员角色(platform-admin)</td>
+<td><code>admin</code></td>
+<td><code>boolean</code></td>
+<td>为 <code>true</code> 则非平台管理员不显示, 默认值 <code>false</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>根据模块是否在当前集群中安装过滤</td>
+<td><code>clusterModule</code></td>
+<td><code>string</code></td>
+<td>在当前集群中未安装不显示,可以指定多个模块使用 <code>|</code> 进行分割</td>
+</tr>
+<tr>
+<td>3</td>
+<td>根据模块是否安装过滤</td>
+<td><code>ksModule</code></td>
+<td><code>string</code></td>
+<td>未安装模块不显示</td>
+</tr>
+<tr>
+<td>4</td>
+<td>根据模块是否安装并给了指定<code>annotation</code>值过滤</td>
+<td><code>annotation</code></td>
+<td><code>string</code></td>
+<td>模块没有指定<code>annotation</code>值不显示。注意: <code>annotation</code> 必须配合 <code>ksModule</code> 一起使用</td>
+</tr>
+<tr>
+<td>5</td>
+<td>根据配置权限过滤</td>
+<td><code>authKey</code> or <code>name</code></td>
+<td><code>string</code></td>
+<td>有 <code>authKey</code> 取 <code>authKey</code>，否则取 <code>name</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>根据配置权限项</td>
+<td><code>authAction</code></td>
+<td><code>string</code></td>
+<td>默认值 <code>view</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>跳过权限控制</td>
+<td><code>skipAuth</code></td>
+<td><code>boolean</code></td>
+<td>优先级最高，为 <code>true</code> 则忽略其他配置</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>RoleTemplate 前端权限控制</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">iam.kubesphere.io/role-template-rules</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;{&#34;pipelines&#34;:&#34;view&#34;}&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">iam.kubesphere.io/role-template-rules</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;{&#34;pipelines&#34;:&#34;manage&#34;}&#39;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>RoleTemplate 前端权限控制参数说明</p>
+<ul>
+<li><code>iam.kubesphere.io/role-template-rules</code>：控制前端权限的注解， <code>{key: action }</code> 格式 JSON 字符串。</li>
+<li><code>{key}</code>：前端权限的 key，对应前端权限的 <code>authKey</code> 或 <code>name</code> 字段。</li>
+<li><code>{action}</code>: 见 RoleTemplate 前端权限控制 action。</li>
+</ul>
+</li>
+<li>
+<p>RoleTemplate 前端权限控制 action</p>
+<ul>
+<li><code>view</code>：有此字段，会显示对应的菜单和页面。但只有查看权限，没有操作权限。</li>
+<li><code>*</code>、<code>manage</code>：有完整查看和操作权限。</li>
+<li><code>create</code>: 有创建权限。</li>
+<li><code>delete</code>: 有删除权限。</li>
+<li><code>edit</code>: 有编辑权限。</li>
+<li>其他自定义值（配合前端硬编码）。</li>
+</ul>
+<blockquote>
+<p>注：<code>create</code>、<code>delete</code>、<code>edit</code> 为前端权限，需配合前端代码，在对应操作的按钮上添加类似 <code>action: 'create'</code> 代码，下例。</p>
+</blockquote>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-JavaScript" data-lang="JavaScript"><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">useActionMenu</span><span class="p">,</span> <span class="nx">DataTable</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;@ks-console/shared&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">renderTableAction</span> <span class="o">=</span> <span class="nx">useActionMenu</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">autoSingleButton</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">authKey</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">params</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">actions</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">key</span><span class="o">:</span> <span class="s1">&#39;invite&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">text</span><span class="o">:</span> <span class="nx">t</span><span class="p">(</span><span class="s1">&#39;INVITE&#39;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">action</span><span class="o">:</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span>  <span class="c1">//此处为具体 action 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nx">props</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">color</span><span class="o">:</span> <span class="s1">&#39;secondary&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">shadow</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">onClick</span><span class="o">:</span> <span class="nx">openCreate</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span>
+</span></span><span class="line"><span class="cl"><span class="k">return</span> <span class="p">(</span><span class="o">&lt;</span><span class="nx">DataTable</span> 
+</span></span><span class="line"><span class="cl">  <span class="c1">// ... the other props
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">toolbarRight</span><span class="o">=</span><span class="p">{</span><span class="nx">renderTableAction</span><span class="p">({})}</span>
+</span></span><span class="line"><span class="cl"><span class="err">/&gt;)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="平台功能">平台功能</h2>
+<h3 id="监控api">监控api</h3>
+<p>待补充</p>
+<h3 id="告警api">告警api</h3>
+<p>待补充</p>
+<h3 id="license-api">license api</h3>
+<p>待补充</p>
+<h3 id="kubesphere-api">KubeSphere API</h3>
+<p>KubeSphere API 是 K8s API 的超集，沿用了 K8s API 的设计，通过 HTTP 提供了基于资源 (RESTful) 的编程接口。它支持通过标准 HTTP 动词（POST、PUT、PATCH、DELETE、GET）来检索、创建、更新和删除主要资源。</p>
+<p>在使用 KubeSphere API 之前，<strong>您需要先阅读并理解</strong> <a href="https://kubernetes.io/zh-cn/docs/reference/using-api/api-concepts/">K8s API 的概念</a>。</p>
+<p>KubeSphere 提供了 K8s API 代理，通过 <code>/apis</code>、<code>/api</code> 前缀可以直接访问 K8s 的 API。此外，KubeSphere 在 K8s 的基础上支持额外的资源层级，包括平台级资源（例如用户、集群、企业空间等），以及企业空间级资源。KubeSphere 扩展的 API 通常以 <code>/kapis</code> 为前缀。</p>
+<p>例如:</p>
+<ul>
+<li><code>/api/v1/namespaces</code></li>
+<li><code>/api/v1/pods</code></li>
+<li><code>/api/v1/namespaces/my-namespace/pods</code></li>
+<li><code>/apis/apps/v1/deployments</code></li>
+<li><code>/apis/apps/v1/namespaces/my-namespace/deployments</code></li>
+<li><code>/apis/apps/v1/namespaces/my-namespace/deployments/my-deployment</code></li>
+<li><code>/kapis/iam.kubesphere.io/v1beta1/users</code></li>
+<li><code>/kapis/tenant.kubesphere.io/v1alpha2/workspaces/my-workspace/namespaces</code></li>
+</ul>
+<p><strong>多集群</strong></p>
+<p>KubeSphere 支持 K8s 多集群纳管。只要在请求路径之前添加集群标识作为前缀，就可以通过 API 直接访问 member 集群。</p>
+<p>例如:</p>
+<ul>
+<li><code>/clusters/host/api/v1/namespaces</code></li>
+<li><code>/clusters/member/api/v1/namespaces</code></li>
+</ul>
+<p>详细api您可以访问 <a href="https://docs.kubesphere.com.cn/reference/api/v4.0.0/introduction/">kubesphere api </a>获取</p>
+<h2 id="qa">Q&amp;A</h2>
+
+  </div>
+
+  
+<footer class="post-footer">
+    
+    <nav class="post-nav">
+      <a class="prev" href="/life/%E5%85%B3%E4%BA%8E2022/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">关于2022</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+      <a class="next" href="/life/%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%B9%A0rust/">
+        <span class="next-text nav-default">开始学习rust</span>
+        <span class="next-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav>
+  </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>inksnw</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
