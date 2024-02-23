@@ -9,8 +9,9 @@ tags: ["k8s"]
 下载离线安装包`700M`
 
 ```bash
-wget https://mirrors.tuna.tsinghua.edu.cn/github-release/goharbor/harbor/v2.9.0/harbor-offline-installer-v2.9.0.tgz
-tar -zxvf harbor-offline-installer-v2.9.0.tgz 
+wget https://mirrors.tuna.tsinghua.edu.cn/github-release/goharbor/harbor/v2.10.0/harbor-offline-installer-v2.10.0.tgz
+tar -zxvf harbor-offline-installer-v2.10.0.tgz 
+cd harbor
 cp harbor.yml.tmpl harbor.yml
 ```
 
@@ -20,10 +21,11 @@ cp harbor.yml.tmpl harbor.yml
 hostname: inksnw.asuscomm.com
 http:
   port: 3003
-harbor_admin_password: xxx
+
+harbor_admin_password: admin
 external_database:
   harbor:
-    host: 192.168.50.209
+    host: 192.168.50.87
     port: 5432
     db_name: harbor
     username: postgres
@@ -39,19 +41,21 @@ trivy:
   security_check: vuln
   insecure: false
 jobservice:
+  logger_sweeper_duration: 1 #days
   max_job_workers: 10
   job_loggers:
     - STD_OUTPUT
     - FILE
 notification:
   webhook_job_max_retry: 3
+  webhook_job_http_client_timeout: 3 #seconds
 log:
   level: info
   local:
     rotate_count: 50
     rotate_size: 200M
     location: /var/log/harbor
-_version: 2.9.0
+_version: 2.10.0
 proxy:
   http_proxy:
   https_proxy:
@@ -74,15 +78,15 @@ cache:
 
 ```bash
 ➜ ./prepare
-➜ docker-compose up -d
+➜ docker compose up -d
 ```
 
 访问web界面
 
 ```
-http://192.168.50.209:3003/
+http://192.168.50.87:3003/
 用户名: admin
-默认密码: xxx
+默认密码: admin
 ```
 
 **踩坑**
@@ -231,6 +235,6 @@ docker tag d453dd892d93 localhost:5000/nginx:latest
 docker push localhost:5000/nginx:latest
 curl http://localhost:5000/v2/nginx/manifests/latest
 curl -X GET localhost:5000/v2/_catalog
-#如果推送出错，则需要修改 客户端/etc/docker/daemon.json, 加上 "insecure-registries":["192.168.50.209:5000"] 
+#如果推送出错，则需要修改 客户端/etc/docker/daemon.json, 加上 "insecure-registries":["192.168.50.87:5000"] 
 ```
 
