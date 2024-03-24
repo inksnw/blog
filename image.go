@@ -1,13 +1,15 @@
 package main
 
 import (
-	"context"
+	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"io"
 	"os"
 	"os/user"
@@ -26,29 +28,37 @@ func main() {
 	}
 	fmt.Printf("输入参数为 %s\n", os.Args)
 	config := getKey()
-	ctx := context.Background()
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds: credentials.NewStaticV4(config.AccessKeyID, config.SecretAccessKey, ""),
-	})
+	cred := credentials.NewStaticCredentials(config.AccessKeyID, config.SecretAccessKey, "")
+	awsConfig := aws.Config{
+		Region:           aws.String("us-east-1"),
+		Endpoint:         aws.String(endpoint),
+		DisableSSL:       aws.Bool(true),
+		S3ForcePathStyle: aws.Bool(true),
+		Credentials:      cred,
+	}
+	s, err := session.NewSession(&awsConfig)
 	check(err)
 
 	result := "Upload Success:\n"
 	for _, filePath := range config.images {
 		fmt.Println("要上传的图片为: ", filePath)
 		objectName := fmt.Sprintf("%s_%s%s", config.articleName, getMd5(filePath), path.Ext(filePath))
-		contentType := getExt(filePath)
-		_, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
+		body, err := os.ReadFile(filePath)
+		check(err)
+		uploader := s3manager.NewUploader(s, func(uploader *s3manager.Uploader) {
+			uploader.LeavePartsOnError = true
+		})
+		_, err = uploader.Upload(&s3manager.UploadInput{
+			Bucket: aws.String(bucketName),
+			Key:    aws.String(objectName),
+			Body:   bytes.NewReader(body),
+		})
+
 		check(err)
 		rv := fmt.Sprintf("%s/%s/%s\n", url, bucketName, objectName)
 		result = result + rv
 	}
 	fmt.Print(result)
-}
-
-func getExt(file string) (contentType string) {
-	ext := path.Ext(file)
-	contentType = fmt.Sprintf("application/%s", ext[1:])
-	return contentType
 }
 
 func check(err error) {
