@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"io"
 	"os"
@@ -45,6 +46,21 @@ func main() {
 		objectName := fmt.Sprintf("%s_%s%s", config.articleName, getMd5(filePath), path.Ext(filePath))
 		body, err := os.ReadFile(filePath)
 		check(err)
+		rv := fmt.Sprintf("%s/%s/%s\n", url, bucketName, objectName)
+		downloader := s3manager.NewDownloader(s)
+
+		writer := aws.NewWriteAtBuffer([]byte{})
+		_, err = downloader.Download(writer,
+			&s3.GetObjectInput{
+				Bucket: aws.String(bucketName),
+				Key:    aws.String(objectName),
+			})
+		if err == nil {
+			fmt.Printf("文件 %s 已存在\n", objectName)
+			result = result + rv
+			continue
+		}
+
 		uploader := s3manager.NewUploader(s, func(uploader *s3manager.Uploader) {
 			uploader.LeavePartsOnError = true
 		})
@@ -55,7 +71,7 @@ func main() {
 		})
 
 		check(err)
-		rv := fmt.Sprintf("%s/%s/%s\n", url, bucketName, objectName)
+
 		result = result + rv
 	}
 	fmt.Print(result)
