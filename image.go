@@ -23,72 +23,66 @@ const (
 	url        = "http://inksnw.asuscomm.com:3001"
 )
 
+type Info struct {
+	AccessKeyID     string `json:"accessKey"`
+	SecretAccessKey string `json:"secretKey"`
+	ArticleName     string
+	Images          []string
+}
+
 func main() {
 	if len(os.Args) < 3 {
+		fmt.Println("参数不足")
 		return
 	}
 	fmt.Printf("输入参数为 %s\n", os.Args)
 	config := getKey()
-	cred := credentials.NewStaticCredentials(config.AccessKeyID, config.SecretAccessKey, "")
-	awsConfig := aws.Config{
+	awsConfig := getAWSConfig(config.AccessKeyID, config.SecretAccessKey)
+	s, err := session.NewSession(&awsConfig)
+	check(err)
+	result := "Upload Success:\n"
+	for _, filePath := range config.Images {
+		fmt.Println("要上传的图片为: ", filePath)
+		objectName := fmt.Sprintf("%s_%s%s", config.ArticleName, getMd5(filePath), path.Ext(filePath))
+		body, err := os.ReadFile(filePath)
+		check(err)
+		rv := fmt.Sprintf("%s/%s/%s\n", url, bucketName, objectName)
+		downloader := s3manager.NewDownloader(s)
+		writer := aws.NewWriteAtBuffer([]byte{})
+		_, err = downloader.Download(writer, &s3.GetObjectInput{
+			Bucket: aws.String(bucketName),
+			Key:    aws.String(objectName),
+		})
+		result = result + rv
+		if err == nil {
+			fmt.Printf("文件 %s 已存在\n", objectName)
+			continue
+		}
+		uploadFile(s, bucketName, objectName, body)
+	}
+	fmt.Print(result)
+}
+func getAWSConfig(accessKeyID, secretAccessKey string) aws.Config {
+	cred := credentials.NewStaticCredentials(accessKeyID, secretAccessKey, "")
+	return aws.Config{
 		Region:           aws.String("us-east-1"),
 		Endpoint:         aws.String(endpoint),
 		DisableSSL:       aws.Bool(true),
 		S3ForcePathStyle: aws.Bool(true),
 		Credentials:      cred,
 	}
-	s, err := session.NewSession(&awsConfig)
+}
+
+func uploadFile(s *session.Session, bucketName, objectName string, body []byte) {
+	uploader := s3manager.NewUploader(s, func(uploader *s3manager.Uploader) {
+		uploader.LeavePartsOnError = true
+	})
+	_, err := uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectName),
+		Body:   bytes.NewReader(body),
+	})
 	check(err)
-
-	result := "Upload Success:\n"
-	for _, filePath := range config.images {
-		fmt.Println("要上传的图片为: ", filePath)
-		objectName := fmt.Sprintf("%s_%s%s", config.articleName, getMd5(filePath), path.Ext(filePath))
-		body, err := os.ReadFile(filePath)
-		check(err)
-		rv := fmt.Sprintf("%s/%s/%s\n", url, bucketName, objectName)
-		downloader := s3manager.NewDownloader(s)
-
-		writer := aws.NewWriteAtBuffer([]byte{})
-		_, err = downloader.Download(writer,
-			&s3.GetObjectInput{
-				Bucket: aws.String(bucketName),
-				Key:    aws.String(objectName),
-			})
-		if err == nil {
-			fmt.Printf("文件 %s 已存在\n", objectName)
-			result = result + rv
-			continue
-		}
-
-		uploader := s3manager.NewUploader(s, func(uploader *s3manager.Uploader) {
-			uploader.LeavePartsOnError = true
-		})
-		_, err = uploader.Upload(&s3manager.UploadInput{
-			Bucket: aws.String(bucketName),
-			Key:    aws.String(objectName),
-			Body:   bytes.NewReader(body),
-		})
-
-		check(err)
-
-		result = result + rv
-	}
-	fmt.Print(result)
-}
-
-func check(err error) {
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
-type Info struct {
-	AccessKeyID     string `json:"accessKey"`
-	SecretAccessKey string `json:"secretKey"`
-	articleName     string
-	images          []string
 }
 
 func getKey() (result Info) {
@@ -96,19 +90,27 @@ func getKey() (result Info) {
 	check(err)
 	file := path.Join(u.HomeDir, "/Desktop", "/blog", "env.json")
 	data, err := os.ReadFile(file)
-	fmt.Printf("key文件为 %s\n", file)
 	check(err)
 	err = json.Unmarshal(data, &result)
 	check(err)
-	result.articleName = os.Args[1]
-	result.images = os.Args[2:]
+	result.ArticleName = os.Args[1]
+	result.Images = os.Args[2:]
 	return result
 }
+
 func getMd5(filename string) string {
 	pFile, err := os.Open(filename)
 	check(err)
 	md5h := md5.New()
 	_, err = io.Copy(md5h, pFile)
 	check(err)
+	defer pFile.Close()
 	return hex.EncodeToString(md5h.Sum(nil))
+}
+
+func check(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
