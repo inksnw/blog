@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Go Containerregistry库的一个小坑 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="" /><meta name="description" content="先说结论: Containerregistry 库会先尝试访问443, 再回落到80, 如果网络不通就会卡住 起因 客户反应私有源查询镜像是正常的, 查询镜像版本就会卡住 排查 使用shel" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.125.7 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/go-containerregistry%E5%BA%93%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%9D%91/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/go-containerregistry%E5%BA%93%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%9D%91/">
+  <meta property="og:title" content="Go Containerregistry库的一个小坑">
+  <meta property="og:description" content="先说结论: Containerregistry 库会先尝试访问443, 再回落到80, 如果网络不通就会卡住 起因 客户反应私有源查询镜像是正常的, 查询镜像版本就会卡住 排查 使用shel">
+  <meta property="og:locale" content="zh-cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-05-15T16:34:18+08:00">
+    <meta property="article:modified_time" content="2024-05-15T16:34:18+08:00">
+    <meta property="article:tag" content="K8s">
+
+  <meta itemprop="name" content="Go Containerregistry库的一个小坑">
+  <meta itemprop="description" content="先说结论: Containerregistry 库会先尝试访问443, 再回落到80, 如果网络不通就会卡住 起因 客户反应私有源查询镜像是正常的, 查询镜像版本就会卡住 排查 使用shel">
+  <meta itemprop="datePublished" content="2024-05-15T16:34:18+08:00">
+  <meta itemprop="dateModified" content="2024-05-15T16:34:18+08:00">
+  <meta itemprop="wordCount" content="839">
+  <meta itemprop="keywords" content="K8s"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Go Containerregistry库的一个小坑">
+<meta name="twitter:description" content="先说结论: Containerregistry 库会先尝试访问443, 再回落到80, 如果网络不通就会卡住 起因 客户反应私有源查询镜像是正常的, 查询镜像版本就会卡住 排查 使用shel">
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">Go Containerregistry库的一个小坑</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2024-05-15 </span>
+            
+            <span class="more-meta"> 约 839 字 更新于 2024-05-15
+              <a class="article-tags" href=/tags/k8s/>k8s</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#起因">起因</a>
+          <ul>
+            <li><a href="#排查">排查</a></li>
+          </ul>
+        </li>
+        <li><a href="#验证">验证</a></li>
+        <li><a href="#解决方案">解决方案</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>先说结论: Containerregistry 库会先尝试访问443, 再回落到80, 如果网络不通就会卡住</p>
+<h2 id="起因">起因</h2>
+<p>客户反应私有源查询镜像是正常的, 查询镜像版本就会卡住</p>
+<h3 id="排查">排查</h3>
+<p>使用shell访问私有源, 这里以dockerhub为例</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">TOKEN</span><span class="o">=</span><span class="k">$(</span>curl -s <span class="s2">&#34;https://auth.docker.io/token?service=registry.docker.io&amp;scope=repository:zichenkkkk/migrate:pull&#34;</span> <span class="p">|</span> jq -r .token<span class="k">)</span>
+</span></span><span class="line"><span class="cl">curl -H <span class="s2">&#34;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&#34;</span>   <span class="s2">&#34;https://registry-1.docker.io/v2/zichenkkkk/migrate/tags/list&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以正常看到结果</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;zichenkkkk/migrate&#34;</span><span class="p">,</span><span class="nt">&#34;tags&#34;</span><span class="p">:[</span><span class="s2">&#34;2.1.0&#34;</span><span class="p">,</span><span class="s2">&#34;2.1.1&#34;</span><span class="p">]}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>说明私有源是正常工作的, 但为什么代码访问不了呢</p>
+<h2 id="验证">验证</h2>
+<p>配置一个私有源</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run -d -p 5000:5000 --restart<span class="o">=</span>always --name registry registry
+</span></span><span class="line"><span class="cl">docker pull busybox
+</span></span><span class="line"><span class="cl">docker tag busybox:latest 127.0.0.1:5000/busybox:latest
+</span></span><span class="line"><span class="cl">docker  push 127.0.0.1:5000/busybox:latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 查看源的信息</span>
+</span></span><span class="line"><span class="cl">curl 127.0.0.1:5000/v2/_catalog
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;repositories&#34;</span>:<span class="o">[</span><span class="s2">&#34;busybox&#34;</span><span class="o">]}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看镜像的版本列表, 可以看到使用shell可以正常查询</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl  <span class="s2">&#34;http://127.0.0.1:5000/v2/busybox/tags/list&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;name&#34;</span>:<span class="s2">&#34;busybox&#34;</span>,<span class="s2">&#34;tags&#34;</span>:<span class="o">[</span><span class="s2">&#34;latest&#34;</span><span class="o">]}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>写一段代码查询</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;crypto/tls&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;encoding/base64&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/google/go-containerregistry/pkg/authn&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/google/go-containerregistry/pkg/name&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/google/go-containerregistry/pkg/v1/remote&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/klog/v2&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http/httptrace&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/url&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">5</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Usage: &lt;username&gt; &lt;password&gt; &lt;repo&gt; &lt;src&gt;&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">userName</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Password</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">repo</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">src</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">b64Auth</span> <span class="o">:=</span> <span class="nx">base64</span><span class="p">.</span><span class="nx">StdEncoding</span><span class="p">.</span><span class="nf">EncodeToString</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%s:%s&#34;</span><span class="p">,</span> <span class="nx">userName</span><span class="p">,</span> <span class="nx">Password</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">tr</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Transport</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">TLSClientConfig</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span><span class="nx">InsecureSkipVerify</span><span class="p">:</span> <span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">client</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Client</span><span class="p">{</span><span class="nx">Transport</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">loggingTransport</span><span class="p">{</span><span class="nx">rt</span><span class="p">:</span> <span class="nx">tr</span><span class="p">}}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">registryURL</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">url</span><span class="p">.</span><span class="nf">Parse</span><span class="p">(</span><span class="nx">repo</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">klog</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to parse registry URL: %s&#34;</span><span class="p">,</span> <span class="nx">repo</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">klog</span><span class="p">.</span><span class="nf">Infof</span><span class="p">(</span><span class="s">&#34;registryURL: %s&#34;</span><span class="p">,</span> <span class="nx">registryURL</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">repoName</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">name</span><span class="p">.</span><span class="nf">NewRepository</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span> <span class="nx">name</span><span class="p">.</span><span class="nx">Insecure</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">klog</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to create repository: %s&#34;</span><span class="p">,</span> <span class="nx">src</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">klog</span><span class="p">.</span><span class="nf">Infof</span><span class="p">(</span><span class="s">&#34;repoName: %s&#34;</span><span class="p">,</span> <span class="nx">repoName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">authConfig</span> <span class="o">:=</span> <span class="nx">authn</span><span class="p">.</span><span class="nx">AuthConfig</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Username</span><span class="p">:</span> <span class="nx">userName</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Password</span><span class="p">:</span> <span class="nx">Password</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Auth</span><span class="p">:</span>     <span class="nx">b64Auth</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">options</span> <span class="o">:=</span> <span class="p">[]</span><span class="nx">remote</span><span class="p">.</span><span class="nx">Option</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">remote</span><span class="p">.</span><span class="nf">WithAuth</span><span class="p">(</span><span class="nx">authn</span><span class="p">.</span><span class="nf">FromConfig</span><span class="p">(</span><span class="nx">authConfig</span><span class="p">)),</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">remote</span><span class="p">.</span><span class="nf">WithTransport</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nx">Transport</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">tags</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">remote</span><span class="p">.</span><span class="nf">List</span><span class="p">(</span><span class="nx">repoName</span><span class="p">,</span> <span class="nx">options</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">klog</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to list tags: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">tag</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">tags</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">klog</span><span class="p">.</span><span class="nf">Infof</span><span class="p">(</span><span class="nx">tag</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">loggingTransport</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">rt</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">loggingTransport</span><span class="p">)</span> <span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">trace</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">httptrace</span><span class="p">.</span><span class="nx">ClientTrace</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">ConnectStart</span><span class="p">:</span> <span class="kd">func</span><span class="p">(</span><span class="nx">network</span><span class="p">,</span> <span class="nx">addr</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">klog</span><span class="p">.</span><span class="nf">Infof</span><span class="p">(</span><span class="s">&#34;ConnectStart: %s %s&#34;</span><span class="p">,</span> <span class="nx">network</span><span class="p">,</span> <span class="nx">addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">req</span> <span class="p">=</span> <span class="nx">req</span><span class="p">.</span><span class="nf">WithContext</span><span class="p">(</span><span class="nx">httptrace</span><span class="p">.</span><span class="nf">WithClientTrace</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">Context</span><span class="p">(),</span> <span class="nx">trace</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">t</span><span class="p">.</span><span class="nx">rt</span><span class="p">.</span><span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>运行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">go run main.go xxx xxx http://127.0.0.1:5000 127.0.0.1:5000/busybox
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">I0515 16:26:33.410112   <span class="m">20635</span> main.go:37<span class="o">]</span> registryURL: http://127.0.0.1:5000
+</span></span><span class="line"><span class="cl">I0515 16:26:33.410196   <span class="m">20635</span> main.go:44<span class="o">]</span> repoName: 127.0.0.1:5000/busybox
+</span></span><span class="line"><span class="cl">I0515 16:26:33.410322   <span class="m">20635</span> main.go:73<span class="o">]</span> ConnectStart: tcp 127.0.0.1:5000
+</span></span><span class="line"><span class="cl">I0515 16:26:33.411537   <span class="m">20635</span> main.go:73<span class="o">]</span> ConnectStart: tcp 127.0.0.1:5000
+</span></span><span class="line"><span class="cl">I0515 16:26:33.414504   <span class="m">20635</span> main.go:62<span class="o">]</span> latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>代码运行没有发现异常, 但如果运行在一个域名或者80上</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run -d -p 80:5000 --restart<span class="o">=</span>always --name registry registry
+</span></span><span class="line"><span class="cl">docker tag busybox:latest 127.0.0.1/busybox:latest
+</span></span><span class="line"><span class="cl">docker push 127.0.0.1/busybox:latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再次运行程序</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">go run main.go xxx xxx http://127.0.0.1 127.0.0.1/busybox
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">I0515 16:30:01.044632   <span class="m">20731</span> main.go:37<span class="o">]</span> registryURL: http://127.0.0.1
+</span></span><span class="line"><span class="cl">I0515 16:30:01.044711   <span class="m">20731</span> main.go:44<span class="o">]</span> repoName: 127.0.0.1/busybox
+</span></span><span class="line"><span class="cl">I0515 16:30:01.044824   <span class="m">20731</span> main.go:73<span class="o">]</span> ConnectStart: tcp 127.0.0.1:443
+</span></span><span class="line"><span class="cl">I0515 16:30:01.044979   <span class="m">20731</span> main.go:73<span class="o">]</span> ConnectStart: tcp 127.0.0.1:80
+</span></span><span class="line"><span class="cl">I0515 16:30:01.047822   <span class="m">20731</span> main.go:62<span class="o">]</span> latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>会发现他会先去请求一下 443 端口, 由于客户的网络环境只开放了80, 于是就卡住了, 追源码可以看到</p>
+<p><a href="https://github.com/google/go-containerregistry/blob/ff385a972813c79bbd5fc89357ff2cefe3e5b43c/pkg/v1/remote/transport/ping.go#L47">https://github.com/google/go-containerregistry/blob/ff385a972813c79bbd5fc89357ff2cefe3e5b43c/pkg/v1/remote/transport/ping.go#L47</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Ping does a GET /v2/ against the registry and returns the response.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Ping</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">reg</span> <span class="nx">name</span><span class="p">.</span><span class="nx">Registry</span><span class="p">,</span> <span class="nx">t</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Challenge</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// This first attempts to use &#34;https&#34; for every request, falling back to http
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// if the registry matches our localhost heuristic or if it is intentionally
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// set to insecure via name.NewInsecureRegistry.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">schemes</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;https&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">reg</span><span class="p">.</span><span class="nf">Scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#34;http&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">schemes</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">schemes</span><span class="p">,</span> <span class="s">&#34;http&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">schemes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nf">pingSingle</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">reg</span><span class="p">,</span> <span class="nx">t</span><span class="p">,</span> <span class="nx">schemes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">pingParallel</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">reg</span><span class="p">,</span> <span class="nx">t</span><span class="p">,</span> <span class="nx">schemes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里写明了, 会发起一个 ping 的动作，http 会作为 fallback，要求 https 端口能快速响应</p>
+<h2 id="解决方案">解决方案</h2>
+<p>开启相应地址的 443 端口, 或者自己改一下这个库吧</p>
+
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/k8s/">k8s</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/%E6%9C%AC%E5%9C%B0%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6%E4%BB%A3%E7%90%86https/">
+                <span class="next-text nav-default">本地签发证书代理https</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
