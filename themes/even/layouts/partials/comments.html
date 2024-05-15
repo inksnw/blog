@@ -1,21 +1,4 @@
 {{ if and .IsPage (ne .Params.comment false) -}}
-  <!-- Disqus -->
-  {{- if .Site.DisqusShortname -}}
-    <div id="disqus_thread"></div>
-    <script type="text/javascript">
-    (function() {
-      // Don't ever inject Disqus on localhost--it creates unwanted
-      // discussions from 'localhost:1313' on your Disqus account...
-      if (window.location.hostname === 'localhost') return;
-
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      var disqus_shortname = '{{ .Site.DisqusShortname }}';
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  {{- end -}}
 
   <!-- changyan -->
   {{- if and .Site.Params.changyanAppid .Site.Params.changyanAppkey -}}
@@ -137,7 +120,7 @@
 
   <!-- commento -->
   {{/* Only include commento if it's configured */}}
-  {{- if or (and (not .Site.IsServer) .Site.Params.comments.commento.enable) (and .Site.IsServer .Site.Params.comments.commento.enableLocal)}}
+  {{- if or (and (not hugo.IsServer) .Site.Params.comments.commento.enable) (and hugo.IsServer .Site.Params.comments.commento.enableLocal)}}
     {{- if and (isset $.Site.Params.comments.commento "host") (isset $.Site.Params.comments.commento "js") -}}
       <div id="commento"></div>
       <script type="text/javascript"
