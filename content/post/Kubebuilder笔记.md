@@ -16,7 +16,8 @@ kubebuilder create api --group webapp --version v1 --kind Guestbook
 #y
 #Create Controller [y/n]
 #y
-kubebuilder create webhook --group batch --version v1 --kind CronJob --defaulting --programmatic-validation
+kubebuilder create webhook --group webapp --version v1 --kind Guestbook --defaulting --programmatic-validation
+
 make generate
 ```
 
