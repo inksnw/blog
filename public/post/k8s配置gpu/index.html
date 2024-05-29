@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>K8s配置gpu - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="" /><meta name="description" content="又不是不能用 一直想买个显卡研究一下k8s配置gpu, 但是舍不得钱啊, 现在的显卡也太贵了, 家里服务器的显卡是张 GT710 安装驱动后使用 nvidia-smi 不认, 今天才发" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.126.1 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/k8s%E9%85%8D%E7%BD%AEgpu/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/k8s%E9%85%8D%E7%BD%AEgpu/">
+  <meta property="og:title" content="K8s配置gpu">
+  <meta property="og:description" content="又不是不能用 一直想买个显卡研究一下k8s配置gpu, 但是舍不得钱啊, 现在的显卡也太贵了, 家里服务器的显卡是张 GT710 安装驱动后使用 nvidia-smi 不认, 今天才发">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2024-05-29T11:02:12+08:00">
+    <meta property="article:modified_time" content="2024-05-29T11:02:12+08:00">
+    <meta property="article:tag" content="Ai">
+
+  <meta itemprop="name" content="K8s配置gpu">
+  <meta itemprop="description" content="又不是不能用 一直想买个显卡研究一下k8s配置gpu, 但是舍不得钱啊, 现在的显卡也太贵了, 家里服务器的显卡是张 GT710 安装驱动后使用 nvidia-smi 不认, 今天才发">
+  <meta itemprop="datePublished" content="2024-05-29T11:02:12+08:00">
+  <meta itemprop="dateModified" content="2024-05-29T11:02:12+08:00">
+  <meta itemprop="wordCount" content="819">
+  <meta itemprop="keywords" content="Ai">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="K8s配置gpu">
+  <meta name="twitter:description" content="又不是不能用 一直想买个显卡研究一下k8s配置gpu, 但是舍不得钱啊, 现在的显卡也太贵了, 家里服务器的显卡是张 GT710 安装驱动后使用 nvidia-smi 不认, 今天才发">
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">K8s配置gpu</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2024-05-29 </span>
+            
+            <span class="more-meta"> 约 819 字 更新于 2024-05-29
+              <a class="article-tags" href=/tags/ai/>ai</a>
+                </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#又不是不能用">又不是不能用</a></li>
+        <li><a href="#安装-nvidia-gpu-驱动">安装 nvidia GPU 驱动</a></li>
+        <li><a href="#安装-nvidia-container-toolkit">安装 nvidia-container-toolkit</a></li>
+        <li><a href="#配置-runtime">配置 runtime</a></li>
+        <li><a href="#验证">验证</a></li>
+        <li><a href="#启用-k8s-gpu支持">启用 k8s gpu支持</a></li>
+        <li><a href="#测试">测试</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <h2 id="又不是不能用">又不是不能用</h2>
+<p>一直想买个显卡研究一下k8s配置gpu, 但是舍不得钱啊, 现在的显卡也太贵了, 家里服务器的显卡是张 GT710 安装驱动后使用 nvidia-smi 不认, 今天才发现驱动版本太高了, 降到 470.239.06, 就可以显示了, 唉, 1G 显存也是显存, 又不是不能用 -_-</p>
+<h2 id="安装-nvidia-gpu-驱动">安装 nvidia GPU 驱动</h2>
+<p>查看显卡信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@server:~# lspci <span class="p">|</span> grep -i nvidia
+</span></span><span class="line"><span class="cl">01:00.0 VGA compatible controller: NVIDIA Corporation GK208B <span class="o">[</span>GeForce GT 710<span class="o">]</span> <span class="o">(</span>rev a1<span class="o">)</span>
+</span></span><span class="line"><span class="cl">01:00.1 Audio device: NVIDIA Corporation GK208 HDMI/DP Audio Controller <span class="o">(</span>rev a1<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个仓库提供了一个安装脚本, 还挺好用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/XuehaiPan/nvitop/blob/main/install-nvidia-driver.sh
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 查看驱动列表</span>
+</span></span><span class="line"><span class="cl">install-nvidia-driver.sh
+</span></span><span class="line"><span class="cl"><span class="c1"># 安装驱动</span>
+</span></span><span class="line"><span class="cl">install-nvidia-driver.sh --package<span class="o">=</span>nvidia-driver-470
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># nvidia-smi</span>
+</span></span><span class="line"><span class="cl">root@server:~# nvidia-smi
+</span></span><span class="line"><span class="cl">Wed May <span class="m">29</span> 03:19:01 <span class="m">2024</span>       
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> NVIDIA-SMI 470.239.06   Driver Version: 470.239.06   CUDA Version: 11.4     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>-------------------------------+----------------------+----------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> GPU  Name        Persistence-M<span class="p">|</span> Bus-Id        Disp.A <span class="p">|</span> Volatile Uncorr. ECC <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Fan  Temp  Perf  Pwr:Usage/Cap<span class="p">|</span>         Memory-Usage <span class="p">|</span> GPU-Util  Compute M. <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>                               <span class="p">|</span>                      <span class="p">|</span>               MIG M. <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span><span class="o">===============================</span>+<span class="o">======================</span>+<span class="o">======================</span><span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">0</span>  NVIDIA GeForce ...  On   <span class="p">|</span> 00000000:01:00.0 N/A <span class="p">|</span>                  N/A <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> 40%   37C    P8    N/A /  N/A <span class="p">|</span>      0MiB /   981MiB <span class="p">|</span>     N/A      Default <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>                               <span class="p">|</span>                      <span class="p">|</span>                  N/A <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-------------------------------+----------------------+----------------------+
+</span></span><span class="line"><span class="cl">                                                                               
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Processes:                                                                  <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>  GPU   GI   CI        PID   Type   Process name                  GPU Memory <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>        ID   ID                                                   Usage      <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span><span class="o">=============================================================================</span><span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>  No running processes found                                                 <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------+
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="安装-nvidia-container-toolkit">安装 nvidia-container-toolkit</h2>
+<p>官方文档 <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-with-apt">https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-with-apt</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey <span class="p">|</span> sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  <span class="o">&amp;&amp;</span> curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list <span class="p">|</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    sed <span class="s1">&#39;s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g&#39;</span> <span class="p">|</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+</span></span><span class="line"><span class="cl">apt-get update
+</span></span><span class="line"><span class="cl">apt-get install -y nvidia-container-toolkit
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="配置-runtime">配置 runtime</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># containerd</span>
+</span></span><span class="line"><span class="cl">nvidia-ctk runtime configure --runtime<span class="o">=</span>containerd
+</span></span><span class="line"><span class="cl">systemctl restart containerd
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="验证">验证</h2>
+<p>cuda 驱动版本可以 <code>nvidia-smi</code> 查看右上角, 具体镜像可以到dockerhub上搜一下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nerdctl run --rm --gpus all nvidia/cuda:11.4.3-base-ubuntu20.04 nvidia-smi
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> NVIDIA-SMI 470.239.06   Driver Version: 470.239.06   CUDA Version: 11.4     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>-------------------------------+----------------------+----------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> GPU  Name        Persistence-M<span class="p">|</span> Bus-Id        Disp.A <span class="p">|</span> Volatile Uncorr. ECC <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Fan  Temp  Perf  Pwr:Usage/Cap<span class="p">|</span>         Memory-Usage <span class="p">|</span> GPU-Util  Compute M. <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>                               <span class="p">|</span>                      <span class="p">|</span>               MIG M. <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span><span class="o">===============================</span>+<span class="o">======================</span>+<span class="o">======================</span><span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">0</span>  NVIDIA GeForce ...  Off  <span class="p">|</span> 00000000:01:00.0 N/A <span class="p">|</span>                  N/A <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> 40%   42C    P0    N/A /  N/A <span class="p">|</span>      0MiB /   981MiB <span class="p">|</span>     N/A      Default <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>                               <span class="p">|</span>                      <span class="p">|</span>                  N/A <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-------------------------------+----------------------+----------------------+
+</span></span><span class="line"><span class="cl">                                                                               
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Processes:                                                                  <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>  GPU   GI   CI        PID   Type   Process name                  GPU Memory <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>        ID   ID                                                   Usage      <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span><span class="o">=============================================================================</span><span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>  No running processes found                                                 <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------+
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="启用-k8s-gpu支持">启用 k8s gpu支持</h2>
+<blockquote>
+<p>发现官方使用 nvidia-ctk 配置的方法, nvidia-device-plugin-daemonset 的日志显示有问题</p>
+<p>需要手动修改一下 vi /etc/containerd/config.toml, 改成如下的样式</p>
+<pre><code>[plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd]
+  default_runtime_name = &quot;nvidia&quot;
+  [plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes]
+    [plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.nvidia]
+      privileged_without_host_devices = false
+      runtime_engine = &quot;&quot;
+      runtime_root = &quot;&quot;
+      runtime_type = &quot;io.containerd.runc.v2&quot;
+      [plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.nvidia.options]
+        BinaryName = &quot;/usr/bin/nvidia-container-runtime&quot;
+        SystemdCgroup = true
+</code></pre>
+</blockquote>
+<p>安装 k8s-device-plugin</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.15.0/deployments/static/nvidia-device-plugin.yml
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看日志</span>
+</span></span><span class="line"><span class="cl">kubectl logs -f ds/nvidia-device-plugin-daemonset -n kube-system
+</span></span><span class="line"><span class="cl">I0529 06:16:45.123510       <span class="m">1</span> main.go:279<span class="o">]</span> Retrieving plugins.
+</span></span><span class="line"><span class="cl">I0529 06:16:45.123736       <span class="m">1</span> factory.go:104<span class="o">]</span> Detected NVML platform: found NVML library
+</span></span><span class="line"><span class="cl">I0529 06:16:45.123759       <span class="m">1</span> factory.go:104<span class="o">]</span> Detected non-Tegra platform: /sys/devices/soc0/family file not found
+</span></span><span class="line"><span class="cl">I0529 06:16:45.473066       <span class="m">1</span> server.go:216<span class="o">]</span> Starting GRPC server <span class="k">for</span> <span class="s1">&#39;nvidia.com/gpu&#39;</span>
+</span></span><span class="line"><span class="cl">I0529 06:16:45.473479       <span class="m">1</span> server.go:147<span class="o">]</span> Starting to serve <span class="s1">&#39;nvidia.com/gpu&#39;</span> on /var/lib/kubelet/device-plugins/nvidia-gpu.sock
+</span></span><span class="line"><span class="cl">I0529 06:16:45.474646       <span class="m">1</span> server.go:154<span class="o">]</span> Registered device plugin <span class="k">for</span> <span class="s1">&#39;nvidia.com/gpu&#39;</span> with Kubelet
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="测试">测试</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat <span class="s">&lt;&lt;EOF | kubectl apply -f -
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: v1
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: Pod
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: gpu-pod
+</span></span></span><span class="line"><span class="cl"><span class="s">spec:
+</span></span></span><span class="line"><span class="cl"><span class="s">  restartPolicy: Never
+</span></span></span><span class="line"><span class="cl"><span class="s">  containers:
+</span></span></span><span class="line"><span class="cl"><span class="s">    - name: cuda-container
+</span></span></span><span class="line"><span class="cl"><span class="s">      image: nvcr.io/nvidia/k8s/cuda-sample:vectoradd-cuda10.2
+</span></span></span><span class="line"><span class="cl"><span class="s">      resources:
+</span></span></span><span class="line"><span class="cl"><span class="s">        limits:
+</span></span></span><span class="line"><span class="cl"><span class="s">          nvidia.com/gpu: 1 # requesting 1 GPU
+</span></span></span><span class="line"><span class="cl"><span class="s">  tolerations:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - key: nvidia.com/gpu
+</span></span></span><span class="line"><span class="cl"><span class="s">    operator: Exists
+</span></span></span><span class="line"><span class="cl"><span class="s">    effect: NoSchedule
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看日志</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl logs gpu-pod
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Vector addition of <span class="m">50000</span> elements<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Copy input data from the host memory to the CUDA device
+</span></span><span class="line"><span class="cl">CUDA kernel launch with <span class="m">196</span> blocks of <span class="m">256</span> threads
+</span></span><span class="line"><span class="cl">Copy output data from the CUDA device to the host memory
+</span></span><span class="line"><span class="cl">Test PASSED
+</span></span><span class="line"><span class="cl">Done
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/ai/">ai</a>
+            </div>
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/webhook%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6/">
+                <span class="next-text nav-default">Webhook生成证书</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
