@@ -57,7 +57,7 @@
   <meta itemprop="description" content="又不是不能用 一直想研究一下k8s配置 gpu, 但是现在的显卡也太贵了, 家里服务器的显卡是张 GT710 使用 nvidia-smi 不认, 今天才发现驱动版本太高, 降低就可以了, 1G 显存">
   <meta itemprop="datePublished" content="2024-05-29T11:02:12+08:00">
   <meta itemprop="dateModified" content="2024-05-29T11:02:12+08:00">
-  <meta itemprop="wordCount" content="854">
+  <meta itemprop="wordCount" content="1455">
   <meta itemprop="keywords" content="Ai">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="K8s配置gpu">
@@ -134,7 +134,7 @@
         <div class="post-meta">
             <span class="post-time"> 2024-05-29 </span>
             
-            <span class="more-meta"> 约 854 字 更新于 2024-05-29
+            <span class="more-meta"> 约 1455 字 更新于 2024-05-29
               <a class="article-tags" href=/tags/ai/>ai</a>
                 </span>
             
@@ -156,6 +156,13 @@
         <li><a href="#验证">验证</a></li>
         <li><a href="#启用-k8s-gpu支持">启用 k8s gpu支持</a></li>
         <li><a href="#测试">测试</a></li>
+        <li><a href="#安装nvidia-nim">安装nvidia nim</a>
+          <ul>
+            <li><a href="#申请访问权限">申请访问权限</a></li>
+            <li><a href="#安装">安装</a></li>
+          </ul>
+        </li>
+        <li><a href="#使用nim">使用nim</a></li>
       </ul>
     </li>
   </ul>
@@ -200,7 +207,7 @@
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 查看驱动列表</span>
 </span></span><span class="line"><span class="cl">install-nvidia-driver.sh
-</span></span><span class="line"><span class="cl"><span class="c1"># 安装驱动</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 安装驱动, 注意要保证你的gpu与支持的驱动版本匹配</span>
 </span></span><span class="line"><span class="cl">install-nvidia-driver.sh --package<span class="o">=</span>nvidia-driver-470
 </span></span></code></pre></td></tr></table>
 </div>
@@ -288,7 +295,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="验证">验证</h2>
-<p>cuda 驱动版本可以 <code>nvidia-smi</code> 查看右上角, 具体镜像可以到dockerhub上搜一下</p>
+<p>cuda 驱动版本可以 <code>nvidia-smi</code> 查看右上角, 具体小版本号可以到dockerhub上搜一下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -464,6 +471,154 @@
 </span></span><span class="line"><span class="cl">Copy output data from the CUDA device to the host memory
 </span></span><span class="line"><span class="cl">Test PASSED
 </span></span><span class="line"><span class="cl">Done
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="安装nvidia-nim">安装nvidia nim</h2>
+<h3 id="申请访问权限">申请访问权限</h3>
+<p>nim下的镜像需要单独申请访问权限才能拉取</p>
+<p>进入如下网址 <a href="https://catalog.ngc.nvidia.com/orgs/nim/teams/meta/containers/llama3-8b-instruct">https://catalog.ngc.nvidia.com/orgs/nim/teams/meta/containers/llama3-8b-instruct</a>, 点击右上角的 <code>get container</code>, 填写信息后, 会收到邮件,再次查看此页面就可以看到镜像版本了,</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_811f8eab270e84eb1d54aa8c204e0662.png" alt="企业微信截图_76efa6ae-25da-402b-aa91-953a73ebe112" style="zoom:50%;" />
+<p>收到允许邮件后, 再次查看tag如图, 此时生成的ncg api key才能拉取镜像, 否则会报权限问题</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_28b41536d7a1d9b403c23069effd2dca.png" alt="image-20240606100402704" style="zoom:50%;" />
+<p>进入 <a href="https://org.ngc.nvidia.com/setup">https://org.ngc.nvidia.com/setup</a>  申请key</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_613a7870f03e15455bbcacc0e62cbda2.png" alt="image-20240606100527318" style="zoom:50%;" />
+<h3 id="安装">安装</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/NVIDIA/nim-deploy.git
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> nim-deploy/helm
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">NGC_CLI_API_KEY</span><span class="o">=</span><span class="s2">&#34;xxx&#34;</span>
+</span></span><span class="line"><span class="cl">kubectl -n nim create secret generic ngc-api --from-literal<span class="o">=</span><span class="nv">NGC_CLI_API_KEY</span><span class="o">=</span><span class="nv">$NGC_CLI_API_KEY</span>
+</span></span><span class="line"><span class="cl">kubectl create ns nim
+</span></span><span class="line"><span class="cl">helm --namespace nim install my-nim nim-llm/ --set model.ngcAPIKey<span class="o">=</span>xxx --set persistence.enabled<span class="o">=</span><span class="nb">true</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看生成的pod</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@server:~/nim-deploy/helm# kubectl get pod -A
+</span></span><span class="line"><span class="cl">NAMESPACE     NAME                                           READY   STATUS             RESTARTS      AGE
+</span></span><span class="line"><span class="cl">default       gpu-pod                                        0/1     Completed          <span class="m">0</span>             14m
+</span></span><span class="line"><span class="cl">kube-system   calico-kube-controllers-7b84757b95-p9flq       1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">kube-system   calico-node-jncdg                              1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">kube-system   coredns-565dd4648d-4gcwf                       1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">kube-system   coredns-565dd4648d-x8fpm                       1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">kube-system   kube-apiserver-server                          1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">kube-system   kube-controller-manager-server                 1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">kube-system   kube-proxy-zrn2z                               1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">kube-system   kube-scheduler-server                          1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">kube-system   nvidia-device-plugin-daemonset-dmhpv           1/1     Running            <span class="m">0</span>             15m
+</span></span><span class="line"><span class="cl">kube-system   openebs-localpv-provisioner-64b88c795c-2q6w4   1/1     Running            <span class="m">0</span>             16m
+</span></span><span class="line"><span class="cl">nim           my-nim-0                                       0/1     CrashLoopBackOff   <span class="m">7</span> <span class="o">(</span>43s ago<span class="o">)</span>   13m
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="使用nim">使用nim</h2>
+<p>看官方文档, 安装完会生成一个 svc, 可以直接使用api调用, 但是我的远古显卡gt710似乎不支持</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@server:~/nim-deploy/helm# kubectl logs -f my-nim-0 -n nim
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">2024-06-06 02:14:24,804 <span class="o">[</span>INFO<span class="o">]</span> PyTorch version 2.2.2 available.
+</span></span><span class="line"><span class="cl">2024-06-06 02:14:25,245 <span class="o">[</span>WARNING<span class="o">]</span> <span class="o">[</span>TRT-LLM<span class="o">]</span> <span class="o">[</span>W<span class="o">]</span> Logger level already <span class="nb">set</span> from environment. Discard new verbosity: error
+</span></span><span class="line"><span class="cl">2024-06-06 02:14:25,245 <span class="o">[</span>INFO<span class="o">]</span> <span class="o">[</span>TRT-LLM<span class="o">]</span> <span class="o">[</span>I<span class="o">]</span> Starting TensorRT-LLM init.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>TensorRT-LLM<span class="o">][</span>INFO<span class="o">]</span> Set logger level by INFO
+</span></span><span class="line"><span class="cl">2024-06-06 02:14:25,252 <span class="o">[</span>INFO<span class="o">]</span> <span class="o">[</span>TRT-LLM<span class="o">]</span> <span class="o">[</span>I<span class="o">]</span> TensorRT-LLM inited.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>TensorRT-LLM<span class="o">]</span> TensorRT-LLM version: 0.10.1.dev2024053000
+</span></span><span class="line"><span class="cl">Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">    <span class="nv">gpus</span> <span class="o">=</span> GPUInspect<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/usr/local/lib/python3.10/dist-packages/vllm_nvext/hub/hardware_inspect.py&#34;</span>, line 77, in __init__
+</span></span><span class="line"><span class="cl">    GPUInspect._safe_exec<span class="o">(</span>cuda.cuInit<span class="o">(</span>0<span class="o">))</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/usr/local/lib/python3.10/dist-packages/vllm_nvext/hub/hardware_inspect.py&#34;</span>, line 85, in _safe_exec
+</span></span><span class="line"><span class="cl">    raise RuntimeError<span class="o">(</span>f<span class="s2">&#34;Unexpected error: {status.name}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">RuntimeError: Unexpected error: CUDA_ERROR_NO_DEVICE
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果可用, 此时应该可以使用api类似如下调用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="n">base_url</span> <span class="o">=</span> <span class="s2">&#34;https://integrate.api.nvidia.com/v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">api_key</span> <span class="o">=</span> <span class="s2">&#34;$API_KEY_REQUIRED_IF_EXECUTING_OUTSIDE_NGC&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">completion</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="n">model</span><span class="o">=</span><span class="s2">&#34;meta/llama3-8b-instruct&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&#34;role&#34;</span><span class="p">:</span><span class="s2">&#34;user&#34;</span><span class="p">,</span><span class="s2">&#34;content&#34;</span><span class="p">:</span><span class="s2">&#34;你好&#34;</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">temperature</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">top_p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">stream</span><span class="o">=</span><span class="kc">True</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">completion</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&#34;&#34;</span><span class="p">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
