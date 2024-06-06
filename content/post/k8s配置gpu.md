@@ -135,6 +135,20 @@ I0529 06:16:45.473479       1 server.go:147] Starting to serve 'nvidia.com/gpu' 
 I0529 06:16:45.474646       1 server.go:154] Registered device plugin for 'nvidia.com/gpu' with Kubelet
 ```
 
+查看节点信息
+
+```bash
+kubectl describe node server
+# 可以看到类似字样 nvidia.com/gpu
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                1 (8%)      0 (0%)
+  memory             140Mi (0%)  600Mi (1%)
+  nvidia.com/gpu     1           1
+```
+
 ## 测试
 
 ```bash
