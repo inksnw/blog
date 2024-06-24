@@ -4,7 +4,7 @@ date: 2024-06-24T15:13:34+08:00
 
 ---
 
-最近使用helm sdk实现配置repo源,默认使用跳过tls验证参数,  发现`v3.11.1` 版本可以正常工作, `v3.14.1` 版本部分源不能正常工作, 报错tls: handshake failure
+最近使用helm sdk实现配置repo源,默认使用跳过tls验证参数,  发现`v3.11.1` 版本可以正常工作, `v3.14.1` 版本部分源不能正常工作, 报错 tls: handshake failure
 
 ## 复现
 
@@ -44,7 +44,7 @@ func main() {
 	resp, err = g.Get(indexURL,
 		getter.WithTimeout(5*time.Minute),
 		getter.WithURL(u),
-		getter.WithInsecureSkipVerifyTLS(false),
+		getter.WithInsecureSkipVerifyTLS(true),
 		getter.WithTLSClientConfig(cred.CertFile, cred.KeyFile, cred.CAFile),
 		getter.WithBasicAuth(cred.Username, cred.Password),
 	)
@@ -57,8 +57,8 @@ func main() {
 
 使用 `WithInsecureSkipVerifyTLS` 为 true 的情况下, 发现情况
 
-- nginx源 能正常访问
-- bitnami源报tls: handshake failure
+- nginx 源能正常访问
+- bitnami 源报 tls: handshake failure
 - 设置WithInsecureSkipVerifyTLS 为 false 就都可以访问
 - 手动访问 bitnami 发现有重定向的情况
 
@@ -128,4 +128,7 @@ func main() {
 }
 ```
 
-结果证明当配置了重定向更新ServerName逻辑后, 能正常访问了, 所以先回退sdk版本或把WithInsecureSkipVerifyTLS 设置为false吧, helm 命令行工具这个参数的默认值是 false 所以没能发现吧, 有空看要不要去水个pr
+结果证明当配置了重定向后主动更新 ServerName 逻辑, 就能正常访问了
+
+所以先回退sdk版本或把WithInsecureSkipVerifyTLS 设置为 false 吧,  有空看要不要去水个pr
+
