@@ -130,5 +130,7 @@ func main() {
 
 结果证明当配置了重定向后主动更新 ServerName 逻辑, 就能正常访问了
 
-所以先回退sdk版本或把WithInsecureSkipVerifyTLS 设置为 false 吧,  有空看要不要去水个pr
+所以先回退sdk版本或把WithInsecureSkipVerifyTLS 设置为 false 吧
+
+官方有给这个issue提pr, 但是至今还未合并 https://github.com/helm/helm/pull/9318
 
