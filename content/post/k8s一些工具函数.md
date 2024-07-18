@@ -557,3 +557,11 @@ kubectl label pods web platform=www
 kubectl config set-context --current --namespace production
 ```
 
+### 手动验证镜像源
+
+```bash
+curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/lanjing/server/manifests/2.0.4.2 --insecure
+curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/lanjing/server/tags/list --insecure
+curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/_catalog --insecure
+```
+
