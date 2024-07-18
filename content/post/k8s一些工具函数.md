@@ -560,8 +560,11 @@ kubectl config set-context --current --namespace production
 ### 手动验证镜像源
 
 ```bash
+# 具体镜像manifest信息
 curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/lanjing/server/manifests/2.0.4.2 --insecure
+# 具体镜像tag列表
 curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/lanjing/server/tags/list --insecure
+# 所有镜像
 curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/_catalog --insecure
 ```
 
