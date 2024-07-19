@@ -566,5 +566,7 @@ curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/lanjing/server/manifests
 curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/lanjing/server/tags/list --insecure
 # 所有镜像
 curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/_catalog --insecure
+# 请求详细
+ctr image pull docker.io/library/nginx:latest --http-dump
 ```
 
