@@ -1,7 +1,7 @@
 ---
 title: "Helm库的tls问题"
 date: 2024-06-24T15:13:34+08:00
-
+tags: ["k8s"]
 ---
 
 最近使用helm sdk实现配置repo源,默认使用跳过tls验证参数,  发现`v3.11.1` 版本可以正常工作, `v3.14.1` 版本部分源不能正常工作, 报错 tls: handshake failure

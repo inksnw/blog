@@ -9,8 +9,8 @@ tags: ["k8s"]
 下载离线安装包`700M`
 
 ```bash
-wget https://mirrors.tuna.tsinghua.edu.cn/github-release/goharbor/harbor/v2.10.0/harbor-offline-installer-v2.10.0.tgz
-tar -zxvf harbor-offline-installer-v2.10.0.tgz 
+wget https://mirrors.tuna.tsinghua.edu.cn/github-release/goharbor/harbor/v2.11.0/harbor-offline-installer-v2.11.0.tgz
+tar -zxvf harbor-offline-installer-v2.11.0.tgz 
 cd harbor
 cp harbor.yml.tmpl harbor.yml
 ```
