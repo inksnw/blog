@@ -555,6 +555,9 @@ kubectl rollout restart deployment/web
 kubectl scale --replicas=3 deployment/web
 kubectl label pods web platform=www
 kubectl config set-context --current --namespace production
+
+wget https://github.com/containerd/nerdctl/releases/download/v1.5.0/nerdctl-1.5.0-linux-amd64.tar.gz
+tar -zxvf nerdctl-1.5.0-linux-amd64.tar.gz -C /usr/local/bin/
 ```
 
 ### 手动验证镜像源
