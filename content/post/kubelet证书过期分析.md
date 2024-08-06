@@ -127,7 +127,7 @@ import (
 )
 
 var (
-	Endpoint = "192.168.50.50:6443"
+	Endpoint = "192.168.50.207:6443"
 )
 
 func main() {
@@ -158,6 +158,14 @@ func boot(token, Endpoint string) {
 				APIServerEndpoint: Endpoint,
 				Token:             token,
 			},
+		},
+	}
+	cfg.Timeouts = &kubeadm.Timeouts{
+		TLSBootstrap: &metav1.Duration{
+			Duration: 3 * time.Second,
+		},
+		Discovery: &metav1.Duration{
+			Duration: 3 * time.Second,
 		},
 	}
 
@@ -194,6 +202,43 @@ func createShortLivedBootstrapToken(client clientset.Interface) (string, error) 
 	}
 	return tokenStr, nil
 }
+```
+
+下载 go mod 依赖
+
+```sh
+
+#!/bin/bash
+
+VERSION=${1#"v"}
+if [ -z "$VERSION" ]; then
+  echo "Please specify the Kubernetes version: e.g."
+  exit 1
+fi
+
+set -euo pipefail
+
+# Find out all the replaced imports, make a list of them.
+MODS=($(
+  curl -sS "https://raw.githubusercontent.com/kubernetes/kubernetes/v${VERSION}/go.mod" |
+    sed -n 's|.*k8s.io/\(.*\) => ./staging/src/k8s.io/.*|k8s.io/\1|p'
+))
+
+# Now add those similar replace statements in the local go.mod file, but first find the version that
+# the Kubernetes is using for them.
+for MOD in "${MODS[@]}"; do
+  V=$(
+    go mod download -json "${MOD}@kubernetes-${VERSION}" |
+      sed -n 's|.*"Version": "\(.*\)".*|\1|p'
+  )
+
+  go mod edit "-replace=${MOD}=${MOD}@${V}"
+done
+
+go get "k8s.io/kubernetes@v${VERSION}"
+go mod download
 
 ```
+
+
 

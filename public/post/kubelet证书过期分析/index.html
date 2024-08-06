@@ -57,7 +57,7 @@
   <meta itemprop="description" content="源自一次环境问题, kubelet重启后, 报错 “command failed” err=“failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory” bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这里简单分析一下 官方文">
   <meta itemprop="datePublished" content="2023-12-03T10:31:47+08:00">
   <meta itemprop="dateModified" content="2023-12-03T10:31:47+08:00">
-  <meta itemprop="wordCount" content="1269">
+  <meta itemprop="wordCount" content="1428">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Kubelet证书过期分析">
@@ -134,7 +134,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-12-03 </span>
             
-            <span class="more-meta"> 约 1269 字 更新于 2023-12-03
+            <span class="more-meta"> 约 1428 字 更新于 2023-12-03
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -393,6 +393,14 @@
 </span><span class="lnt">83
 </span><span class="lnt">84
 </span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
@@ -413,7 +421,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Endpoint</span> <span class="p">=</span> <span class="s">&#34;192.168.50.50:6443&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Endpoint</span> <span class="p">=</span> <span class="s">&#34;192.168.50.207:6443&#34;</span>
 </span></span><span class="line"><span class="cl"><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
@@ -444,6 +452,14 @@
 </span></span><span class="line"><span class="cl">				<span class="nx">APIServerEndpoint</span><span class="p">:</span> <span class="nx">Endpoint</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">				<span class="nx">Token</span><span class="p">:</span>             <span class="nx">token</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">			<span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">cfg</span><span class="p">.</span><span class="nx">Timeouts</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">kubeadm</span><span class="p">.</span><span class="nx">Timeouts</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">TLSBootstrap</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Duration</span><span class="p">:</span> <span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Discovery</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Duration</span><span class="p">:</span> <span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">		<span class="p">},</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">
@@ -480,6 +496,73 @@
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">tokenStr</span><span class="p">,</span> <span class="kc">nil</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>下载 go mod 依赖</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#!/bin/bash</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">VERSION</span><span class="o">=</span><span class="si">${</span><span class="nv">1</span><span class="p">#</span><span class="s2">&#34;v&#34;</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$VERSION</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">echo</span> <span class="s2">&#34;Please specify the Kubernetes version: e.g.&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">exit</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">set</span> -euo pipefail
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Find out all the replaced imports, make a list of them.</span>
+</span></span><span class="line"><span class="cl"><span class="nv">MODS</span><span class="o">=(</span><span class="k">$(</span>
+</span></span><span class="line"><span class="cl">  curl -sS <span class="s2">&#34;https://raw.githubusercontent.com/kubernetes/kubernetes/v</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span><span class="s2">/go.mod&#34;</span> <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    sed -n <span class="s1">&#39;s|.*k8s.io/\(.*\) =&gt; ./staging/src/k8s.io/.*|k8s.io/\1|p&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="k">)</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Now add those similar replace statements in the local go.mod file, but first find the version that</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># the Kubernetes is using for them.</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> MOD in <span class="s2">&#34;</span><span class="si">${</span><span class="nv">MODS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">V</span><span class="o">=</span><span class="k">$(</span>
+</span></span><span class="line"><span class="cl">    go mod download -json <span class="s2">&#34;</span><span class="si">${</span><span class="nv">MOD</span><span class="si">}</span><span class="s2">@kubernetes-</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span>
+</span></span><span class="line"><span class="cl">      sed -n <span class="s1">&#39;s|.*&#34;Version&#34;: &#34;\(.*\)&#34;.*|\1|p&#39;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  go mod edit <span class="s2">&#34;-replace=</span><span class="si">${</span><span class="nv">MOD</span><span class="si">}</span><span class="s2">=</span><span class="si">${</span><span class="nv">MOD</span><span class="si">}</span><span class="s2">@</span><span class="si">${</span><span class="nv">V</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">go get <span class="s2">&#34;k8s.io/kubernetes@v</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">go mod download
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
