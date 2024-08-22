@@ -164,7 +164,7 @@
         <h1 id="vxlan">vxlan</h1>
 <p>VXLAN是Virtual eXtensible Local Area Network的缩写,是一个在传统Layer 3网络上架设出来的Layer 2 overlay网络</p>
 <h2 id="点对点模式">点对点模式</h2>
-<img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_55abc651d2676d86057d5a780c071c3c.jpg" alt="vxlan" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/vxlan使用_55abc651d2676d86057d5a780c071c3c.jpg" alt="vxlan" style="zoom:50%;" />
 <p>在逻辑上形成的VXLAN overlay网络环境如上图，虚线部分示意出来的Overlay Network和VXLAN Tunnel都是逻辑上的概念。容器不用感知底层物理网络，看起来对端是和自己在同一个二层环境里，就是像是在VTEP设备的上面直接构建了一条VXLAN Tunnel，把Overlay网络里的网络接口直接在二层打通。</p>
 <p>在IP地址分配后，Linux系统的路由表就会创建一条路由，去往<code>10.0.0.0/24</code>网段的报文走网络接口<code>vxlan0</code>出去。vm1上去往10.0.0.0/24的报文，在<code>vxlan0</code>上会做VXLAN封装，内层地址是<code>10.16.0.3</code>，外层地址是<code>192.168.50.29</code>。VXLAN报文通过物理网络达到对端vm2上的VETP vxlan0做VXLAN协议的解封装，从而结束整个过程。</p>
 <p>具体操作命令</p>
@@ -266,7 +266,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>导入<code>wireshark</code>查看</p>
-<img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_5886c9b8455b9de8ee387a511d7029e4.png" alt="Snipaste_2022-11-27_22-16-24" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/vxlan使用_5886c9b8455b9de8ee387a511d7029e4.png" alt="Snipaste_2022-11-27_22-16-24" style="zoom:50%;" />
 <h2 id="广播模式">广播模式</h2>
 <p>过arp泛洪来学习mac地址,即在vxlan子网内广播arp请求,对应节点响应.group指定多播组的地址,group的值保持一致就可以,有一定范围要求</p>
 <div class="highlight"><div class="chroma">
@@ -423,7 +423,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>此时的网络拓扑</p>
-<img src="http://inksnw.asuscomm.com:3001/blog/vxlan使用_e3661f8f12dff2de75b4b064fa116bce.jpg" alt="vxlan docker" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/vxlan使用_e3661f8f12dff2de75b4b064fa116bce.jpg" alt="vxlan docker" style="zoom:50%;" />
 <p>有了VXLAN接口的连接后，从vm1上docker容器发出的包到达docker网桥后，可以从网桥的VXLAN接口出去，从而报文在VETP(VXLAN接口)处被封装成VXLAN报文，再从物理网络上到达对端VETP所在的主机vm2。对端VTEP能正确解包VXLAN报文的话，随后即可将报文通过vm2上的docker网桥送到上层的docker容器中。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">

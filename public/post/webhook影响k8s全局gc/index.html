@@ -267,15 +267,15 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>查看kube-controller的日志会发现</p>
-<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_7716fbb60d4999a9a203c277c9d34364.png" alt="image-20231121155432905" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_7716fbb60d4999a9a203c277c9d34364.png" alt="image-20231121155432905" style="zoom:50%;" />
 <h2 id="原因追踪">原因追踪</h2>
 <p>逻辑在<code>pkg/controller/garbagecollector/garbagecollector.go</code> 183行</p>
 <p>gc会收集所有可删除的资源列表生成 <code>newResources</code></p>
-<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_d3f59a700dbbb28410a9f431edd093a3.png" alt="image-20231121154832747" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_d3f59a700dbbb28410a9f431edd093a3.png" alt="image-20231121154832747" style="zoom:50%;" />
 <p>为所有可删除的资源创建informer</p>
-<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_58e3285164444b1947f774b7d938d89f.png" alt="image-20231121155058272" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_58e3285164444b1947f774b7d938d89f.png" alt="image-20231121155058272" style="zoom:50%;" />
 <p>核心原因就在这里</p>
-<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_999ae8cda743b50757b01fe654de56a6.png" alt="image-20231121155142767" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_999ae8cda743b50757b01fe654de56a6.png" alt="image-20231121155142767" style="zoom:50%;" />
 <p>k8s要求所有可删除的资源的informer都同步完成才行, 而informer会调用list方法, 但是由于我们的crd使用的webhook还未安装/运行错误, 因此这个同步一直无法完成, 所以也影响到了其它资源的gc, 感觉这块的实现并不是很合理</p>
 <p>官方issue中也有提到这个, 但目前来看, 还未修复</p>
 <p><a href="https://github.com/kubernetes/kubernetes/issues/110720">https://github.com/kubernetes/kubernetes/issues/110720</a></p>

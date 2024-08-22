@@ -53,4 +53,4 @@ func main() {
 
 访问测试
 
-<img src="http://inksnw.asuscomm.com:3001/blog/模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="Snipaste_2023-06-21_23-00-29" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="Snipaste_2023-06-21_23-00-29" style="zoom:50%;" />

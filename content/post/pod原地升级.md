@@ -22,7 +22,7 @@ Kubernetes 原生工作负载，不论是 Deployment、StatefulSet 还是 Pod �
 
 核心逻辑都在`kubernetes-1.26.5/pkg/kubelet/kuberuntime/kuberuntime_manager.go` 的 **678** 行 `func (m *kubeGenericRuntimeManager) SyncPod(...)` 中, 在一开始会检测`func PodSandboxChanged(pod *v1.Pod, podStatus *kubecontainer.PodStatus) (bool, uint32, string)` 
 
-<img src="http://inksnw.asuscomm.com:3001/blog/pod原地升级_c957f90c907a280f9b9a2666154c5796.png" alt="image-20230918153847126" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/pod原地升级_c957f90c907a280f9b9a2666154c5796.png" alt="image-20230918153847126" style="zoom:50%;" />
 
 可以看到有几点判断条件,
 
@@ -40,7 +40,7 @@ Kubernetes 原生工作负载，不论是 Deployment、StatefulSet 还是 Pod �
 
 那这个数组的数据是如何加入的, 在625 行看到, 当 `containerChanged(&container, containerStatus)` 为真时, 即会被加入
 
-<img src="http://inksnw.asuscomm.com:3001/blog/pod原地升级_571dfacd2ee32a7d3f0f03d2983b3111.png" alt="image-20230918155019412" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/pod原地升级_571dfacd2ee32a7d3f0f03d2983b3111.png" alt="image-20230918155019412" style="zoom:50%;" />
 
 继续看`containerChanged`的逻辑, 这时就比较简单了
 

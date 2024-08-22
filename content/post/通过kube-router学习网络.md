@@ -470,7 +470,7 @@ port no mac addr                is local?       ageing timer
 
 ### pod到pod(同主机)
 
-<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_52247654491a5c826a972cfff611648d.png" alt="image-20230728095909030" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_52247654491a5c826a972cfff611648d.png" alt="image-20230728095909030" style="zoom:50%;" />
 
 创建两个同主机Pod
 
@@ -598,7 +598,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 
 ### pod到outside
 
-<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_e415d248c4d6991e7217ca5117c3b79a.png" alt="image-20230728105027087" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_e415d248c4d6991e7217ca5117c3b79a.png" alt="image-20230728105027087" style="zoom:50%;" />
 
 **查看iptables规则**
 
@@ -655,7 +655,7 @@ Members:
 
 ### outside到svc到pod
 
-<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_6ca604634e8c6403b21587d64077648a.png" alt="image-20230728111722176" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_6ca604634e8c6403b21587d64077648a.png" alt="image-20230728111722176" style="zoom:50%;" />
 
 **iptables策略**
 
@@ -672,7 +672,7 @@ Members:
 
 ### pod到svc到pod
 
-<img src="http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_34d789a9a265ed643f9579a7e32f514e.png" alt="image-20230728113136373" style="zoom: 50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_34d789a9a265ed643f9579a7e32f514e.png" alt="image-20230728113136373" style="zoom: 50%;" />
 
 创建示例
 

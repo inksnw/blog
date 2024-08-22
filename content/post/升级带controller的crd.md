@@ -162,7 +162,7 @@ kubectl delete crd crontabs.stable.example.com
 
 ## 源码分析
 
-<img src="http://inksnw.asuscomm.com:3001/blog/升级带controller的crd_9d09e21d90b2a27de40389b5034a2499.png" alt="image-20231211185944756" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/升级带controller的crd_9d09e21d90b2a27de40389b5034a2499.png" alt="image-20231211185944756" style="zoom:50%;" />
 
 当`served` 为false时, 就会跳过写入`addAPIServiceToSync`
 
@@ -184,7 +184,7 @@ func (c *autoRegisterController) addAPIServiceToSync(in *v1.APIService, syncType
 
 `addAPIServiceToSync` 会把数据写入到一个队列中, 这个队列会被取出注册api服务
 
-<img src="http://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
 
 如同这个字段的注释, api 服务关了, controller自然也就不运行了
 

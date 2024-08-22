@@ -174,7 +174,7 @@
 <h3 id="sandbox重建">sandbox重建</h3>
 <p>我们知道, Pod IP 的网络名称空间等都是依附于sandbox容器的, 只要sandbox重建, 这些信息都会重建</p>
 <p>核心逻辑都在<code>kubernetes-1.26.5/pkg/kubelet/kuberuntime/kuberuntime_manager.go</code> 的 <strong>678</strong> 行 <code>func (m *kubeGenericRuntimeManager) SyncPod(...)</code> 中, 在一开始会检测<code>func PodSandboxChanged(pod *v1.Pod, podStatus *kubecontainer.PodStatus) (bool, uint32, string)</code></p>
-<img src="http://inksnw.asuscomm.com:3001/blog/pod原地升级_c957f90c907a280f9b9a2666154c5796.png" alt="image-20230918153847126" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/pod原地升级_c957f90c907a280f9b9a2666154c5796.png" alt="image-20230918153847126" style="zoom:50%;" />
 <p>可以看到有几点判断条件,</p>
 <ul>
 <li>启动的sandbox数量大于 1</li>
@@ -186,7 +186,7 @@
 <p>在<code>kubernetes-1.26.5/pkg/kubelet/kuberuntime/kuberuntime_manager.go</code> 的 <strong>900</strong> 行, 可以看到<code>podContainerChanges.ContainersToStart</code>中的容器会被启动,</p>
 <p><img src="https://inksnw.asuscomm.com:3001/blog/pod%E5%8E%9F%E5%9C%B0%E5%8D%87%E7%BA%A7_5fbc7fdb7fd567c756473841aac9584e.png" alt="image-20230918154534223"></p>
 <p>那这个数组的数据是如何加入的, 在625 行看到, 当 <code>containerChanged(&amp;container, containerStatus)</code> 为真时, 即会被加入</p>
-<img src="http://inksnw.asuscomm.com:3001/blog/pod原地升级_571dfacd2ee32a7d3f0f03d2983b3111.png" alt="image-20230918155019412" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/pod原地升级_571dfacd2ee32a7d3f0f03d2983b3111.png" alt="image-20230918155019412" style="zoom:50%;" />
 <p>继续看<code>containerChanged</code>的逻辑, 这时就比较简单了</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">

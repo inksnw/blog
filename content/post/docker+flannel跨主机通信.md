@@ -75,7 +75,7 @@ DOCKER_NETWORK_OPTIONS=" --bip=10.3.48.1/24 --ip-masq=true --mtu=1450"
 
 此时 `etcd` 中也会出现这台主机的信息, 这个图形管理工具是 `etcdkeeper`
 
-<img src="http://inksnw.asuscomm.com:3001/blog/docker+flannel跨主机通信_6103c187ed1c704b3452b66f9bcef685.png" alt="image-20221124195408776" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/docker+flannel跨主机通信_6103c187ed1c704b3452b66f9bcef685.png" alt="image-20221124195408776" style="zoom:50%;" />
 
 
 

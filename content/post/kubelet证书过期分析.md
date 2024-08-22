@@ -30,7 +30,7 @@ rm -rf /var/lib/kubelet/pki/*
 rm -rf /etc/kubernetes/bootstrap-kubelet.conf
 ```
 
-<img src="http://inksnw.asuscomm.com:3001/blog/kubelet证书过期分析_d3eb52476fd77144ec910bb59ef5af10.png" alt="image-20231203110835717" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/kubelet证书过期分析_d3eb52476fd77144ec910bb59ef5af10.png" alt="image-20231203110835717" style="zoom:50%;" />
 
 kubelet启动时, 检测`isClientConfigStillValid` 旧证书失败, 去寻找 bootstrap 文件也不存在, 于是报错
 

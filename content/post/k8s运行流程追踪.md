@@ -84,7 +84,7 @@ tracing:
 http://127.0.0.1:16686/search
 ```
 
-<img src="http://inksnw.asuscomm.com:3001/blog/k8s运行流程追踪_08e48e93a114b7d2efda4c3eb128ddda.png" alt="image-20230915135617342" style="zoom:67%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/k8s运行流程追踪_08e48e93a114b7d2efda4c3eb128ddda.png" alt="image-20230915135617342" style="zoom:67%;" />
 
 此时 jaeger 的界面上已可以看到运行的流程, 对jaeger 的ui不太熟悉, 没有找出一个很好的示例, 由于是开发者自己决定在代码的哪些位置添加追踪点, 可能并不能满足使用者都对追踪的需求, 可以试下字节跳动开源的 Kelemetry
 

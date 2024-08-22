@@ -69,7 +69,7 @@ http://inksnw.asuscomm.com:3000/inksnw/grpc
 
 ## grpc-gateway
 
-<img src="http://inksnw.asuscomm.com:3001/blog/grpc示例_5874e0789443312fbfaba72906001c9d.png" alt="grpc-gateway" style="zoom: 50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/grpc示例_5874e0789443312fbfaba72906001c9d.png" alt="grpc-gateway" style="zoom: 50%;" />
 
 当 HTTP 请求到达 gRPC-Gateway 时，它将 JSON 数据解析为 Protobuf 消息。然后，它使用解析的 Protobuf 消息发出正常的 Go gRPC 客户端请求。Go gRPC 客户端将 Protobuf 结构编码为 Protobuf 二进制格式，然后将其发送到 gRPC 服务器。gRPC 服务器处理请求并以 Protobuf 二进制格式返回响应。Go gRPC 客户端将其解析为 Protobuf 消息，并将其返回到 gRPC-Gateway，后者将 Protobuf 消息编码为 JSON 并将其返回给原始客户端。
 

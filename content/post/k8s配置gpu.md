@@ -192,15 +192,15 @@ nim下的镜像需要单独申请访问权限才能拉取
 
 进入如下网址 https://catalog.ngc.nvidia.com/orgs/nim/teams/meta/containers/llama3-8b-instruct, 点击右上角的 `get container`, 填写信息后, 会收到邮件,再次查看此页面就可以看到镜像版本了,
 
-<img src="http://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_811f8eab270e84eb1d54aa8c204e0662.png" alt="企业微信截图_76efa6ae-25da-402b-aa91-953a73ebe112" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_811f8eab270e84eb1d54aa8c204e0662.png" alt="企业微信截图_76efa6ae-25da-402b-aa91-953a73ebe112" style="zoom:50%;" />
 
 收到允许邮件后, 再次查看tag如图, 此时生成的ncg api key才能拉取镜像, 否则会报权限问题
 
-<img src="http://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_28b41536d7a1d9b403c23069effd2dca.png" alt="image-20240606100402704" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_28b41536d7a1d9b403c23069effd2dca.png" alt="image-20240606100402704" style="zoom:50%;" />
 
 进入 https://org.ngc.nvidia.com/setup  申请key
 
-<img src="http://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_613a7870f03e15455bbcacc0e62cbda2.png" alt="image-20240606100527318" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/k8s配置gpu_副本_613a7870f03e15455bbcacc0e62cbda2.png" alt="image-20240606100527318" style="zoom:50%;" />
 
 ### 安装
 

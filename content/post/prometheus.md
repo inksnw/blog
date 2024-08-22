@@ -219,7 +219,7 @@ http://192.168.50.40:32127/metrics
 
 一个业务pod通过exporter生成metrics svc,再由ServiceMonitor通过标签和port名筛选找到,operator会把这个信息转化成相应的prometheus配置文件
 
-<img src="http://inksnw.asuscomm.com:3001/blog/prometheus_e8a23cc25c96c0bc0f620b7f48fd4208.png" alt="prometheus-architecture" style="zoom: 33%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/prometheus_e8a23cc25c96c0bc0f620b7f48fd4208.png" alt="prometheus-architecture" style="zoom: 33%;" />
 
 ```yaml
 kind: ServiceMonitor

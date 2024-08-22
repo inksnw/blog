@@ -25,7 +25,7 @@ ingress的本质就是一个南北向的网关,内置一个Nginx,控制器(Opera
 
 - Local表示：流量只发给本机的Pod。
 
-<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_ad0022e96a73a6a8d7fb41c6b6f0c1ff.png" alt="image-20220922222116679" style="zoom: 50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/nginx-ingress_ad0022e96a73a6a8d7fb41c6b6f0c1ff.png" alt="image-20220922222116679" style="zoom: 50%;" />
 
 ### Cluster
 
@@ -47,7 +47,7 @@ Kube-proxy转发时会保留源IP。即：容器收到的报文，看到源IP地
 
 同时，由于本机不会跨节点转发报文，所以要想所有节点上的容器有负载均衡，就需要上一级的Loadbalancer来做了。
 
-<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_efba8c2e767b0cf86f72a7ace17c97ea.png" alt="1464583-20200707174845450-1319538618" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/nginx-ingress_efba8c2e767b0cf86f72a7ace17c97ea.png" alt="1464583-20200707174845450-1319538618" style="zoom:50%;" />
 
 不过流量还是会不太均衡，如上图，Loadbalancer看到的是2个后端（把节点的IP），每个Node上面几个Pod对Loadbalancer来说是不知道的。
 
@@ -108,7 +108,7 @@ curl -H 'Host:demo.localdev.me' http://192.168.50.40:30443
 
 发现其实本质就是配置了nginx的域名转发
 
-<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_bdc7364de5da8c2f4e185ea3e55ef455.png" alt="image-20220922213751633" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/nginx-ingress_bdc7364de5da8c2f4e185ea3e55ef455.png" alt="image-20220922213751633" style="zoom:50%;" />
 
 ## 配置https
 
@@ -237,7 +237,7 @@ ingress-nginx-controller   NodePort   10.233.17.206   <none>        80:32021/TCP
 
 访问测试
 
-<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_08c782a6666c57fcfb6e01c47b1d8fe3.png" alt="image-20230527123409161" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/nginx-ingress_08c782a6666c57fcfb6e01c47b1d8fe3.png" alt="image-20230527123409161" style="zoom:50%;" />
 
 
 
@@ -277,7 +277,7 @@ annotations:
 http://demo.localdev.me:30443/
 ```
 
-<img src="http://inksnw.asuscomm.com:3001/blog/nginx-ingress_8202422854fee1e25162af095b4e22ef.jpg" alt="Snipaste_2022-09-23_10-26-22" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/nginx-ingress_8202422854fee1e25162af095b4e22ef.jpg" alt="Snipaste_2022-09-23_10-26-22" style="zoom:50%;" />
 
 ## 限流设置
 

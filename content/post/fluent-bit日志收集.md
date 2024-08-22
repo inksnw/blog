@@ -134,7 +134,7 @@ yellow open fluent-bit x1FyeUYwTT-WheIwiHzq6A 1 1 107 0 187.9kb 187.9kb
 
 查询
 
-<img src="http://inksnw.asuscomm.com:3001/blog/fluent-bit日志收集_1539f772172be7ccf3a9f07e30b0579d.png" alt="image-20220928002559025" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/fluent-bit日志收集_1539f772172be7ccf3a9f07e30b0579d.png" alt="image-20220928002559025" style="zoom:50%;" />
 
 ## input配置
 

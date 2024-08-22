@@ -65,7 +65,7 @@ kubectl get pod
 
 查看kube-controller的日志会发现
 
-<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_7716fbb60d4999a9a203c277c9d34364.png" alt="image-20231121155432905" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_7716fbb60d4999a9a203c277c9d34364.png" alt="image-20231121155432905" style="zoom:50%;" />
 
 ## 原因追踪
 
@@ -73,15 +73,15 @@ kubectl get pod
 
 gc会收集所有可删除的资源列表生成 `newResources`
 
-<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_d3f59a700dbbb28410a9f431edd093a3.png" alt="image-20231121154832747" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_d3f59a700dbbb28410a9f431edd093a3.png" alt="image-20231121154832747" style="zoom:50%;" />
 
 为所有可删除的资源创建informer
 
-<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_58e3285164444b1947f774b7d938d89f.png" alt="image-20231121155058272" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_58e3285164444b1947f774b7d938d89f.png" alt="image-20231121155058272" style="zoom:50%;" />
 
 核心原因就在这里
 
-<img src="http://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_999ae8cda743b50757b01fe654de56a6.png" alt="image-20231121155142767" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/webhook影响k8s全局gc_999ae8cda743b50757b01fe654de56a6.png" alt="image-20231121155142767" style="zoom:50%;" />
 
 k8s要求所有可删除的资源的informer都同步完成才行, 而informer会调用list方法, 但是由于我们的crd使用的webhook还未安装/运行错误, 因此这个同步一直无法完成, 所以也影响到了其它资源的gc, 感觉这块的实现并不是很合理
 
