@@ -215,7 +215,7 @@ curl http://nginx.inksnw.com:32016/
 
 在https://jwt.io/ 生成 需要的jwt信息
 
-![Snipaste_2022-08-15_13-56-59](http://inksnw.asuscomm.com:3001/blog/Snipaste_2022-08-15_13-56-59.jpg)
+![Snipaste_2022-08-15_13-56-59](https://inksnw.asuscomm.com:3001/blog/Snipaste_2022-08-15_13-56-59.jpg)
 
 再次访问
 

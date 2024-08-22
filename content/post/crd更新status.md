@@ -175,7 +175,7 @@ Patch+subresources 预期: 3, 实际spec: 2, 实际status: 3
 
 在`kubernetes-1.26.5/staging/src/k8s.io/apiextensions-apiserver/pkg/apiserver/customresource_handler.go` 342行定义了如何处理`/status`请求
 
-![image-20230914163904740](http://inksnw.asuscomm.com:3001/blog/crd更新status_61f5f9a9c7d91d6f2180d2609a171748.png)
+![image-20230914163904740](https://inksnw.asuscomm.com:3001/blog/crd更新status_61f5f9a9c7d91d6f2180d2609a171748.png)
 
 `r.serveStatus` 和 `r.serveResource` 更新时都会调用 `handlers.UpdateResource(storage, requestScope, r.admission)` ,但传入的 storage不同, 也印证了上文说的, 更新子资源与更新主资源各自是各自的逻辑
 

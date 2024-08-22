@@ -388,7 +388,7 @@ curl http://prods.inksnw.com:32016/p/123
 # 浏览器访问 http://kiali.inksnw.com:32016/
 ```
 
-![iShot_2022-08-13_10.50.11](http://inksnw.asuscomm.com:3001/blog/iShot_2022-08-13_10.50.11-20220813105208779.png)
+![iShot_2022-08-13_10.50.11](https://inksnw.asuscomm.com:3001/blog/iShot_2022-08-13_10.50.11-20220813105208779.png)
 
 ### 限流测试
 

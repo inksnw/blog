@@ -57,4 +57,4 @@ kube-system           calico-node-rf4qg                                      1/1
 
 至此,就实现了抓取k8s的请求的功能, 同样的使用`client-go`时,消息也可以被抓取
 
-![image-20230523172335789](http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_d59557bce6f984ecba8943a3103977eb.png)
+![image-20230523172335789](https://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_d59557bce6f984ecba8943a3103977eb.png)

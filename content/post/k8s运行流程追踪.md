@@ -121,4 +121,4 @@ kubectl create deployment demo --image=httpd --port=80
 
 可以看到以Kelemetry 这种方式收集, 可能更适合追踪
 
-![image-20230915144115722](http://inksnw.asuscomm.com:3001/blog/k8s运行流程追踪_fb13bd9e5ad48d7b6dd2d9ca2d637485.png)
+![image-20230915144115722](https://inksnw.asuscomm.com:3001/blog/k8s运行流程追踪_fb13bd9e5ad48d7b6dd2d9ca2d637485.png)

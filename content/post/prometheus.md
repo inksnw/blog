@@ -148,7 +148,7 @@ data:
 http://192.168.50.40:30509/status
 ```
 
-![image-20220919014046228](http://inksnw.asuscomm.com:3001/blog/prometheus_59c00197e79cd0cdb7c4e4c68e18f6fc.png)
+![image-20220919014046228](https://inksnw.asuscomm.com:3001/blog/prometheus_59c00197e79cd0cdb7c4e4c68e18f6fc.png)
 
 > Active connections: 当前nginx正在处理的活动连接数.
 >
@@ -213,7 +213,7 @@ spec:
 http://192.168.50.40:32127/metrics
 ```
 
-![Snipaste_2022-09-19_01-20-30](http://inksnw.asuscomm.com:3001/blog/prometheus_b4e0607fb2e115113f0f97a75ef72387.png)
+![Snipaste_2022-09-19_01-20-30](https://inksnw.asuscomm.com:3001/blog/prometheus_b4e0607fb2e115113f0f97a75ef72387.png)
 
 ## 创建ServiceMonitor
 
@@ -255,11 +255,11 @@ kubectl port-forward svc/prometheus-k8s 9090:9090 -n kubesphere-monitoring-syste
 
 ### 查看服务发现
 
-![Snipaste_2022-09-19_01-31-48](http://inksnw.asuscomm.com:3001/blog/prometheus_caf8d8233205d8c93e40a9a12d54ecec.png)
+![Snipaste_2022-09-19_01-31-48](https://inksnw.asuscomm.com:3001/blog/prometheus_caf8d8233205d8c93e40a9a12d54ecec.png)
 
 ### 查询数据
 
-![image-20220919022556769](http://inksnw.asuscomm.com:3001/blog/prometheus_a610ae00f28947f25fcba182f52bcc32.png)
+![image-20220919022556769](https://inksnw.asuscomm.com:3001/blog/prometheus_a610ae00f28947f25fcba182f52bcc32.png)
 
 ## 创建一个告警规则
 
@@ -316,8 +316,8 @@ spec:
 
 ### 查看是否生效
 
-![image-20220919025117742](http://inksnw.asuscomm.com:3001/blog/prometheus_c096e7974f4018b110d8693cc717b8a8.png)
+![image-20220919025117742](https://inksnw.asuscomm.com:3001/blog/prometheus_c096e7974f4018b110d8693cc717b8a8.png)
 
 触发告警
 
-![image-20220919025150230](http://inksnw.asuscomm.com:3001/blog/prometheus_349a5dd3f228633614cc4c09a862e63b.png)
+![image-20220919025150230](https://inksnw.asuscomm.com:3001/blog/prometheus_349a5dd3f228633614cc4c09a862e63b.png)

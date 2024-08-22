@@ -528,7 +528,7 @@ listening on kube-bridge, link-type EN10MB (Ethernet), capture size 262144 bytes
 
 ### pod到pod(不同主机)
 
-![image-20230728104828121](http://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_f95047b417b24690ebe10a0de69b79da.png)
+![image-20230728104828121](https://inksnw.asuscomm.com:3001/blog/通过kube-router学习网络1_f95047b417b24690ebe10a0de69b79da.png)
 
 #### ip-forward
 

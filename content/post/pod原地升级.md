@@ -36,7 +36,7 @@ Kubernetes 原生工作负载，不论是 Deployment、StatefulSet 还是 Pod �
 
 在`kubernetes-1.26.5/pkg/kubelet/kuberuntime/kuberuntime_manager.go` 的 **900** 行, 可以看到`podContainerChanges.ContainersToStart`中的容器会被启动, 
 
-![image-20230918154534223](http://inksnw.asuscomm.com:3001/blog/pod原地升级_5fbc7fdb7fd567c756473841aac9584e.png)
+![image-20230918154534223](https://inksnw.asuscomm.com:3001/blog/pod原地升级_5fbc7fdb7fd567c756473841aac9584e.png)
 
 那这个数组的数据是如何加入的, 在625 行看到, 当 `containerChanged(&container, containerStatus)` 为真时, 即会被加入
 

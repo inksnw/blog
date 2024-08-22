@@ -64,7 +64,7 @@ func main() {
 
 查看github看到有一个提交更改了 https://github.com/helm/helm/commit/c94306f75d73a84a4e81b93ecfbe70ef4ca79998 一个逻辑的进入条件
 
-![image-20240624153140680](http://inksnw.asuscomm.com:3001/blog/helm库的tls问题_2db07e7baaf2681d1582b4a2b26ede9b.png)
+![image-20240624153140680](https://inksnw.asuscomm.com:3001/blog/helm库的tls问题_2db07e7baaf2681d1582b4a2b26ede9b.png)
 
 单步调试代码, 发现新旧版本区别就是是否设置了 tls 的serverName 值, 怀疑可能是serverName只在第一次访问设置了, 后续重定向后域名就变了, 于是tls验证就失败了
 

@@ -103,5 +103,5 @@ func main() {
 
 等待apiserver启动后, 可以看到鉴权已由我们自己服务来实现
 
-![Snipaste_2023-06-16_00-21-07](http://inksnw.asuscomm.com:3001/blog/k8s使用外部权限认证_3e96ae7d4eb4b7fb38fc88d30acf0131.png)
+![Snipaste_2023-06-16_00-21-07](https://inksnw.asuscomm.com:3001/blog/k8s使用外部权限认证_3e96ae7d4eb4b7fb38fc88d30acf0131.png)
 
