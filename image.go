@@ -20,7 +20,7 @@ import (
 const (
 	endpoint   = "192.168.50.87:9000"
 	bucketName = "blog"
-	url        = "http://inksnw.asuscomm.com:3001"
+	url        = "https://inksnw.asuscomm.com:3001"
 )
 
 type Info struct {

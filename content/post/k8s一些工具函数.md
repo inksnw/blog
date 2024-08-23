@@ -573,3 +573,33 @@ curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/_catalog --insecure
 ctr image pull docker.io/library/nginx:latest --http-dump
 ```
 
+### 拉取主仓依赖
+
+```
+./hack.sh v1.31.0
+```
+
+```bash
+set -euo pipefail
+
+VERSION=${1#"v"}
+if [ -z "$VERSION" ]; then
+    echo "Must specify version!"
+    exit 1
+fi
+MODS=($(
+    curl -sS https://raw.githubusercontent.com/kubernetes/kubernetes/v${VERSION}/go.mod |
+    sed -n 's|.*k8s.io/\(.*\) => ./staging/src/k8s.io/.*|k8s.io/\1|p'
+))
+for MOD in "${MODS[@]}"; do
+    V=$(
+        go mod download -json "${MOD}@kubernetes-${VERSION}" |
+        sed -n 's|.*"Version": "\(.*\)".*|\1|p'
+    )
+    go mod edit "-replace=${MOD}=${MOD}@${V}"
+done
+go get "k8s.io/kubernetes@v${VERSION}"
+```
+
+
+

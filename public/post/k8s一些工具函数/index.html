@@ -57,7 +57,7 @@
   <meta itemprop="description" content="通用的server-side apply 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 package main import ( &#34;context&#34; corev1">
   <meta itemprop="datePublished" content="2023-06-15T22:32:54+08:00">
   <meta itemprop="dateModified" content="2023-06-15T22:32:54+08:00">
-  <meta itemprop="wordCount" content="2011">
+  <meta itemprop="wordCount" content="2092">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="k8s一些工具函数">
@@ -134,7 +134,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-06-15 </span>
             
-            <span class="more-meta"> 约 2011 字 更新于 2023-06-15
+            <span class="more-meta"> 约 2092 字 更新于 2023-06-15
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -163,6 +163,7 @@
             <li><a href="#使用k8s仓库">使用k8s仓库</a></li>
             <li><a href="#一些命令">一些命令</a></li>
             <li><a href="#手动验证镜像源">手动验证镜像源</a></li>
+            <li><a href="#拉取主仓依赖">拉取主仓依赖</a></li>
           </ul>
         </li>
       </ul>
@@ -1224,6 +1225,59 @@
 </span></span><span class="line"><span class="cl">curl -s -u lanjing:xxx https://hub.kubesphere.com.cn/v2/_catalog --insecure
 </span></span><span class="line"><span class="cl"><span class="c1"># 请求详细</span>
 </span></span><span class="line"><span class="cl">ctr image pull docker.io/library/nginx:latest --http-dump
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="拉取主仓依赖">拉取主仓依赖</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">./hack.sh v1.31.0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">set</span> -euo pipefail
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">VERSION</span><span class="o">=</span><span class="si">${</span><span class="nv">1</span><span class="p">#</span><span class="s2">&#34;v&#34;</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$VERSION</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;Must specify version!&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">exit</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="nv">MODS</span><span class="o">=(</span><span class="k">$(</span>
+</span></span><span class="line"><span class="cl">    curl -sS https://raw.githubusercontent.com/kubernetes/kubernetes/v<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>/go.mod <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    sed -n <span class="s1">&#39;s|.*k8s.io/\(.*\) =&gt; ./staging/src/k8s.io/.*|k8s.io/\1|p&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="k">)</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> MOD in <span class="s2">&#34;</span><span class="si">${</span><span class="nv">MODS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">V</span><span class="o">=</span><span class="k">$(</span>
+</span></span><span class="line"><span class="cl">        go mod download -json <span class="s2">&#34;</span><span class="si">${</span><span class="nv">MOD</span><span class="si">}</span><span class="s2">@kubernetes-</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span>
+</span></span><span class="line"><span class="cl">        sed -n <span class="s1">&#39;s|.*&#34;Version&#34;: &#34;\(.*\)&#34;.*|\1|p&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">)</span>
+</span></span><span class="line"><span class="cl">    go mod edit <span class="s2">&#34;-replace=</span><span class="si">${</span><span class="nv">MOD</span><span class="si">}</span><span class="s2">=</span><span class="si">${</span><span class="nv">MOD</span><span class="si">}</span><span class="s2">@</span><span class="si">${</span><span class="nv">V</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span><span class="line"><span class="cl">go get <span class="s2">&#34;k8s.io/kubernetes@v</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span><span class="s2">&#34;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
