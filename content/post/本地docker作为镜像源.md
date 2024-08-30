@@ -1,7 +1,7 @@
 ---
 title: "本地docker作为镜像源"
 date: 2024-08-30T15:48:13+08:00
-draft: true
+tags: ["k8s"]
 ---
 
 以前就有个想法, 一个节点拉取了镜像, 其它节点能不能直接以这个节点为源再拉取, 今天发现有一个项目已经实现了https://github.com/spegel-org/spegel , 功能包括以存在的containerd为镜像源+p2p分发, 这里简单分析一个镜像源
