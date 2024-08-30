@@ -1,5 +1,5 @@
 ---
-title: "本地docker作为镜像源"
+title: "节点docker作为镜像源"
 date: 2024-08-30T15:48:13+08:00
 tags: ["k8s"]
 ---
