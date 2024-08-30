@@ -4,7 +4,7 @@ date: 2024-08-30T15:48:13+08:00
 tags: ["k8s"]
 ---
 
-以前就有个想法, 一个节点拉取了镜像, 其它节点能不能直接以这个节点为源再拉取, 今天发现有一个项目已经实现了https://github.com/spegel-org/spegel , 功能包括以存在的containerd为镜像源+p2p分发, 这里简单分析一个镜像源
+以前就有个想法, 一个节点拉取了镜像, 其它节点能不能直接以这个节点为源再拉取, 今天发现有一个[ spegel 项目](https://github.com/spegel-org/spegel)已经实现了 , 功能包括以存在的containerd为镜像源+p2p分发, 这里简单分析一个镜像源
 
 ### 最简单实现
 
@@ -249,7 +249,7 @@ func DetermineMediaType(b []byte) (string, error) {
 }
 ```
 
-代码逻辑比较简单主要实现两个路由一个是查询`manifest` 镜像层级配置清单,  一个是根据清单下载资源
+代码逻辑比较简单主要实现两个路由一个是查询 `manifest` 镜像层级配置清单,  一个是根据清单下载 `Blob` 资源
 
 ### 验证
 
@@ -259,7 +259,7 @@ shell 验证
 curl http://127.0.0.1:5000/v2/mirrorgooglecontainers/defaultbackend-amd64/manifests/1.4 
 ```
 
-manifest清单
+响应返回 manifest 清单
 
 ```json
 {
@@ -283,14 +283,14 @@ manifest清单
 在主机上查看,可以看到确实有这层资源
 
 ```bash
-root@base: ls -l /var/lib/containerd/io.containerd.content.v1.content/blobs/sha256|grep 846921f0fe
--r--r--r-- 1 root root      1635 Jun 21 02:24 846921f0fe0e57df9e4d4961c0c4af481bf545966b5f61af68e188837363530e
+➜ ls -ltrh /var/lib/containerd/io.containerd.content.v1.content/blobs/sha256|grep 5f68dfd9f8d7
+-r--r--r-- 1 root root 1.8M Jun 21 02:24 5f68dfd9f8d78f3535856ecc443b69b110c4003bd402e0e45996ef85b93cce79
 ```
 
 手动拉取
 
 ```bash
-curl  -o tt.tgz http://127.0.0.1:5000/v2/mirrorgooglecontainers/defaultbackend-amd64/blobs/sha256:846921f0fe0e57df9e4d4961c0c4af481bf545966b5f61af68e188837363530e
+curl  -o tt.tgz http://127.0.0.1:5000/v2/mirrorgooglecontainers/defaultbackend-amd64/blobs/sha256:5f68dfd9f8d78f3535856ecc443b69b110c4003bd402e0e45996ef85b93cce79
 ```
 
 使用docker 拉取,配置镜像源

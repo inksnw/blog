@@ -13,7 +13,7 @@
       <pubDate>Fri, 30 Aug 2024 15:48:13 +0800</pubDate>
       
       <guid>https://inksnw.asuscomm.com:3001/post/%E6%9C%AC%E5%9C%B0docker%E4%BD%9C%E4%B8%BA%E9%95%9C%E5%83%8F%E6%BA%90/</guid>
-      <description>&lt;p&gt;以前就有个想法, 一个节点拉取了镜像, 其它节点能不能直接以这个节点为源再拉取, 今天发现有一个项目已经实现了https://github.com/spegel-org/spegel , 功能包括以存在的containerd为镜像源+p2p分发, 这里简单分析一个镜像源&lt;/p&gt;
+      <description>&lt;p&gt;以前就有个想法, 一个节点拉取了镜像, 其它节点能不能直接以这个节点为源再拉取, 今天发现有一个&lt;a href=&#34;https://github.com/spegel-org/spegel&#34;&gt; spegel 项目&lt;/a&gt;已经实现了 , 功能包括以存在的containerd为镜像源+p2p分发, 这里简单分析一个镜像源&lt;/p&gt;
 &lt;h3 id=&#34;最简单实现&#34;&gt;最简单实现&lt;/h3&gt;
 &lt;p&gt;这个需求最简单办法可以利用linux管道,直接转移&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -485,7 +485,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;代码逻辑比较简单主要实现两个路由一个是查询&lt;code&gt;manifest&lt;/code&gt; 镜像层级配置清单,  一个是根据清单下载资源&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;代码逻辑比较简单主要实现两个路由一个是查询 &lt;code&gt;manifest&lt;/code&gt; 镜像层级配置清单,  一个是根据清单下载 &lt;code&gt;Blob&lt;/code&gt; 资源&lt;/p&gt;
 &lt;h3 id=&#34;验证&#34;&gt;验证&lt;/h3&gt;
 &lt;p&gt;shell 验证&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -496,7 +496,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;curl http://127.0.0.1:5000/v2/mirrorgooglecontainers/defaultbackend-amd64/manifests/1.4 
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;manifest清单&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;响应返回 manifest 清单&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -542,8 +542,8 @@
 &lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@base: ls -l /var/lib/containerd/io.containerd.content.v1.content/blobs/sha256&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;grep 846921f0fe
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;-r--r--r-- &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; root root      &lt;span class=&#34;m&#34;&gt;1635&lt;/span&gt; Jun &lt;span class=&#34;m&#34;&gt;21&lt;/span&gt; 02:24 846921f0fe0e57df9e4d4961c0c4af481bf545966b5f61af68e188837363530e
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;➜ ls -ltrh /var/lib/containerd/io.containerd.content.v1.content/blobs/sha256&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;grep 5f68dfd9f8d7
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;-r--r--r-- &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; root root 1.8M Jun &lt;span class=&#34;m&#34;&gt;21&lt;/span&gt; 02:24 5f68dfd9f8d78f3535856ecc443b69b110c4003bd402e0e45996ef85b93cce79
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;手动拉取&lt;/p&gt;
@@ -552,7 +552,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;curl  -o tt.tgz http://127.0.0.1:5000/v2/mirrorgooglecontainers/defaultbackend-amd64/blobs/sha256:846921f0fe0e57df9e4d4961c0c4af481bf545966b5f61af68e188837363530e
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;curl  -o tt.tgz http://127.0.0.1:5000/v2/mirrorgooglecontainers/defaultbackend-amd64/blobs/sha256:5f68dfd9f8d78f3535856ecc443b69b110c4003bd402e0e45996ef85b93cce79
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;使用docker 拉取,配置镜像源&lt;/p&gt;
