@@ -544,6 +544,7 @@ kubectl run nginx --image=nginx --overrides='{"apiVersion":"v1","spec":{"nodeNam
 kubectl create deployment nginx --image=nginx
 kubectl create deployment nginx --image=nginx --dry-run=client  -oyaml 
 kubectl expose pod nginx --port=80
+kubectl expose pod nginx --port=80 --type=NodePort --overrides='{"spec":{"ports":[{"port":80,"targetPort":80,"nodePort":40080}]}}'
 kubectl expose deployment/nginx --port=80 --target-port=8080
 kubectl expose deployment/nginx --port=80 --type=LoadBalancer
 kubectl port-forward svc/web 8080:80
