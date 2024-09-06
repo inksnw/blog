@@ -147,3 +147,61 @@ interfaces, err := client.DomainInterfaceAddresses(d, uint32(libvirt.DomainInter
 ```
 
 又想搞个kvm管理平台了...
+
+### libvirt-go库
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/libvirt/libvirt-go"
+)
+
+func main() {
+	conn, err := libvirt.NewConnect("qemu+tcp://192.168.50.20/system")
+	if err != nil {
+		fmt.Println("Failed to connect to qemu:///system:", err)
+		return
+	}
+	defer conn.Close()
+	domains, err := conn.ListAllDomains(libvirt.CONNECT_LIST_DOMAINS_ACTIVE | libvirt.CONNECT_LIST_DOMAINS_INACTIVE)
+	if err != nil {
+		fmt.Println("Failed to list all domains:", err)
+		return
+	}
+	fmt.Println("Virtual Machines:")
+	for _, domain := range domains {
+		name, err := domain.GetName()
+		if err != nil {
+			fmt.Println("Failed to get domain name:", err)
+			continue
+		}
+		// 获取虚拟机状态
+		state, _, err := domain.GetState()
+		if err != nil {
+			fmt.Println("Failed to get domain state:", err)
+			continue
+		}
+		// 获取虚拟机UUID
+		uuid, err := domain.GetUUIDString()
+		if err != nil {
+			fmt.Println("Failed to get domain UUID:", err)
+			continue
+		}
+
+		maxMem, err := domain.GetMaxMemory()
+		if err != nil {
+			fmt.Println("Failed to get domain max memory:", err)
+			continue
+		}
+		fmt.Printf(" - Name: %s\n", name)
+		fmt.Printf("   UUID: %s\n", uuid)
+		fmt.Printf("   State: %d\n", state)
+		fmt.Printf("   Max Memory: %d KB\n", maxMem)
+		domain.Free() // 释放资源
+	}
+}
+
+```
+

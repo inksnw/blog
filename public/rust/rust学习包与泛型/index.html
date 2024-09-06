@@ -17,7 +17,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="" /><meta name="description" content="包、Crate和模块 rust的模块系统包括: 包: cargo的一个功能，它允许你构建、测试、分享crate。一个包可以包含多个二进制crate" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="" /><meta name="description" content="包、Crate和模块 rust的模块系统包括:
+包: cargo的一个功能，它允许你构建、测试、分享crate。一个包可以包含多个二进制crate和一个可选的库crate crate: 一个模块的树形结构，它形成了库或二进制项目 模块(mod)和use: 模块通过use来使用，允许你控制作用域和路径的私有性 路径(path): 一个命名例如结构体、函数或模块等项的方式 包和crate crate是一个二进制项或库。 crate root是一个源文件，crate 是一个二进制项或者库。Rust 编译器以crate root为起始点，构成你的 crate 的根模块。 crate将一个作用域相关的功能分组到一起，使得这些功能可以方便的在多个项目间共享。
+" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -27,7 +29,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.133.0 with theme even" />
+<meta name="generator" content="Hugo 0.134.1 with theme even" />
 
 
 <link rel="canonical" href="https://inksnw.asuscomm.com:3001/rust/rust%E5%AD%A6%E4%B9%A0%E5%8C%85%E4%B8%8E%E6%B3%9B%E5%9E%8B/" />
@@ -46,7 +48,8 @@
 
 <meta property="og:url" content="https://inksnw.asuscomm.com:3001/rust/rust%E5%AD%A6%E4%B9%A0%E5%8C%85%E4%B8%8E%E6%B3%9B%E5%9E%8B/">
   <meta property="og:title" content="Rust学习:包与泛型">
-  <meta property="og:description" content="包、Crate和模块 rust的模块系统包括: 包: cargo的一个功能，它允许你构建、测试、分享crate。一个包可以包含多个二进制crate">
+  <meta property="og:description" content="包、Crate和模块 rust的模块系统包括:
+包: cargo的一个功能，它允许你构建、测试、分享crate。一个包可以包含多个二进制crate和一个可选的库crate crate: 一个模块的树形结构，它形成了库或二进制项目 模块(mod)和use: 模块通过use来使用，允许你控制作用域和路径的私有性 路径(path): 一个命名例如结构体、函数或模块等项的方式 包和crate crate是一个二进制项或库。 crate root是一个源文件，crate 是一个二进制项或者库。Rust 编译器以crate root为起始点，构成你的 crate 的根模块。 crate将一个作用域相关的功能分组到一起，使得这些功能可以方便的在多个项目间共享。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="rust">
@@ -55,14 +58,16 @@
     <meta property="article:tag" content="Rust">
 
   <meta itemprop="name" content="Rust学习:包与泛型">
-  <meta itemprop="description" content="包、Crate和模块 rust的模块系统包括: 包: cargo的一个功能，它允许你构建、测试、分享crate。一个包可以包含多个二进制crate">
+  <meta itemprop="description" content="包、Crate和模块 rust的模块系统包括:
+包: cargo的一个功能，它允许你构建、测试、分享crate。一个包可以包含多个二进制crate和一个可选的库crate crate: 一个模块的树形结构，它形成了库或二进制项目 模块(mod)和use: 模块通过use来使用，允许你控制作用域和路径的私有性 路径(path): 一个命名例如结构体、函数或模块等项的方式 包和crate crate是一个二进制项或库。 crate root是一个源文件，crate 是一个二进制项或者库。Rust 编译器以crate root为起始点，构成你的 crate 的根模块。 crate将一个作用域相关的功能分组到一起，使得这些功能可以方便的在多个项目间共享。">
   <meta itemprop="datePublished" content="2022-09-09T15:39:58+08:00">
   <meta itemprop="dateModified" content="2022-09-09T15:39:58+08:00">
   <meta itemprop="wordCount" content="2252">
   <meta itemprop="keywords" content="Rust">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Rust学习:包与泛型">
-  <meta name="twitter:description" content="包、Crate和模块 rust的模块系统包括: 包: cargo的一个功能，它允许你构建、测试、分享crate。一个包可以包含多个二进制crate">
+  <meta name="twitter:description" content="包、Crate和模块 rust的模块系统包括:
+包: cargo的一个功能，它允许你构建、测试、分享crate。一个包可以包含多个二进制crate和一个可选的库crate crate: 一个模块的树形结构，它形成了库或二进制项目 模块(mod)和use: 模块通过use来使用，允许你控制作用域和路径的私有性 路径(path): 一个命名例如结构体、函数或模块等项的方式 包和crate crate是一个二进制项或库。 crate root是一个源文件，crate 是一个二进制项或者库。Rust 编译器以crate root为起始点，构成你的 crate 的根模块。 crate将一个作用域相关的功能分组到一起，使得这些功能可以方便的在多个项目间共享。">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>

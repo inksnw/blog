@@ -17,7 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="" /><meta name="description" content="配置libvird远程连接 修改/etc/libvirt/libvirtd.conf中 1 2 3 4 5 listen_tls = 0 listen_tcp = 1 tcp_port = &#34;16509&#34; listen_addr = &#34;0.0.0.0&#34; auth_tcp = &#34;none&#34; 修改/etc/d" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="" /><meta name="description" content="配置libvird远程连接 修改/etc/libvirt/libvirtd.conf中
+1 2 3 4 5 " /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -27,7 +28,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.133.0 with theme even" />
+<meta name="generator" content="Hugo 0.134.1 with theme even" />
 
 
 <link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8go-libvirt%E6%93%8D%E4%BD%9Ckvm/" />
@@ -46,7 +47,8 @@
 
 <meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8go-libvirt%E6%93%8D%E4%BD%9Ckvm/">
   <meta property="og:title" content="使用go-libvirt操作kvm">
-  <meta property="og:description" content="配置libvird远程连接 修改/etc/libvirt/libvirtd.conf中 1 2 3 4 5 listen_tls = 0 listen_tcp = 1 tcp_port = &#34;16509&#34; listen_addr = &#34;0.0.0.0&#34; auth_tcp = &#34;none&#34; 修改/etc/d">
+  <meta property="og:description" content="配置libvird远程连接 修改/etc/libvirt/libvirtd.conf中
+1 2 3 4 5 ">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="post">
@@ -55,14 +57,16 @@
     <meta property="article:tag" content="虚拟化">
 
   <meta itemprop="name" content="使用go-libvirt操作kvm">
-  <meta itemprop="description" content="配置libvird远程连接 修改/etc/libvirt/libvirtd.conf中 1 2 3 4 5 listen_tls = 0 listen_tcp = 1 tcp_port = &#34;16509&#34; listen_addr = &#34;0.0.0.0&#34; auth_tcp = &#34;none&#34; 修改/etc/d">
+  <meta itemprop="description" content="配置libvird远程连接 修改/etc/libvirt/libvirtd.conf中
+1 2 3 4 5 ">
   <meta itemprop="datePublished" content="2023-07-21T19:03:29+08:00">
   <meta itemprop="dateModified" content="2023-07-21T19:03:29+08:00">
-  <meta itemprop="wordCount" content="580">
+  <meta itemprop="wordCount" content="814">
   <meta itemprop="keywords" content="虚拟化">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="使用go-libvirt操作kvm">
-  <meta name="twitter:description" content="配置libvird远程连接 修改/etc/libvirt/libvirtd.conf中 1 2 3 4 5 listen_tls = 0 listen_tcp = 1 tcp_port = &#34;16509&#34; listen_addr = &#34;0.0.0.0&#34; auth_tcp = &#34;none&#34; 修改/etc/d">
+  <meta name="twitter:description" content="配置libvird远程连接 修改/etc/libvirt/libvirtd.conf中
+1 2 3 4 5 ">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -135,7 +139,7 @@
         <div class="post-meta">
             <span class="post-time"> 2023-07-21 </span>
             
-            <span class="more-meta"> 约 580 字 更新于 2023-07-21
+            <span class="more-meta"> 约 814 字 更新于 2023-07-21
               <a class="article-tags" href=/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/>虚拟化</a>
                 </span>
             
@@ -154,6 +158,7 @@
           <ul>
             <li><a href="#配置libvird远程连接">配置libvird远程连接</a></li>
             <li><a href="#代码访问">代码访问</a></li>
+            <li><a href="#libvirt-go库">libvirt-go库</a></li>
           </ul>
         </li>
       </ul>
@@ -420,7 +425,116 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>又想搞个kvm管理平台了&hellip;</p>
-
+<h3 id="libvirt-go库">libvirt-go库</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/libvirt/libvirt-go&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">conn</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">libvirt</span><span class="p">.</span><span class="nf">NewConnect</span><span class="p">(</span><span class="s">&#34;qemu+tcp://192.168.50.20/system&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Failed to connect to qemu:///system:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">conn</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">domains</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">conn</span><span class="p">.</span><span class="nf">ListAllDomains</span><span class="p">(</span><span class="nx">libvirt</span><span class="p">.</span><span class="nx">CONNECT_LIST_DOMAINS_ACTIVE</span> <span class="p">|</span> <span class="nx">libvirt</span><span class="p">.</span><span class="nx">CONNECT_LIST_DOMAINS_INACTIVE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Failed to list all domains:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Virtual Machines:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">domain</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">domains</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">name</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">domain</span><span class="p">.</span><span class="nf">GetName</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Failed to get domain name:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">continue</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 获取虚拟机状态
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">state</span><span class="p">,</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">domain</span><span class="p">.</span><span class="nf">GetState</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Failed to get domain state:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">continue</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 获取虚拟机UUID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">uuid</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">domain</span><span class="p">.</span><span class="nf">GetUUIDString</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Failed to get domain UUID:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">continue</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">maxMem</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">domain</span><span class="p">.</span><span class="nf">GetMaxMemory</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Failed to get domain max memory:&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">continue</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34; - Name: %s\n&#34;</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;   UUID: %s\n&#34;</span><span class="p">,</span> <span class="nx">uuid</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;   State: %d\n&#34;</span><span class="p">,</span> <span class="nx">state</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;   Max Memory: %d KB\n&#34;</span><span class="p">,</span> <span class="nx">maxMem</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">domain</span><span class="p">.</span><span class="nf">Free</span><span class="p">()</span> <span class="c1">// 释放资源
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
     </div>
 
     

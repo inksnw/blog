@@ -17,7 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="" /><meta name="description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="" /><meta name="description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群节点的local网卡上（比如kube-ipvs0），当Client访问时，由于在同一个二层，会广播ARP请求，某个节点会进行ARP Reply，从而Client请求流量会发送到此节点，然后由节点上的Kube-proxy进行负载，转到真正的Pod地址。
+" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -27,7 +28,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.133.0 with theme even" />
+<meta name="generator" content="Hugo 0.134.1 with theme even" />
 
 
 <link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/openelb%E4%BD%BF%E7%94%A8/" />
@@ -46,7 +47,7 @@
 
 <meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/openelb%E4%BD%BF%E7%94%A8/">
   <meta property="og:title" content="OpenELB使用">
-  <meta property="og:description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群">
+  <meta property="og:description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群节点的local网卡上（比如kube-ipvs0），当Client访问时，由于在同一个二层，会广播ARP请求，某个节点会进行ARP Reply，从而Client请求流量会发送到此节点，然后由节点上的Kube-proxy进行负载，转到真正的Pod地址。">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="post">
@@ -55,14 +56,14 @@
     <meta property="article:tag" content="K8s">
 
   <meta itemprop="name" content="OpenELB使用">
-  <meta itemprop="description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群">
+  <meta itemprop="description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群节点的local网卡上（比如kube-ipvs0），当Client访问时，由于在同一个二层，会广播ARP请求，某个节点会进行ARP Reply，从而Client请求流量会发送到此节点，然后由节点上的Kube-proxy进行负载，转到真正的Pod地址。">
   <meta itemprop="datePublished" content="2022-06-22T11:01:26+08:00">
   <meta itemprop="dateModified" content="2022-06-22T11:01:26+08:00">
   <meta itemprop="wordCount" content="1249">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="OpenELB使用">
-  <meta name="twitter:description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群">
+  <meta name="twitter:description" content="二层网络即流量都在一个二层网络中。此模式借助其他组件例如Kube-proxy，来实现负载均衡。OpenELB会把svc的ip配置在K8S集群节点的local网卡上（比如kube-ipvs0），当Client访问时，由于在同一个二层，会广播ARP请求，某个节点会进行ARP Reply，从而Client请求流量会发送到此节点，然后由节点上的Kube-proxy进行负载，转到真正的Pod地址。">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
