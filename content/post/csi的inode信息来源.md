@@ -199,7 +199,17 @@ grpcurl -plaintext \
 csi.v1.Node/NodeGetVolumeStats
 ```
 
-结果与kubelet拿到的一致, 占用13个
+- volume_id参数来自于 pv 的volumeHandle字段
+
+```bash
+kubectl get pv pvc-21566fcd-13b5-4bb9-bfaa-0591660713cc -o yaml|grep volumeHandle
+```
+
+- volume_path 参数来自于
+
+  `/var/lib/kubelet/pods/{pod的uuid}/volumes/kubernetes.io~csi/{pvc的spec.volumeName}/mount`
+
+可以看到结果与kubelet拿到的一致, 占用13个
 
 ```json
 {

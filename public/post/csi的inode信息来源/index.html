@@ -62,7 +62,7 @@
 初步验证 稍经google知道inode来自于一个指标 kubelet_volume_stats_inodes_used, 这个指标是kubelet 向csi收集后对外提供的, 经过prometheus收集再展示">
   <meta itemprop="datePublished" content="2024-09-12T18:28:47+08:00">
   <meta itemprop="dateModified" content="2024-09-12T18:28:47+08:00">
-  <meta itemprop="wordCount" content="1170">
+  <meta itemprop="wordCount" content="1304">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Csi的inode信息来源">
@@ -140,7 +140,7 @@
         <div class="post-meta">
             <span class="post-time"> 2024-09-12 </span>
             
-            <span class="more-meta"> 约 1170 字 更新于 2024-09-12
+            <span class="more-meta"> 约 1304 字 更新于 2024-09-12
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -481,7 +481,24 @@
 </span></span></span><span class="line"><span class="cl"><span class="se"></span>csi.v1.Node/NodeGetVolumeStats
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>结果与kubelet拿到的一致, 占用13个</p>
+</div><ul>
+<li>volume_id参数来自于 pv 的volumeHandle字段</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get pv pvc-21566fcd-13b5-4bb9-bfaa-0591660713cc -o yaml<span class="p">|</span>grep volumeHandle
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>volume_path 参数来自于</p>
+<p><code>/var/lib/kubelet/pods/{pod的uuid}/volumes/kubernetes.io~csi/{pvc的spec.volumeName}/mount</code></p>
+</li>
+</ul>
+<p>可以看到结果与kubelet拿到的一致, 占用13个</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
