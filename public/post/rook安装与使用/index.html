@@ -18,7 +18,9 @@
 
 
 <meta name="author" content="" /><meta name="description" content="在k8s上安装rook 安装文档 https://rook.io/docs/rook/v1.10/Getting-Started/quickstart/
-1 2 3 4 git clone --single-branch --branch v1.10.5 https://github.com/rook/rook.git cd rook/deploy/examples kubectl create -f crds.yaml -f common.yaml -f operator.yaml kubectl create -f cluster.yaml " /><meta name="keywords" content="Hugo, theme, even" />
+1 2 3 4 git clone --single-branch --branch v1.10.5 https://github.com/rook/rook.git cd rook/deploy/examples kubectl create -f crds.yaml -f common.yaml -f operator.yaml kubectl create -f cluster.yaml 查看创建的Pod
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 root@node1:~# kubectl -n rook-ceph get pod NAME READY STATUS RESTARTS AGE csi-cephfsplugin-7nsvl 2/2 Running 0 2m19s csi-cephfsplugin-bshm7 2/2 Running 0 2m19s csi-cephfsplugin-provisioner-f88787bbb-8shvz 5/5 Running 0 2m19s csi-cephfsplugin-provisioner-f88787bbb-9j58k 5/5 Running 0 2m19s csi-cephfsplugin-tf4f8 2/2 Running 0 2m19s csi-rbdplugin-bbn24 2/2 Running 0 2m20s csi-rbdplugin-provisioner-d4cc97cf5-cmzgt 5/5 Running 0 2m19s csi-rbdplugin-provisioner-d4cc97cf5-l5pwz 5/5 Running 0 2m19s csi-rbdplugin-v5wgr 2/2 Running 0 2m20s csi-rbdplugin-zrljs 2/2 Running 0 2m20s rook-ceph-crashcollector-node1-6d454c8476-68njg 1/1 Running 0 89s rook-ceph-crashcollector-node2-55f9b7dd8c-gmt6c 1/1 Running 0 70s rook-ceph-crashcollector-node3-58b65b7846-g7wnc 1/1 Running 0 89s rook-ceph-mgr-a-6fb4b574d5-46nlc 3/3 Running 0 89s rook-ceph-mgr-b-5f5c669c6d-hsjt8 3/3 Running 0 89s rook-ceph-mon-a-749564574d-rpbls 2/2 Running 0 2m13s rook-ceph-mon-b-86dd8ddf8c-2zhdv 2/2 Running 0 109s rook-ceph-mon-c-5f99786dbc-kz4bh 2/2 Running 0 100s rook-ceph-operator-946fb5c77-lz4mf 1/1 Running 0 4m42s rook-ceph-osd-prepare-node1-ndhpc 0/1 Completed 0 42s rook-ceph-osd-prepare-node2-wc25g 0/1 Completed 0 39s rook-ceph-osd-prepare-node3-m6shs 0/1 Completed 0 36s 查看dashboard
+" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -28,7 +30,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.134.1 with theme even" />
+<meta name="generator" content="Hugo 0.134.2 with theme even" />
 
 
 <link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/rook%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" />
@@ -48,7 +50,8 @@
 <meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/rook%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
   <meta property="og:title" content="Rook安装与使用">
   <meta property="og:description" content="在k8s上安装rook 安装文档 https://rook.io/docs/rook/v1.10/Getting-Started/quickstart/
-1 2 3 4 git clone --single-branch --branch v1.10.5 https://github.com/rook/rook.git cd rook/deploy/examples kubectl create -f crds.yaml -f common.yaml -f operator.yaml kubectl create -f cluster.yaml ">
+1 2 3 4 git clone --single-branch --branch v1.10.5 https://github.com/rook/rook.git cd rook/deploy/examples kubectl create -f crds.yaml -f common.yaml -f operator.yaml kubectl create -f cluster.yaml 查看创建的Pod
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 root@node1:~# kubectl -n rook-ceph get pod NAME READY STATUS RESTARTS AGE csi-cephfsplugin-7nsvl 2/2 Running 0 2m19s csi-cephfsplugin-bshm7 2/2 Running 0 2m19s csi-cephfsplugin-provisioner-f88787bbb-8shvz 5/5 Running 0 2m19s csi-cephfsplugin-provisioner-f88787bbb-9j58k 5/5 Running 0 2m19s csi-cephfsplugin-tf4f8 2/2 Running 0 2m19s csi-rbdplugin-bbn24 2/2 Running 0 2m20s csi-rbdplugin-provisioner-d4cc97cf5-cmzgt 5/5 Running 0 2m19s csi-rbdplugin-provisioner-d4cc97cf5-l5pwz 5/5 Running 0 2m19s csi-rbdplugin-v5wgr 2/2 Running 0 2m20s csi-rbdplugin-zrljs 2/2 Running 0 2m20s rook-ceph-crashcollector-node1-6d454c8476-68njg 1/1 Running 0 89s rook-ceph-crashcollector-node2-55f9b7dd8c-gmt6c 1/1 Running 0 70s rook-ceph-crashcollector-node3-58b65b7846-g7wnc 1/1 Running 0 89s rook-ceph-mgr-a-6fb4b574d5-46nlc 3/3 Running 0 89s rook-ceph-mgr-b-5f5c669c6d-hsjt8 3/3 Running 0 89s rook-ceph-mon-a-749564574d-rpbls 2/2 Running 0 2m13s rook-ceph-mon-b-86dd8ddf8c-2zhdv 2/2 Running 0 109s rook-ceph-mon-c-5f99786dbc-kz4bh 2/2 Running 0 100s rook-ceph-operator-946fb5c77-lz4mf 1/1 Running 0 4m42s rook-ceph-osd-prepare-node1-ndhpc 0/1 Completed 0 42s rook-ceph-osd-prepare-node2-wc25g 0/1 Completed 0 39s rook-ceph-osd-prepare-node3-m6shs 0/1 Completed 0 36s 查看dashboard">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="post">
@@ -58,7 +61,8 @@
 
   <meta itemprop="name" content="Rook安装与使用">
   <meta itemprop="description" content="在k8s上安装rook 安装文档 https://rook.io/docs/rook/v1.10/Getting-Started/quickstart/
-1 2 3 4 git clone --single-branch --branch v1.10.5 https://github.com/rook/rook.git cd rook/deploy/examples kubectl create -f crds.yaml -f common.yaml -f operator.yaml kubectl create -f cluster.yaml ">
+1 2 3 4 git clone --single-branch --branch v1.10.5 https://github.com/rook/rook.git cd rook/deploy/examples kubectl create -f crds.yaml -f common.yaml -f operator.yaml kubectl create -f cluster.yaml 查看创建的Pod
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 root@node1:~# kubectl -n rook-ceph get pod NAME READY STATUS RESTARTS AGE csi-cephfsplugin-7nsvl 2/2 Running 0 2m19s csi-cephfsplugin-bshm7 2/2 Running 0 2m19s csi-cephfsplugin-provisioner-f88787bbb-8shvz 5/5 Running 0 2m19s csi-cephfsplugin-provisioner-f88787bbb-9j58k 5/5 Running 0 2m19s csi-cephfsplugin-tf4f8 2/2 Running 0 2m19s csi-rbdplugin-bbn24 2/2 Running 0 2m20s csi-rbdplugin-provisioner-d4cc97cf5-cmzgt 5/5 Running 0 2m19s csi-rbdplugin-provisioner-d4cc97cf5-l5pwz 5/5 Running 0 2m19s csi-rbdplugin-v5wgr 2/2 Running 0 2m20s csi-rbdplugin-zrljs 2/2 Running 0 2m20s rook-ceph-crashcollector-node1-6d454c8476-68njg 1/1 Running 0 89s rook-ceph-crashcollector-node2-55f9b7dd8c-gmt6c 1/1 Running 0 70s rook-ceph-crashcollector-node3-58b65b7846-g7wnc 1/1 Running 0 89s rook-ceph-mgr-a-6fb4b574d5-46nlc 3/3 Running 0 89s rook-ceph-mgr-b-5f5c669c6d-hsjt8 3/3 Running 0 89s rook-ceph-mon-a-749564574d-rpbls 2/2 Running 0 2m13s rook-ceph-mon-b-86dd8ddf8c-2zhdv 2/2 Running 0 109s rook-ceph-mon-c-5f99786dbc-kz4bh 2/2 Running 0 100s rook-ceph-operator-946fb5c77-lz4mf 1/1 Running 0 4m42s rook-ceph-osd-prepare-node1-ndhpc 0/1 Completed 0 42s rook-ceph-osd-prepare-node2-wc25g 0/1 Completed 0 39s rook-ceph-osd-prepare-node3-m6shs 0/1 Completed 0 36s 查看dashboard">
   <meta itemprop="datePublished" content="2022-11-17T11:05:33+08:00">
   <meta itemprop="dateModified" content="2022-11-17T11:05:33+08:00">
   <meta itemprop="wordCount" content="1023">
@@ -66,7 +70,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Rook安装与使用">
   <meta name="twitter:description" content="在k8s上安装rook 安装文档 https://rook.io/docs/rook/v1.10/Getting-Started/quickstart/
-1 2 3 4 git clone --single-branch --branch v1.10.5 https://github.com/rook/rook.git cd rook/deploy/examples kubectl create -f crds.yaml -f common.yaml -f operator.yaml kubectl create -f cluster.yaml ">
+1 2 3 4 git clone --single-branch --branch v1.10.5 https://github.com/rook/rook.git cd rook/deploy/examples kubectl create -f crds.yaml -f common.yaml -f operator.yaml kubectl create -f cluster.yaml 查看创建的Pod
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 root@node1:~# kubectl -n rook-ceph get pod NAME READY STATUS RESTARTS AGE csi-cephfsplugin-7nsvl 2/2 Running 0 2m19s csi-cephfsplugin-bshm7 2/2 Running 0 2m19s csi-cephfsplugin-provisioner-f88787bbb-8shvz 5/5 Running 0 2m19s csi-cephfsplugin-provisioner-f88787bbb-9j58k 5/5 Running 0 2m19s csi-cephfsplugin-tf4f8 2/2 Running 0 2m19s csi-rbdplugin-bbn24 2/2 Running 0 2m20s csi-rbdplugin-provisioner-d4cc97cf5-cmzgt 5/5 Running 0 2m19s csi-rbdplugin-provisioner-d4cc97cf5-l5pwz 5/5 Running 0 2m19s csi-rbdplugin-v5wgr 2/2 Running 0 2m20s csi-rbdplugin-zrljs 2/2 Running 0 2m20s rook-ceph-crashcollector-node1-6d454c8476-68njg 1/1 Running 0 89s rook-ceph-crashcollector-node2-55f9b7dd8c-gmt6c 1/1 Running 0 70s rook-ceph-crashcollector-node3-58b65b7846-g7wnc 1/1 Running 0 89s rook-ceph-mgr-a-6fb4b574d5-46nlc 3/3 Running 0 89s rook-ceph-mgr-b-5f5c669c6d-hsjt8 3/3 Running 0 89s rook-ceph-mon-a-749564574d-rpbls 2/2 Running 0 2m13s rook-ceph-mon-b-86dd8ddf8c-2zhdv 2/2 Running 0 109s rook-ceph-mon-c-5f99786dbc-kz4bh 2/2 Running 0 100s rook-ceph-operator-946fb5c77-lz4mf 1/1 Running 0 4m42s rook-ceph-osd-prepare-node1-ndhpc 0/1 Completed 0 42s rook-ceph-osd-prepare-node2-wc25g 0/1 Completed 0 39s rook-ceph-osd-prepare-node3-m6shs 0/1 Completed 0 36s 查看dashboard">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>

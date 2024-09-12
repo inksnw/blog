@@ -18,7 +18,9 @@
 
 
 <meta name="author" content="" /><meta name="description" content="背景 pod已经重启, 如何查看重启前日志, 先说结论使用-p 参数即可
-1 2 3 4 5 6 7 8 " /><meta name="keywords" content="Hugo, theme, even" />
+1 2 3 4 5 6 7 8 root@node1:~# kubectl logs demo -p=true Server listening on :8080 Request received panic: Overslept! goroutine 1 [running]: main.main() /Users/inksnw/Desktop/awesomeProject/main.go:15 &#43;0x59 复现 写一个程序
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 package main import ( &#34;fmt&#34; &#34;net/http&#34; ) var out chan struct{} func main() { out = make(chan struct{}) go server() select { case &lt;-out: panic(&#34;Overslept!&#34;) return } } func handler(w http.ResponseWriter, r *http.Request) { fmt.Println(&#34;Request received&#34;) out &lt;- struct{}{} } func server() { http.HandleFunc(&#34;/&#34;, handler) fmt.Println(&#34;Server listening on :8080&#34;) err := http.ListenAndServe(&#34;:8080&#34;, nil) if err != nil { fmt.Println(&#34;Error:&#34;, err) } } 配置到k8s上
+" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -28,7 +30,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.134.1 with theme even" />
+<meta name="generator" content="Hugo 0.134.2 with theme even" />
 
 
 <link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8%E9%87%8D%E5%90%AF%E5%89%8D%E6%97%A5%E5%BF%97/" />
@@ -48,7 +50,8 @@
 <meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8%E9%87%8D%E5%90%AF%E5%89%8D%E6%97%A5%E5%BF%97/">
   <meta property="og:title" content="查看容器重启前日志">
   <meta property="og:description" content="背景 pod已经重启, 如何查看重启前日志, 先说结论使用-p 参数即可
-1 2 3 4 5 6 7 8 ">
+1 2 3 4 5 6 7 8 root@node1:~# kubectl logs demo -p=true Server listening on :8080 Request received panic: Overslept! goroutine 1 [running]: main.main() /Users/inksnw/Desktop/awesomeProject/main.go:15 &#43;0x59 复现 写一个程序
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 package main import ( &#34;fmt&#34; &#34;net/http&#34; ) var out chan struct{} func main() { out = make(chan struct{}) go server() select { case &lt;-out: panic(&#34;Overslept!&#34;) return } } func handler(w http.ResponseWriter, r *http.Request) { fmt.Println(&#34;Request received&#34;) out &lt;- struct{}{} } func server() { http.HandleFunc(&#34;/&#34;, handler) fmt.Println(&#34;Server listening on :8080&#34;) err := http.ListenAndServe(&#34;:8080&#34;, nil) if err != nil { fmt.Println(&#34;Error:&#34;, err) } } 配置到k8s上">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="post">
@@ -58,7 +61,8 @@
 
   <meta itemprop="name" content="查看容器重启前日志">
   <meta itemprop="description" content="背景 pod已经重启, 如何查看重启前日志, 先说结论使用-p 参数即可
-1 2 3 4 5 6 7 8 ">
+1 2 3 4 5 6 7 8 root@node1:~# kubectl logs demo -p=true Server listening on :8080 Request received panic: Overslept! goroutine 1 [running]: main.main() /Users/inksnw/Desktop/awesomeProject/main.go:15 &#43;0x59 复现 写一个程序
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 package main import ( &#34;fmt&#34; &#34;net/http&#34; ) var out chan struct{} func main() { out = make(chan struct{}) go server() select { case &lt;-out: panic(&#34;Overslept!&#34;) return } } func handler(w http.ResponseWriter, r *http.Request) { fmt.Println(&#34;Request received&#34;) out &lt;- struct{}{} } func server() { http.HandleFunc(&#34;/&#34;, handler) fmt.Println(&#34;Server listening on :8080&#34;) err := http.ListenAndServe(&#34;:8080&#34;, nil) if err != nil { fmt.Println(&#34;Error:&#34;, err) } } 配置到k8s上">
   <meta itemprop="datePublished" content="2023-12-20T22:39:19+08:00">
   <meta itemprop="dateModified" content="2023-12-20T22:39:19+08:00">
   <meta itemprop="wordCount" content="945">
@@ -66,7 +70,8 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="查看容器重启前日志">
   <meta name="twitter:description" content="背景 pod已经重启, 如何查看重启前日志, 先说结论使用-p 参数即可
-1 2 3 4 5 6 7 8 ">
+1 2 3 4 5 6 7 8 root@node1:~# kubectl logs demo -p=true Server listening on :8080 Request received panic: Overslept! goroutine 1 [running]: main.main() /Users/inksnw/Desktop/awesomeProject/main.go:15 &#43;0x59 复现 写一个程序
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 package main import ( &#34;fmt&#34; &#34;net/http&#34; ) var out chan struct{} func main() { out = make(chan struct{}) go server() select { case &lt;-out: panic(&#34;Overslept!&#34;) return } } func handler(w http.ResponseWriter, r *http.Request) { fmt.Println(&#34;Request received&#34;) out &lt;- struct{}{} } func server() { http.HandleFunc(&#34;/&#34;, handler) fmt.Println(&#34;Server listening on :8080&#34;) err := http.ListenAndServe(&#34;:8080&#34;, nil) if err != nil { fmt.Println(&#34;Error:&#34;, err) } } 配置到k8s上">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>csi挂载nfs - </title>
+  <title>Csi的inode信息来源 - </title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="" /><meta name="description" content="配置NFS 安装nfs
-1 2 3 4 5 6 7 8 9 10 11 12 13 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports # 重新导出 ➜ vim /etc/exports /data/public *(rw,sync,no_root_squash,no_subtree_check) ➜ exportfs -a ➜ systemctl status nfs-server # 挂载配置情况 ➜ apt-get install nfs-common ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主机上查看情况
+<meta name="author" content="" /><meta name="description" content="背景 客户反馈pvc监控页面的inode使用占比超100000%, 手动进入容器df -i 又没有多少inode占用
+初步验证 稍经google知道inode来自于一个指标 kubelet_volume_stats_inodes_used, 这个指标是kubelet 向csi收集后对外提供的, 经过prometheus收集再展示
 " /><meta name="keywords" content="Hugo, theme, even" />
 
 
@@ -32,7 +32,7 @@
 <meta name="generator" content="Hugo 0.134.2 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/csi%E6%8C%82%E8%BD%BDnfs/" />
+<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/csi%E7%9A%84inode%E4%BF%A1%E6%81%AF%E6%9D%A5%E6%BA%90/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -46,28 +46,28 @@
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/csi%E6%8C%82%E8%BD%BDnfs/">
-  <meta property="og:title" content="csi挂载nfs">
-  <meta property="og:description" content="配置NFS 安装nfs
-1 2 3 4 5 6 7 8 9 10 11 12 13 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports # 重新导出 ➜ vim /etc/exports /data/public *(rw,sync,no_root_squash,no_subtree_check) ➜ exportfs -a ➜ systemctl status nfs-server # 挂载配置情况 ➜ apt-get install nfs-common ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主机上查看情况">
+<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/csi%E7%9A%84inode%E4%BF%A1%E6%81%AF%E6%9D%A5%E6%BA%90/">
+  <meta property="og:title" content="Csi的inode信息来源">
+  <meta property="og:description" content="背景 客户反馈pvc监控页面的inode使用占比超100000%, 手动进入容器df -i 又没有多少inode占用
+初步验证 稍经google知道inode来自于一个指标 kubelet_volume_stats_inodes_used, 这个指标是kubelet 向csi收集后对外提供的, 经过prometheus收集再展示">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="post">
-    <meta property="article:published_time" content="2023-02-14T19:11:47+08:00">
-    <meta property="article:modified_time" content="2023-02-14T19:11:47+08:00">
+    <meta property="article:published_time" content="2024-09-12T18:28:47+08:00">
+    <meta property="article:modified_time" content="2024-09-12T18:28:47+08:00">
     <meta property="article:tag" content="K8s">
 
-  <meta itemprop="name" content="csi挂载nfs">
-  <meta itemprop="description" content="配置NFS 安装nfs
-1 2 3 4 5 6 7 8 9 10 11 12 13 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports # 重新导出 ➜ vim /etc/exports /data/public *(rw,sync,no_root_squash,no_subtree_check) ➜ exportfs -a ➜ systemctl status nfs-server # 挂载配置情况 ➜ apt-get install nfs-common ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主机上查看情况">
-  <meta itemprop="datePublished" content="2023-02-14T19:11:47+08:00">
-  <meta itemprop="dateModified" content="2023-02-14T19:11:47+08:00">
-  <meta itemprop="wordCount" content="561">
+  <meta itemprop="name" content="Csi的inode信息来源">
+  <meta itemprop="description" content="背景 客户反馈pvc监控页面的inode使用占比超100000%, 手动进入容器df -i 又没有多少inode占用
+初步验证 稍经google知道inode来自于一个指标 kubelet_volume_stats_inodes_used, 这个指标是kubelet 向csi收集后对外提供的, 经过prometheus收集再展示">
+  <meta itemprop="datePublished" content="2024-09-12T18:28:47+08:00">
+  <meta itemprop="dateModified" content="2024-09-12T18:28:47+08:00">
+  <meta itemprop="wordCount" content="1170">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="csi挂载nfs">
-  <meta name="twitter:description" content="配置NFS 安装nfs
-1 2 3 4 5 6 7 8 9 10 11 12 13 ➜ apt install nfs-kernel-server # 查看导出的nfs ➜ cat /etc/exports # 重新导出 ➜ vim /etc/exports /data/public *(rw,sync,no_root_squash,no_subtree_check) ➜ exportfs -a ➜ systemctl status nfs-server # 挂载配置情况 ➜ apt-get install nfs-common ➜ showmount -e localhost Export list for localhost: /data/public * 在另一台主机上查看情况">
+  <meta name="twitter:title" content="Csi的inode信息来源">
+  <meta name="twitter:description" content="背景 客户反馈pvc监控页面的inode使用占比超100000%, 手动进入容器df -i 又没有多少inode占用
+初步验证 稍经google知道inode来自于一个指标 kubelet_volume_stats_inodes_used, 这个指标是kubelet 向csi收集后对外提供的, 经过prometheus收集再展示">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -135,12 +135,12 @@
     
 
     <header class="post-header">
-        <h1 class="post-title">csi挂载nfs</h1>
+        <h1 class="post-title">Csi的inode信息来源</h1>
 
         <div class="post-meta">
-            <span class="post-time"> 2023-02-14 </span>
+            <span class="post-time"> 2024-09-12 </span>
             
-            <span class="more-meta"> 约 561 字 更新于 2023-02-14
+            <span class="more-meta"> 约 1170 字 更新于 2024-09-12
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -155,14 +155,10 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#配置nfs">配置NFS</a></li>
-        <li><a href="#配置csi">配置CSI</a>
-          <ul>
-            <li><a href="#安装nfs-csi-driver">安装nfs-csi-driver</a></li>
-            <li><a href="#创建sc与pvc">创建sc与pvc</a></li>
-            <li><a href="#使用pvc">使用pvc</a></li>
-          </ul>
-        </li>
+        <li><a href="#背景">背景</a></li>
+        <li><a href="#初步验证">初步验证</a></li>
+        <li><a href="#配置nfs-csi">配置NFS csi</a></li>
+        <li><a href="#grpc验证">grpc验证</a></li>
       </ul>
     </li>
   </ul>
@@ -172,7 +168,53 @@
 
     
     <div class="post-content">
-        <h2 id="配置nfs">配置NFS</h2>
+        <h2 id="背景">背景</h2>
+<p>客户反馈pvc监控页面的inode使用占比超100000%, 手动进入容器df -i  又没有多少inode占用</p>
+<h2 id="初步验证">初步验证</h2>
+<p>稍经google知道inode来自于一个指标 <code>kubelet_volume_stats_inodes_used</code>, 这个指标是kubelet 向csi收集后对外提供的, 经过prometheus收集再展示</p>
+<blockquote>
+<p>prometheus收集的对么, 有没有手动查询的方法</p>
+</blockquote>
+<p>我们可以使用如下方法查到kubelet的信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get --raw /api/v1/nodes/节点名/proxy/metrics<span class="p">|</span>grep kubelet_volume_stats_inodes_used
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>等价于</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 测试完记得删除权限</span>
+</span></span><span class="line"><span class="cl">kubectl create clusterrolebinding test:anonymous --clusterrole<span class="o">=</span>cluster-admin --user<span class="o">=</span>system:anonymous
+</span></span><span class="line"><span class="cl">https://192.168.50.131:6443/api/v1/nodes/节点名/proxy/metrics
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到每个pvc的使用情况, 客户实际使用量 9*10^18 次, 显然过于巨大</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubelet_volume_stats_inodes_used<span class="o">{</span><span class="nv">namespace</span><span class="o">=</span><span class="s2">&#34;default&#34;</span>,persistentvolumeclaim<span class="o">=</span><span class="s2">&#34;nfs-pvc&#34;</span><span class="o">}</span> <span class="m">13</span>
+</span></span><span class="line"><span class="cl">kubelet_volume_stats_inodes_used<span class="o">{</span><span class="nv">namespace</span><span class="o">=</span><span class="s2">&#34;kubesphere-logging-system&#34;</span>,persistentvolumeclaim<span class="o">=</span><span class="s2">&#34;opensearch-cluster-data-opensearch-cluster-data-0&#34;</span><span class="o">}</span> <span class="m">162521</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>事情到此好像结束了?</p>
+<blockquote>
+<p>那kubelet 收集的就正确了么, 怎么证明是 csi 吐的数据不对</p>
+</blockquote>
+<p>google 一下知道这些指标由csi的一个 <code>NodeGetVolumeStats</code> 的gprc方法提供, 那有办法手动访问这个接口么</p>
+<p>默认使用的 <code>openebs</code> 好像没有通过socket与kubelet通信,在<code>/var/lib/kubelet/plugins</code> 目录下没有看到相应的插件, 这里我们安装一个nfs 的csi试一下</p>
+<h2 id="配置nfs-csi">配置NFS csi</h2>
 <p>安装nfs</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -219,38 +261,7 @@
 </span></span><span class="line"><span class="cl">/data/public *
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>挂载与查看</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ mount -t nfs 192.168.50.20:/data/public /root/abc
-</span></span><span class="line"><span class="cl">➜ df -h
-</span></span><span class="line"><span class="cl">Filesystem                         Size  Used Avail Use% Mounted on
-</span></span><span class="line"><span class="cl">udev                               3.9G     <span class="m">0</span>  3.9G   0% /dev
-</span></span><span class="line"><span class="cl">/dev/mapper/ubuntu--vg-ubuntu--lv   24G   11G   13G  47% /
-</span></span><span class="line"><span class="cl">/dev/vda2                          974M  106M  801M  12% /boot
-</span></span><span class="line"><span class="cl">192.168.50.20:/data/public         916G     <span class="m">0</span>  870G   0% /root/abc
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>卸载</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">➜ umount /root/abc
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h2 id="配置csi">配置CSI</h2>
-<h3 id="安装nfs-csi-driver">安装nfs-csi-driver</h3>
+</div><p>在k8s上安装nfs-csi-driver</p>
 <p>官方文档: <a href="https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-nfs-csi-driver.md">https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-nfs-csi-driver.md</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -262,23 +273,6 @@
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/kubernetes-csi/csi-driver-nfs.git
 </span></span><span class="line"><span class="cl"><span class="nb">cd</span> csi-driver-nfs
 </span></span><span class="line"><span class="cl">./deploy/install-driver.sh v4.1.0 <span class="nb">local</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>查看安装的pod</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get pod -n kube-system<span class="p">|</span>grep csi
-</span></span><span class="line"><span class="cl">csi-nfs-controller-78d56d9785-52zgz            3/3     Running   <span class="m">0</span>             74s
-</span></span><span class="line"><span class="cl">csi-nfs-node-c5sq7                             3/3     Running   <span class="m">0</span>             74s
-</span></span><span class="line"><span class="cl">csi-nfs-node-h5zsk                             3/3     Running   <span class="m">0</span>             74s
-</span></span><span class="line"><span class="cl">csi-nfs-node-x64bx                             3/3     Running   <span class="m">0</span>             74s
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>查看csinode信息</p>
@@ -316,7 +310,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">topologyKeys</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="创建sc与pvc">创建sc与pvc</h3>
+</div><p>创建sc与pvc</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -367,30 +361,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="l">nfs-csi</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>查看信息</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">➜ kubectl get sc
-</span></span><span class="line"><span class="cl">NAME              PROVISIONER        RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-</span></span><span class="line"><span class="cl"><span class="nb">local</span> <span class="o">(</span>default<span class="o">)</span>   openebs.io/local   Delete          WaitForFirstConsumer   <span class="nb">false</span>                  33h
-</span></span><span class="line"><span class="cl">nfs-csi           nfs.csi.k8s.io     Delete          Immediate              <span class="nb">false</span>                  9s
-</span></span><span class="line"><span class="cl">➜ kubectl get pvc
-</span></span><span class="line"><span class="cl">NAME                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-</span></span><span class="line"><span class="cl">data-dmp-postgresql-0   Bound    pvc-5b0edcbc-73cc-4c6a-84c8-46e4e75cd30c   8Gi        RWO            <span class="nb">local</span>          33h
-</span></span><span class="line"><span class="cl">nfs-pvc                 Bound    pvc-b970a9dc-5552-47db-9fa6-2c34513e394c   10Gi       RWX            nfs-csi        8s
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="使用pvc">使用pvc</h3>
+</div><p>使用pvc</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -457,7 +428,41 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">mynginx</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>进入Pod查看</p>
+</div><p>再次查看, 可以看到inode占用13个</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get --raw /api/v1/nodes/节点名/proxy/metrics<span class="p">|</span>grep kubelet_volume_stats_inodes_used
+</span></span><span class="line"><span class="cl">kubelet_volume_stats_inodes_used<span class="o">{</span><span class="nv">namespace</span><span class="o">=</span><span class="s2">&#34;default&#34;</span>,persistentvolumeclaim<span class="o">=</span><span class="s2">&#34;nfs-pvc&#34;</span><span class="o">}</span> <span class="m">13</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="grpc验证">grpc验证</h2>
+<p>我们知道kubelet与csi之间是通过grpc通信的, 在<code>/var/lib/kubelet/plugins/csi-nfsplugin</code> 目录下可以看到相应的socket</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@base:/var/lib/kubelet/plugins/csi-nfsplugin# ls
+</span></span><span class="line"><span class="cl">csi.sock
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>把这个socket映射到本地</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"> ssh -N -L /tmp/csi.sock:/var/lib/kubelet/plugins/csi-nfsplugin/csi.sock root@192.168.50.131
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 <code>grpccurl</code>访问测试, 由于这个csi服务不支持grpc反射, 所以这里需要指定proto文件和依赖的proto文件</p>
+<p>proto来自于 <a href="https://github.com/container-storage-interface/spec">https://github.com/container-storage-interface/spec</a></p>
+<p>依赖来自于 <a href="https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto">https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto</a></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -466,16 +471,51 @@
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
-</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 在nfs server上创建一个文件</span>
-</span></span><span class="line"><span class="cl">➜ <span class="nb">cd</span> /data/public/pvc-b970a9dc-5552-47db-9fa6-2c34513e394c
-</span></span><span class="line"><span class="cl">➜ touch a.txt
-</span></span><span class="line"><span class="cl"><span class="c1"># 在pod内查看</span>
-</span></span><span class="line"><span class="cl">➜ kubectl <span class="nb">exec</span> -it mynginx-7968d6dcd5-df5px -- /bin/bash
-</span></span><span class="line"><span class="cl">➜ <span class="nb">cd</span> /data
-</span></span><span class="line"><span class="cl">➜ ls
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">grpcurl -plaintext <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-import-path /Users/inksnw/Desktop/spec <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-proto /Users/inksnw/Desktop/spec/csi.proto <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-d <span class="s1">&#39;{&#34;volume_id&#34;:&#34;192.168.50.20#data/public#pvc-21566fcd-13b5-4bb9-bfaa-0591660713cc#&#34;,&#34;volume_path&#34;:&#34;/var/lib/kubelet/pods/c73005e9-e197-46f9-90b6-8bbc7a8dd86b/volumes/kubernetes.io~csi/pvc-21566fcd-13b5-4bb9-bfaa-0591660713cc/mount&#34;}&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-unix /tmp/csi.sock  <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>csi.v1.Node/NodeGetVolumeStats
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>结果与kubelet拿到的一致, 占用13个</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;usage&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;available&#34;</span><span class="p">:</span> <span class="s2">&#34;933324914688&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;total&#34;</span><span class="p">:</span> <span class="s2">&#34;983351427072&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;unit&#34;</span><span class="p">:</span> <span class="s2">&#34;BYTES&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;available&#34;</span><span class="p">:</span> <span class="s2">&#34;61054963&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;total&#34;</span><span class="p">:</span> <span class="s2">&#34;61054976&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;used&#34;</span><span class="p">:</span> <span class="s2">&#34;13&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;unit&#34;</span><span class="p">:</span> <span class="s2">&#34;INODES&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
@@ -487,13 +527,9 @@
             <a href="/tags/k8s/">k8s</a>
             </div>
         <nav class="post-nav">
-            <a class="prev" href="/post/%E4%BD%BF%E7%94%A8k8s%E8%BF%9B%E8%A1%8Cleader%E9%80%89%E4%B8%BE%E5%8E%9F%E7%90%86/">
-                <i class="iconfont icon-left"></i>
-                <span class="prev-text nav-default">使用k8s进行leader选举</span>
-                <span class="prev-text nav-mobile">上一篇</span>
-            </a>
-            <a class="next" href="/post/%E4%B8%B4%E6%97%B6%E5%AE%B9%E5%99%A8%E8%B0%83%E8%AF%95/">
-                <span class="next-text nav-default">临时容器调试</span>
+            
+            <a class="next" href="/post/%E8%8A%82%E7%82%B9docker%E4%BD%9C%E4%B8%BA%E9%95%9C%E5%83%8F%E6%BA%90/">
+                <span class="next-text nav-default">节点docker作为镜像源</span>
                 <span class="next-text nav-mobile">下一篇</span>
                 <i class="iconfont icon-right"></i>
             </a>

@@ -18,7 +18,8 @@
 
 
 <meta name="author" content="" /><meta name="description" content="文档 https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter
-环境准备 Gateway 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 " /><meta name="keywords" content="Hugo, theme, even" />
+环境准备 Gateway 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 apiVersion: networking.istio.io/v1beta1 kind: Gateway metadata: name: grpc-gateway namespace: myistio spec: selector: istio: grpc-ingressgateway servers: - port: number: 80 name: grpc protocol: GRPC hosts: - &#34;*&#34; VirtualService 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 apiVersion: networking.istio.io/v1beta1 kind: VirtualService metadata: name: grpcvs namespace: myistio spec: hosts: - &#34;*&#34; gateways: - grpc-gateway http: - route: - destination: host: gprodsvc port: number: 80 业务yaml 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 apiVersion: apps/v1 kind: Deployment metadata: name: gprodapi namespace: myistio spec: selector: matchLabels: app: gprod replicas: 1 template: metadata: labels: app: gprod version: v1 spec: nodeName: node1 containers: - name: gprodapi image: alpine:3.12 imagePullPolicy: IfNotPresent command: [&#34;/app/gprods&#34;] volumeMounts: - name: appdata mountPath: /app ports: - containerPort: 8080 volumes: - name: appdata hostPath: path: /root/build --- apiVersion: v1 kind: Service metadata: name: gprodsvc namespace: myistio labels: app: gprod spec: type: ClusterIP ports: - port: 80 targetPort: 8080 protocol: TCP name: grpc selector: app: gprod transcoder配置 生成descriptor 文件
+" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 <meta name="robots" content="">
@@ -28,7 +29,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.134.1 with theme even" />
+<meta name="generator" content="Hugo 0.134.2 with theme even" />
 
 
 <link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/envoy%E8%BD%AC%E6%8D%A2grpc%E4%B8%BAhttp/" />
@@ -48,7 +49,7 @@
 <meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/envoy%E8%BD%AC%E6%8D%A2grpc%E4%B8%BAhttp/">
   <meta property="og:title" content="Envoy转换grpc为http">
   <meta property="og:description" content="文档 https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter
-环境准备 Gateway 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ">
+环境准备 Gateway 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 apiVersion: networking.istio.io/v1beta1 kind: Gateway metadata: name: grpc-gateway namespace: myistio spec: selector: istio: grpc-ingressgateway servers: - port: number: 80 name: grpc protocol: GRPC hosts: - &#34;*&#34; VirtualService 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 apiVersion: networking.istio.io/v1beta1 kind: VirtualService metadata: name: grpcvs namespace: myistio spec: hosts: - &#34;*&#34; gateways: - grpc-gateway http: - route: - destination: host: gprodsvc port: number: 80 业务yaml 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 apiVersion: apps/v1 kind: Deployment metadata: name: gprodapi namespace: myistio spec: selector: matchLabels: app: gprod replicas: 1 template: metadata: labels: app: gprod version: v1 spec: nodeName: node1 containers: - name: gprodapi image: alpine:3.12 imagePullPolicy: IfNotPresent command: [&#34;/app/gprods&#34;] volumeMounts: - name: appdata mountPath: /app ports: - containerPort: 8080 volumes: - name: appdata hostPath: path: /root/build --- apiVersion: v1 kind: Service metadata: name: gprodsvc namespace: myistio labels: app: gprod spec: type: ClusterIP ports: - port: 80 targetPort: 8080 protocol: TCP name: grpc selector: app: gprod transcoder配置 生成descriptor 文件">
   <meta property="og:locale" content="zh_cn">
   <meta property="og:type" content="article">
     <meta property="article:section" content="post">
@@ -58,7 +59,7 @@
 
   <meta itemprop="name" content="Envoy转换grpc为http">
   <meta itemprop="description" content="文档 https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter
-环境准备 Gateway 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ">
+环境准备 Gateway 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 apiVersion: networking.istio.io/v1beta1 kind: Gateway metadata: name: grpc-gateway namespace: myistio spec: selector: istio: grpc-ingressgateway servers: - port: number: 80 name: grpc protocol: GRPC hosts: - &#34;*&#34; VirtualService 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 apiVersion: networking.istio.io/v1beta1 kind: VirtualService metadata: name: grpcvs namespace: myistio spec: hosts: - &#34;*&#34; gateways: - grpc-gateway http: - route: - destination: host: gprodsvc port: number: 80 业务yaml 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 apiVersion: apps/v1 kind: Deployment metadata: name: gprodapi namespace: myistio spec: selector: matchLabels: app: gprod replicas: 1 template: metadata: labels: app: gprod version: v1 spec: nodeName: node1 containers: - name: gprodapi image: alpine:3.12 imagePullPolicy: IfNotPresent command: [&#34;/app/gprods&#34;] volumeMounts: - name: appdata mountPath: /app ports: - containerPort: 8080 volumes: - name: appdata hostPath: path: /root/build --- apiVersion: v1 kind: Service metadata: name: gprodsvc namespace: myistio labels: app: gprod spec: type: ClusterIP ports: - port: 80 targetPort: 8080 protocol: TCP name: grpc selector: app: gprod transcoder配置 生成descriptor 文件">
   <meta itemprop="datePublished" content="2022-08-17T17:29:33+08:00">
   <meta itemprop="dateModified" content="2022-08-17T17:29:33+08:00">
   <meta itemprop="wordCount" content="446">
@@ -66,7 +67,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Envoy转换grpc为http">
   <meta name="twitter:description" content="文档 https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter
-环境准备 Gateway 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ">
+环境准备 Gateway 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 apiVersion: networking.istio.io/v1beta1 kind: Gateway metadata: name: grpc-gateway namespace: myistio spec: selector: istio: grpc-ingressgateway servers: - port: number: 80 name: grpc protocol: GRPC hosts: - &#34;*&#34; VirtualService 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 apiVersion: networking.istio.io/v1beta1 kind: VirtualService metadata: name: grpcvs namespace: myistio spec: hosts: - &#34;*&#34; gateways: - grpc-gateway http: - route: - destination: host: gprodsvc port: number: 80 业务yaml 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 apiVersion: apps/v1 kind: Deployment metadata: name: gprodapi namespace: myistio spec: selector: matchLabels: app: gprod replicas: 1 template: metadata: labels: app: gprod version: v1 spec: nodeName: node1 containers: - name: gprodapi image: alpine:3.12 imagePullPolicy: IfNotPresent command: [&#34;/app/gprods&#34;] volumeMounts: - name: appdata mountPath: /app ports: - containerPort: 8080 volumes: - name: appdata hostPath: path: /root/build --- apiVersion: v1 kind: Service metadata: name: gprodsvc namespace: myistio labels: app: gprod spec: type: ClusterIP ports: - port: 80 targetPort: 8080 protocol: TCP name: grpc selector: app: gprod transcoder配置 生成descriptor 文件">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>

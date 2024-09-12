@@ -13,9 +13,12 @@ tags: ["k8s"]
 # 查看导出的nfs
 ➜ cat /etc/exports
 # 重新导出
+➜ vim /etc/exports
+	/data/public *(rw,sync,no_root_squash,no_subtree_check)
 ➜ exportfs -a
 ➜ systemctl status nfs-server
 # 挂载配置情况
+➜ apt-get install nfs-common
 ➜ showmount -e localhost
 Export list for localhost:
 /data/public *
