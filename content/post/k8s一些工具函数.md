@@ -602,5 +602,26 @@ done
 go get "k8s.io/kubernetes@v${VERSION}"
 ```
 
+### 多平台构建
 
+```dockerfile
+FROM  golang:1.21 as build_context
+ARG TARGETARCH
+
+WORKDIR /workspace
+ADD . /workspace/
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build  migrate.go
+FROM scratch
+COPY --from=build_context /workspace/migrate /usr/local/bin/migrate
+WORKDIR /
+CMD ["migrate"]
+```
+
+构建
+
+```bash
+docker buildx create --platform linux/amd64,linux/arm64 --use
+docker buildx build --platform linux/amd64,linux/arm64 -t radondb/migrate:2.1.1 . --push
+```
 
