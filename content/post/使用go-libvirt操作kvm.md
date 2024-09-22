@@ -58,6 +58,14 @@ systemctl disable libvirtd-ro.socket
 systemctl disable libvirtd-admin.socket 
 ```
 
+启动
+
+```bash
+systemctl start libvirtd
+```
+
+
+
 ### 代码访问
 
 ```go
