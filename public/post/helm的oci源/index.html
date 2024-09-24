@@ -71,7 +71,7 @@
 1 2 3 # 无法添加 helm repo add test oci:// Error: looks like &#34;oci://hub.kubesphere.com.cn/kse/ks-core&#34; is not a valid chart repository or cannot be reached: object required helm拉取 1 helm pull oci://hub.kubesphere.com.cn/kse/ks-core --version 1.0.8 curl模拟 由于使用的是oci标准, 那么应该是可以使用标准docker镜像的拉取方式">
   <meta itemprop="datePublished" content="2024-07-23T11:49:25+08:00">
   <meta itemprop="dateModified" content="2024-07-23T11:49:25+08:00">
-  <meta itemprop="wordCount" content="411">
+  <meta itemprop="wordCount" content="461">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Helm的oci源">
@@ -152,7 +152,7 @@
         <div class="post-meta">
             <span class="post-time"> 2024-07-23 </span>
             
-            <span class="more-meta"> 约 411 字 更新于 2024-07-23
+            <span class="more-meta"> 约 461 字 更新于 2024-07-23
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -172,6 +172,7 @@
             <li><a href="#不支持添加为repo">不支持添加为repo</a></li>
             <li><a href="#helm拉取">helm拉取</a></li>
             <li><a href="#curl模拟">curl模拟</a></li>
+            <li><a href="#本地源测试">本地源测试</a></li>
           </ul>
         </li>
       </ul>
@@ -330,6 +331,46 @@
 </span></span><span class="line"><span class="cl">└── ks-core-1.0.8.tgz
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="m">1</span> directory, <span class="m">1</span> file
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="本地源测试">本地源测试</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker run -d -p 5000:5000 --restart<span class="o">=</span>always --name registry registry
+</span></span><span class="line"><span class="cl"><span class="c1"># admin admin</span>
+</span></span><span class="line"><span class="cl">helm registry login localhost:5000
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>推送/查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">helm push demo-0.1.0.tgz oci://localhost:5000/helm-charts
+</span></span><span class="line"><span class="cl">helm push test-0.1.0.tgz oci://localhost:5000/helm-charts
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="err">curl</span> <span class="err">http:</span><span class="c1">//localhost:5000/v2/_catalog
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="nt">&#34;repositories&#34;</span><span class="p">:[</span><span class="s2">&#34;helm-charts/demo&#34;</span><span class="p">,</span><span class="s2">&#34;helm-charts/test&#34;</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">curl</span> <span class="err">http:</span><span class="c1">//localhost:5000/v2/helm-charts/test/tags/list
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;helm-charts/test&#34;</span><span class="p">,</span><span class="nt">&#34;tags&#34;</span><span class="p">:[</span><span class="s2">&#34;0.1.0&#34;</span><span class="p">]}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div>

@@ -97,3 +97,25 @@ d➜  tree
 1 directory, 1 file
 ```
 
+### 本地源测试
+
+```bash
+docker run -d -p 5000:5000 --restart=always --name registry registry
+# admin admin
+helm registry login localhost:5000
+```
+
+推送/查看
+
+```bash
+helm push demo-0.1.0.tgz oci://localhost:5000/helm-charts
+helm push test-0.1.0.tgz oci://localhost:5000/helm-charts
+```
+
+```json
+curl http://localhost:5000/v2/_catalog
+{"repositories":["helm-charts/demo","helm-charts/test"]}
+
+curl http://localhost:5000/v2/helm-charts/test/tags/list
+{"name":"helm-charts/test","tags":["0.1.0"]}
+```
