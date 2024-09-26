@@ -109,7 +109,7 @@ type RESTUpdateStrategy interface {
 }
 ```
 
-其中这个 `ValidateUpdate` ,就是触发这个错误的位置, 我们看一下crd的这个方法实现, 代码位置在 `staging/src/k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/validation/validation.go`
+其中这个 `ValidateUpdate` ,就是触发这个错误的位置, 最终调用的函数是`ValidateCustomResourceDefinition `看一下这个方法实现, 代码位置在 `staging/src/k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/validation/validation.go`
 
 <img src="https://inksnw.asuscomm.com:3001/blog/一个crd的storedVersions错误_6b28e29d2649b88dbc7e33223d4bdfff.png" alt="image-20240926174947953" style="zoom:50%;" />
 
