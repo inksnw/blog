@@ -65,7 +65,7 @@
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 apiVersion: apiextensions.k8s.io/v1 kind: CustomResourceDefinition metadata: name: testcrds.example.com spec: group: example.com names: kind: TestCRD plural: testcrds scope: Namespaced versions: - name: v1 served: true storage: false schema: openAPIV3Schema: type: object properties: spec: type: object properties: foo: type: string - name: v2 served: true storage: true schema: openAPIV3Schema: type: object properties: spec: type: object properties: foo: type: string 1 kubectl apply -f c.yaml 再次提交一个更新">
   <meta itemprop="datePublished" content="2024-09-26T17:20:05+08:00">
   <meta itemprop="dateModified" content="2024-09-26T17:20:05+08:00">
-  <meta itemprop="wordCount" content="592">
+  <meta itemprop="wordCount" content="610">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="一个crd的storedVersions错误">
@@ -144,7 +144,7 @@
         <div class="post-meta">
             <span class="post-time"> 2024-09-26 </span>
             
-            <span class="more-meta"> 约 592 字 更新于 2024-09-26
+            <span class="more-meta"> 约 610 字 更新于 2024-09-26
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -163,6 +163,7 @@
           <ul>
             <li><a href="#复现">复现</a></li>
             <li><a href="#源码分析">源码分析</a></li>
+            <li><a href="#解决办法">解决办法</a></li>
           </ul>
         </li>
       </ul>
@@ -361,6 +362,8 @@
 <p>继续看这个 <code>ValidateCustomResourceDefinitionStoredVersions</code>函数</p>
 <img src="https://inksnw.asuscomm.com:3001/blog/一个crd的storedVersions错误_29c68d3dbfcc65b976343a8a36a9818b.png" alt="image-20240926175336190" style="zoom:50%;" />
 <p>大意就是从资源的<code>Status.StoredVersions</code> 字段中取出存储的版本列表, 然后和将要提交的比对, 如果也是storage为true并且在旧的里面没找到, 就报错, 大概是这个意思吧, 逻辑比较简单就不单步调试了</p>
+<h3 id="解决办法">解决办法</h3>
+<p>删除旧的crd, 重新提交新的</p>
 <p>水完了, 就这样</p>
 
     </div>

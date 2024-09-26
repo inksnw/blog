@@ -119,4 +119,8 @@ type RESTUpdateStrategy interface {
 
 大意就是从资源的`Status.StoredVersions` 字段中取出存储的版本列表, 然后和将要提交的比对, 如果也是storage为true并且在旧的里面没找到, 就报错, 大概是这个意思吧, 逻辑比较简单就不单步调试了
 
+### 解决办法
+
+删除旧的crd, 重新提交新的
+
 水完了, 就这样
