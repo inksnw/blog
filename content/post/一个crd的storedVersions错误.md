@@ -7,7 +7,7 @@ tags: ["k8s"]
 哎, 最近水文章也没意思了, 但还是写一个吧, 解决同事遇到的一个错误
 
 ```bash
-The CustomResourceDefinition "testcrds.example.com" is invalid: status.storedVersions[0]: Invalid value: "v1": must appear in spec.versions
+The CustomResourceDefinition "testcrds.example.com" is invalid: status.storedVersions[0]: Invalid value: "v2": must appear in spec.versions
 ```
 
 ### 复现
