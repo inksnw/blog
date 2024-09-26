@@ -86,10 +86,16 @@ spec:
 
 ```bash
 root@server:~# kubectl apply -f c.yaml 
-The CustomResourceDefinition "testcrds.example.com" is invalid: status.storedVersions[0]: Invalid value: "v1": must appear in spec.versions
+The CustomResourceDefinition "testcrds.example.com" is invalid: status.storedVersions[0]: Invalid value: "v2": must appear in spec.versions
 ```
 
-原因, 第一次crd 指定了存储的版本是v2, 再提交一个存储的版本是v3, 当然就不在范围内了
+原因, 第一次crd 指定了存储的版本是v2, 再提交一个存储的版本是v3, 就不对了
+
+那如果把v2,v3都设为`storage: true` 呢
+
+> must have exactly one version marked as storage version
+
+报错, 只能有一个版本储存
 
 ### 源码分析
 

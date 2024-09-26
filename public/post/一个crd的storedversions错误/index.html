@@ -65,7 +65,7 @@
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 apiVersion: apiextensions.k8s.io/v1 kind: CustomResourceDefinition metadata: name: testcrds.example.com spec: group: example.com names: kind: TestCRD plural: testcrds scope: Namespaced versions: - name: v1 served: true storage: false schema: openAPIV3Schema: type: object properties: spec: type: object properties: foo: type: string - name: v2 served: true storage: true schema: openAPIV3Schema: type: object properties: spec: type: object properties: foo: type: string 1 kubectl apply -f c.yaml 再次提交一个更新">
   <meta itemprop="datePublished" content="2024-09-26T17:20:05+08:00">
   <meta itemprop="dateModified" content="2024-09-26T17:20:05+08:00">
-  <meta itemprop="wordCount" content="554">
+  <meta itemprop="wordCount" content="592">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="一个crd的storedVersions错误">
@@ -144,7 +144,7 @@
         <div class="post-meta">
             <span class="post-time"> 2024-09-26 </span>
             
-            <span class="more-meta"> 约 554 字 更新于 2024-09-26
+            <span class="more-meta"> 约 592 字 更新于 2024-09-26
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -329,10 +329,15 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@server:~# kubectl apply -f c.yaml 
-</span></span><span class="line"><span class="cl">The CustomResourceDefinition <span class="s2">&#34;testcrds.example.com&#34;</span> is invalid: status.storedVersions<span class="o">[</span>0<span class="o">]</span>: Invalid value: <span class="s2">&#34;v1&#34;</span>: must appear in spec.versions
+</span></span><span class="line"><span class="cl">The CustomResourceDefinition <span class="s2">&#34;testcrds.example.com&#34;</span> is invalid: status.storedVersions<span class="o">[</span>0<span class="o">]</span>: Invalid value: <span class="s2">&#34;v2&#34;</span>: must appear in spec.versions
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>原因, 第一次crd 指定了存储的版本是v2, 再提交一个存储的版本是v3, 当然就不在范围内了</p>
+</div><p>原因, 第一次crd 指定了存储的版本是v2, 再提交一个存储的版本是v3, 就不对了</p>
+<p>那如果把v2,v3都设为<code>storage: true</code> 呢</p>
+<blockquote>
+<p>must have exactly one version marked as storage version</p>
+</blockquote>
+<p>报错, 只能有一个版本储存</p>
 <h3 id="源码分析">源码分析</h3>
 <p>k8s的资源都要实现一个更新策略接口 <code>rest.RESTUpdateStrategy</code>, 这个接口要实现一些方法, 用于创建/更新等时的验证</p>
 <div class="highlight"><div class="chroma">

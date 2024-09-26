@@ -168,10 +168,15 @@
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@server:~# kubectl apply -f c.yaml 
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;The CustomResourceDefinition &lt;span class=&#34;s2&#34;&gt;&amp;#34;testcrds.example.com&amp;#34;&lt;/span&gt; is invalid: status.storedVersions&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;0&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: Invalid value: &lt;span class=&#34;s2&#34;&gt;&amp;#34;v1&amp;#34;&lt;/span&gt;: must appear in spec.versions
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;The CustomResourceDefinition &lt;span class=&#34;s2&#34;&gt;&amp;#34;testcrds.example.com&amp;#34;&lt;/span&gt; is invalid: status.storedVersions&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;0&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;: Invalid value: &lt;span class=&#34;s2&#34;&gt;&amp;#34;v2&amp;#34;&lt;/span&gt;: must appear in spec.versions
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;原因, 第一次crd 指定了存储的版本是v2, 再提交一个存储的版本是v3, 当然就不在范围内了&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;原因, 第一次crd 指定了存储的版本是v2, 再提交一个存储的版本是v3, 就不对了&lt;/p&gt;
+&lt;p&gt;那如果把v2,v3都设为&lt;code&gt;storage: true&lt;/code&gt; 呢&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;must have exactly one version marked as storage version&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;报错, 只能有一个版本储存&lt;/p&gt;
 &lt;h3 id=&#34;源码分析&#34;&gt;源码分析&lt;/h3&gt;
 &lt;p&gt;k8s的资源都要实现一个更新策略接口 &lt;code&gt;rest.RESTUpdateStrategy&lt;/code&gt;, 这个接口要实现一些方法, 用于创建/更新等时的验证&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
