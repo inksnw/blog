@@ -622,6 +622,6 @@ CMD ["migrate"]
 
 ```bash
 docker buildx create --platform linux/amd64,linux/arm64 --use
-docker buildx build --platform linux/amd64,linux/arm64 -t radondb/migrate:2.1.1 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -t xxx/xxx:2.1.1 . --push
 ```
 
