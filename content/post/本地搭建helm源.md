@@ -25,6 +25,8 @@ chartmuseum --debug --port=8080  --storage="local"  --storage-local-rootdir="./c
 helm repo add myrepo http://192.168.50.251:8080
 helm cm-push test-0.1.0.tgz myrepo
 helm repo update
+#删除
+curl -X DELETE http://192.168.50.251:8080/api/charts/test/0.1.0
 # 查看
 helm search repo myrepo
 NAME       	CHART VERSION	APP VERSION	DESCRIPTION                
