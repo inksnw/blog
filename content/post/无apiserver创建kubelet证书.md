@@ -28,6 +28,7 @@ grep client-key-data ~/.kube/config | awk '{ print $2 }' | base64 --decode > cli
 
 ```bash
 cat client-cert.pem client-key.pem > /var/lib/kubelet/pki/kubelet-client-current.pem
+systemctl restart kubelet
 ```
 
 提取的证书通常属于 `system:masters` 组，而不是 `system:nodes` 组。`system:masters` 组通常具有更高的权限，而 `system:nodes` 组是专门为节点设计的，权限相对较低
@@ -75,5 +76,5 @@ openssl x509 -req -in vm87.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubern
 
 ```bash
 cat vm87.pem vm87-key.pem > /var/lib/kubelet/pki/kubelet-client-current.pem
-sudo systemctl restart kubelet
+systemctl restart kubelet
 ```
