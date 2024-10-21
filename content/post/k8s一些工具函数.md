@@ -605,7 +605,7 @@ go get "k8s.io/kubernetes@v${VERSION}"
 ### 多平台构建
 
 ```dockerfile
-FROM  golang:1.21 as build_context
+FROM  golang:1.21 AS build_context
 ARG TARGETARCH
 
 WORKDIR /workspace
@@ -623,5 +623,13 @@ CMD ["migrate"]
 ```bash
 docker buildx create --platform linux/amd64,linux/arm64 --use
 docker buildx build --platform linux/amd64,linux/arm64 -t xxx/xxx:2.1.1 . --push
+```
+
+### pod流量劫持到本地
+
+```bash
+iptables -t nat -L -n --line-numbers
+iptables -t nat -A OUTPUT -p tcp --dport 80 -d 10.233.122.16 -j DNAT --to-destination 10.9.0.2:8000
+iptables -t nat -D OUTPUT -p tcp --dport 80 -d 10.233.122.16 -j DNAT --to-destination 10.9.0.2:8000
 ```
 
