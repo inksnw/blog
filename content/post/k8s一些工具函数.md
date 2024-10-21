@@ -629,7 +629,9 @@ docker buildx build --platform linux/amd64,linux/arm64 -t xxx/xxx:2.1.1 . --push
 
 ```bash
 iptables -t nat -L -n --line-numbers
+# 添加
 iptables -t nat -A OUTPUT -p tcp --dport 80 -d 10.233.122.16 -j DNAT --to-destination 10.9.0.2:8000
+# 删除
 iptables -t nat -D OUTPUT -p tcp --dport 80 -d 10.233.122.16 -j DNAT --to-destination 10.9.0.2:8000
 ```
 
