@@ -625,13 +625,11 @@ docker buildx create --platform linux/amd64,linux/arm64 --use
 docker buildx build --platform linux/amd64,linux/arm64 -t xxx/xxx:2.1.1 . --push
 ```
 
-### pod流量劫持到本地
+### 快速流量到本地
 
 ```bash
-iptables -t nat -L -n --line-numbers
-# 添加
-iptables -t nat -A OUTPUT -p tcp --dport 80 -d 10.233.122.16 -j DNAT --to-destination 10.9.0.2:8000
-# 删除
-iptables -t nat -D OUTPUT -p tcp --dport 80 -d 10.233.122.16 -j DNAT --to-destination 10.9.0.2:8000
+kubectl patch svc ks-apiserver -n kubesphere-system --type='json' -p="[{'op': 'replace', 'path': '/spec/selector', 'value': {\"app\": \"my-custom-pod\"}}]"
+kubectl run tmp-shell --labels="app=my-custom-pod" -n kubesphere-system --rm -i --tty --image nicolaka/netshoot
+socat TCP-LISTEN:9090,fork TCP:10.9.0.2:9191
 ```
 
