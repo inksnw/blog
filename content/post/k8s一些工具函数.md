@@ -540,6 +540,7 @@ go get "k8s.io/kubernetes@v1.26.5"
 
 ```bash
 kubectl run nginx --image=nginx --dry-run=client -o yaml
+kubectl create configmap my-config --from-literal=foo=bar
 kubectl run nginx --image=nginx --overrides='{"apiVersion":"v1","spec":{"nodeName":"m1"}}'
 kubectl create deployment nginx --image=nginx
 kubectl create deployment nginx --image=nginx --dry-run=client  -oyaml 
