@@ -55,6 +55,53 @@ http://127.0.0.1:8080/abc
 - 生成crd 的openapi文件用于 `kubectl apply` 的时候校验, 判断字段的合并规则等等
 - 提供一个`watch` api, 当一个控制程序监听到资源的变动时, 触发逻辑
 
+k8s的watch功能本质就是利用http的`chunked`功能
+
+源码位于k8s.io/apiserver/pkg/endpoints/handlers/watch.go 200行, 调用位置在k8s.io/apiserver/pkg/endpoints/handlers/get.go 270行
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"time"
+)
+
+func main() {
+	ch := make(chan []byte)
+	go func() {
+		for {
+			data := map[string]string{
+				"date": time.Now().Format(time.DateTime),
+			}
+			now, _ := json.Marshal(data)
+			ch <- now
+			time.Sleep(time.Second * 3)
+		}
+	}()
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		flusher, _ := writer.(http.Flusher)
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Header().Set("Transfer-Encoding", "chunked")
+		writer.WriteHeader(http.StatusOK)
+		flusher.Flush()
+		for {
+			select {
+			case data := <-ch:
+				writer.Write(data)
+				flusher.Flush()
+			}
+		}
+	})
+	fmt.Println("server start")
+	http.ListenAndServe(":8080", nil)
+}
+```
+
+<img src="/Users/inksnw/Desktop/模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7" style="zoom:50%;" />
+
 有什么不足点呢?
 
 控制程序能在资源创建/更新/删除时候触发逻辑, 但是没法处理查询时, 比如你想实现查询一个cr的时候附加一些动态的环境变量, 那就不行了 

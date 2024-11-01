@@ -59,7 +59,7 @@
   <meta itemprop="description" content="Kubernetes 可以通过多种方式扩展其 API。本文将深入探讨三种主要的扩展方式：自定义资源定义（Custom Resource Definitions, CRD）、聚合 API（API Aggregation）以及独立的 API Server。这里通过案例分析每种方式的优缺点，帮助你选择最适合你需求的扩展方式。">
   <meta itemprop="datePublished" content="2024-10-29T16:25:46+08:00">
   <meta itemprop="dateModified" content="2024-10-29T16:25:46+08:00">
-  <meta itemprop="wordCount" content="3093">
+  <meta itemprop="wordCount" content="3347">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="也讲讲扩展k8s的api">
@@ -136,7 +136,7 @@
         <div class="post-meta">
             <span class="post-time"> 2024-10-29 </span>
             
-            <span class="more-meta"> 约 3093 字 更新于 2024-10-29
+            <span class="more-meta"> 约 3347 字 更新于 2024-10-29
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -246,6 +246,91 @@
 <li>生成crd 的openapi文件用于 <code>kubectl apply</code> 的时候校验, 判断字段的合并规则等等</li>
 <li>提供一个<code>watch</code> api, 当一个控制程序监听到资源的变动时, 触发逻辑</li>
 </ul>
+<p>k8s的watch功能本质就是利用http的<code>chunked</code>功能</p>
+<p>源码位于k8s.io/apiserver/pkg/endpoints/handlers/watch.go 200行, 调用位置在k8s.io/apiserver/pkg/endpoints/handlers/get.go 270行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;encoding/json&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ch</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">data</span> <span class="o">:=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;date&#34;</span><span class="p">:</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">DateTime</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">now</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">ch</span> <span class="o">&lt;-</span> <span class="nx">now</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">writer</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">request</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">flusher</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">writer</span><span class="p">.(</span><span class="nx">http</span><span class="p">.</span><span class="nx">Flusher</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">writer</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">writer</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Transfer-Encoding&#34;</span><span class="p">,</span> <span class="s">&#34;chunked&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">writer</span><span class="p">.</span><span class="nf">WriteHeader</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusOK</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">flusher</span><span class="p">.</span><span class="nf">Flush</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">case</span> <span class="nx">data</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">ch</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">writer</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">flusher</span><span class="p">.</span><span class="nf">Flush</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">})</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;server start&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><img src="/Users/inksnw/Desktop/模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7" style="zoom:50%;" />
 <p>有什么不足点呢?</p>
 <p>控制程序能在资源创建/更新/删除时候触发逻辑, 但是没法处理查询时, 比如你想实现查询一个cr的时候附加一些动态的环境变量, 那就不行了</p>
 <p>假设在做一个数据管理平台, 要管理多种数据库实现, 通过 crd 实现有什么问题</p>
