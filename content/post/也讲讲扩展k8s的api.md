@@ -523,4 +523,4 @@ func NewGenericStoreRegistry(scheme *runtime.Scheme, hasCacheEnabled bool, resou
 
 ## 总结
 
-这里介绍了三种扩展k8s的方式, 说透原理后, 他并不复杂, 在实际生产需要中, 可以按需选择
+这里介绍了三种扩展k8s的方式, 说透原理后, 他并不复杂, CRD适用于简单的资源管理，聚合API适用于复杂的API扩展，独立的API Server适用于完全自定义的API实现
