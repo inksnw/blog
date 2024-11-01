@@ -8,50 +8,56 @@ Kubernetes 可以通过多种方式扩展其 API。本文将深入探讨三种�
 
 ## 使用 CRD 扩展 Kubernetes API
 
-定义一个CRD名为 `DatabaseConfig` 的资源类型，如下所示：
+原理分析
 
-```yaml
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: databaseconfigs.example.com
-spec:
-  group: example.com
-  versions:
-    - name: v1
-      served: true
-      storage: true
-      schema:
-        openAPIV3Schema:
-          type: object
-          properties:
-            spec:
-              type: object
-              properties:
-                replicas:
-                  type: integer
-                storage:
-                  type: string
-  scope: Namespaced
-  names:
-    plural: databaseconfigs
-    singular: databaseconfig
-    kind: DatabaseConfig
-    shortNames:
-    - dbcfg
+我们先实现一个最简单的动态api
+
+```go
+package main
+
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+var router *gin.Engine
+
+func init() {
+	router = gin.Default()
+}
+
+func addRouteHandler(c *gin.Context) {
+	path := c.Param("path")
+	router.GET("/"+path, func(c *gin.Context) {
+		c.String(http.StatusOK, "This is a new GET route: "+path)
+	})
+	c.JSON(http.StatusOK, gin.H{"message": "Route added successfully"})
+}
+
+func main() {
+	router.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "Welcome to the Gin router!")
+	})
+	router.GET("/add-route/:path", addRouteHandler)
+	router.Run(":8080")
+}
 ```
 
-定义好 CRD 后，你可以在 Kubernetes 中创建和管理 `DatabaseConfig` 资源：
+操作验证
 
-```yaml
-apiVersion: example.com/v1
-kind: DatabaseConfig
-metadata:
-  name: my-database
-spec:
-  replicas: 3
-  storage: "10Gi"
+```bash
+http://127.0.0.1:8080/add-route/abc
+http://127.0.0.1:8080/abc
 ```
+
+是的, 这就是 crd 的核心原理, 即动态的给一个apiserver增加路由, 但是不对, crd 的定义呢, imformer呢, 这些只是k8s又在此附加的功能
+
+- 生成crd 的openapi文件用于 `kubectl apply` 的时候校验
+- 再启动一个控制程序监听资源的变动, 触发逻辑
+
+有什么问题?
+
+控制程序能在资源创建/更新/删除时候触发逻辑, 但是没法处理查询时, 比如你想实现查询一个cr的时候附加一些动态的环境变量, 那就不行了 
 
 假设在做一个数据管理平台, 要管理多种数据库实现, 那crd有什么问题
 
@@ -68,7 +74,7 @@ spec:
 
 聚合 API（API Aggregation）是 Kubernetes 提供的一种更高级的 API 扩展方式。通过聚合 API，用户可以编写一个独立的 API Server，并将其注册到 Kubernetes 的 API Server 中。Kubernetes 会将对该 API Server 的请求转发到该 API Server 进行处理。
 
-写一段最简单的api代码
+核心原理, 两个字:  `转发`, 写一段最简单的api代码
 
 ```go
 package main
@@ -159,11 +165,18 @@ mypod1   <unknown>
 
 这就解决了上文提到的, crd的get请求无法自定义的问题, 就可以透传查询, 避免数据不同步
 
-兼容kubectl工具, 
+兼容kubectl工具, 只要为之实现不同的路由及方法, 就可以自己控制增删改查时的行为, 你想到了什么, 是不是可以实现一个apiserver覆盖pod的路由, 他查询pod时, 我就从两个集群查询pod,然后合并起来, 当有创建请求, 我就分别向两个集群发送创建,  这是不是就实现了多集群管理与多集群分发?! 是的, karmada, clusterpedia的核心原理就是这个, 但他们还有更多的逻辑, 我们继续看下文
 
 ## 使用独立的 API Server 而不依赖k8s
 
-有没有可能使用k8s的sdk而不依赖k8s, 比如写一个博客后台管理, 希望实现 kubectl create post 就创建一个文章, 还能用informer监听文章资源变动, 但不需要安装k8s, 当然这里多少有点看什么都是钉子的意思了, 但有些场景下可能确实有用
+有没有可能使用k8s的sdk而不依赖k8s, 比如写一个博客后台管理, 希望实现 kubectl create post 就创建一个文章, 还能用informer监听文章资源变动, 但不需要安装k8s, 数据可以存储到mysql 里?
+
+上文已经实现了
+
+- 注册资源路由
+- 独立存储(字符串)
+
+只是还需要k8s, 这里我们只要再实现脱离k8s的apiserver, 就搞定了
 
 实现api注册
 
@@ -231,7 +244,7 @@ func createAPIGroupInfo() *genericapiserver.APIGroupInfo {
 		v1alpha1.SchemeGroupVersion.Group,
 		sch.Scheme,
 		metav1.ParameterCodec, sch.Codecs)
-
+	// 这里注册的是一个虚拟机的资源, 你可以实现当这个资源创建就去调用 /usr/sbin/libvirtd 的socket实现创建虚拟机
 	addResource(&agi, &v1alpha1.VirtualMachine{})
 	addResource(&agi, &v1alpha1.PhysicalNode{})
 	addResource(&agi, &v1alpha1.StoragePool{})
@@ -275,9 +288,7 @@ func addResource(agi *genericapiserver.APIGroupInfo, resourceObj v1alpha1.Resour
 
 ```
 
-
-
-实现存储, 这里使用了etcd和k8s内的代码, 你完全可以自己实现存储, 存到关系型数据, 比如karmada, clusterpedia的实现
+实现存储, 这里使用了etcd作为存储, 你完全可以自己实现存储, 存到关系型数据, 比如karmada, clusterpedia的实现
 
 ```go
 package store
@@ -491,5 +502,15 @@ func NewGenericStoreRegistry(scheme *runtime.Scheme, hasCacheEnabled bool, resou
 }
 ```
 
+看一下还缺失的功能
 
+- [x]  自定义资源注册
+- [x]  自定义资源存储
+- [ ]  实现事件驱动的逻辑触发
 
+目前只是当资源创建时就存储到etcd中, 由于这是一个标准的 k8s风格的 apiserver 你当然可以使用 `client-go` 的代码去创建 `operator` 来实现一个不依赖k8s 又有reconcile的平台, 所以这个也搞定了
+- [x]  实现事件驱动的逻辑触发
+
+## 总结
+
+这里介绍了三种扩展k8s的方式, 说透原理后, 他并不复杂, 在实际生产需要中, 可以按需选择
