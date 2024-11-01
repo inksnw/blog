@@ -100,7 +100,7 @@ func main() {
 }
 ```
 
-<img src="/Users/inksnw/Desktop/模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7" style="zoom:50%;" />
 
 有什么不足点呢?
 
