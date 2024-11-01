@@ -52,21 +52,27 @@ http://127.0.0.1:8080/abc
 
 是的, 这就是 crd 的核心原理, 即动态的给一个apiserver增加路由, 但是不对, crd 的定义呢, imformer呢, 这些只是k8s又在此附加的功能
 
-- 生成crd 的openapi文件用于 `kubectl apply` 的时候校验
-- 再启动一个控制程序监听资源的变动, 触发逻辑
+- 生成crd 的openapi文件用于 `kubectl apply` 的时候校验, 判断字段的合并规则等等
+- 提供一个`watch` api, 当一个控制程序监听到资源的变动时, 触发逻辑
 
-有什么问题?
+有什么不足点呢?
 
 控制程序能在资源创建/更新/删除时候触发逻辑, 但是没法处理查询时, 比如你想实现查询一个cr的时候附加一些动态的环境变量, 那就不行了 
 
-假设在做一个数据管理平台, 要管理多种数据库实现, 那crd有什么问题
+假设在做一个数据管理平台, 要管理多种数据库实现, 通过 crd 实现有什么问题
 
-1. 有新的crd学习成本, 数据库实现可能是第三方的, 他们不愿意改成你设计的crd
-2. 使用一个字段存储具体crd的字符串,套娃具体数据库的crd
-3. 但是如果用户绕过直接改底层的crd会有数据同步问题, 就需要做数据同步
-4. 如果是一个api调用, 有自己的服务端, 可以透传查询, 但这需要一个独立的后端api服务
+- 有新的crd学习成本, 数据库实现可能是第三方的, 他们不愿意改成你设计的crd, 那用一个字段存储具体crd的字符串,套娃实现?
 
->  局限的原因, crd只能在controller层实现创建/删除/修改逻辑, 而查询是标准的k8s api 无法自定义
+```yaml
+spec:
+ realCRD: "xxxx"
+```
+
+- 但是如果用户绕过直接改底层的crd会有数据同步问题, 就需要做数据同步
+
+- 如果需求只是 `restapi`有自己的服务端, 可以透传查询真实的资源, 如果不是呢, 使用者直接对接的k8s的api呢
+
+局限的原因, crd只能在controller层实现创建/删除/修改逻辑, 而查询是标准的k8s api 无法自定义
 
 
 
@@ -153,9 +159,9 @@ spec:
   versionPriority: 100
 ```
 
-执行 `kubectl get deploy -v=6` 可以发现请求的实际地址是`https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1`
+执行 `kubectl get deploy -v=6` 可以看到请求的地址是 `https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1`
 
-因此,我们只要实现`/apis/apis.abc.com/v1/namespaces/default/mypod`的路由,即可实现使用kubectl 来查询我们的自定义资源
+因此,我们只要实现类似的路由,即可使用kubectl 来查询我们的自定义资源
 
 ```bash
 ➜ kubectl get mypod
@@ -163,9 +169,9 @@ NAME     AGE
 mypod1   <unknown>
 ```
 
-这就解决了上文提到的, crd的get请求无法自定义的问题, 就可以透传查询, 避免数据不同步
+这就解决了上文提到的, crd的get请求无法自定义的问题, 就可以透传查询,  避免数据不同步, 还兼容了 `restapi` 和 `sdk`
 
-兼容kubectl工具, 只要为之实现不同的路由及方法, 就可以自己控制增删改查时的行为, 你想到了什么, 是不是可以实现一个apiserver覆盖pod的路由, 他查询pod时, 我就从两个集群查询pod,然后合并起来, 当有创建请求, 我就分别向两个集群发送创建,  这是不是就实现了多集群管理与多集群分发?! 是的, karmada, clusterpedia的核心原理就是这个, 但他们还有更多的逻辑, 我们继续看下文
+只要为之实现不同的路由及方法, 就可以自己控制增删改查时的行为, 你想到了什么, 是不是可以实现一个apiserver覆盖pod的路由, 他查询pod时, 我就从两个集群查询pod,然后合并起来, 当有创建请求, 我就分别向两个集群发送创建,  这是不是就实现了多集群管理与多集群分发 ?! 是的, karmada, clusterpedia的核心原理就是这个, 但他们还有更多的逻辑, 我们继续看下文
 
 ## 使用独立的 API Server 而不依赖k8s
 
@@ -510,6 +516,10 @@ func NewGenericStoreRegistry(scheme *runtime.Scheme, hasCacheEnabled bool, resou
 
 目前只是当资源创建时就存储到etcd中, 由于这是一个标准的 k8s风格的 apiserver 你当然可以使用 `client-go` 的代码去创建 `operator` 来实现一个不依赖k8s 又有reconcile的平台, 所以这个也搞定了
 - [x]  实现事件驱动的逻辑触发
+
+如果你只提供查询功能, 把存储换成mysql, 再用informer把数据同步到mysql中那这就是 clusterpedia
+
+如果你把增删改查的逻辑自己实现, 而不使用etcd存储内置的, 就能实现比如当一个资源提交了, 通过一个调度器, 依据集群性能, 向A集群创建1个副本, B集群创建两2个副本, 这就是karmada
 
 ## 总结
 

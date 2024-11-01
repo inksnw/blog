@@ -59,7 +59,7 @@
   <meta itemprop="description" content="Kubernetes 可以通过多种方式扩展其 API。本文将深入探讨三种主要的扩展方式：自定义资源定义（Custom Resource Definitions, CRD）、聚合 API（API Aggregation）以及独立的 API Server。这里通过案例分析每种方式的优缺点，帮助你选择最适合你需求的扩展方式。">
   <meta itemprop="datePublished" content="2024-10-29T16:25:46+08:00">
   <meta itemprop="dateModified" content="2024-10-29T16:25:46+08:00">
-  <meta itemprop="wordCount" content="3008">
+  <meta itemprop="wordCount" content="3051">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="也讲讲扩展k8s的api">
@@ -136,7 +136,7 @@
         <div class="post-meta">
             <span class="post-time"> 2024-10-29 </span>
             
-            <span class="more-meta"> 约 3008 字 更新于 2024-10-29
+            <span class="more-meta"> 约 3051 字 更新于 2024-10-29
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -243,21 +243,34 @@
 </div>
 </div><p>是的, 这就是 crd 的核心原理, 即动态的给一个apiserver增加路由, 但是不对, crd 的定义呢, imformer呢, 这些只是k8s又在此附加的功能</p>
 <ul>
-<li>生成crd 的openapi文件用于 <code>kubectl apply</code> 的时候校验</li>
-<li>再启动一个控制程序监听资源的变动, 触发逻辑</li>
+<li>生成crd 的openapi文件用于 <code>kubectl apply</code> 的时候校验, 判断字段的合并规则等等</li>
+<li>提供一个<code>watch</code> api, 当一个控制程序监听到资源的变动时, 触发逻辑</li>
 </ul>
-<p>有什么问题?</p>
+<p>有什么不足点呢?</p>
 <p>控制程序能在资源创建/更新/删除时候触发逻辑, 但是没法处理查询时, 比如你想实现查询一个cr的时候附加一些动态的环境变量, 那就不行了</p>
-<p>假设在做一个数据管理平台, 要管理多种数据库实现, 那crd有什么问题</p>
-<ol>
-<li>有新的crd学习成本, 数据库实现可能是第三方的, 他们不愿意改成你设计的crd</li>
-<li>使用一个字段存储具体crd的字符串,套娃具体数据库的crd</li>
-<li>但是如果用户绕过直接改底层的crd会有数据同步问题, 就需要做数据同步</li>
-<li>如果是一个api调用, 有自己的服务端, 可以透传查询, 但这需要一个独立的后端api服务</li>
-</ol>
-<blockquote>
+<p>假设在做一个数据管理平台, 要管理多种数据库实现, 通过 crd 实现有什么问题</p>
+<ul>
+<li>有新的crd学习成本, 数据库实现可能是第三方的, 他们不愿意改成你设计的crd, 那用一个字段存储具体crd的字符串,套娃实现?</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="nt">realCRD</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;xxxx&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>但是如果用户绕过直接改底层的crd会有数据同步问题, 就需要做数据同步</p>
+</li>
+<li>
+<p>如果需求只是 <code>restapi</code>有自己的服务端, 可以透传查询真实的资源, 如果不是呢, 使用者直接对接的k8s的api呢</p>
+</li>
+</ul>
 <p>局限的原因, crd只能在controller层实现创建/删除/修改逻辑, 而查询是标准的k8s api 无法自定义</p>
-</blockquote>
 <h2 id="使用聚合-api-扩展-kubernetes-api">使用聚合 API 扩展 Kubernetes API</h2>
 <p>聚合 API（API Aggregation）是 Kubernetes 提供的一种更高级的 API 扩展方式。通过聚合 API，用户可以编写一个独立的 API Server，并将其注册到 Kubernetes 的 API Server 中。Kubernetes 会将对该 API Server 的请求转发到该 API Server 进行处理。</p>
 <p>核心原理, 两个字:  <code>转发</code>, 写一段最简单的api代码</p>
@@ -412,8 +425,8 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">versionPriority</span><span class="p">:</span><span class="w"> </span><span class="m">100</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>执行 <code>kubectl get deploy -v=6</code> 可以发现请求的实际地址是<code>https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1</code></p>
-<p>因此,我们只要实现<code>/apis/apis.abc.com/v1/namespaces/default/mypod</code>的路由,即可实现使用kubectl 来查询我们的自定义资源</p>
+</div><p>执行 <code>kubectl get deploy -v=6</code> 可以看到请求的地址是 <code>https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1</code></p>
+<p>因此,我们只要实现类似的路由,即可使用kubectl 来查询我们的自定义资源</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -426,8 +439,8 @@
 </span></span><span class="line"><span class="cl">mypod1   &lt;unknown&gt;
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>这就解决了上文提到的, crd的get请求无法自定义的问题, 就可以透传查询, 避免数据不同步</p>
-<p>兼容kubectl工具, 只要为之实现不同的路由及方法, 就可以自己控制增删改查时的行为, 你想到了什么, 是不是可以实现一个apiserver覆盖pod的路由, 他查询pod时, 我就从两个集群查询pod,然后合并起来, 当有创建请求, 我就分别向两个集群发送创建,  这是不是就实现了多集群管理与多集群分发?! 是的, karmada, clusterpedia的核心原理就是这个, 但他们还有更多的逻辑, 我们继续看下文</p>
+</div><p>这就解决了上文提到的, crd的get请求无法自定义的问题, 就可以透传查询,  避免数据不同步, 还兼容了 <code>restapi</code> 和 <code>sdk</code></p>
+<p>只要为之实现不同的路由及方法, 就可以自己控制增删改查时的行为, 你想到了什么, 是不是可以实现一个apiserver覆盖pod的路由, 他查询pod时, 我就从两个集群查询pod,然后合并起来, 当有创建请求, 我就分别向两个集群发送创建,  这是不是就实现了多集群管理与多集群分发 ?! 是的, karmada, clusterpedia的核心原理就是这个, 但他们还有更多的逻辑, 我们继续看下文</p>
 <h2 id="使用独立的-api-server-而不依赖k8s">使用独立的 API Server 而不依赖k8s</h2>
 <p>有没有可能使用k8s的sdk而不依赖k8s, 比如写一个博客后台管理, 希望实现 kubectl create post 就创建一个文章, 还能用informer监听文章资源变动, 但不需要安装k8s, 数据可以存储到mysql 里?</p>
 <p>上文已经实现了</p>
@@ -1086,6 +1099,8 @@
 <ul>
 <li><input checked="" disabled="" type="checkbox"> 实现事件驱动的逻辑触发</li>
 </ul>
+<p>如果你只提供查询功能, 把存储换成mysql, 再用informer把数据同步到mysql中那这就是 clusterpedia</p>
+<p>如果你把增删改查的逻辑自己实现, 而不使用etcd存储内置的, 就能实现比如当一个资源提交了, 通过一个调度器, 依据集群性能, 向A集群创建1个副本, B集群创建两2个副本, 这就是karmada</p>
 <h2 id="总结">总结</h2>
 <p>这里介绍了三种扩展k8s的方式, 说透原理后, 他并不复杂, 在实际生产需要中, 可以按需选择</p>
 

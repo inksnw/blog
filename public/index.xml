@@ -92,21 +92,34 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;是的, 这就是 crd 的核心原理, 即动态的给一个apiserver增加路由, 但是不对, crd 的定义呢, imformer呢, 这些只是k8s又在此附加的功能&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;生成crd 的openapi文件用于 &lt;code&gt;kubectl apply&lt;/code&gt; 的时候校验&lt;/li&gt;
-&lt;li&gt;再启动一个控制程序监听资源的变动, 触发逻辑&lt;/li&gt;
+&lt;li&gt;生成crd 的openapi文件用于 &lt;code&gt;kubectl apply&lt;/code&gt; 的时候校验, 判断字段的合并规则等等&lt;/li&gt;
+&lt;li&gt;提供一个&lt;code&gt;watch&lt;/code&gt; api, 当一个控制程序监听到资源的变动时, 触发逻辑&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;有什么问题?&lt;/p&gt;
+&lt;p&gt;有什么不足点呢?&lt;/p&gt;
 &lt;p&gt;控制程序能在资源创建/更新/删除时候触发逻辑, 但是没法处理查询时, 比如你想实现查询一个cr的时候附加一些动态的环境变量, 那就不行了&lt;/p&gt;
-&lt;p&gt;假设在做一个数据管理平台, 要管理多种数据库实现, 那crd有什么问题&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;有新的crd学习成本, 数据库实现可能是第三方的, 他们不愿意改成你设计的crd&lt;/li&gt;
-&lt;li&gt;使用一个字段存储具体crd的字符串,套娃具体数据库的crd&lt;/li&gt;
-&lt;li&gt;但是如果用户绕过直接改底层的crd会有数据同步问题, 就需要做数据同步&lt;/li&gt;
-&lt;li&gt;如果是一个api调用, 有自己的服务端, 可以透传查询, 但这需要一个独立的后端api服务&lt;/li&gt;
-&lt;/ol&gt;
-&lt;blockquote&gt;
+&lt;p&gt;假设在做一个数据管理平台, 要管理多种数据库实现, 通过 crd 实现有什么问题&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;有新的crd学习成本, 数据库实现可能是第三方的, 他们不愿意改成你设计的crd, 那用一个字段存储具体crd的字符串,套娃实现?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nt&#34;&gt;spec&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;realCRD&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;xxxx&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;但是如果用户绕过直接改底层的crd会有数据同步问题, 就需要做数据同步&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;如果需求只是 &lt;code&gt;restapi&lt;/code&gt;有自己的服务端, 可以透传查询真实的资源, 如果不是呢, 使用者直接对接的k8s的api呢&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;局限的原因, crd只能在controller层实现创建/删除/修改逻辑, 而查询是标准的k8s api 无法自定义&lt;/p&gt;
-&lt;/blockquote&gt;
 &lt;h2 id=&#34;使用聚合-api-扩展-kubernetes-api&#34;&gt;使用聚合 API 扩展 Kubernetes API&lt;/h2&gt;
 &lt;p&gt;聚合 API（API Aggregation）是 Kubernetes 提供的一种更高级的 API 扩展方式。通过聚合 API，用户可以编写一个独立的 API Server，并将其注册到 Kubernetes 的 API Server 中。Kubernetes 会将对该 API Server 的请求转发到该 API Server 进行处理。&lt;/p&gt;
 &lt;p&gt;核心原理, 两个字:  &lt;code&gt;转发&lt;/code&gt;, 写一段最简单的api代码&lt;/p&gt;
@@ -261,8 +274,8 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;w&#34;&gt;  &lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;versionPriority&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;m&#34;&gt;100&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;执行 &lt;code&gt;kubectl get deploy -v=6&lt;/code&gt; 可以发现请求的实际地址是&lt;code&gt;https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;因此,我们只要实现&lt;code&gt;/apis/apis.abc.com/v1/namespaces/default/mypod&lt;/code&gt;的路由,即可实现使用kubectl 来查询我们的自定义资源&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;执行 &lt;code&gt;kubectl get deploy -v=6&lt;/code&gt; 可以看到请求的地址是 &lt;code&gt;https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;因此,我们只要实现类似的路由,即可使用kubectl 来查询我们的自定义资源&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -275,8 +288,8 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mypod1   &amp;lt;unknown&amp;gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;这就解决了上文提到的, crd的get请求无法自定义的问题, 就可以透传查询, 避免数据不同步&lt;/p&gt;
-&lt;p&gt;兼容kubectl工具, 只要为之实现不同的路由及方法, 就可以自己控制增删改查时的行为, 你想到了什么, 是不是可以实现一个apiserver覆盖pod的路由, 他查询pod时, 我就从两个集群查询pod,然后合并起来, 当有创建请求, 我就分别向两个集群发送创建,  这是不是就实现了多集群管理与多集群分发?! 是的, karmada, clusterpedia的核心原理就是这个, 但他们还有更多的逻辑, 我们继续看下文&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;这就解决了上文提到的, crd的get请求无法自定义的问题, 就可以透传查询,  避免数据不同步, 还兼容了 &lt;code&gt;restapi&lt;/code&gt; 和 &lt;code&gt;sdk&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;只要为之实现不同的路由及方法, 就可以自己控制增删改查时的行为, 你想到了什么, 是不是可以实现一个apiserver覆盖pod的路由, 他查询pod时, 我就从两个集群查询pod,然后合并起来, 当有创建请求, 我就分别向两个集群发送创建,  这是不是就实现了多集群管理与多集群分发 ?! 是的, karmada, clusterpedia的核心原理就是这个, 但他们还有更多的逻辑, 我们继续看下文&lt;/p&gt;
 &lt;h2 id=&#34;使用独立的-api-server-而不依赖k8s&#34;&gt;使用独立的 API Server 而不依赖k8s&lt;/h2&gt;
 &lt;p&gt;有没有可能使用k8s的sdk而不依赖k8s, 比如写一个博客后台管理, 希望实现 kubectl create post 就创建一个文章, 还能用informer监听文章资源变动, 但不需要安装k8s, 数据可以存储到mysql 里?&lt;/p&gt;
 &lt;p&gt;上文已经实现了&lt;/p&gt;
@@ -935,6 +948,8 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; 实现事件驱动的逻辑触发&lt;/li&gt;
 &lt;/ul&gt;
+&lt;p&gt;如果你只提供查询功能, 把存储换成mysql, 再用informer把数据同步到mysql中那这就是 clusterpedia&lt;/p&gt;
+&lt;p&gt;如果你把增删改查的逻辑自己实现, 而不使用etcd存储内置的, 就能实现比如当一个资源提交了, 通过一个调度器, 依据集群性能, 向A集群创建1个副本, B集群创建两2个副本, 这就是karmada&lt;/p&gt;
 &lt;h2 id=&#34;总结&#34;&gt;总结&lt;/h2&gt;
 &lt;p&gt;这里介绍了三种扩展k8s的方式, 说透原理后, 他并不复杂, 在实际生产需要中, 可以按需选择&lt;/p&gt;
 </description>
