@@ -261,7 +261,7 @@ spec:
 
 可以看到, 聚合api其实和crd的定义本质上是一样的, 只是crd帮忙把这个资源APIService注册了, 聚合api多了service字段, 从而把请求转发到另一个svc
 
-<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20241105141648652.png" alt="image-20241105141648652" style="zoom:50%;" />
+<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_d2ddef4210d3b9ed7d2cbc0700536534.png" alt="image-20241105141648652" style="zoom:50%;" />
 
 执行 `kubectl get deploy -v=6` 可以看到请求的地址是 `https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1`
 
