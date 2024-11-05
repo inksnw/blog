@@ -8,6 +8,8 @@ k8s的watch功能本质就是利用http的`chunked`功能
 
 源码位于k8s.io/apiserver/pkg/endpoints/handlers/watch.go 200行, 调用位置在k8s.io/apiserver/pkg/endpoints/handlers/get.go 270行
 
+<img src="https://inksnw.asuscomm.com:3001/blog/模拟k8s的watch_bf3be1aca63e5fdd11aa57af5eaf1d48.png" alt="image-20241105135855601" style="zoom:50%;" />
+
 实现一个简单示例
 
 ```go

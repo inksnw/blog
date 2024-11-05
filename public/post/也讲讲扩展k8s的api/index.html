@@ -59,7 +59,7 @@
   <meta itemprop="description" content="Kubernetes 可以通过多种方式扩展其 API。本文将深入探讨三种主要的扩展方式：自定义资源定义（Custom Resource Definitions, CRD）、聚合 API（API Aggregation）以及独立的 API Server。这里通过案例分析每种方式的优缺点，帮助你选择最适合你需求的扩展方式。">
   <meta itemprop="datePublished" content="2024-10-29T16:25:46+08:00">
   <meta itemprop="dateModified" content="2024-10-29T16:25:46+08:00">
-  <meta itemprop="wordCount" content="3380">
+  <meta itemprop="wordCount" content="3656">
   <meta itemprop="keywords" content="K8s">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="也讲讲扩展k8s的api">
@@ -136,7 +136,7 @@
         <div class="post-meta">
             <span class="post-time"> 2024-10-29 </span>
             
-            <span class="more-meta"> 约 3380 字 更新于 2024-10-29
+            <span class="more-meta"> 约 3656 字 更新于 2024-10-29
               <a class="article-tags" href=/tags/k8s/>k8s</a>
                 </span>
             
@@ -241,13 +241,101 @@
 </span></span><span class="line"><span class="cl">http://127.0.0.1:8080/abc
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>是的, 这就是 crd 的核心原理, 即动态的给一个apiserver增加路由, 但是不对, crd 的定义呢, imformer呢, 这些只是k8s又在此附加的功能</p>
+</div><p>是的, 这就是 crd 的核心原理, 即动态的给一个apiserver增加路由, 这里看一下k8s的源码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">autoRegisterController</span><span class="p">)</span> <span class="nf">addAPIServiceToSync</span><span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">v1</span><span class="p">.</span><span class="nx">APIService</span><span class="p">,</span> <span class="nx">syncType</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">.</span><span class="nx">apiServicesToSyncLock</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">c</span><span class="p">.</span><span class="nx">apiServicesToSyncLock</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">apiService</span> <span class="o">:=</span> <span class="nx">in</span><span class="p">.</span><span class="nf">DeepCopy</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">apiService</span><span class="p">.</span><span class="nx">Labels</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">apiService</span><span class="p">.</span><span class="nx">Labels</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">apiService</span><span class="p">.</span><span class="nx">Labels</span><span class="p">[</span><span class="nx">AutoRegisterManagedLabel</span><span class="p">]</span> <span class="p">=</span> <span class="nx">syncType</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">.</span><span class="nx">apiServicesToSync</span><span class="p">[</span><span class="nx">apiService</span><span class="p">.</span><span class="nx">Name</span><span class="p">]</span> <span class="p">=</span> <span class="nx">apiService</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">.</span><span class="nx">queue</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="nx">apiService</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>addAPIServiceToSync</code> 会把数据写入到一个队列中, 这个队列会被取出注册api服务</p>
+<img src="https://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
+<p>查看已经注册的 APIService</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get APIService v1.stable.example.com -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: apiregistration.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: APIService
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  creationTimestamp: <span class="s2">&#34;2024-11-05T02:23:09Z&#34;</span>
+</span></span><span class="line"><span class="cl">  labels:
+</span></span><span class="line"><span class="cl">    kube-aggregator.kubernetes.io/automanaged: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">  name: v1.stable.example.com
+</span></span><span class="line"><span class="cl">  resourceVersion: <span class="s2">&#34;3151&#34;</span>
+</span></span><span class="line"><span class="cl">  uid: 88fb4e95-44e7-4e11-8c32-c426f22b2b86
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  group: stable.example.com
+</span></span><span class="line"><span class="cl">  groupPriorityMinimum: <span class="m">1000</span>
+</span></span><span class="line"><span class="cl">  version: v1
+</span></span><span class="line"><span class="cl">  versionPriority: <span class="m">100</span>
+</span></span><span class="line"><span class="cl">status:
+</span></span><span class="line"><span class="cl">  conditions:
+</span></span><span class="line"><span class="cl">  - lastTransitionTime: <span class="s2">&#34;2024-11-05T02:23:09Z&#34;</span>
+</span></span><span class="line"><span class="cl">    message: Local APIServices are always available
+</span></span><span class="line"><span class="cl">    reason: Local
+</span></span><span class="line"><span class="cl">    status: <span class="s2">&#34;True&#34;</span>
+</span></span><span class="line"><span class="cl">    type: Available
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>那还有crd 的定义呢, imformer呢, 这些只是k8s又在此附加的功能</p>
 <ul>
 <li>生成crd 的openapi文件用于 <code>kubectl apply</code> 的时候校验, 判断字段的合并规则等等</li>
 <li>提供一个<code>watch</code> api, 当一个控制程序监听到资源的变动时, 触发逻辑</li>
 </ul>
 <p>k8s的watch功能本质就是利用http的<code>chunked</code>功能</p>
 <p>源码位于k8s.io/apiserver/pkg/endpoints/handlers/watch.go 200行, 调用位置在k8s.io/apiserver/pkg/endpoints/handlers/get.go 270行</p>
+<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_bf3be1aca63e5fdd11aa57af5eaf1d48.png" alt="image-20241105135913135" style="zoom:50%;" />
+<p>这里也代码简单实现一下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -510,7 +598,9 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">versionPriority</span><span class="p">:</span><span class="w"> </span><span class="m">100</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>执行 <code>kubectl get deploy -v=6</code> 可以看到请求的地址是 <code>https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1</code></p>
+</div><p>可以看到, 聚合api其实和crd的定义本质上是一样的, 只是crd帮忙把这个资源APIService注册了, 聚合api多了service字段, 从而把请求转发到另一个svc</p>
+<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20241105141648652.png" alt="image-20241105141648652" style="zoom:50%;" />
+<p>执行 <code>kubectl get deploy -v=6</code> 可以看到请求的地址是 <code>https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1</code></p>
 <p>因此,我们只要实现类似的路由,即可使用kubectl 来查询我们的自定义资源</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1180,14 +1270,14 @@
 <li><input checked="" disabled="" type="checkbox"> 自定义资源存储</li>
 <li><input disabled="" type="checkbox"> 实现事件驱动的逻辑触发</li>
 </ul>
-<p>目前只是当资源创建时就存储到etcd中, 由于这是一个标准的 k8s风格的 apiserver 你当然可以使用 <code>client-go</code> 的代码去创建 <code>operator</code> 来实现一个不依赖k8s 又有reconcile的平台, 所以这个也搞定了</p>
+<p>目前只是当资源创建时就存储到etcd中, 由于这是一个标准的 k8s风格的 apiserver 你当然可以使用 <code>client-go</code> 的代码去创建 <code>operator</code> 来实现一个不依赖k8s 又有reconcile的控制器, 所以这个也搞定了</p>
 <ul>
 <li><input checked="" disabled="" type="checkbox"> 实现事件驱动的逻辑触发</li>
 </ul>
 <p>如果你只提供查询功能, 把存储换成mysql, 再用informer把数据同步到mysql中那这就是 clusterpedia</p>
 <p>如果你把增删改查的逻辑自己实现, 而不使用etcd存储内置的, 就能实现比如当一个资源提交了, 通过一个调度器, 依据集群性能, 向A集群创建1个副本, B集群创建两2个副本, 这就是karmada</p>
 <h2 id="总结">总结</h2>
-<p>这里介绍了三种扩展k8s的方式, 说透原理后, 他并不复杂, CRD适用于简单的资源管理，聚合API适用于复杂的API扩展，独立的API Server适用于完全自定义的API实现</p>
+<p>到这里就结束了, 三种扩展k8s的方式, 说透原理后, 他并不复杂, CRD适用于简单的资源管理，聚合API适用于复杂的API扩展，独立的API Server适用于完全自定义的API实现, 你可以依据需求选择合适的方式</p>
 
     </div>
 

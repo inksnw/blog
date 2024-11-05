@@ -50,7 +50,56 @@ http://127.0.0.1:8080/add-route/abc
 http://127.0.0.1:8080/abc
 ```
 
-是的, 这就是 crd 的核心原理, 即动态的给一个apiserver增加路由, 但是不对, crd 的定义呢, imformer呢, 这些只是k8s又在此附加的功能
+是的, 这就是 crd 的核心原理, 即动态的给一个apiserver增加路由, 这里看一下k8s的源码
+
+```go
+func (c *autoRegisterController) addAPIServiceToSync(in *v1.APIService, syncType string) {
+	c.apiServicesToSyncLock.Lock()
+	defer c.apiServicesToSyncLock.Unlock()
+
+	apiService := in.DeepCopy()
+	if apiService.Labels == nil {
+		apiService.Labels = map[string]string{}
+	}
+	apiService.Labels[AutoRegisterManagedLabel] = syncType
+
+	c.apiServicesToSync[apiService.Name] = apiService
+	c.queue.Add(apiService.Name)
+}
+```
+
+`addAPIServiceToSync` 会把数据写入到一个队列中, 这个队列会被取出注册api服务
+
+<img src="https://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
+
+查看已经注册的 APIService
+
+```bash
+kubectl get APIService v1.stable.example.com -o yaml
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  creationTimestamp: "2024-11-05T02:23:09Z"
+  labels:
+    kube-aggregator.kubernetes.io/automanaged: "true"
+  name: v1.stable.example.com
+  resourceVersion: "3151"
+  uid: 88fb4e95-44e7-4e11-8c32-c426f22b2b86
+spec:
+  group: stable.example.com
+  groupPriorityMinimum: 1000
+  version: v1
+  versionPriority: 100
+status:
+  conditions:
+  - lastTransitionTime: "2024-11-05T02:23:09Z"
+    message: Local APIServices are always available
+    reason: Local
+    status: "True"
+    type: Available
+```
+
+那还有crd 的定义呢, imformer呢, 这些只是k8s又在此附加的功能
 
 - 生成crd 的openapi文件用于 `kubectl apply` 的时候校验, 判断字段的合并规则等等
 - 提供一个`watch` api, 当一个控制程序监听到资源的变动时, 触发逻辑
@@ -58,6 +107,10 @@ http://127.0.0.1:8080/abc
 k8s的watch功能本质就是利用http的`chunked`功能
 
 源码位于k8s.io/apiserver/pkg/endpoints/handlers/watch.go 200行, 调用位置在k8s.io/apiserver/pkg/endpoints/handlers/get.go 270行
+
+<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_bf3be1aca63e5fdd11aa57af5eaf1d48.png" alt="image-20241105135913135" style="zoom:50%;" />
+
+这里也代码简单实现一下
 
 ```go
 package main
@@ -205,6 +258,10 @@ spec:
   groupPriorityMinimum: 100
   versionPriority: 100
 ```
+
+可以看到, 聚合api其实和crd的定义本质上是一样的, 只是crd帮忙把这个资源APIService注册了, 聚合api多了service字段, 从而把请求转发到另一个svc
+
+<img src="/Users/inksnw/Library/Application Support/typora-user-images/image-20241105141648652.png" alt="image-20241105141648652" style="zoom:50%;" />
 
 执行 `kubectl get deploy -v=6` 可以看到请求的地址是 `https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1`
 
@@ -561,7 +618,7 @@ func NewGenericStoreRegistry(scheme *runtime.Scheme, hasCacheEnabled bool, resou
 - [x]  自定义资源存储
 - [ ]  实现事件驱动的逻辑触发
 
-目前只是当资源创建时就存储到etcd中, 由于这是一个标准的 k8s风格的 apiserver 你当然可以使用 `client-go` 的代码去创建 `operator` 来实现一个不依赖k8s 又有reconcile的平台, 所以这个也搞定了
+目前只是当资源创建时就存储到etcd中, 由于这是一个标准的 k8s风格的 apiserver 你当然可以使用 `client-go` 的代码去创建 `operator` 来实现一个不依赖k8s 又有reconcile的控制器, 所以这个也搞定了
 - [x]  实现事件驱动的逻辑触发
 
 如果你只提供查询功能, 把存储换成mysql, 再用informer把数据同步到mysql中那这就是 clusterpedia
@@ -570,4 +627,4 @@ func NewGenericStoreRegistry(scheme *runtime.Scheme, hasCacheEnabled bool, resou
 
 ## 总结
 
-这里介绍了三种扩展k8s的方式, 说透原理后, 他并不复杂, CRD适用于简单的资源管理，聚合API适用于复杂的API扩展，独立的API Server适用于完全自定义的API实现
+到这里就结束了, 三种扩展k8s的方式, 说透原理后, 他并不复杂, CRD适用于简单的资源管理，聚合API适用于复杂的API扩展，独立的API Server适用于完全自定义的API实现, 你可以依据需求选择合适的方式
