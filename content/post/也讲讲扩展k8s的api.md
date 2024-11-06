@@ -281,6 +281,8 @@ mypod1   <unknown>
 
 有没有可能使用k8s的sdk而不依赖k8s, 比如写一个博客后台管理, 希望实现 kubectl create post 就创建一个文章, 还能用informer监听文章资源变动, 但不需要安装k8s, 数据可以存储到mysql 里?
 
+K8S提供了一个样例[kubernetes/sample-apiserver](https://github.com/kubernetes/sample-apiserver)，但是这个例子依赖于主kube-apiserver。但我们这里不希望依赖一个存在的k8s环境。
+
 上文已经实现了
 
 - 注册资源路由
