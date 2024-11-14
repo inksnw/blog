@@ -634,3 +634,24 @@ kubectl run tmp-shell --labels="app=my-custom-pod" -n kubesphere-system --rm -i 
 socat TCP-LISTEN:9090,fork TCP:10.9.0.2:9191
 ```
 
+强制删除ns
+
+```bash
+kubectl proxy --address='0.0.0.0'
+
+curl -k -H "Content-Type: application/json" -X PUT --data-binary @- http://127.0.0.1:8001/api/v1/namespaces/ff/finalize <<EOF
+{
+  "apiVersion": "v1",
+  "kind": "Namespace",
+  "metadata": {
+    "name": "ff"
+  },
+  "spec": {
+    "finalizers": []
+  }
+}
+EOF
+```
+
+
+
