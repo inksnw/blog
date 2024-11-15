@@ -634,7 +634,7 @@ kubectl run tmp-shell --labels="app=my-custom-pod" -n kubesphere-system --rm -i 
 socat TCP-LISTEN:9090,fork TCP:10.9.0.2:9191
 ```
 
-强制删除ns
+### 强制删除ns
 
 ```bash
 kubectl proxy --address='0.0.0.0'
