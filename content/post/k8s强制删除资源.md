@@ -8,8 +8,6 @@ tags: ["k8s"]
 
 在某些情况下，资源可能由于某些原因无法正常删除。这时，我们需要使用一些强制删除的方法。
 
-------
-
 ## 强制删除 Pod
 
 在 Kubernetes 中，Pod 的删除通常是一个优雅的过程。Kubernetes 会发送 SIGTERM 信号给 Pod 中的容器，并等待一段时间（默认 30 秒）让容器完成清理工作。如果 Pod 卡在终止状态，可以使用以下命令强制删除：
@@ -28,8 +26,6 @@ Kubernetes 中的 Finalizers 就是个锁用于其它程序做一些清理工作
 ```bash
 kubectl patch pod <pod> -p '{"metadata":{"finalizers":null}}'
 ```
-
-------
 
 ## 强制删除 Namespace
 
@@ -54,14 +50,12 @@ curl -k -H "Content-Type: application/json" -X PUT --data-binary @- http://127.0
 EOF
 ```
 
-------
-
 ## 使用 etcd 直接删除数据
 
 如果以上方法都无法解决问题，可以直接通过 etcd 删除数据。
 
 ```bash
-alias etcdctl='etcdctl --key=//etc/ssl/etcd/ssl/admin-vm87-key.pem --cert=//etc/ssl/etcd/ssl/admin-vm87.pem --cacert=//etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.28:2379'
+alias etcdctl='etcdctl --key=/etc/ssl/etcd/ssl/admin-vm87-key.pem --cert=/etc/ssl/etcd/ssl/admin-vm87.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.28:2379'
 #查看节点
 ETCDCTL_API=3 etcdctl -w table member list
 # 查找key
