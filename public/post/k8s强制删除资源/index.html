@@ -170,7 +170,6 @@
     <div class="post-content">
         <p>最近换了工作, 博客好久没更新了, 最近也确实没有什么题材写, 水一个强制删除资源的吧</p>
 <p>在某些情况下，资源可能由于某些原因无法正常删除。这时，我们需要使用一些强制删除的方法。</p>
-<hr>
 <h2 id="强制删除-pod">强制删除 Pod</h2>
 <p>在 Kubernetes 中，Pod 的删除通常是一个优雅的过程。Kubernetes 会发送 SIGTERM 信号给 Pod 中的容器，并等待一段时间（默认 30 秒）让容器完成清理工作。如果 Pod 卡在终止状态，可以使用以下命令强制删除：</p>
 <div class="highlight"><div class="chroma">
@@ -195,8 +194,7 @@
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl patch pod &lt;pod&gt; -p <span class="s1">&#39;{&#34;metadata&#34;:{&#34;finalizers&#34;:null}}&#39;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><hr>
-<h2 id="强制删除-namespace">强制删除 Namespace</h2>
+</div><h2 id="强制删除-namespace">强制删除 Namespace</h2>
 <p>Namespace 的<code>finalizers</code>在他的<code>spec</code>中, 可能是由于历史原因, 或者特意设计, 像上文那样清理metadata中的 <code>finalizers</code>是无效的,  需要这样操作</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -236,8 +234,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><hr>
-<h2 id="使用-etcd-直接删除数据">使用 etcd 直接删除数据</h2>
+</div><h2 id="使用-etcd-直接删除数据">使用 etcd 直接删除数据</h2>
 <p>如果以上方法都无法解决问题，可以直接通过 etcd 删除数据。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -250,7 +247,7 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">alias</span> <span class="nv">etcdctl</span><span class="o">=</span><span class="s1">&#39;etcdctl --key=//etc/ssl/etcd/ssl/admin-vm87-key.pem --cert=//etc/ssl/etcd/ssl/admin-vm87.pem --cacert=//etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.28:2379&#39;</span>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">alias</span> <span class="nv">etcdctl</span><span class="o">=</span><span class="s1">&#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-vm87-key.pem --cert=/etc/ssl/etcd/ssl/admin-vm87.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.28:2379&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">#查看节点</span>
 </span></span><span class="line"><span class="cl"><span class="nv">ETCDCTL_API</span><span class="o">=</span><span class="m">3</span> etcdctl -w table member list
 </span></span><span class="line"><span class="cl"><span class="c1"># 查找key</span>

@@ -15,7 +15,6 @@
       <guid>https://inksnw.asuscomm.com:3001/post/k8s%E5%BC%BA%E5%88%B6%E5%88%A0%E9%99%A4%E8%B5%84%E6%BA%90/</guid>
       <description>&lt;p&gt;最近换了工作, 博客好久没更新了, 最近也确实没有什么题材写, 水一个强制删除资源的吧&lt;/p&gt;
 &lt;p&gt;在某些情况下，资源可能由于某些原因无法正常删除。这时，我们需要使用一些强制删除的方法。&lt;/p&gt;
-&lt;hr&gt;
 &lt;h2 id=&#34;强制删除-pod&#34;&gt;强制删除 Pod&lt;/h2&gt;
 &lt;p&gt;在 Kubernetes 中，Pod 的删除通常是一个优雅的过程。Kubernetes 会发送 SIGTERM 信号给 Pod 中的容器，并等待一段时间（默认 30 秒）让容器完成清理工作。如果 Pod 卡在终止状态，可以使用以下命令强制删除：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -40,8 +39,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;kubectl patch pod &amp;lt;pod&amp;gt; -p &lt;span class=&#34;s1&#34;&gt;&amp;#39;{&amp;#34;metadata&amp;#34;:{&amp;#34;finalizers&amp;#34;:null}}&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;hr&gt;
-&lt;h2 id=&#34;强制删除-namespace&#34;&gt;强制删除 Namespace&lt;/h2&gt;
+&lt;/div&gt;&lt;h2 id=&#34;强制删除-namespace&#34;&gt;强制删除 Namespace&lt;/h2&gt;
 &lt;p&gt;Namespace 的&lt;code&gt;finalizers&lt;/code&gt;在他的&lt;code&gt;spec&lt;/code&gt;中, 可能是由于历史原因, 或者特意设计, 像上文那样清理metadata中的 &lt;code&gt;finalizers&lt;/code&gt;是无效的,  需要这样操作&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -81,8 +79,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;EOF&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;hr&gt;
-&lt;h2 id=&#34;使用-etcd-直接删除数据&#34;&gt;使用 etcd 直接删除数据&lt;/h2&gt;
+&lt;/div&gt;&lt;h2 id=&#34;使用-etcd-直接删除数据&#34;&gt;使用 etcd 直接删除数据&lt;/h2&gt;
 &lt;p&gt;如果以上方法都无法解决问题，可以直接通过 etcd 删除数据。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -95,7 +92,7 @@
 &lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;alias&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;etcdctl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;etcdctl --key=//etc/ssl/etcd/ssl/admin-vm87-key.pem --cert=//etc/ssl/etcd/ssl/admin-vm87.pem --cacert=//etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.28:2379&amp;#39;&lt;/span&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;alias&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;etcdctl&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-vm87-key.pem --cert=/etc/ssl/etcd/ssl/admin-vm87.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.28:2379&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;#查看节点&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;ETCDCTL_API&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;3&lt;/span&gt; etcdctl -w table member list
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 查找key&lt;/span&gt;
