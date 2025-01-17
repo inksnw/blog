@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
-<head>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Go语言一些知识 - </title>
@@ -28,10 +28,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.138.0 with theme even" />
+<meta name="generator" content="Hugo 0.137.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/go%E8%AF%AD%E8%A8%80%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/" />
+<link rel="canonical" href="http://localhost:1313/post/go%E8%AF%AD%E8%A8%80%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -45,7 +45,7 @@
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/go%E8%AF%AD%E8%A8%80%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/">
+<meta property="og:url" content="http://localhost:1313/post/go%E8%AF%AD%E8%A8%80%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/">
   <meta property="og:title" content="Go语言一些知识">
   <meta property="og:description" content="常规 可变参数 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 package main import &#34;fmt&#34; type User struct { Id int Name string } type UserAttrFunc func(user *User) type UserAttrFuncs []UserAttrFunc func (t UserAttrFuncs) apply(u *User) { for _, fun := range t { fun(u) } } func withId(id int) UserAttrFunc { return func(user *User) { user.Id = id } } func withName(name string) UserAttrFunc { return func(user *User) { user.Name = name } } func NewUser(fs ...UserAttrFunc) *User { u := new(User) UserAttrFuncs(fs).apply(u) return u } func main() { ins := NewUser(withId(2), withName(&#34;xiaoming&#34;)) fmt.Printf(&#34;%&#43;v&#34;, ins) } Nil!=nil 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 package main import ( &#34;fmt&#34; &#34;reflect&#34; ) func main() { var f func() type ss struct { Name string } var a *ss fmt.Println(f, a) list := []interface{}{f, a} for _, item := range list { if item == nil { fmt.Println(&#34;nil&#34;) } } for _, item := range list { if reflect.ValueOf(item).IsNil() { fmt.Println(&#34;nilllll&#34;) } } } 读写关闭的chan 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 package main import &#34;fmt&#34; func main() { ch := make(chan int, 3) ch &lt;- 1 ch &lt;- 2 ch &lt;- 3 close(ch) //读正常 for { item, ok := &lt;-ch if ok { fmt.Print(item) } else { fmt.Printf(&#34;已经读完了 %d,%t \n&#34;, item, ok) break } } ch &lt;- 5 //写panic } defer defer参数问题 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 package main import &#34;fmt&#34; func main() { a := 1 //defer func() { //	fmt.Println(a) //}() 输出2 defer func(input int) { fmt.Println(input) }(a) //输出1 a&#43;&#43; } defer非闭包链式调用 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 package main import &#34;fmt&#34; type test struct { } func (t *test) do(i int) *test { fmt.Println(i) return t } func main() { a := test{} //defer a.do(1).do(2) //a.do(3) //输出 1 3 2,defer如果不在闭包函数中,链式调用只有最后一个函数会延时执行 defer func() { defer a.do(1).do(2) }() a.do(3) //输出3,1,2 } defer 执行顺序 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 package main import &#34;fmt&#34; func main() { for i := 0; i &lt; 3; i&#43;&#43; { //defer func() { //	fmt.Println(i) //}() 输出333 //tmp := i //添加临时变量 //defer func() { //	fmt.Println(tmp) //}() //输出2,1,0 栈结构,先入后出 //传参方式 defer func(input int) { fmt.Println(input) }(i) //输出2,1,0 } } defer和panic执行顺序">
   <meta property="og:locale" content="zh_cn">
@@ -919,7 +919,7 @@
   <span class="copyright-year">
     &copy;
     2022 -
-    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span></span>
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span></span>
   </span>
 </div>
 
