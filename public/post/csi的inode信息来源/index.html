@@ -29,10 +29,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/csi%E7%9A%84inode%E4%BF%A1%E6%81%AF%E6%9D%A5%E6%BA%90/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/csi%E7%9A%84inode%E4%BF%A1%E6%81%AF%E6%9D%A5%E6%BA%90/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,12 +41,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/csi%E7%9A%84inode%E4%BF%A1%E6%81%AF%E6%9D%A5%E6%BA%90/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/csi%E7%9A%84inode%E4%BF%A1%E6%81%AF%E6%9D%A5%E6%BA%90/">
   <meta property="og:title" content="Csi的inode信息来源">
   <meta property="og:description" content="背景 客户反馈pvc监控页面的inode使用占比超100000%, 手动进入容器df -i 又没有多少inode占用
 初步验证 稍经google知道inode来自于一个指标 kubelet_volume_stats_inodes_used, 这个指标是kubelet 向csi收集后对外提供的, 经过prometheus收集再展示">
@@ -173,8 +173,7 @@
 <h2 id="初步验证">初步验证</h2>
 <p>稍经google知道inode来自于一个指标 <code>kubelet_volume_stats_inodes_used</code>, 这个指标是kubelet 向csi收集后对外提供的, 经过prometheus收集再展示</p>
 <blockquote>
-<p>prometheus收集的对么, 有没有手动查询的方法</p>
-</blockquote>
+<p>prometheus收集的对么, 有没有手动查询的方法</p></blockquote>
 <p>我们可以使用如下方法查到kubelet的信息</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -210,8 +209,7 @@
 </div>
 </div><p>事情到此好像结束了?</p>
 <blockquote>
-<p>那kubelet 收集的就正确了么, 怎么证明是 csi 吐的数据不对</p>
-</blockquote>
+<p>那kubelet 收集的就正确了么, 怎么证明是 csi 吐的数据不对</p></blockquote>
 <p>google 一下知道这些指标由csi的一个 <code>NodeGetVolumeStats</code> 的gprc方法提供, 那有办法手动访问这个接口么</p>
 <p>默认使用的 <code>openebs</code> 好像没有通过socket与kubelet通信,在<code>/var/lib/kubelet/plugins</code> 目录下没有看到相应的插件, 这里我们安装一个nfs 的csi试一下</p>
 <h2 id="配置nfs-csi">配置NFS csi</h2>

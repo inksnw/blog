@@ -29,10 +29,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/%E5%9C%A8k8s%E5%A4%96%E9%83%A8%E9%AA%8C%E8%AF%81bearertoken/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E5%9C%A8k8s%E5%A4%96%E9%83%A8%E9%AA%8C%E8%AF%81bearertoken/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,12 +41,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/%E5%9C%A8k8s%E5%A4%96%E9%83%A8%E9%AA%8C%E8%AF%81bearertoken/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E5%9C%A8k8s%E5%A4%96%E9%83%A8%E9%AA%8C%E8%AF%81bearertoken/">
   <meta property="og:title" content="在k8s外部验证bearertoken">
   <meta property="og:description" content="生成token 创建一个sa账号
 1 2 3 4 5 6 7 cat&lt;&lt;EOF | kubectl apply -f - apiVersion: v1 kind: ServiceAccount metadata: name: mysa namespace: default EOF Token controller检测service account的创建，并为它们创建secret(1.24后不会再自动创建)">
@@ -190,8 +190,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><blockquote>
-<p>Token controller检测service account的创建，并为它们创建secret(1.24后不会再自动创建)</p>
-</blockquote>
+<p>Token controller检测service account的创建，并为它们创建secret(1.24后不会再自动创建)</p></blockquote>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -305,10 +304,10 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nx">RecommendedHomeFile</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">client</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// k8s1.24前自动生成的secret中,token字段中使用的issuers 就是这个
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">issuers</span> <span class="o">:=</span> <span class="s">&#34;kubernetes/serviceaccount&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//来自于 /etc/kubernetes/pki/sa.key
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">pk</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">keyutil</span><span class="p">.</span><span class="nf">PrivateKeyFromFile</span><span class="p">(</span><span class="s">&#34;./certs/sa.key&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// k8s1.24前自动生成的secret中,token字段中使用的issuers 就是这个</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">issuers</span> <span class="o">:=</span> <span class="s">&#34;kubernetes/serviceaccount&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//来自于 /etc/kubernetes/pki/sa.key</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">pk</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">keyutil</span><span class="p">.</span><span class="nf">PrivateKeyFromFile</span><span class="p">(</span><span class="s">&#34;./certs/sa.key&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
@@ -434,15 +433,15 @@
 </span></span><span class="line"><span class="cl">	<span class="nx">client</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">fact</span> <span class="o">:=</span> <span class="nx">informers</span><span class="p">.</span><span class="nf">NewSharedInformerFactory</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// k8s1.24前自动生成的secret中,token字段中使用的issuers 就是这个
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">issuers</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;kubernetes/serviceaccount&#34;</span><span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//来自于 /etc/kubernetes/pki/sa.pub
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">publicKeys</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">keyutil</span><span class="p">.</span><span class="nf">PublicKeysFromFile</span><span class="p">(</span><span class="s">&#34;./certs/sa.pub&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// k8s1.24前自动生成的secret中,token字段中使用的issuers 就是这个</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">issuers</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;kubernetes/serviceaccount&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//来自于 /etc/kubernetes/pki/sa.pub</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">publicKeys</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">keyutil</span><span class="p">.</span><span class="nf">PublicKeysFromFile</span><span class="p">(</span><span class="s">&#34;./certs/sa.pub&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// 可填空
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">audi</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;abc&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 可填空</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">audi</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;abc&#34;</span><span class="p">}</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">saGetter</span> <span class="o">:=</span> <span class="nx">sa</span><span class="p">.</span><span class="nf">NewGetterFromClient</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">client</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">fact</span><span class="p">.</span><span class="nf">Core</span><span class="p">().</span><span class="nf">V1</span><span class="p">().</span><span class="nf">Secrets</span><span class="p">().</span><span class="nf">Lister</span><span class="p">(),</span>
@@ -467,8 +466,8 @@
 </span></span><span class="line"><span class="cl">		<span class="p">}</span>
 </span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">			<span class="nx">writer</span><span class="p">.</span><span class="nf">WriteHeader</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">writer</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;验证参数不合法&#34;</span><span class="p">))</span> <span class="c1">//验证没通过
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="k">return</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">writer</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;验证参数不合法&#34;</span><span class="p">))</span> <span class="c1">//验证没通过</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span>
 </span></span><span class="line"><span class="cl">		<span class="p">}</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">writer</span><span class="p">.</span><span class="nf">WriteHeader</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">rv</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;token使用的账号是: %s&#34;</span><span class="p">,</span> <span class="nx">rsp</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nf">GetName</span><span class="p">())</span>

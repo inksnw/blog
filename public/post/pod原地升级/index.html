@@ -28,10 +28,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/pod%E5%8E%9F%E5%9C%B0%E5%8D%87%E7%BA%A7/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/pod%E5%8E%9F%E5%9C%B0%E5%8D%87%E7%BA%A7/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -40,12 +40,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/pod%E5%8E%9F%E5%9C%B0%E5%8D%87%E7%BA%A7/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/pod%E5%8E%9F%E5%9C%B0%E5%8D%87%E7%BA%A7/">
   <meta property="og:title" content="Pod原地升级">
   <meta property="og:description" content="什么是原地升级？ 原地升级（In-place update）是一种 Kubernetes 中的 Pod 升级方式，这种升级方式可以更新 Pod 中某一个或多个容器的镜像版本，而不影响 Pod 中其余容器的运行，同时保持 Pod 的网络和存储状态不变。">
   <meta property="og:locale" content="zh_cn">
@@ -214,9 +214,9 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">HashContainer</span><span class="p">(</span><span class="nx">container</span> <span class="o">*</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Container</span><span class="p">)</span> <span class="kt">uint64</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">hash</span> <span class="o">:=</span> <span class="nx">fnv</span><span class="p">.</span><span class="nf">New32a</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// Omit nil or empty field when calculating hash value
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// Please see https://github.com/kubernetes/kubernetes/issues/53644
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">containerJSON</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">container</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Omit nil or empty field when calculating hash value</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Please see https://github.com/kubernetes/kubernetes/issues/53644</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">containerJSON</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">container</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">hashutil</span><span class="p">.</span><span class="nf">DeepHashObject</span><span class="p">(</span><span class="nx">hash</span><span class="p">,</span> <span class="nx">containerJSON</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">hash</span><span class="p">.</span><span class="nf">Sum32</span><span class="p">())</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
@@ -224,8 +224,7 @@
 </div>
 </div><p>当<code>v1.Container</code> 的hash值变了, 就会判断为真, 查看<code>v1.Container</code>的数据结构, 发现其中有很多字段的, 但由于apiserver只允许更改<code>image</code>字段, 因此 <code>OpenKruise</code> 等工具就通过修改image字段实现 container 更新/重启而不重建sandbox, 感觉不是太优雅, 但是怎么说呢, 也算是种feature吧 ~</p>
 <blockquote>
-<p>改其它字段会提示: # * spec: Forbidden: pod updates may not change fields other than <code>spec.containers[*].image</code>, <code>spec.initContainers[*].image</code>, <code>spec.activeDeadlineSeconds</code>, <code>spec.tolerations</code> (only additions to existing tolerations) or <code>spec.terminationGracePeriodSeconds</code> (allow it to be set to 1 if it was previously negative)</p>
-</blockquote>
+<p>改其它字段会提示: # * spec: Forbidden: pod updates may not change fields other than <code>spec.containers[*].image</code>, <code>spec.initContainers[*].image</code>, <code>spec.activeDeadlineSeconds</code>, <code>spec.tolerations</code> (only additions to existing tolerations) or <code>spec.terminationGracePeriodSeconds</code> (allow it to be set to 1 if it was previously negative)</p></blockquote>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1

@@ -28,10 +28,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/etcd%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/etcd%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -40,12 +40,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/etcd%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/etcd%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/">
   <meta property="og:title" content="Etcd性能测试">
   <meta property="og:description" content="基础配置 1 2 3 4 5 6 7 alias etcdctl=&#39;etcdctl --key=/etc/ssl/etcd/ssl/admin-node1-key.pem --cert=/etc/ssl/etcd/ssl/admin-node1.pem --cacert=/etc/ssl/etcd/ssl/ca.pem --endpoints 192.168.50.50:2379&#39; etcdctl -w table member list &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ID | STATUS | NAME | PEER ADDRS | CLIENT ADDRS | IS LEARNER | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; | ae12e8bc550d8bfc | started | etcd-node1 | https://192.168.50.50:2380 | https://192.168.50.50:2379 | false | &#43;------------------&#43;---------&#43;------------&#43;----------------------------&#43;----------------------------&#43;------------&#43; 压测 1 2 3 4 5 6 7 8 # 不同大小的集群负载，支持参数为：s,m,l,xl etcdctl check perf --load=s etcdctl check perf --load=l # 测试失败。可以看到，集群可执行 3934/s 的写操作 FAIL: Throughput too low: 3934 writes/s PASS: Slowest request took 0.461817s PASS: Stddev is 0.046747s FAIL 信息查看 lsof 1 2 3 4 5 root@node1:~# lsof -p $(pgrep etcd)|egrep &#39;wal|COMMAND&#39; COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME etcd 593 root 10r DIR 252,2 4096 917520 /var/lib/etcd/member/wal etcd 593 root 581w REG 252,2 64000000 917576 /var/lib/etcd/member/wal/0000000000000011-00000000000d4a35.wal etcd 593 root 601w REG 252,2 64000000 917589 /var/lib/etcd/member/wal/0.tmp 在etcd中，‘wal’文件包含了所有待写入磁盘的数据，这样即使系统突然崩溃，也可以从’wal’文件中恢复数据。">
   <meta property="og:locale" content="zh_cn">

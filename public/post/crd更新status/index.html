@@ -29,10 +29,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/crd%E6%9B%B4%E6%96%B0status/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/crd%E6%9B%B4%E6%96%B0status/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,12 +41,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/crd%E6%9B%B4%E6%96%B0status/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/crd%E6%9B%B4%E6%96%B0status/">
   <meta property="og:title" content="Crd更新status">
   <meta property="og:description" content="crd的status字段，如果要更新，需要使用UpdateStatus方法
 创建crd与cr 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 kubectl apply -f - &lt;&lt;EOF apiVersion: apiextensions.k8s.io/v1 kind: CustomResourceDefinition metadata: name: crontabs.stable.example.com spec: group: stable.example.com versions: - name: v1 served: true storage: true schema: openAPIV3Schema: type: object properties: spec: type: object properties: cronSpec: type: string status: type: object properties: state: type: string subresources: status: {} scope: Namespaced names: plural: crontabs singular: crontab kind: CronTab shortNames: - ct1 EOF 1 2 3 4 5 6 7 8 9 10 kubectl apply -f - &lt;&lt;EOF apiVersion: &#34;stable.example.com/v1&#34; kind: CronTab metadata: name: my-new-cron-object spec: cronSpec: &#34;* * * * */5&#34; status: state: creating EOF 通过 kubectl apply 或者 edit 是无法更新status的">
@@ -381,8 +381,8 @@
 </span></span><span class="line"><span class="cl"><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="nx">wrap</span><span class="p">)</span> <span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">request</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//fmt.Printf(&#34;方法: %s, 请求url: %s\n&#34;, request.Method, request.URL.String())
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">return</span> <span class="nx">w</span><span class="p">.</span><span class="nx">rt</span><span class="p">.</span><span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">request</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//fmt.Printf(&#34;方法: %s, 请求url: %s\n&#34;, request.Method, request.URL.String())</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">w</span><span class="p">.</span><span class="nx">rt</span><span class="p">.</span><span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">request</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">wrap</span> <span class="kd">struct</span> <span class="p">{</span>
@@ -390,9 +390,9 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">namespace</span> <span class="p">=</span> <span class="s">&#34;default&#34;</span>            <span class="c1">// Modify this as needed
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">crName</span>    <span class="p">=</span> <span class="s">&#34;my-new-cron-object&#34;</span> <span class="c1">// Modify this as needed
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">gvr</span>       <span class="p">=</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">namespace</span> <span class="p">=</span> <span class="s">&#34;default&#34;</span>            <span class="c1">// Modify this as needed</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">crName</span>    <span class="p">=</span> <span class="s">&#34;my-new-cron-object&#34;</span> <span class="c1">// Modify this as needed</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">gvr</span>       <span class="p">=</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">Group</span><span class="p">:</span>    <span class="s">&#34;stable.example.com&#34;</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">Version</span><span class="p">:</span>  <span class="s">&#34;v1&#34;</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">Resource</span><span class="p">:</span> <span class="s">&#34;crontabs&#34;</span><span class="p">,</span>
@@ -408,8 +408,8 @@
 </span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">.</span><span class="nx">WrapTransport</span> <span class="p">=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">rt</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span><span class="p">)</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">wrap</span><span class="p">{</span><span class="nx">rt</span><span class="p">}</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// 使用protobuf传输数据
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">config</span> <span class="p">=</span> <span class="nx">metadata</span><span class="p">.</span><span class="nf">ConfigFor</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 使用protobuf传输数据</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">config</span> <span class="p">=</span> <span class="nx">metadata</span><span class="p">.</span><span class="nf">ConfigFor</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">dynamicClient</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">dynamic</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="nx">utd</span><span class="p">,</span> <span class="nx">cron</span><span class="p">,</span> <span class="nx">status</span> <span class="o">:=</span> <span class="nf">getInfo</span><span class="p">()</span>
@@ -510,8 +510,7 @@
 <h2 id="命令行操作">命令行操作</h2>
 <p>如果想使用kubectl 更新子资源, 需要加上 <code>--subresource</code> 参数, 版本要求 <code>Kubernetes v1.24</code>, 参考 <a href="https://kubernetes.io/zh-cn/docs/tasks/manage-kubernetes-objects/update-api-object-kubectl-patch/#scale-kubectl-patch">官方文档</a></p>
 <blockquote>
-<p>推测核心逻辑代码一直在, 只是kubectl 在1.24才加上了这个子命令, 所以如果你的集群比较旧, 可以单独下载个新的kubectl 执行这个命令</p>
-</blockquote>
+<p>推测核心逻辑代码一直在, 只是kubectl 在1.24才加上了这个子命令, 所以如果你的集群比较旧, 可以单独下载个新的kubectl 执行这个命令</p></blockquote>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1

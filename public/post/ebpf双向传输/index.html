@@ -30,10 +30,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/ebpf%E5%8F%8C%E5%90%91%E4%BC%A0%E8%BE%93/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/ebpf%E5%8F%8C%E5%90%91%E4%BC%A0%E8%BE%93/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -42,12 +42,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/ebpf%E5%8F%8C%E5%90%91%E4%BC%A0%E8%BE%93/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/ebpf%E5%8F%8C%E5%90%91%E4%BC%A0%E8%BE%93/">
   <meta property="og:title" content="Ebpf双向传输">
   <meta property="og:description" content="提供一个eBPF中内核态和用户态之间的双向数据传输的demo
 环境准备 准备一个Ubuntu 22.04
@@ -581,8 +581,8 @@
 </span></span><span class="line"><span class="cl">	<span class="s">&#34;unsafe&#34;</span>
 </span></span><span class="line"><span class="cl"><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">//go:generate bpf2go -cc clang  -target bpfel demo kern/tproxy.c -- -I kern/headers
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">//go:generate bpf2go -cc clang  -target bpfel demo kern/tproxy.c -- -I kern/headers</span>
+</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">IpData</span> <span class="kd">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">SIP</span>   <span class="kt">uint32</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">DIP</span>   <span class="kt">uint32</span>
@@ -627,8 +627,8 @@
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">l</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">//创建reader 用来读取  内核Map
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">rd</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ringbuf</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">XdpObj</span><span class="p">.</span><span class="nx">IpMap</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//创建reader 用来读取  内核Map</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">rd</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ringbuf</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">XdpObj</span><span class="p">.</span><span class="nx">IpMap</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;creating event reader: %s&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
@@ -650,8 +650,8 @@
 </span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">record</span><span class="p">.</span><span class="nx">RawSample</span><span class="p">)</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">			<span class="nx">data</span> <span class="o">:=</span> <span class="p">(</span><span class="o">*</span><span class="nx">IpData</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">record</span><span class="p">.</span><span class="nx">RawSample</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">			<span class="c1">// 转换为网络字节序
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">ipAddr1</span> <span class="o">:=</span> <span class="nf">resolveIP</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">SIP</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// 转换为网络字节序</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">ipAddr1</span> <span class="o">:=</span> <span class="nf">resolveIP</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">SIP</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">			<span class="nx">ipAddr2</span> <span class="o">:=</span> <span class="nf">resolveIP</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">DIP</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="nx">ipAddr1</span><span class="p">.</span><span class="nf">To4</span><span class="p">().</span><span class="nf">String</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&#34;10.8.0.2&#34;</span> <span class="p">{</span>

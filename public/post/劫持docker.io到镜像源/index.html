@@ -29,10 +29,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/%E5%8A%AB%E6%8C%81docker.io%E5%88%B0%E9%95%9C%E5%83%8F%E6%BA%90/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E5%8A%AB%E6%8C%81docker.io%E5%88%B0%E9%95%9C%E5%83%8F%E6%BA%90/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,12 +41,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/%E5%8A%AB%E6%8C%81docker.io%E5%88%B0%E9%95%9C%E5%83%8F%E6%BA%90/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E5%8A%AB%E6%8C%81docker.io%E5%88%B0%E9%95%9C%E5%83%8F%E6%BA%90/">
   <meta property="og:title" content="劫持docker.io到镜像源">
   <meta property="og:description" content="dockerhub限流真是烦人, 配置镜像源又得一台台的改docker配置, 有没有其它办法, 比如截持一下, 直接转发到镜像源
 自签证书 创建 CA 根证书 1 2 3 4 5 openssl genrsa -out ca.key 4096 openssl req -x509 -new -nodes -sha512 -days 3650 \ -subj &#34;/C=CN/ST=Beijing/L=Beijing/O=example/OU=Personal&#34; \ -key ca.key \ -out ca.crt 创建 *.docker.io 域名证书 生成私钥 1 openssl genrsa -out docker.io.key 4096 生成证书签名请求 CSR 1 2 3 4 openssl req -sha512 -new \ -subj &#34;/C=CN/ST=Beijing/L=Beijing/O=example/OU=Personal/CN=*.docker.io&#34; \ -key docker.io.key \ -out docker.io.csr 生成 x509 v3 扩展 1 2 3 4 5 6 7 8 9 10 11 cat &gt; v3.ext &lt;&lt;-EOF authorityKeyIdentifier=keyid,issuer basicConstraints=CA:FALSE keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment extendedKeyUsage = serverAuth subjectAltName = @alt_names [alt_names] DNS.1=docker.io DNS.2=*.docker.io EOF 生成 *.docker.io 域名证书 1 2 3 4 5 openssl x509 -req -sha512 -days 3650 \ -extfile v3.ext \ -CA ca.crt -CAkey ca.key -CAcreateserial \ -in docker.io.csr \ -out docker.io.crt 查看生成的全部文件">
@@ -432,8 +432,7 @@
 </div><blockquote>
 <p>不重启docker会提示证书错误</p>
 <p>Using default tag: latest
-Error response from daemon: Get &ldquo;<a href="https://registry-1.docker.io/v2/%22">https://registry-1.docker.io/v2/&quot;</a>: tls: failed to verify certificate: x509: certificate signed by unknown authority</p>
-</blockquote>
+Error response from daemon: Get &ldquo;<a href="https://registry-1.docker.io/v2/%22">https://registry-1.docker.io/v2/&quot;</a>: tls: failed to verify certificate: x509: certificate signed by unknown authority</p></blockquote>
 <h3 id="配置hosts">配置hosts</h3>
 <p>实际环境可以配置到路由器的域名解析, 或者统一做到镜像里</p>
 <div class="highlight"><div class="chroma">

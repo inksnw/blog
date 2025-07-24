@@ -29,10 +29,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E5%BA%93%E5%AE%9E%E7%8E%B0%E8%A1%8C%E5%8F%B7%E6%89%93%E5%8D%B0%E5%8F%8A%E8%B7%B3%E8%BD%AC/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E5%BA%93%E5%AE%9E%E7%8E%B0%E8%A1%8C%E5%8F%B7%E6%89%93%E5%8D%B0%E5%8F%8A%E8%B7%B3%E8%BD%AC/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,12 +41,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E5%BA%93%E5%AE%9E%E7%8E%B0%E8%A1%8C%E5%8F%B7%E6%89%93%E5%8D%B0%E5%8F%8A%E8%B7%B3%E8%BD%AC/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E5%BA%93%E5%AE%9E%E7%8E%B0%E8%A1%8C%E5%8F%B7%E6%89%93%E5%8D%B0%E5%8F%8A%E8%B7%B3%E8%BD%AC/">
   <meta property="og:title" content="自定义日志库实现行号打印及跳转">
   <meta property="og:description" content="为了方便调试和排查问题，我们经常需要在日志中包含详细的行号信息，并且最好能够直接跳转到相关代码位置。
 但很多时候日志库只有文件名, 并不能点击跳转, 要实现这个功能, 我们只要如下配置">
@@ -213,14 +213,14 @@
 </span></span><span class="line"><span class="cl"><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// 修改logrus的CallerPrettyfier来实现行号打印
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">logrus</span><span class="p">.</span><span class="nf">SetReportCaller</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 修改logrus的CallerPrettyfier来实现行号打印</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">logrus</span><span class="p">.</span><span class="nf">SetReportCaller</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="nx">logrus</span><span class="p">.</span><span class="nf">SetFormatter</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">logrus</span><span class="p">.</span><span class="nx">TextFormatter</span><span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">TimestampFormat</span><span class="p">:</span> <span class="s">&#34;2006-01-02 15:04:05.999999&#34;</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">FullTimestamp</span><span class="p">:</span>   <span class="kc">true</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">CallerPrettyfier</span><span class="p">:</span> <span class="kd">func</span><span class="p">(</span><span class="nx">frame</span> <span class="o">*</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Frame</span><span class="p">)</span> <span class="p">(</span><span class="nx">function</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">file</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">      <span class="c1">//在&#34;文件名:行号&#34;的前后加空格
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">name</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34; %s:%d &#34;</span><span class="p">,</span> <span class="nx">frame</span><span class="p">.</span><span class="nx">File</span><span class="p">,</span> <span class="nx">frame</span><span class="p">.</span><span class="nx">Line</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">//在&#34;文件名:行号&#34;的前后加空格</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">name</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34; %s:%d &#34;</span><span class="p">,</span> <span class="nx">frame</span><span class="p">.</span><span class="nx">File</span><span class="p">,</span> <span class="nx">frame</span><span class="p">.</span><span class="nx">Line</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">name</span>
 </span></span><span class="line"><span class="cl">		<span class="p">},</span>
 </span></span><span class="line"><span class="cl">	<span class="p">})</span>

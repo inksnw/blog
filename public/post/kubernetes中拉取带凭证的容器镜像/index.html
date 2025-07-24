@@ -30,10 +30,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/kubernetes%E4%B8%AD%E6%8B%89%E5%8F%96%E5%B8%A6%E5%87%AD%E8%AF%81%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/kubernetes%E4%B8%AD%E6%8B%89%E5%8F%96%E5%B8%A6%E5%87%AD%E8%AF%81%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -42,12 +42,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/kubernetes%E4%B8%AD%E6%8B%89%E5%8F%96%E5%B8%A6%E5%87%AD%E8%AF%81%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/kubernetes%E4%B8%AD%E6%8B%89%E5%8F%96%E5%B8%A6%E5%87%AD%E8%AF%81%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F/">
   <meta property="og:title" content="Kubernetes中拉取带凭证的容器镜像">
   <meta property="og:description" content="k8s 拉取带凭据的镜像源时, 需要配置拉取凭据, 或者是 Docker限制镜像拉取次数, 匿名用户达到上限时可以登录一下临时续一下命
 有几种办法
@@ -194,8 +194,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><blockquote>
-<p>注意, 配置完了需要重启kubelet</p>
-</blockquote>
+<p>注意, 配置完了需要重启kubelet</p></blockquote>
 <p>kubelet启动的时候会读取 <code>searchPaths</code> 中的配置文件
 <img src="https://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_35eee10da3d183008a977cff24752a25.png" alt="image-20230922140925408" style="zoom:50%;" /></p>
 <p>实际获取凭据的时候会把 <code>imagePullSecrets</code> 的信息和kubelet启动文件拿到的信息合并</p>
@@ -377,8 +376,8 @@
 </span></span><span class="line"><span class="cl">	<span class="nx">name</span> <span class="o">:=</span> <span class="s">&#34;regcred&#34;</span>
 </span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">patched</span> <span class="p">=</span> <span class="mi">0</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// get all service accounts in all namespaces
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">serviceAccounts</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">ServiceAccounts</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">).</span><span class="nf">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">ListOptions</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// get all service accounts in all namespaces</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">serviceAccounts</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">ServiceAccounts</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">).</span><span class="nf">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">ListOptions</span><span class="p">{})</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
@@ -424,8 +423,7 @@
 </div><h3 id="webhook">webhook</h3>
 <p>给对所有的ServiceAccount打patch还存在一个问题, 万一patch还没来得及打上, pod的配置已经生成了, 那此时还是不行,持续执行上面的patch操作可以么,也不太好, 因为这个时间差不可控,  所以也可以实现一个webhook</p>
 <blockquote>
-<p>拦截创建pod请求 , 并自动注入imagePullSecrets, 实现比较简单, 这里就不演示了</p>
-</blockquote>
+<p>拦截创建pod请求 , 并自动注入imagePullSecrets, 实现比较简单, 这里就不演示了</p></blockquote>
 <h3 id="给k8s提pr">给k8s提pr</h3>
 <p>理论上把上文的<code>pullSecrets := kl.getPullSecretsForPod(pod)</code> 这里加些类似的逻辑就可以, 但估计不太容易接受, 暂时先不考虑了吧</p>
 <div class="highlight"><div class="chroma">

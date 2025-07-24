@@ -30,10 +30,10 @@
 
 
 
-<meta name="generator" content="Hugo 0.137.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.1 with theme even" />
 
 
-<link rel="canonical" href="https://inksnw.asuscomm.com:3001/post/go-containerregistry%E5%BA%93%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%9D%91/" />
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/go-containerregistry%E5%BA%93%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%9D%91/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -42,12 +42,12 @@
 
 
 
-<link href="/sass/main.min.64c9b7f0254ed1aa365dc8e9acbb5c7241025dced4946314569cf2cc3d7aa917.css" rel="stylesheet">
+<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
 
-<meta property="og:url" content="https://inksnw.asuscomm.com:3001/post/go-containerregistry%E5%BA%93%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%9D%91/">
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/go-containerregistry%E5%BA%93%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%9D%91/">
   <meta property="og:title" content="Go Containerregistry库的一个小坑">
   <meta property="og:description" content="先说结论: Containerregistry 库会先尝试访问443, 再回落到80, 如果网络不通就会卡住
 起因 客户反应私有源查询镜像是正常的, 查询镜像版本就会卡住
@@ -485,12 +485,12 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Ping does a GET /v2/ against the registry and returns the response.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Ping</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">reg</span> <span class="nx">name</span><span class="p">.</span><span class="nx">Registry</span><span class="p">,</span> <span class="nx">t</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Challenge</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// This first attempts to use &#34;https&#34; for every request, falling back to http
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// if the registry matches our localhost heuristic or if it is intentionally
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// set to insecure via name.NewInsecureRegistry.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">schemes</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;https&#34;</span><span class="p">}</span>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Ping does a GET /v2/ against the registry and returns the response.</span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">Ping</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">reg</span> <span class="nx">name</span><span class="p">.</span><span class="nx">Registry</span><span class="p">,</span> <span class="nx">t</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Challenge</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// This first attempts to use &#34;https&#34; for every request, falling back to http</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// if the registry matches our localhost heuristic or if it is intentionally</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// set to insecure via name.NewInsecureRegistry.</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">schemes</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;https&#34;</span><span class="p">}</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">reg</span><span class="p">.</span><span class="nf">Scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#34;http&#34;</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nx">schemes</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">schemes</span><span class="p">,</span> <span class="s">&#34;http&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
