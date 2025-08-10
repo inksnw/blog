@@ -94,7 +94,7 @@ func highMem() {
 
 在界面上切换要监听的程序
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用pyroscope追查资源占用_9395294a94cc66a18cef093a6a139588.png" alt="image-20230703180710548" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用pyroscope追查资源占用_9395294a94cc66a18cef093a6a139588.png" alt="image-20230703180710548" style="zoom:50%;" />
 
 ### 选项解释
 
@@ -110,10 +110,10 @@ func highMem() {
 
 可以看到`main.highCpu` 函数最占cpu
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用pyroscope追查资源占用_dd9b2a28a44745ee0ffe77238e5d2800.png" alt="image-20230703181135182" style="zoom: 67%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用pyroscope追查资源占用_dd9b2a28a44745ee0ffe77238e5d2800.png" alt="image-20230703181135182" style="zoom: 67%;" />
 
 ## 内存占用
 
 `main.highMem` 最占用内存
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用pyroscope追查资源占用_4e1c8c1d85e5130a7958e50193fa9b4a.png" alt="image-20230703181252627" style="zoom: 67%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用pyroscope追查资源占用_4e1c8c1d85e5130a7958e50193fa9b4a.png" alt="image-20230703181252627" style="zoom: 67%;" />

@@ -70,7 +70,7 @@ func (c *autoRegisterController) addAPIServiceToSync(in *v1.APIService, syncType
 
 `addAPIServiceToSync` 会把数据写入到一个队列中, 这个队列会被取出注册api服务
 
-<img src="https://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
 
 查看已经注册的 APIService
 
@@ -108,7 +108,7 @@ k8s的watch功能本质就是利用http的`chunked`功能
 
 源码位于k8s.io/apiserver/pkg/endpoints/handlers/watch.go 200行, 调用位置在k8s.io/apiserver/pkg/endpoints/handlers/get.go 270行
 
-<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_bf3be1aca63e5fdd11aa57af5eaf1d48.png" alt="image-20241105135913135" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_bf3be1aca63e5fdd11aa57af5eaf1d48.png" alt="image-20241105135913135" style="zoom:50%;" />
 
 这里也代码简单实现一下
 
@@ -153,7 +153,7 @@ func main() {
 }
 ```
 
-<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7" style="zoom:50%;" />
 
 有什么不足点呢?
 
@@ -261,7 +261,7 @@ spec:
 
 可以看到, 聚合api其实和crd的定义本质上是一样的, 只是crd帮忙把这个资源APIService注册了, 聚合api多了service字段, 从而把请求转发到另一个svc
 
-<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_d2ddef4210d3b9ed7d2cbc0700536534.png" alt="image-20241105141648652" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_d2ddef4210d3b9ed7d2cbc0700536534.png" alt="image-20241105141648652" style="zoom:50%;" />
 
 执行 `kubectl get deploy -v=6` 可以看到请求的地址是 `https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1`
 

@@ -8,7 +8,7 @@ tags: ["k8s"]
 
 安装`Charles`,查看设置`Proxy->Proxy Settings`,Charles默认监听于8888端口
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_b8c69aac5fddbb8c2d0ecc23c47d32bf.png" alt="image-20230523172630419" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_b8c69aac5fddbb8c2d0ecc23c47d32bf.png" alt="image-20230523172630419" style="zoom:50%;" />
 
 ## 配置客户端证书
 
@@ -25,11 +25,11 @@ grep certificate-authority-data ~/.kube/config |   awk '{ print $2 }' |   base64
 
 配置Charles，`Proxy->SSL Proxying Settings`让他拦截端口为`6443`的流量：
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_cc7636d20e3cb6e5130b86d2bc28f4c2.png" alt="image-20230523173343158" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_cc7636d20e3cb6e5130b86d2bc28f4c2.png" alt="image-20230523173343158" style="zoom:50%;" />
 
 然后配置客户端私钥：
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_950c76b038342426129a372040e59f01.png" alt="image-20230523171636777" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_950c76b038342426129a372040e59f01.png" alt="image-20230523171636777" style="zoom:50%;" />
 
 
 
@@ -39,7 +39,7 @@ grep certificate-authority-data ~/.kube/config |   awk '{ print $2 }' |   base64
 
 配置
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_742ae7fa188feb655d5b21b7489e05f9.png" alt="image-20230523171952403" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_742ae7fa188feb655d5b21b7489e05f9.png" alt="image-20230523171952403" style="zoom:50%;" />
 
 ## 配置kubectl
 
@@ -57,4 +57,4 @@ kube-system           calico-node-rf4qg                                      1/1
 
 至此,就实现了抓取k8s的请求的功能, 同样的使用`client-go`时,消息也可以被抓取
 
-![image-20230523172335789](https://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_d59557bce6f984ecba8943a3103977eb.png)
+![image-20230523172335789](http://inksnw.asuscomm.com:3001/blog/使用Charles抓取k8s请求_d59557bce6f984ecba8943a3103977eb.png)

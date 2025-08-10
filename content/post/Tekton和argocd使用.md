@@ -99,7 +99,7 @@ hello-task-run   6 minutes ago   6s         Succeeded
 
 查看图形界面
 
-<img src="https://inksnw.asuscomm.com:3001/blog/Tekton和argocd使用_0e87c8f1eecf273adae9217db1ba60e8.png" alt="image-20220924211406813" style="zoom: 50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/Tekton和argocd使用_0e87c8f1eecf273adae9217db1ba60e8.png" alt="image-20220924211406813" style="zoom: 50%;" />
 
 我们可以通过 `kubectl describe` 命令来查看任务运行的过程，当任务执行完成后， Pod 就会变成 `Completed` 状态了：
 

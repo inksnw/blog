@@ -59,11 +59,11 @@ spec:
 
 可以看到crd存储于`/registry/apiextensions.k8s.io/customresourcedefinitions/crontabs.stable.example.com`
 
-<img src="https://inksnw.asuscomm.com:3001/blog/k8s删除crd会发生什么_2ce0d3a45a47e6ce641edf35623906e8.png" alt="image-20230629141221544" style="zoom:67%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/k8s删除crd会发生什么_2ce0d3a45a47e6ce641edf35623906e8.png" alt="image-20230629141221544" style="zoom:67%;" />
 
 cr存储于`/registry/stable.example.com/crontabs/default/my-new-cron-object`
 
-<img src="https://inksnw.asuscomm.com:3001/blog/k8s删除crd会发生什么_1d72f5c14a77fb775722bd1ebaf74c0d.png" alt="image-20230629141321816" style="zoom:67%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/k8s删除crd会发生什么_1d72f5c14a77fb775722bd1ebaf74c0d.png" alt="image-20230629141321816" style="zoom:67%;" />
 
 ### 删除crd
 
@@ -137,7 +137,7 @@ kubectl get crd|grep crontab
 
 这里再查看etcd中的数据, crd已经消失, cr还存储于etcd中, 这个情况k8s会如何处理这个数据, 不知道会不会永久成为垃圾数据
 
-<img src="https://inksnw.asuscomm.com:3001/blog/k8s删除crd会发生什么_dbf2638650507e005821955a15a7a1cf.png" alt="image-20230629143450608" style="zoom:67%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/k8s删除crd会发生什么_dbf2638650507e005821955a15a7a1cf.png" alt="image-20230629143450608" style="zoom:67%;" />
 
 再次创建回crd, 这个cr 居然还可以再次查到, 好吧, 看来crd与cr之间并无特定惟一标识对应
 

@@ -61,7 +61,7 @@ git push
 
 ## 设置GitHub Pages
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用github作为Helm的chart仓库_4702eb9bb1298308ea430cd67a2d0c70.png" alt="image-20220927172720598" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用github作为Helm的chart仓库_4702eb9bb1298308ea430cd67a2d0c70.png" alt="image-20220927172720598" style="zoom:50%;" />
 
 > 设置`_config.yml`文件可以配置主题, 可选
 

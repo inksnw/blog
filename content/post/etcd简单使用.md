@@ -72,7 +72,7 @@ etcdctl lease timetolive   xxxxxxx --keys
 
 发生变化时会通过grpc主动推送事件
 
-<img src="https://inksnw.asuscomm.com:3001/blog/etcd简单使用_072628a3341b0dab6f443ce2f003c0ca.png" alt="image-20221105194741685" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/etcd简单使用_072628a3341b0dab6f443ce2f003c0ca.png" alt="image-20221105194741685" style="zoom:50%;" />
 
 ```go
 package main

@@ -6,7 +6,7 @@ tags: ["k8s"]
 
 runc 是一个命令行客户端，用于运行根据 Open Container Initiative (OCI) 格式打包的应用程序
 
-<img src="https://inksnw.asuscomm.com:3001/blog/runc_cb5954ad2c7242b97e5cf81611d377b5.png" alt="2021-01-27_cri-containerd2" style="zoom: 50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/runc_cb5954ad2c7242b97e5cf81611d377b5.png" alt="2021-01-27_cri-containerd2" style="zoom: 50%;" />
 
 上图是k8s调用`containerd`到拉起pod进程的流程,拉起pod这个过程是由调用二进制的`runc`完成的,拉起后`runc`退出,不作为常驻进程
 
@@ -162,7 +162,7 @@ rc run abc
 
 容器网络基本原理
 
-<img src="https://inksnw.asuscomm.com:3001/blog/runc_582804a69ecbeb334c544888b2521d08.png" alt="rancher_blog_image12-1" style="zoom: 67%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/runc_582804a69ecbeb334c544888b2521d08.png" alt="rancher_blog_image12-1" style="zoom: 67%;" />
 
 创建网桥
 

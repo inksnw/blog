@@ -38,11 +38,11 @@ func another() {
 
 - 在右上角的编辑配置打开以下配置菜单
 - 把原本的`本地机器` 改过通过`管理目标`添加的远程主机,可以指定源码和二进制的目录
-<img src="https://inksnw.asuscomm.com:3001/blog/使用goland远程开发_2b21e985d3f722bd34ae811ca0368f1c.png" alt="image-20221113235729865" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用goland远程开发_2b21e985d3f722bd34ae811ca0368f1c.png" alt="image-20221113235729865" style="zoom:50%;" />
 
 - 注意勾选上 **在远程目标上构建**, 否则还是会在本地编译
 
-<img src="https://inksnw.asuscomm.com:3001/blog/使用goland远程开发_69d0a34c9a4223cda14f14fee4582c7e.png" alt="image-20221113235449156" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/使用goland远程开发_69d0a34c9a4223cda14f14fee4582c7e.png" alt="image-20221113235449156" style="zoom:50%;" />
 
 ## 验证
 

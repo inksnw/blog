@@ -110,4 +110,4 @@ helm upgrade cilium cilium/cilium --version 1.14.5 \
 kubectl edit svc hubble-ui -n kube-system
 ```
 
-<img src="https://inksnw.asuscomm.com:3001/blog/cilium初探_95fc20d1b4f6747a098d6361cd489828.png" alt="image-20231204232622229" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/cilium初探_95fc20d1b4f6747a098d6361cd489828.png" alt="image-20231204232622229" style="zoom:50%;" />

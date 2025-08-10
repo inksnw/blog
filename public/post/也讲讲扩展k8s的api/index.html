@@ -28,7 +28,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.148.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E4%B9%9F%E8%AE%B2%E8%AE%B2%E6%89%A9%E5%B1%95k8s%E7%9A%84api/" />
@@ -275,7 +275,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>addAPIServiceToSync</code> 会把数据写入到一个队列中, 这个队列会被取出注册api服务</p>
-<img src="https://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
 <p>查看已经注册的 APIService</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -334,7 +334,7 @@
 </ul>
 <p>k8s的watch功能本质就是利用http的<code>chunked</code>功能</p>
 <p>源码位于k8s.io/apiserver/pkg/endpoints/handlers/watch.go 200行, 调用位置在k8s.io/apiserver/pkg/endpoints/handlers/get.go 270行</p>
-<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_bf3be1aca63e5fdd11aa57af5eaf1d48.png" alt="image-20241105135913135" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_bf3be1aca63e5fdd11aa57af5eaf1d48.png" alt="image-20241105135913135" style="zoom:50%;" />
 <p>这里也代码简单实现一下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -418,7 +418,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7" style="zoom:50%;" />
+</div><img src="http://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_f8d0496aea5cb9e794d3e6d3f09fb9d7.png" alt="模拟k8s的watch_f8d0496aea5cb9e794d3e6d3f09fb9d7" style="zoom:50%;" />
 <p>有什么不足点呢?</p>
 <p>控制程序能在资源创建/更新/删除时候触发逻辑, 但是没法处理查询时, 比如你想实现查询一个cr的时候附加一些动态的环境变量, 那就不行了</p>
 <p>假设在做一个数据管理平台, 要管理多种数据库实现, 通过 crd 实现有什么问题</p>
@@ -599,7 +599,7 @@
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>可以看到, 聚合api其实和crd的定义本质上是一样的, 只是crd帮忙把这个资源APIService注册了, 聚合api多了service字段, 从而把请求转发到另一个svc</p>
-<img src="https://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_d2ddef4210d3b9ed7d2cbc0700536534.png" alt="image-20241105141648652" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/也讲讲扩展k8s的api_d2ddef4210d3b9ed7d2cbc0700536534.png" alt="image-20241105141648652" style="zoom:50%;" />
 <p>执行 <code>kubectl get deploy -v=6</code> 可以看到请求的地址是 <code>https://lb.kubesphere.local:6443/apis/apps/v1/namespaces/default/deployments?limit=1</code></p>
 <p>因此,我们只要实现类似的路由,即可使用kubectl 来查询我们的自定义资源</p>
 <div class="highlight"><div class="chroma">

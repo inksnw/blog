@@ -170,15 +170,15 @@ python3 -m http.server
 https://www.my.com/
 ```
 
-<img src="https://inksnw.asuscomm.com:3001/blog/本地签发证书代理https_c2e63853f1d7b3601b4581e4fd824f59.png" alt="image-20240410103958436" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/本地签发证书代理https_c2e63853f1d7b3601b4581e4fd824f59.png" alt="image-20240410103958436" style="zoom:50%;" />
 
 此时,证书不受信任
 
 双击ca.crt加入到系统信任中
 
-<img src="https://inksnw.asuscomm.com:3001/blog/本地签发证书代理https_79584d3e26dfab47d53144b237082679.png" alt="image-20240410104731767" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/本地签发证书代理https_79584d3e26dfab47d53144b237082679.png" alt="image-20240410104731767" style="zoom:50%;" />
 
 再次访问
 
-<img src="https://inksnw.asuscomm.com:3001/blog/本地签发证书代理https_879c2a3bf8d89a98fba411408abce9c5.png" alt="image-20240410104818353" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/本地签发证书代理https_879c2a3bf8d89a98fba411408abce9c5.png" alt="image-20240410104818353" style="zoom:50%;" />
 

@@ -29,7 +29,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.148.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/crd%E6%9B%B4%E6%96%B0status/" />
@@ -483,7 +483,7 @@
 </div><p>另外可以看出<code>UpdateStatus</code>, <code>Patch</code>, 或者是 <code>Patch+subresources</code>, 都是各自更新各自的, 不会一起更新, 所以, 如果你两个都要更新, 得调用两次</p>
 <h2 id="源码分析">源码分析</h2>
 <p>在<code>kubernetes-1.26.5/staging/src/k8s.io/apiextensions-apiserver/pkg/apiserver/customresource_handler.go</code> 342行定义了如何处理<code>/status</code>请求</p>
-<p><img src="https://inksnw.asuscomm.com:3001/blog/crd%E6%9B%B4%E6%96%B0status_61f5f9a9c7d91d6f2180d2609a171748.png" alt="image-20230914163904740"></p>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/crd%E6%9B%B4%E6%96%B0status_61f5f9a9c7d91d6f2180d2609a171748.png" alt="image-20230914163904740"></p>
 <p><code>r.serveStatus</code> 和 <code>r.serveResource</code> 更新时都会调用 <code>handlers.UpdateResource(storage, requestScope, r.admission)</code> ,但传入的 storage不同, 也印证了上文说的, 更新子资源与更新主资源各自是各自的逻辑</p>
 <ul>
 <li>

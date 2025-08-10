@@ -63,4 +63,4 @@ https://www.jaegertracing.io/download/
 http://127.0.0.1:16686/search
 ```
 
-<img src="https://inksnw.asuscomm.com:3001/blog/OpenTelemetry使用_d3a6255352cf09dee377af017c56e4cd.png" alt="image-20220925182452720" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/OpenTelemetry使用_d3a6255352cf09dee377af017c56e4cd.png" alt="image-20220925182452720" style="zoom:50%;" />

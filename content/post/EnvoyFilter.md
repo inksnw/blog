@@ -9,7 +9,7 @@ subs: ["envoy"]
 
 使用EnvoyFilter修改某些字段的值，添加特定的过滤器，甚至添加全新的侦听器，群集等
 
-![image-20220817153323280](https://inksnw.asuscomm.com:3001/blog/EnvoyFilter_956ff7a38a970bd0900d61e0d7711001.png)
+![image-20220817153323280](http://inksnw.asuscomm.com:3001/blog/EnvoyFilter_956ff7a38a970bd0900d61e0d7711001.png)
 
 1、网络过滤器（Network Filters）
 

@@ -120,7 +120,7 @@ root@base:~/myalpine-img# python3 -m json.tool manifest.json
 
 解压查看,可以看到第二层只有一个app目录,与我们的`Dockerfile`配置一致
 
-<img src="https://inksnw.asuscomm.com:3001/blog/容器技术原理-OCI规范_2eef73d14d6af274763c853300f0a7e1.png" alt="image-20221128213021570" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/容器技术原理-OCI规范_2eef73d14d6af274763c853300f0a7e1.png" alt="image-20221128213021570" style="zoom:50%;" />
 
 ## umoci制作镜像
 

@@ -4,7 +4,7 @@ date: 2023-06-15T21:31:40+08:00
 tags: ["k8s"]
 ---
 
-![kubectl-exec](https://inksnw.asuscomm.com:3001/blog/k8s的exec原理与实践_8f78e3983f575fbd9860b99d33b642b3.png)
+![kubectl-exec](http://inksnw.asuscomm.com:3001/blog/k8s的exec原理与实践_8f78e3983f575fbd9860b99d33b642b3.png)
 
 ## exec原理
 

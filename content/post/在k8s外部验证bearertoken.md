@@ -105,7 +105,7 @@ JWT 通常由三个部分组成：header、payload 和 signature，它们由点 
 
 可以使用https://jwt.io/ 查看token信息
 
-<img src="https://inksnw.asuscomm.com:3001/blog/在k8s外部验证bearertoken_1181bba4e34083cb460bdb2ca83f3edf.png" alt="image-20230713003203964" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/在k8s外部验证bearertoken_1181bba4e34083cb460bdb2ca83f3edf.png" alt="image-20230713003203964" style="zoom:50%;" />
 
 ## 使用token
 
@@ -182,4 +182,4 @@ func main() {
 
 ## 访问测试
 
-<img src="https://inksnw.asuscomm.com:3001/blog/在k8s外部验证bearertoken_8f74306191085e6a05e64be98e760823.png" alt="image-20230713000337476" style="zoom: 50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/在k8s外部验证bearertoken_8f74306191085e6a05e64be98e760823.png" alt="image-20230713000337476" style="zoom: 50%;" />

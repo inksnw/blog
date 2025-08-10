@@ -93,7 +93,7 @@ http://192.168.50.87:3003/
 
 >  用户名,密码明明是对的,却登录不上,显示密码错误,折腾了好久,docker都重装了也没用,开`F12`看到返回消息 `CSRF Token Invalid`,查到 [issue](https://github.com/goharbor/harbor/issues/12676) 清空chrome Storage即可
 
-<img src="https://inksnw.asuscomm.com:3001/blog/harbor安装与containerd_64fda2673e4bbf152a1fc84a80e9e8a6.png" alt="134382902-03254048-8a2b-4847-9504-1d2b9bfb239d" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/harbor安装与containerd_64fda2673e4bbf152a1fc84a80e9e8a6.png" alt="134382902-03254048-8a2b-4847-9504-1d2b9bfb239d" style="zoom:50%;" />
 
 ## 配置containerd
 
@@ -144,7 +144,7 @@ nerdctl -n=k8s.io --insecure-registry push inksnw.asuscomm.com:3003/calico/node:
 
 上传成功
 
-<img src="https://inksnw.asuscomm.com:3001/blog/harbor安装与containerd_83b2069f2073684f82111d6ae6285f0e.png" alt="image-20220930173345991" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/harbor安装与containerd_83b2069f2073684f82111d6ae6285f0e.png" alt="image-20220930173345991" style="zoom:50%;" />
 
 ### 批量上传
 

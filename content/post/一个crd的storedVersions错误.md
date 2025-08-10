@@ -111,11 +111,11 @@ type RESTUpdateStrategy interface {
 
 其中这个 `ValidateUpdate` ,就是触发这个错误的位置, 最终调用的函数是`ValidateCustomResourceDefinition `看一下这个方法实现, 代码位置在 `staging/src/k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/validation/validation.go`
 
-<img src="https://inksnw.asuscomm.com:3001/blog/一个crd的storedVersions错误_6b28e29d2649b88dbc7e33223d4bdfff.png" alt="image-20240926174947953" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/一个crd的storedVersions错误_6b28e29d2649b88dbc7e33223d4bdfff.png" alt="image-20240926174947953" style="zoom:50%;" />
 
 继续看这个 `ValidateCustomResourceDefinitionStoredVersions`函数
 
-<img src="https://inksnw.asuscomm.com:3001/blog/一个crd的storedVersions错误_29c68d3dbfcc65b976343a8a36a9818b.png" alt="image-20240926175336190" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/一个crd的storedVersions错误_29c68d3dbfcc65b976343a8a36a9818b.png" alt="image-20240926175336190" style="zoom:50%;" />
 
 大意就是从资源的`Status.StoredVersions` 字段中取出存储的版本列表, 然后和将要提交的比对, 如果也是storage为true并且在旧的里面没找到, 就报错, 大概是这个意思吧, 逻辑比较简单就不单步调试了
 

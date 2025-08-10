@@ -28,7 +28,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.148.1 with theme even" />
+<meta name="generator" content="Hugo 0.148.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E5%8D%87%E7%BA%A7%E5%B8%A6controller%E7%9A%84crd/" />
@@ -436,7 +436,7 @@
 </div>
 </div><p>因此, 只需要配置<code>served</code>字段即可暂停controller的运行,  但删除crd又涉及到cr的<code>finalizers</code> 问题,  需要手动清除, 原理可以参考 <a href="http://inksnw.asuscomm.com:3001/post/k8s%E5%88%A0%E9%99%A4crd%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88/">k8s删除crd会发生什么</a></p>
 <h2 id="源码分析">源码分析</h2>
-<img src="https://inksnw.asuscomm.com:3001/blog/升级带controller的crd_9d09e21d90b2a27de40389b5034a2499.png" alt="image-20231211185944756" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/升级带controller的crd_9d09e21d90b2a27de40389b5034a2499.png" alt="image-20231211185944756" style="zoom:50%;" />
 <p>当<code>served</code> 为false时, 就会跳过写入<code>addAPIServiceToSync</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -471,7 +471,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>addAPIServiceToSync</code> 会把数据写入到一个队列中, 这个队列会被取出注册api服务</p>
-<img src="https://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/升级带controller的crd_75d369b81273b20a7e88b9e0c24170f4.png" alt="image-20231211190244071" style="zoom:50%;" />
 <p>如同这个字段的注释, api 服务关了, controller自然也就不运行了</p>
 <blockquote>
 <p>served is a flag enabling/disabling this version from being served via REST APIs</p></blockquote>

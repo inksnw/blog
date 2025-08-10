@@ -18,11 +18,11 @@ systemctl restart kubelet
 > 注意, 配置完了需要重启kubelet
 
 kubelet启动的时候会读取 `searchPaths` 中的配置文件
-<img src="https://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_35eee10da3d183008a977cff24752a25.png" alt="image-20230922140925408" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_35eee10da3d183008a977cff24752a25.png" alt="image-20230922140925408" style="zoom:50%;" />
 
 实际获取凭据的时候会把 `imagePullSecrets` 的信息和kubelet启动文件拿到的信息合并
 
-<img src="https://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_00a60edd332da84e96262bb2f6f00a76.png" alt="image-20230922141216159" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_00a60edd332da84e96262bb2f6f00a76.png" alt="image-20230922141216159" style="zoom:50%;" />
 
 查看运行日志
 
@@ -38,7 +38,7 @@ Sep 22 13:54:49 node1 kubelet[50702]:  config.go:152] found valid config.json at
 
 源码位于`kubernetes-1.26.5/pkg/kubelet/kubelet.go` 1827行, 在syncPod的步骤中会发送grpc的拉取镜像请求, 这时会使用带上的认证信息, 这个信息来自于pod的 `imagePullSecrets`
 
-<img src="https://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_9b829e648e5360c9a165c4b5f6f58034.png" alt="image-20230830210358808" style="zoom:50%;" />
+<img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_9b829e648e5360c9a165c4b5f6f58034.png" alt="image-20230830210358808" style="zoom:50%;" />
 
 简单使用, 手动注入
 
