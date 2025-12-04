@@ -30,7 +30,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.148.2 with theme even" />
+<meta name="generator" content="Hugo 0.152.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/kubernetes%E4%B8%AD%E6%8B%89%E5%8F%96%E5%B8%A6%E5%87%AD%E8%AF%81%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F/" />
@@ -42,7 +42,7 @@
 
 
 
-<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
+<link href="/sass/main.min.24a85fa8c2db6582cff2494f26688618992850573d2f73389695dc49738f4fe4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
@@ -194,7 +194,8 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><blockquote>
-<p>注意, 配置完了需要重启kubelet</p></blockquote>
+<p>注意, 配置完了需要重启kubelet</p>
+</blockquote>
 <p>kubelet启动的时候会读取 <code>searchPaths</code> 中的配置文件
 <img src="http://inksnw.asuscomm.com:3001/blog/Kubernetes中拉取带凭证的容器镜像_35eee10da3d183008a977cff24752a25.png" alt="image-20230922140925408" style="zoom:50%;" /></p>
 <p>实际获取凭据的时候会把 <code>imagePullSecrets</code> 的信息和kubelet启动文件拿到的信息合并</p>
@@ -354,76 +355,77 @@
 </span><span class="lnt">64
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;encoding/json&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">log</span> <span class="s">&#34;github.com/sirupsen/logrus&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">corev1</span> <span class="s">&#34;k8s.io/api/core/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/types&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nx">RecommendedHomeFile</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">client</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;Service-Account Patcher started&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">name</span> <span class="o">:=</span> <span class="s">&#34;regcred&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">patched</span> <span class="p">=</span> <span class="mi">0</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">// get all service accounts in all namespaces</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">serviceAccounts</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">ServiceAccounts</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">).</span><span class="nf">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">ListOptions</span><span class="p">{})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">sa</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">serviceAccounts</span><span class="p">.</span><span class="nx">Items</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nf">includeImagePullSecret</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">sa</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">continue</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">patch</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">getPatchString</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">sa</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">ServiceAccounts</span><span class="p">(</span><span class="nx">sa</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">).</span>
-</span></span><span class="line"><span class="cl">			<span class="nf">Patch</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">sa</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">types</span><span class="p">.</span><span class="nx">StrategicMergePatchType</span><span class="p">,</span> <span class="nx">patch</span><span class="p">,</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">PatchOptions</span><span class="p">{})</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">patched</span><span class="o">++</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">patched</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">includeImagePullSecret</span><span class="p">(</span><span class="nx">sa</span> <span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">ServiceAccount</span><span class="p">,</span> <span class="nx">secretName</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">imagePullSecret</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">sa</span><span class="p">.</span><span class="nx">ImagePullSecrets</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">imagePullSecret</span><span class="p">.</span><span class="nx">Name</span> <span class="o">==</span> <span class="nx">secretName</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="kc">true</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">false</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">getPatchString</span><span class="p">(</span><span class="nx">sa</span> <span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">ServiceAccount</span><span class="p">,</span> <span class="nx">secretName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="kd">type</span> <span class="nx">patch</span> <span class="kd">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">ImagePullSecrets</span> <span class="p">[]</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">LocalObjectReference</span> <span class="s">`json:&#34;imagePullSecrets,omitempty&#34;`</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">saPatch</span> <span class="o">:=</span> <span class="nx">patch</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">ImagePullSecrets</span><span class="p">:</span> <span class="nb">append</span><span class="p">([]</span><span class="nx">corev1</span><span class="p">.</span><span class="nf">LocalObjectReference</span><span class="p">(</span><span class="kc">nil</span><span class="p">),</span> <span class="nx">sa</span><span class="p">.</span><span class="nx">ImagePullSecrets</span><span class="o">...</span><span class="p">),</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">saPatch</span><span class="p">.</span><span class="nx">ImagePullSecrets</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">saPatch</span><span class="p">.</span><span class="nx">ImagePullSecrets</span><span class="p">,</span> <span class="nx">corev1</span><span class="p">.</span><span class="nx">LocalObjectReference</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="nx">secretName</span><span class="p">})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">saPatch</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;context&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;encoding/json&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">log</span><span class="w"> </span><span class="s">&#34;github.com/sirupsen/logrus&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">corev1</span><span class="w"> </span><span class="s">&#34;k8s.io/api/core/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">metav1</span><span class="w"> </span><span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/types&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nx">RecommendedHomeFile</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">client</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;Service-Account Patcher started&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">name</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&#34;regcred&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">patched</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// get all service accounts in all namespaces</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">serviceAccounts</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">ServiceAccounts</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">).</span><span class="nf">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">ListOptions</span><span class="p">{})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">sa</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">serviceAccounts</span><span class="p">.</span><span class="nx">Items</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nf">includeImagePullSecret</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">sa</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">continue</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">patch</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">getPatchString</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">sa</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">ServiceAccounts</span><span class="p">(</span><span class="nx">sa</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">).</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nf">Patch</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span><span class="w"> </span><span class="nx">sa</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">StrategicMergePatchType</span><span class="p">,</span><span class="w"> </span><span class="nx">patch</span><span class="p">,</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">PatchOptions</span><span class="p">{})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">patched</span><span class="o">++</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">patched</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">includeImagePullSecret</span><span class="p">(</span><span class="nx">sa</span><span class="w"> </span><span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">ServiceAccount</span><span class="p">,</span><span class="w"> </span><span class="nx">secretName</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">imagePullSecret</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">sa</span><span class="p">.</span><span class="nx">ImagePullSecrets</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">imagePullSecret</span><span class="p">.</span><span class="nx">Name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">secretName</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">getPatchString</span><span class="p">(</span><span class="nx">sa</span><span class="w"> </span><span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">ServiceAccount</span><span class="p">,</span><span class="w"> </span><span class="nx">secretName</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">type</span><span class="w"> </span><span class="nx">patch</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">ImagePullSecrets</span><span class="w"> </span><span class="p">[]</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">LocalObjectReference</span><span class="w"> </span><span class="s">`json:&#34;imagePullSecrets,omitempty&#34;`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">saPatch</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">patch</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">ImagePullSecrets</span><span class="p">:</span><span class="w"> </span><span class="nb">append</span><span class="p">([]</span><span class="nx">corev1</span><span class="p">.</span><span class="nf">LocalObjectReference</span><span class="p">(</span><span class="kc">nil</span><span class="p">),</span><span class="w"> </span><span class="nx">sa</span><span class="p">.</span><span class="nx">ImagePullSecrets</span><span class="o">...</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">saPatch</span><span class="p">.</span><span class="nx">ImagePullSecrets</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">saPatch</span><span class="p">.</span><span class="nx">ImagePullSecrets</span><span class="p">,</span><span class="w"> </span><span class="nx">corev1</span><span class="p">.</span><span class="nx">LocalObjectReference</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="nx">secretName</span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">saPatch</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="webhook">webhook</h3>
 <p>给对所有的ServiceAccount打patch还存在一个问题, 万一patch还没来得及打上, pod的配置已经生成了, 那此时还是不行,持续执行上面的patch操作可以么,也不太好, 因为这个时间差不可控,  所以也可以实现一个webhook</p>
 <blockquote>
-<p>拦截创建pod请求 , 并自动注入imagePullSecrets, 实现比较简单, 这里就不演示了</p></blockquote>
+<p>拦截创建pod请求 , 并自动注入imagePullSecrets, 实现比较简单, 这里就不演示了</p>
+</blockquote>
 <h3 id="给k8s提pr">给k8s提pr</h3>
 <p>理论上把上文的<code>pullSecrets := kl.getPullSecretsForPod(pod)</code> 这里加些类似的逻辑就可以, 但估计不太容易接受, 暂时先不考虑了吧</p>
 <div class="highlight"><div class="chroma">
@@ -436,13 +438,13 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">pullSecrets</span> <span class="nx">xxx</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsFromGlobal</span><span class="p">()&gt;</span><span class="mi">0</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl"><span class="nx">pullSecrets</span> <span class="p">=</span> <span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsFromGlobal</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="k">else</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">  <span class="nx">pullSecrets</span> <span class="p">=</span> <span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsForPod</span><span class="p">(</span><span class="nx">pod</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span><span class="w"> </span><span class="nx">pullSecrets</span><span class="w"> </span><span class="nx">xxx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="w"> </span><span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsFromGlobal</span><span class="p">()&gt;</span><span class="mi">0</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nx">pullSecrets</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsFromGlobal</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="k">else</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nx">pullSecrets</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">kl</span><span class="p">.</span><span class="nf">getPullSecretsForPod</span><span class="p">(</span><span class="nx">pod</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>

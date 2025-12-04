@@ -28,7 +28,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.148.2 with theme even" />
+<meta name="generator" content="Hugo 0.152.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E4%BD%BF%E7%94%A8pyroscope%E8%BF%BD%E6%9F%A5%E8%B5%84%E6%BA%90%E5%8D%A0%E7%94%A8/" />
@@ -40,7 +40,7 @@
 
 
 
-<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
+<link href="/sass/main.min.24a85fa8c2db6582cff2494f26688618992850573d2f73389695dc49738f4fe4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
@@ -260,77 +260,77 @@
 </span><span class="lnt">70
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/grafana/pyroscope-go&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;math&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;runtime&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">runtime</span><span class="p">.</span><span class="nf">SetMutexProfileFraction</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">runtime</span><span class="p">.</span><span class="nf">SetBlockProfileRate</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">pyroscope</span><span class="p">.</span><span class="nf">Start</span><span class="p">(</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">ApplicationName</span><span class="p">:</span> <span class="s">&#34;simple.golang.app&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">ServerAddress</span><span class="p">:</span>   <span class="s">&#34;http://192.168.50.209:4040&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Logger</span><span class="p">:</span>          <span class="nx">pyroscope</span><span class="p">.</span><span class="nx">StandardLogger</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Tags</span><span class="p">:</span>            <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;hostname&#34;</span><span class="p">:</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;HOSTNAME&#34;</span><span class="p">)},</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">ProfileTypes</span><span class="p">:</span> <span class="p">[]</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileType</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileCPU</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileAllocObjects</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileAllocSpace</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileInuseObjects</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileInuseSpace</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileGoroutines</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileMutexCount</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileMutexDuration</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileBlockCount</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileBlockDuration</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span>
-</span></span><span class="line"><span class="cl">	<span class="p">})</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">numCores</span> <span class="o">:=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nf">NumCPU</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// 设置使用的CPU核心数为全部可用核心</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">runtime</span><span class="p">.</span><span class="nf">GOMAXPROCS</span><span class="p">(</span><span class="nx">numCores</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="nf">highCpu</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="nf">highMem</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;当前系统可用的CPU核心数：%d, 开始资源占用测试\n&#34;</span><span class="p">,</span> <span class="nx">numCores</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">select</span> <span class="p">{}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// 计算平方根以模拟CPU密集型任务</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">highCpu</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">math</span><span class="p">.</span><span class="nf">Sqrt</span><span class="p">(</span><span class="mi">123456789</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// 高内存消耗函数</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">highMem</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">mem</span> <span class="p">[][]</span><span class="kt">byte</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">maxMemory</span> <span class="o">:=</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="c1">// 最大内存占用 2GB</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="c1">// 分配1MB内存以模拟内存密集型任务</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">newBlock</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">mem</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">mem</span><span class="p">,</span> <span class="nx">newBlock</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="c1">// 计算当前内存占用总大小</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">totalSize</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">mem</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
-</span></span><span class="line"><span class="cl">		<span class="c1">// 如果内存占用超过最大限制，释放最旧的内存块</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">totalSize</span> <span class="p">&gt;</span> <span class="nx">maxMemory</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">mem</span> <span class="p">=</span> <span class="nx">mem</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">mem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="kc">nil</span> <span class="c1">// 显式置为nil，帮助垃圾回收</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;当前大小 %d M\n &#34;</span><span class="p">,</span> <span class="nx">totalSize</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;github.com/grafana/pyroscope-go&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;math&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;os&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;runtime&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;time&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">runtime</span><span class="p">.</span><span class="nf">SetMutexProfileFraction</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">runtime</span><span class="p">.</span><span class="nf">SetBlockProfileRate</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nf">Start</span><span class="p">(</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">ApplicationName</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;simple.golang.app&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">ServerAddress</span><span class="p">:</span><span class="w">   </span><span class="s">&#34;http://192.168.50.209:4040&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Logger</span><span class="p">:</span><span class="w">          </span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">StandardLogger</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Tags</span><span class="p">:</span><span class="w">            </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;hostname&#34;</span><span class="p">:</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nf">Getenv</span><span class="p">(</span><span class="s">&#34;HOSTNAME&#34;</span><span class="p">)},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">ProfileTypes</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileType</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileCPU</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileAllocObjects</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileAllocSpace</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileInuseObjects</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileInuseSpace</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileGoroutines</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileMutexCount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileMutexDuration</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileBlockCount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">pyroscope</span><span class="p">.</span><span class="nx">ProfileBlockDuration</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">numCores</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">runtime</span><span class="p">.</span><span class="nf">NumCPU</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// 设置使用的CPU核心数为全部可用核心</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">runtime</span><span class="p">.</span><span class="nf">GOMAXPROCS</span><span class="p">(</span><span class="nx">numCores</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">go</span><span class="w"> </span><span class="nf">highCpu</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">go</span><span class="w"> </span><span class="nf">highMem</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;当前系统可用的CPU核心数：%d, 开始资源占用测试\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">numCores</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">select</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 计算平方根以模拟CPU密集型任务</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">highCpu</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">math</span><span class="p">.</span><span class="nf">Sqrt</span><span class="p">(</span><span class="mi">123456789</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 高内存消耗函数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">highMem</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">mem</span><span class="w"> </span><span class="p">[][]</span><span class="kt">byte</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">maxMemory</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="c1">// 最大内存占用 2GB</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="c1">// 分配1MB内存以模拟内存密集型任务</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">newBlock</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">mem</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">mem</span><span class="p">,</span><span class="w"> </span><span class="nx">newBlock</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="c1">// 计算当前内存占用总大小</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">totalSize</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">mem</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="c1">// 如果内存占用超过最大限制，释放最旧的内存块</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">totalSize</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="nx">maxMemory</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">mem</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">mem</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">mem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="c1">// 显式置为nil，帮助垃圾回收</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;当前大小 %d M\n &#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">totalSize</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>在界面上切换要监听的程序</p>
 <img src="http://inksnw.asuscomm.com:3001/blog/使用pyroscope追查资源占用_9395294a94cc66a18cef093a6a139588.png" alt="image-20230703180710548" style="zoom:50%;" />

@@ -28,7 +28,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.148.2 with theme even" />
+<meta name="generator" content="Hugo 0.152.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/k8s%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7%E5%87%BD%E6%95%B0/" />
@@ -40,7 +40,7 @@
 
 
 
-<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
+<link href="/sass/main.min.24a85fa8c2db6582cff2494f26688618992850573d2f73389695dc49738f4fe4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
@@ -234,56 +234,56 @@
 </span><span class="lnt">49
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">corev1</span> <span class="s">&#34;k8s.io/api/core/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">v1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/runtime/schema&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/types&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/util/json&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/dynamic&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">client</span> <span class="o">:=</span> <span class="nf">InitDynamicClient</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span> <span class="o">:=</span> <span class="nf">serverSideApply</span><span class="p">(</span><span class="s">&#34;v2&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">gvr</span> <span class="o">:=</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Group</span><span class="p">:</span>    <span class="s">&#34;&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Version</span><span class="p">:</span>  <span class="s">&#34;v1&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Resource</span><span class="p">:</span> <span class="s">&#34;pods&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">podJson</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">pod</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">opt</span> <span class="o">:=</span> <span class="nx">v1</span><span class="p">.</span><span class="nx">PatchOptions</span><span class="p">{</span><span class="nx">FieldManager</span><span class="p">:</span> <span class="s">&#34;somebody&#34;</span><span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Resource</span><span class="p">(</span><span class="nx">gvr</span><span class="p">).</span><span class="nf">Namespace</span><span class="p">(</span><span class="s">&#34;default&#34;</span><span class="p">).</span>
-</span></span><span class="line"><span class="cl">		<span class="nf">Patch</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">types</span><span class="p">.</span><span class="nx">ApplyPatchType</span><span class="p">,</span> <span class="nx">podJson</span><span class="p">,</span> <span class="nx">opt</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">serverSideApply</span><span class="p">(</span><span class="nx">version</span> <span class="kt">string</span><span class="p">)</span> <span class="nx">corev1</span><span class="p">.</span><span class="nx">Pod</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span> <span class="o">:=</span> <span class="nx">corev1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">.</span><span class="nx">APIVersion</span> <span class="p">=</span> <span class="s">&#34;v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">.</span><span class="nx">Kind</span> <span class="p">=</span> <span class="s">&#34;Pod&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">.</span><span class="nx">Namespace</span> <span class="p">=</span> <span class="s">&#34;default&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span> <span class="p">=</span> <span class="s">&#34;nginx&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">.</span><span class="nx">Labels</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;version&#34;</span><span class="p">:</span> <span class="nx">version</span><span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">.</span><span class="nx">Spec</span> <span class="p">=</span> <span class="nx">corev1</span><span class="p">.</span><span class="nx">PodSpec</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Containers</span><span class="p">:</span> <span class="p">[]</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Container</span><span class="p">{{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;nginx&#34;</span><span class="p">,</span> <span class="nx">Image</span><span class="p">:</span> <span class="s">&#34;nginx&#34;</span><span class="p">}},</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">pod</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">InitDynamicClient</span><span class="p">()</span> <span class="nx">dynamic</span><span class="p">.</span><span class="nx">Interface</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">conf</span> <span class="o">:=</span> <span class="nx">config</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">ci</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">dynamic</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">ci</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;context&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">corev1</span><span class="w"> </span><span class="s">&#34;k8s.io/api/core/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">v1</span><span class="w"> </span><span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/runtime/schema&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/types&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/util/json&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/dynamic&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">client</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">InitDynamicClient</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">serverSideApply</span><span class="p">(</span><span class="s">&#34;v2&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">gvr</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Group</span><span class="p">:</span><span class="w">    </span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Version</span><span class="p">:</span><span class="w">  </span><span class="s">&#34;v1&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Resource</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;pods&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">podJson</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">pod</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">opt</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">v1</span><span class="p">.</span><span class="nx">PatchOptions</span><span class="p">{</span><span class="nx">FieldManager</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;somebody&#34;</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nf">Resource</span><span class="p">(</span><span class="nx">gvr</span><span class="p">).</span><span class="nf">Namespace</span><span class="p">(</span><span class="s">&#34;default&#34;</span><span class="p">).</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nf">Patch</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span><span class="w"> </span><span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">ApplyPatchType</span><span class="p">,</span><span class="w"> </span><span class="nx">podJson</span><span class="p">,</span><span class="w"> </span><span class="nx">opt</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">serverSideApply</span><span class="p">(</span><span class="nx">version</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Pod</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">.</span><span class="nx">APIVersion</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">.</span><span class="nx">Kind</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;Pod&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">.</span><span class="nx">Namespace</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;default&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;nginx&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">.</span><span class="nx">Labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;version&#34;</span><span class="p">:</span><span class="w"> </span><span class="nx">version</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">.</span><span class="nx">Spec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">corev1</span><span class="p">.</span><span class="nx">PodSpec</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Containers</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Container</span><span class="p">{{</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;nginx&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">Image</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;nginx&#34;</span><span class="p">}},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">pod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">InitDynamicClient</span><span class="p">()</span><span class="w"> </span><span class="nx">dynamic</span><span class="p">.</span><span class="nx">Interface</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">conf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">ci</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">dynamic</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">ci</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="读取多行yaml">读取多行yaml</h3>
 <div class="highlight"><div class="chroma">
@@ -316,33 +316,33 @@
 </span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;bufio&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;io&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/util/yaml&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">f</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;./nginx.yaml&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">bf</span> <span class="o">:=</span> <span class="nx">bufio</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">r</span> <span class="o">:=</span> <span class="nx">yaml</span><span class="p">.</span><span class="nf">NewYAMLReader</span><span class="p">(</span><span class="nx">bf</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">data</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">r</span><span class="p">.</span><span class="nf">Read</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="nx">err</span> <span class="o">==</span> <span class="nx">io</span><span class="p">.</span><span class="nx">EOF</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;读完了&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="k">break</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;bufio&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;io&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/util/yaml&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;os&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">f</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;./nginx.yaml&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">bf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">bufio</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">r</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nf">NewYAMLReader</span><span class="p">(</span><span class="nx">bf</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nf">Read</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">EOF</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;读完了&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">break</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="重试机制">重试机制</h3>
 <div class="highlight"><div class="chroma">
@@ -400,58 +400,58 @@
 </span><span class="lnt">51
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/util/retry&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">conf</span> <span class="o">:=</span> <span class="nx">config</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">clientset</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfigOrDie</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//go updatePodLabels(clientset, &#34;nginx&#34;, &#34;default&#34;, &#34;key1&#34;, &#34;value1&#34;)</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//go updatePodLabels(clientset, &#34;nginx&#34;, &#34;default&#34;, &#34;key1&#34;, &#34;value2&#34;)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="nf">updatePodLabelsWithRetry</span><span class="p">(</span><span class="nx">clientset</span><span class="p">,</span> <span class="s">&#34;nginx&#34;</span><span class="p">,</span> <span class="s">&#34;default&#34;</span><span class="p">,</span> <span class="s">&#34;key1&#34;</span><span class="p">,</span> <span class="s">&#34;value1&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="nf">updatePodLabelsWithRetry</span><span class="p">(</span><span class="nx">clientset</span><span class="p">,</span> <span class="s">&#34;nginx&#34;</span><span class="p">,</span> <span class="s">&#34;default&#34;</span><span class="p">,</span> <span class="s">&#34;key1&#34;</span><span class="p">,</span> <span class="s">&#34;value2&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">select</span> <span class="p">{}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">updatePodLabels</span><span class="p">(</span><span class="nx">clientset</span> <span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span> <span class="nx">podName</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">namespace</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">value</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">podName</span><span class="p">,</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">GetOptions</span><span class="p">{})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">.</span><span class="nx">Labels</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">value</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">opt</span> <span class="o">:=</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">UpdateOptions</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">_</span><span class="p">,</span> <span class="nx">updateErr</span> <span class="o">:=</span> <span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">Update</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">pod</span><span class="p">,</span> <span class="nx">opt</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">updateErr</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;更新失败&#34;</span><span class="p">,</span> <span class="nx">updateErr</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">updateErr</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">updatePodLabelsWithRetry</span><span class="p">(</span><span class="nx">clientset</span> <span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span> <span class="nx">podName</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">namespace</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">value</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">retryErr</span> <span class="o">:=</span> <span class="nx">retry</span><span class="p">.</span><span class="nf">RetryOnConflict</span><span class="p">(</span><span class="nx">retry</span><span class="p">.</span><span class="nx">DefaultRetry</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">pod</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">podName</span><span class="p">,</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">GetOptions</span><span class="p">{})</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">pod</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">.</span><span class="nx">Labels</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">value</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">opt</span> <span class="o">:=</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">UpdateOptions</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">_</span><span class="p">,</span> <span class="nx">updateErr</span> <span class="o">:=</span> <span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">Update</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">pod</span><span class="p">,</span> <span class="nx">opt</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">updateErr</span>
-</span></span><span class="line"><span class="cl">	<span class="p">})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">retryErr</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Update failed: %v\n&#34;</span><span class="p">,</span> <span class="nx">retryErr</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;context&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">metav1</span><span class="w"> </span><span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/util/retry&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">conf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">clientset</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfigOrDie</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//go updatePodLabels(clientset, &#34;nginx&#34;, &#34;default&#34;, &#34;key1&#34;, &#34;value1&#34;)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//go updatePodLabels(clientset, &#34;nginx&#34;, &#34;default&#34;, &#34;key1&#34;, &#34;value2&#34;)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">go</span><span class="w"> </span><span class="nf">updatePodLabelsWithRetry</span><span class="p">(</span><span class="nx">clientset</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;nginx&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;default&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;key1&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;value1&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">go</span><span class="w"> </span><span class="nf">updatePodLabelsWithRetry</span><span class="p">(</span><span class="nx">clientset</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;nginx&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;default&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;key1&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;value2&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">select</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">updatePodLabels</span><span class="p">(</span><span class="nx">clientset</span><span class="w"> </span><span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span><span class="w"> </span><span class="nx">podName</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">namespace</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span><span class="w"> </span><span class="nx">podName</span><span class="p">,</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">GetOptions</span><span class="p">{})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">.</span><span class="nx">Labels</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">value</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">opt</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">UpdateOptions</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">updateErr</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">Update</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span><span class="w"> </span><span class="nx">pod</span><span class="p">,</span><span class="w"> </span><span class="nx">opt</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">updateErr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;更新失败&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">updateErr</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">updateErr</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">updatePodLabelsWithRetry</span><span class="p">(</span><span class="nx">clientset</span><span class="w"> </span><span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span><span class="w"> </span><span class="nx">podName</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">namespace</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">retryErr</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">retry</span><span class="p">.</span><span class="nf">RetryOnConflict</span><span class="p">(</span><span class="nx">retry</span><span class="p">.</span><span class="nx">DefaultRetry</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">pod</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span><span class="w"> </span><span class="nx">podName</span><span class="p">,</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">GetOptions</span><span class="p">{})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">pod</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">.</span><span class="nx">Labels</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">value</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">opt</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">UpdateOptions</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">updateErr</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">namespace</span><span class="p">).</span><span class="nf">Update</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span><span class="w"> </span><span class="nx">pod</span><span class="p">,</span><span class="w"> </span><span class="nx">opt</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">updateErr</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">retryErr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Update failed: %v\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">retryErr</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="wraptransport">WrapTransport</h3>
 <div class="highlight"><div class="chroma">
@@ -507,56 +507,56 @@
 </span><span class="lnt">49
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;bytes&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;io&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/metadata&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">wrap</span> <span class="kd">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">rt</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="nx">wrap</span><span class="p">)</span> <span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">request</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">request</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nf">String</span><span class="p">())</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">rsp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">w</span><span class="p">.</span><span class="nx">rt</span><span class="p">.</span><span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">request</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">b</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">ReadAll</span><span class="p">(</span><span class="nx">rsp</span><span class="p">.</span><span class="nx">Body</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;响应长度是: &#34;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">rsp</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">NopCloser</span><span class="p">(</span><span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">rsp</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//return w.rt.RoundTrip(request)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">conf</span> <span class="o">:=</span> <span class="nx">config</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">conf</span><span class="p">.</span><span class="nx">WrapTransport</span> <span class="p">=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">rt</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span><span class="p">)</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">wrap</span><span class="p">{</span><span class="nx">rt</span><span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//使用 protobuf</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">conf</span> <span class="p">=</span> <span class="nx">metadata</span><span class="p">.</span><span class="nf">ConfigFor</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">client</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfigOrDie</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	
-</span></span><span class="line"><span class="cl">	<span class="nx">pod</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="s">&#34;default&#34;</span><span class="p">).</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="s">&#34;nginx&#34;</span><span class="p">,</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">GetOptions</span><span class="p">{})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;bytes&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;context&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;io&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">metav1</span><span class="w"> </span><span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/metadata&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;net/http&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">type</span><span class="w"> </span><span class="nx">wrap</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">rt</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">wrap</span><span class="p">)</span><span class="w"> </span><span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">request</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">request</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nf">String</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">rsp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">w</span><span class="p">.</span><span class="nx">rt</span><span class="p">.</span><span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">request</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nf">ReadAll</span><span class="p">(</span><span class="nx">rsp</span><span class="p">.</span><span class="nx">Body</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;响应长度是: &#34;</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">rsp</span><span class="p">.</span><span class="nx">Body</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nf">NopCloser</span><span class="p">(</span><span class="nx">bytes</span><span class="p">.</span><span class="nf">NewBuffer</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">rsp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//return w.rt.RoundTrip(request)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">conf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">conf</span><span class="p">.</span><span class="nx">WrapTransport</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">rt</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span><span class="p">)</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">wrap</span><span class="p">{</span><span class="nx">rt</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//使用 protobuf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">conf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">metadata</span><span class="p">.</span><span class="nf">ConfigFor</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">client</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfigOrDie</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">pod</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="s">&#34;default&#34;</span><span class="p">).</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span><span class="w"> </span><span class="s">&#34;nginx&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">GetOptions</span><span class="p">{})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="多集群clientset获取">多集群clientset获取</h3>
 <p>config示例</p>
@@ -680,66 +680,67 @@
 </span><span class="lnt">55
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">v1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/clientcmd/api&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">createClient</span><span class="p">(</span><span class="nx">clusterName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">loadingRules</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">NewDefaultClientConfigLoadingRules</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">configOverrides</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">clientcmd</span><span class="p">.</span><span class="nx">ConfigOverrides</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">CurrentContext</span><span class="p">:</span> <span class="s">&#34;kubernetes-admin@cluster.local&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">kubeConfig</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">NewNonInteractiveDeferredLoadingClientConfig</span><span class="p">(</span><span class="nx">loadingRules</span><span class="p">,</span> <span class="nx">configOverrides</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">rawConfig</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">kubeConfig</span><span class="p">.</span><span class="nf">RawConfig</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">clientConfig</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">NewDefaultClientConfig</span><span class="p">(</span><span class="nx">rawConfig</span><span class="p">,</span> <span class="nx">configOverrides</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">clientConfig</span><span class="p">.</span><span class="nf">ClientConfig</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">.</span><span class="nx">Host</span> <span class="p">=</span> <span class="nx">rawConfig</span><span class="p">.</span><span class="nx">Clusters</span><span class="p">[</span><span class="nx">clusterName</span><span class="p">].</span><span class="nx">Server</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;连接的地址是: %s&#34;</span><span class="p">,</span> <span class="nx">config</span><span class="p">.</span><span class="nx">Host</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//跳过tls验证</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">.</span><span class="nx">TLSClientConfig</span> <span class="p">=</span> <span class="nx">rest</span><span class="p">.</span><span class="nx">TLSClientConfig</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Insecure</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">clientset</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">clientset</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">clusterName</span> <span class="o">:=</span> <span class="s">&#34;cluster-example&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">clientset</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">createClient</span><span class="p">(</span><span class="nx">clusterName</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">podsClient</span> <span class="o">:=</span> <span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="s">&#34;default&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">podList</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">podsClient</span><span class="p">.</span><span class="nf">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">v1</span><span class="p">.</span><span class="nx">ListOptions</span><span class="p">{})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">pod</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">podList</span><span class="p">.</span><span class="nx">Items</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Pod:&#34;</span><span class="p">,</span> <span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;context&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;log&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">v1</span><span class="w"> </span><span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/tools/clientcmd/api&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">createClient</span><span class="p">(</span><span class="nx">clusterName</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">Clientset</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">loadingRules</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nf">NewDefaultClientConfigLoadingRules</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">configOverrides</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">clientcmd</span><span class="p">.</span><span class="nx">ConfigOverrides</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">CurrentContext</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;kubernetes-admin@cluster.local&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">kubeConfig</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nf">NewNonInteractiveDeferredLoadingClientConfig</span><span class="p">(</span><span class="nx">loadingRules</span><span class="p">,</span><span class="w"> </span><span class="nx">configOverrides</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">rawConfig</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubeConfig</span><span class="p">.</span><span class="nf">RawConfig</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">clientConfig</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nf">NewDefaultClientConfig</span><span class="p">(</span><span class="nx">rawConfig</span><span class="p">,</span><span class="w"> </span><span class="nx">configOverrides</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientConfig</span><span class="p">.</span><span class="nf">ClientConfig</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">config</span><span class="p">.</span><span class="nx">Host</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">rawConfig</span><span class="p">.</span><span class="nx">Clusters</span><span class="p">[</span><span class="nx">clusterName</span><span class="p">].</span><span class="nx">Server</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;连接的地址是: %s&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">Host</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//跳过tls验证</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">config</span><span class="p">.</span><span class="nx">TLSClientConfig</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">rest</span><span class="p">.</span><span class="nx">TLSClientConfig</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Insecure</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">clientset</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">clientset</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">clusterName</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&#34;cluster-example&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">clientset</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">createClient</span><span class="p">(</span><span class="nx">clusterName</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">podsClient</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="s">&#34;default&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">podList</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">podsClient</span><span class="p">.</span><span class="nf">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span><span class="w"> </span><span class="nx">v1</span><span class="p">.</span><span class="nx">ListOptions</span><span class="p">{})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">pod</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">podList</span><span class="p">.</span><span class="nx">Items</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Pod:&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="开发授权">开发授权</h3>
 <blockquote>
-<p>configmaps is forbidden: User “system:anonymous” cannot list resource “configmaps” in API group “” in the namespace “default”</p></blockquote>
+<p>configmaps is forbidden: User “system:anonymous” cannot list resource “configmaps” in API group “” in the namespace “default”</p>
+</blockquote>
 <p>开发时可用此办法临时解决</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -769,21 +770,21 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1/unstructured&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">ConvertToUnstructured</span><span class="p">(</span><span class="nx">obj</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">Object</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">Unstructured</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">objMap</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">DefaultUnstructuredConverter</span><span class="p">.</span><span class="nf">ToUnstructured</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">unstructuredObj</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">Unstructured</span><span class="p">{</span><span class="nx">Object</span><span class="p">:</span> <span class="nx">objMap</span><span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">unstructuredObj</span><span class="p">,</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1/unstructured&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">ConvertToUnstructured</span><span class="p">(</span><span class="nx">obj</span><span class="w"> </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Object</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">Unstructured</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">objMap</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">DefaultUnstructuredConverter</span><span class="p">.</span><span class="nf">ToUnstructured</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">unstructuredObj</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">Unstructured</span><span class="p">{</span><span class="nx">Object</span><span class="p">:</span><span class="w"> </span><span class="nx">objMap</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">unstructuredObj</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="unstructured-转成-runtimeobject">unstructured 转成 runtime.object</h4>
 <p>知道目标类型</p>
@@ -795,11 +796,11 @@
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">ConvertToRuntimeObject</span><span class="p">(</span><span class="nx">unstructuredObj</span> <span class="o">*</span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">Unstructured</span><span class="p">,</span> <span class="nx">obj</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">Object</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">DefaultUnstructuredConverter</span><span class="p">.</span><span class="nf">FromUnstructured</span><span class="p">(</span><span class="nx">unstructuredObj</span><span class="p">.</span><span class="nf">UnstructuredContent</span><span class="p">(),</span> <span class="nx">obj</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span><span class="w"> </span><span class="nf">ConvertToRuntimeObject</span><span class="p">(</span><span class="nx">unstructuredObj</span><span class="w"> </span><span class="o">*</span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">Unstructured</span><span class="p">,</span><span class="w"> </span><span class="nx">obj</span><span class="w"> </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Object</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">DefaultUnstructuredConverter</span><span class="p">.</span><span class="nf">FromUnstructured</span><span class="p">(</span><span class="nx">unstructuredObj</span><span class="p">.</span><span class="nf">UnstructuredContent</span><span class="p">(),</span><span class="w"> </span><span class="nx">obj</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>不知道目标类型</p>
 <div class="highlight"><div class="chroma">
@@ -811,12 +812,12 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">ConvertToRuntimeObject</span><span class="p">(</span><span class="nx">unstructuredObj</span> <span class="o">*</span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">Unstructured</span><span class="p">)</span> <span class="p">(</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Object</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">runtimeObj</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Unknown</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">DefaultUnstructuredConverter</span><span class="p">.</span><span class="nf">FromUnstructured</span><span class="p">(</span><span class="nx">unstructuredObj</span><span class="p">.</span><span class="nf">UnstructuredContent</span><span class="p">(),</span> <span class="nx">runtimeObj</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">runtimeObj</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span><span class="w"> </span><span class="nf">ConvertToRuntimeObject</span><span class="p">(</span><span class="nx">unstructuredObj</span><span class="w"> </span><span class="o">*</span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">Unstructured</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Object</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">runtimeObj</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Unknown</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">DefaultUnstructuredConverter</span><span class="p">.</span><span class="nf">FromUnstructured</span><span class="p">(</span><span class="nx">unstructuredObj</span><span class="p">.</span><span class="nf">UnstructuredContent</span><span class="p">(),</span><span class="w"> </span><span class="nx">runtimeObj</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">runtimeObj</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>any 转runtime.object</p>
 <div class="highlight"><div class="chroma">
@@ -826,10 +827,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">n</span> <span class="nx">nodeHandle</span><span class="p">)</span> <span class="nf">OnDelete</span><span class="p">(</span><span class="nx">obj</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">node</span> <span class="o">:=</span> <span class="nx">obj</span><span class="p">.(</span><span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Node</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="nx">nodeHandle</span><span class="p">)</span><span class="w"> </span><span class="nf">OnDelete</span><span class="p">(</span><span class="nx">obj</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">node</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">obj</span><span class="p">.(</span><span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Node</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="jsonbytes-转-runtimeobject">jsonBytes 转 runtime.Object</h4>
 <div class="highlight"><div class="chroma">
@@ -841,12 +842,12 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">Decode</span><span class="p">(</span><span class="nx">data</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="nx">obj</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">Object</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">decoder</span> <span class="o">:=</span> <span class="nx">unstructured</span><span class="p">.</span><span class="nx">UnstructuredJSONScheme</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">obj</span><span class="p">,</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">decoder</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">obj</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span><span class="w"> </span><span class="nf">Decode</span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">obj</span><span class="w"> </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Object</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">decoder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">unstructured</span><span class="p">.</span><span class="nx">UnstructuredJSONScheme</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">obj</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">decoder</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">obj</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="jsonbytes-转-v1pod">jsonBytes 转 v1.Pod</h4>
 <div class="highlight"><div class="chroma">
@@ -875,29 +876,29 @@
 </span><span class="lnt">22
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/api/core/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/runtime/serializer&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">jsonStr</span> <span class="o">:=</span> <span class="s">`{&#34;apiVersion&#34;:&#34;v1&#34;,&#34;kind&#34;:&#34;Pod&#34;,&#34;metadata&#34;:{&#34;labels&#34;:{&#34;app&#34;:&#34;mytest&#34;},&#34;name&#34;:&#34;mytest&#34;,&#34;namespace&#34;:&#34;default&#34;},&#34;spec&#34;:{&#34;containers&#34;:[{&#34;image&#34;:&#34;nginx&#34;,&#34;imagePullPolicy&#34;:&#34;IfNotPresent&#34;,&#34;name&#34;:&#34;mytest&#34;}],&#34;restartPolicy&#34;:&#34;Always&#34;}}`</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// 设置序列化器和反序列化器</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">codec</span> <span class="o">:=</span> <span class="nx">serializer</span><span class="p">.</span><span class="nf">NewCodecFactory</span><span class="p">(</span><span class="nx">runtime</span><span class="p">.</span><span class="nf">NewScheme</span><span class="p">()).</span><span class="nf">UniversalDeserializer</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">// 将JSON字符串解码到Pod对象中</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">ins</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">_</span><span class="p">,</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">codec</span><span class="p">.</span><span class="nf">Decode</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">jsonStr</span><span class="p">),</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">ins</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Error decoding Pod: %v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Decoded Pod: %v\n&#34;</span><span class="p">,</span> <span class="nx">ins</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/api/core/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/runtime/serializer&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">jsonStr</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">`{&#34;apiVersion&#34;:&#34;v1&#34;,&#34;kind&#34;:&#34;Pod&#34;,&#34;metadata&#34;:{&#34;labels&#34;:{&#34;app&#34;:&#34;mytest&#34;},&#34;name&#34;:&#34;mytest&#34;,&#34;namespace&#34;:&#34;default&#34;},&#34;spec&#34;:{&#34;containers&#34;:[{&#34;image&#34;:&#34;nginx&#34;,&#34;imagePullPolicy&#34;:&#34;IfNotPresent&#34;,&#34;name&#34;:&#34;mytest&#34;}],&#34;restartPolicy&#34;:&#34;Always&#34;}}`</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// 设置序列化器和反序列化器</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">codec</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">serializer</span><span class="p">.</span><span class="nf">NewCodecFactory</span><span class="p">(</span><span class="nx">runtime</span><span class="p">.</span><span class="nf">NewScheme</span><span class="p">()).</span><span class="nf">UniversalDeserializer</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// 将JSON字符串解码到Pod对象中</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">ins</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">codec</span><span class="p">.</span><span class="nf">Decode</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">jsonStr</span><span class="p">),</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">ins</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Error decoding Pod: %v\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Decoded Pod: %v\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">ins</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="gvk-和-gvr互转">gvk 和 gvr互转</h4>
 <div class="highlight"><div class="chroma">
@@ -959,62 +960,62 @@
 </span><span class="lnt">55
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/api/meta&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/runtime/schema&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/restmapper&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Mapper</span> <span class="nx">meta</span><span class="p">.</span><span class="nx">RESTMapper</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">InitMapper</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//获取  所有api groupresource</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">conf</span> <span class="o">:=</span> <span class="nx">config</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">client</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfigOrDie</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">gr</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">restmapper</span><span class="p">.</span><span class="nf">GetAPIGroupResources</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nf">Discovery</span><span class="p">())</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">os</span><span class="p">.</span><span class="nf">Exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Mapper</span> <span class="p">=</span> <span class="nx">restmapper</span><span class="p">.</span><span class="nf">NewDiscoveryRESTMapper</span><span class="p">(</span><span class="nx">gr</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">GvkToGvr</span><span class="p">(</span><span class="nx">gvk</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionKind</span><span class="p">)</span> <span class="p">(</span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">mapping</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">Mapper</span><span class="p">.</span><span class="nf">RESTMapping</span><span class="p">(</span><span class="nx">gvk</span><span class="p">.</span><span class="nf">GroupKind</span><span class="p">(),</span> <span class="nx">gvk</span><span class="p">.</span><span class="nx">Version</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">meta</span><span class="p">.</span><span class="nf">IsNoMatchError</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="o">||</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">{},</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">mapping</span><span class="p">.</span><span class="nx">Resource</span><span class="p">,</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">GvrToGvk</span><span class="p">(</span><span class="nx">gvr</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">)</span> <span class="p">(</span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionKind</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">gvk</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">Mapper</span><span class="p">.</span><span class="nf">KindFor</span><span class="p">(</span><span class="nx">gvr</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">gvk</span><span class="p">,</span> <span class="nx">err</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nf">InitMapper</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">gvk</span> <span class="o">:=</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionKind</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Group</span><span class="p">:</span>   <span class="s">&#34;&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Version</span><span class="p">:</span> <span class="s">&#34;v1&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Kind</span><span class="p">:</span>    <span class="s">&#34;Pod&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">gvr</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">GvkToGvr</span><span class="p">(</span><span class="nx">gvk</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">gvr</span><span class="p">.</span><span class="nx">Resource</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">gvk1</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nf">GvrToGvk</span><span class="p">(</span><span class="nx">gvr</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">gvk1</span><span class="p">.</span><span class="nx">Kind</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/api/meta&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/runtime/schema&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/restmapper&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;os&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">var</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Mapper</span><span class="w"> </span><span class="nx">meta</span><span class="p">.</span><span class="nx">RESTMapper</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">InitMapper</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//获取  所有api groupresource</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">conf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">client</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfigOrDie</span><span class="p">(</span><span class="nx">conf</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">gr</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">restmapper</span><span class="p">.</span><span class="nf">GetAPIGroupResources</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nf">Discovery</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">os</span><span class="p">.</span><span class="nf">Exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Mapper</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">restmapper</span><span class="p">.</span><span class="nf">NewDiscoveryRESTMapper</span><span class="p">(</span><span class="nx">gr</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">GvkToGvr</span><span class="p">(</span><span class="nx">gvk</span><span class="w"> </span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionKind</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">mapping</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">Mapper</span><span class="p">.</span><span class="nf">RESTMapping</span><span class="p">(</span><span class="nx">gvk</span><span class="p">.</span><span class="nf">GroupKind</span><span class="p">(),</span><span class="w"> </span><span class="nx">gvk</span><span class="p">.</span><span class="nx">Version</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">meta</span><span class="p">.</span><span class="nf">IsNoMatchError</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">mapping</span><span class="p">.</span><span class="nx">Resource</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">GvrToGvk</span><span class="p">(</span><span class="nx">gvr</span><span class="w"> </span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionResource</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionKind</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">gvk</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">Mapper</span><span class="p">.</span><span class="nf">KindFor</span><span class="p">(</span><span class="nx">gvr</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">gvk</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nf">InitMapper</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">gvk</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersionKind</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Group</span><span class="p">:</span><span class="w">   </span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Version</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;v1&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Kind</span><span class="p">:</span><span class="w">    </span><span class="s">&#34;Pod&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">gvr</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">GvkToGvr</span><span class="p">(</span><span class="nx">gvk</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">gvr</span><span class="p">.</span><span class="nx">Resource</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">gvk1</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">GvrToGvk</span><span class="p">(</span><span class="nx">gvr</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">gvk1</span><span class="p">.</span><span class="nx">Kind</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="调试容器">调试容器</h3>
 <p>一个网络工具很全的容器</p>
@@ -1084,60 +1085,60 @@
 </span><span class="lnt">53
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">corev1</span> <span class="s">&#34;k8s.io/api/core/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">apiextensionsv1</span> <span class="s">&#34;k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">clientgoscheme</span> <span class="s">&#34;k8s.io/client-go/kubernetes/scheme&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/klog/v2&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">restconfig</span> <span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/cluster&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">Scheme</span> <span class="p">=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nf">NewScheme</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">_</span> <span class="p">=</span> <span class="nx">clientgoscheme</span><span class="p">.</span><span class="nf">AddToScheme</span><span class="p">(</span><span class="nx">Scheme</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">_</span> <span class="p">=</span> <span class="nx">apiextensionsv1</span><span class="p">.</span><span class="nf">AddToScheme</span><span class="p">(</span><span class="nx">Scheme</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">  
-</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="o">:=</span> <span class="nx">restconfig</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">c</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cluster</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">options</span> <span class="o">*</span><span class="nx">cluster</span><span class="p">.</span><span class="nx">Options</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">options</span><span class="p">.</span><span class="nx">Scheme</span> <span class="p">=</span> <span class="nx">Scheme</span>
-</span></span><span class="line"><span class="cl">	<span class="p">})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="c1">//为特定资源增加筛选索引</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">indexerFunc</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">obj</span> <span class="nx">client</span><span class="p">.</span><span class="nx">Object</span><span class="p">)</span> <span class="p">[]</span><span class="kt">string</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">e</span> <span class="o">:=</span> <span class="nx">obj</span><span class="p">.(</span><span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Event</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">e</span><span class="p">.</span><span class="nx">InvolvedObject</span><span class="p">.</span><span class="nx">Name</span><span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">GetCache</span><span class="p">().</span><span class="nf">IndexField</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="o">&amp;</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Event</span><span class="p">{},</span> <span class="s">&#34;involvedObject.name&#34;</span><span class="p">,</span> <span class="nx">indexerFunc</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">klog</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;unable to create index field: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="c1">//启动缓存同步</span>
-</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="nx">c</span><span class="p">.</span><span class="nf">GetCache</span><span class="p">().</span><span class="nf">Start</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nf">GetCache</span><span class="p">().</span><span class="nf">WaitForCacheSync</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Cache sync success&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">namespace</span> <span class="o">:=</span> <span class="nx">corev1</span><span class="p">.</span><span class="nx">NamespaceList</span><span class="p">{}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">GetClient</span><span class="p">().</span><span class="nf">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="o">&amp;</span><span class="nx">namespace</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">namespace</span><span class="p">.</span><span class="nx">Items</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;context&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">corev1</span><span class="w"> </span><span class="s">&#34;k8s.io/api/core/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">apiextensionsv1</span><span class="w"> </span><span class="s">&#34;k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">clientgoscheme</span><span class="w"> </span><span class="s">&#34;k8s.io/client-go/kubernetes/scheme&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/klog/v2&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">restconfig</span><span class="w"> </span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/client/config&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;sigs.k8s.io/controller-runtime/pkg/cluster&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">var</span><span class="w"> </span><span class="nx">Scheme</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">runtime</span><span class="p">.</span><span class="nf">NewScheme</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">_</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">clientgoscheme</span><span class="p">.</span><span class="nf">AddToScheme</span><span class="p">(</span><span class="nx">Scheme</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">_</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">apiextensionsv1</span><span class="p">.</span><span class="nf">AddToScheme</span><span class="p">(</span><span class="nx">Scheme</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">config</span><span class="o">:=</span><span class="w"> </span><span class="nx">restconfig</span><span class="p">.</span><span class="nf">GetConfigOrDie</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">c</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cluster</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">options</span><span class="w"> </span><span class="o">*</span><span class="nx">cluster</span><span class="p">.</span><span class="nx">Options</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">options</span><span class="p">.</span><span class="nx">Scheme</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">Scheme</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//为特定资源增加筛选索引</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">indexerFunc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">obj</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">Object</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">e</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">obj</span><span class="p">.(</span><span class="o">*</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Event</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">e</span><span class="p">.</span><span class="nx">InvolvedObject</span><span class="p">.</span><span class="nx">Name</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nf">GetCache</span><span class="p">().</span><span class="nf">IndexField</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Event</span><span class="p">{},</span><span class="w"> </span><span class="s">&#34;involvedObject.name&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">indexerFunc</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">klog</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;unable to create index field: %v&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="cp">//启动缓存同步</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">go</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nf">GetCache</span><span class="p">().</span><span class="nf">Start</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nf">GetCache</span><span class="p">().</span><span class="nf">WaitForCacheSync</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Cache sync success&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">namespace</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">corev1</span><span class="p">.</span><span class="nx">NamespaceList</span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nf">GetClient</span><span class="p">().</span><span class="nf">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">namespace</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">namespace</span><span class="p">.</span><span class="nx">Items</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="使用k8s仓库">使用k8s仓库</h3>
 <p>解决版本 <code>0.0.0</code> 问题</p>
@@ -1304,16 +1305,16 @@
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s">  golang:1.21 AS build_context</span><span class="err">
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl">FROM  golang:1.21 AS build_context<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> TARGETARCH<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /workspace</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/workspace</span><span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ADD</span> . /workspace/<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> <span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span> <span class="nv">GOOS</span><span class="o">=</span>linux <span class="nv">GOARCH</span><span class="o">=</span><span class="nv">$TARGETARCH</span> go build  migrate.go<span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> scratch</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="w"> </span><span class="s">scratch</span><span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> --from<span class="o">=</span>build_context /workspace/migrate /usr/local/bin/migrate<span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>WORKDIR /<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;migrate&#34;</span><span class="p">]</span><span class="err">
 </span></span></span></code></pre></td></tr></table>
 </div>

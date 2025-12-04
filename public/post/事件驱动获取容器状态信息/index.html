@@ -29,7 +29,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.148.2 with theme even" />
+<meta name="generator" content="Hugo 0.152.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E8%8E%B7%E5%8F%96%E5%AE%B9%E5%99%A8%E7%8A%B6%E6%80%81%E4%BF%A1%E6%81%AF/" />
@@ -41,7 +41,7 @@
 
 
 
-<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
+<link href="/sass/main.min.24a85fa8c2db6582cff2494f26688618992850573d2f73389695dc49738f4fe4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
@@ -416,70 +416,70 @@
 </span><span class="lnt">63
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;google.golang.org/grpc&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;google.golang.org/grpc/credentials/insecure&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/cri-api/pkg/apis/runtime/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">addr</span> <span class="p">=</span> <span class="s">&#34;192.168.50.89:8989&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">ContainerState</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">int32</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="mi">0</span><span class="p">:</span> <span class="s">&#34;CONTAINER_CREATED&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="mi">1</span><span class="p">:</span> <span class="s">&#34;CONTAINER_RUNNING&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="mi">2</span><span class="p">:</span> <span class="s">&#34;CONTAINER_EXITED&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">	<span class="mi">3</span><span class="p">:</span> <span class="s">&#34;CONTAINER_UNKNOWN&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">svc</span> <span class="o">:=</span> <span class="nf">NewRuntimeService</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">containerEventsStreamingClient</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">svc</span><span class="p">.</span><span class="nf">GetContainerEvents</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">GetEventsRequest</span><span class="p">{})</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;启动事件监听...&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">containerEventsStreamingClient</span><span class="p">.</span><span class="nf">Recv</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">resp</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Type</span> <span class="o">:=</span> <span class="nx">ContainerState</span><span class="p">[</span><span class="nb">int32</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">ContainerEventType</span><span class="p">)]</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">tm</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">CreatedAt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">tms</span> <span class="o">:=</span> <span class="nx">tm</span><span class="p">.</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s 接到到容器id: %s 的事件 %s \n&#34;</span><span class="p">,</span> <span class="nx">tms</span><span class="p">,</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">ContainerId</span><span class="p">,</span> <span class="nx">Type</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="k">for</span> <span class="nx">idx</span><span class="p">,</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">ContainersStatuses</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">tmc</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">CreatedAt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">tmsc</span> <span class="o">:=</span> <span class="nx">tmc</span><span class="p">.</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Typec</span> <span class="o">:=</span> <span class="nx">ContainerState</span><span class="p">[</span><span class="nb">int32</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">State</span><span class="p">)]</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s 接到[%d/%d]容器id: %s 容器名: %s 的事件 %s \n&#34;</span><span class="p">,</span> <span class="nx">tmsc</span><span class="p">,</span> <span class="nx">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">ContainersStatuses</span><span class="p">),</span> <span class="nx">i</span><span class="p">.</span><span class="nx">Id</span><span class="p">,</span> <span class="nx">i</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">Typec</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">			<span class="p">}</span>
-</span></span><span class="line"><span class="cl">		<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewRuntimeService</span><span class="p">()</span> <span class="nx">v1</span><span class="p">.</span><span class="nx">RuntimeServiceClient</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">opts</span> <span class="o">:=</span> <span class="p">[]</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">DialOption</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">grpc</span><span class="p">.</span><span class="nf">WithTransportCredentials</span><span class="p">(</span><span class="nx">insecure</span><span class="p">.</span><span class="nf">NewCredentials</span><span class="p">()),</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">conn</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">grpc</span><span class="p">.</span><span class="nf">DialContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">addr</span><span class="p">,</span> <span class="nx">opts</span><span class="o">...</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">v1</span><span class="p">.</span><span class="nf">NewRuntimeServiceClient</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;context&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;fmt&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;google.golang.org/grpc&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;google.golang.org/grpc/credentials/insecure&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/cri-api/pkg/apis/runtime/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;log&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;time&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">const</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">addr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;192.168.50.89:8989&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">var</span><span class="w"> </span><span class="nx">ContainerState</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">int32</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="mi">0</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;CONTAINER_CREATED&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;CONTAINER_RUNNING&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="mi">2</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;CONTAINER_EXITED&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="mi">3</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;CONTAINER_UNKNOWN&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">svc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">NewRuntimeService</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">containerEventsStreamingClient</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nf">GetContainerEvents</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">GetEventsRequest</span><span class="p">{})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;启动事件监听...&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">resp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">containerEventsStreamingClient</span><span class="p">.</span><span class="nf">Recv</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">resp</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Type</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ContainerState</span><span class="p">[</span><span class="nb">int32</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">ContainerEventType</span><span class="p">)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">tm</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">CreatedAt</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">tms</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tm</span><span class="p">.</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s 接到到容器id: %s 的事件 %s \n&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">tms</span><span class="p">,</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">ContainerId</span><span class="p">,</span><span class="w"> </span><span class="nx">Type</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="nx">idx</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">ContainersStatuses</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">tmc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nf">Unix</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">CreatedAt</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">tmsc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tmc</span><span class="p">.</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Typec</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ContainerState</span><span class="p">[</span><span class="nb">int32</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">State</span><span class="p">)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s 接到[%d/%d]容器id: %s 容器名: %s 的事件 %s \n&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">tmsc</span><span class="p">,</span><span class="w"> </span><span class="nx">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">ContainersStatuses</span><span class="p">),</span><span class="w"> </span><span class="nx">i</span><span class="p">.</span><span class="nx">Id</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">Typec</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">NewRuntimeService</span><span class="p">()</span><span class="w"> </span><span class="nx">v1</span><span class="p">.</span><span class="nx">RuntimeServiceClient</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">opts</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">DialOption</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">grpc</span><span class="p">.</span><span class="nf">WithTransportCredentials</span><span class="p">(</span><span class="nx">insecure</span><span class="p">.</span><span class="nf">NewCredentials</span><span class="p">()),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cancel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nf">cancel</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">grpc</span><span class="p">.</span><span class="nf">DialContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">addr</span><span class="p">,</span><span class="w"> </span><span class="nx">opts</span><span class="o">...</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">v1</span><span class="p">.</span><span class="nf">NewRuntimeServiceClient</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="安装crictl">安装crictl</h3>
 <p>安装 <code>crictl</code></p>
@@ -658,7 +658,8 @@
 </div><p><strong>获取容器的 IP 地址</strong>,</p>
 <blockquote>
 <p>crictl inspect $CONTAINER_ID</p>
-<p>不知道为何,在inspect信息中并未找到ip 地址, 安装nerdctl试一下</p></blockquote>
+<p>不知道为何,在inspect信息中并未找到ip 地址, 安装nerdctl试一下</p>
+</blockquote>
 <h3 id="安装nerdctl">安装nerdctl</h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">

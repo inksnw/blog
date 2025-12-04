@@ -31,7 +31,7 @@ bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这�
 
 
 
-<meta name="generator" content="Hugo 0.148.2 with theme even" />
+<meta name="generator" content="Hugo 0.152.2 with theme even" />
 
 
 <link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/kubelet%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E5%88%86%E6%9E%90/" />
@@ -43,7 +43,7 @@ bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这�
 
 
 
-<link href="/sass/main.min.f35b38db2572e269d3d16fac645aba6563f8cc9d47ac40965f243b15334974ce.css" rel="stylesheet">
+<link href="/sass/main.min.24a85fa8c2db6582cff2494f26688618992850573d2f73389695dc49738f4fe4.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
 <link rel="stylesheet" href="/css/styles.css">
 
@@ -177,7 +177,8 @@ bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这�
     <div class="post-content">
         <p>源自一次环境问题, kubelet重启后, 报错</p>
 <blockquote>
-<p>&ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo;</p></blockquote>
+<p>&ldquo;command failed&rdquo; err=&ldquo;failed to run Kubelet: unable to load bootstrap kubeconfig: stat /etc/kubernetes/bootstrap-kubelet.conf: no such file or directory&rdquo;</p>
+</blockquote>
 <p><code>bootstrap-kubelet.conf</code> 文件主机上确实没有, 他的作用是什么, 这里简单分析一下</p>
 <p><a href="https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/#bootstrap-initialization">官方文档</a> 已经说的很清楚了</p>
 <ol>
@@ -416,100 +417,100 @@ bootstrap-kubelet.conf 文件主机上确实没有, 他的作用是什么, 这�
 </span><span class="lnt">93
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/pkg/errors&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">clientset</span> <span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">bootstraputil</span> <span class="s">&#34;k8s.io/cluster-bootstrap/token/util&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">bootstraptokenv1</span> <span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/apis/bootstraptoken/v1&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">kubeadmconstants</span> <span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/constants&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/discovery&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">nodebootstraptokenphase</span> <span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/phases/bootstraptoken/node&#34;</span>
-</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">Endpoint</span> <span class="p">=</span> <span class="s">&#34;192.168.50.207:6443&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nx">RecommendedHomeFile</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">cli</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">token</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">createShortLivedBootstrapToken</span><span class="p">(</span><span class="nx">cli</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nf">boot</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="nx">Endpoint</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">boot</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="nx">Endpoint</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">cfg</span> <span class="o">:=</span> <span class="nx">kubeadm</span><span class="p">.</span><span class="nx">JoinConfiguration</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Discovery</span><span class="p">:</span> <span class="nx">kubeadm</span><span class="p">.</span><span class="nx">Discovery</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">TLSBootstrapToken</span><span class="p">:</span> <span class="nx">token</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Timeout</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Duration</span><span class="p">:</span> <span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="p">},</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">BootstrapToken</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">kubeadm</span><span class="p">.</span><span class="nx">BootstrapTokenDiscovery</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">APIServerEndpoint</span><span class="p">:</span> <span class="nx">Endpoint</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">				<span class="nx">Token</span><span class="p">:</span>             <span class="nx">token</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">			<span class="p">},</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">cfg</span><span class="p">.</span><span class="nx">Timeouts</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">kubeadm</span><span class="p">.</span><span class="nx">Timeouts</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">TLSBootstrap</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Duration</span><span class="p">:</span> <span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Discovery</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Duration</span><span class="p">:</span> <span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="nx">tlsBootstrapCfg</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">discovery</span><span class="p">.</span><span class="nf">For</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">cfg</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="p">=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">WriteToFile</span><span class="p">(</span><span class="o">*</span><span class="nx">tlsBootstrapCfg</span><span class="p">,</span> <span class="s">&#34;./bootstrap-kubelet.conf&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">createShortLivedBootstrapToken</span><span class="p">(</span><span class="nx">client</span> <span class="nx">clientset</span><span class="p">.</span><span class="nx">Interface</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">tokenStr</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">bootstraputil</span><span class="p">.</span><span class="nf">GenerateBootstrapToken</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;error generating token to upload certs&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">token</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">bootstraptokenv1</span><span class="p">.</span><span class="nf">NewBootstrapTokenString</span><span class="p">(</span><span class="nx">tokenStr</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;error creating upload certs token&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="nx">tokens</span> <span class="o">:=</span> <span class="p">[]</span><span class="nx">bootstraptokenv1</span><span class="p">.</span><span class="nx">BootstrapToken</span><span class="p">{{</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Token</span><span class="p">:</span>       <span class="nx">token</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Description</span><span class="p">:</span> <span class="s">&#34;Proxy for managing TTL for the kubeadm-certs secret&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">TTL</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span>
-</span></span><span class="line"><span class="cl">			<span class="nx">Duration</span><span class="p">:</span> <span class="nx">kubeadmconstants</span><span class="p">.</span><span class="nx">DefaultCertTokenDuration</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">		<span class="p">},</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Groups</span><span class="p">:</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">kubeadmconstants</span><span class="p">.</span><span class="nx">NodeBootstrapTokenAuthGroup</span><span class="p">},</span>
-</span></span><span class="line"><span class="cl">		<span class="nx">Usages</span><span class="p">:</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;authentication&#34;</span><span class="p">,</span> <span class="s">&#34;signing&#34;</span><span class="p">},</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">nodebootstraptokenphase</span><span class="p">.</span><span class="nf">CreateNewTokens</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span> <span class="nx">tokens</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&#34;error creating token&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span>
-</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">tokenStr</span><span class="p">,</span> <span class="kc">nil</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;github.com/pkg/errors&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">metav1</span><span class="w"> </span><span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">clientset</span><span class="w"> </span><span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">bootstraputil</span><span class="w"> </span><span class="s">&#34;k8s.io/cluster-bootstrap/token/util&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">bootstraptokenv1</span><span class="w"> </span><span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/apis/bootstraptoken/v1&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">kubeadmconstants</span><span class="w"> </span><span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/constants&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/discovery&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">nodebootstraptokenphase</span><span class="w"> </span><span class="s">&#34;k8s.io/kubernetes/cmd/kubeadm/app/phases/bootstraptoken/node&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="s">&#34;time&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">var</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">Endpoint</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#34;192.168.50.207:6443&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nx">RecommendedHomeFile</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">cli</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">createShortLivedBootstrapToken</span><span class="p">(</span><span class="nx">cli</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nf">boot</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">Endpoint</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">boot</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">Endpoint</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">cfg</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubeadm</span><span class="p">.</span><span class="nx">JoinConfiguration</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Discovery</span><span class="p">:</span><span class="w"> </span><span class="nx">kubeadm</span><span class="p">.</span><span class="nx">Discovery</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">TLSBootstrapToken</span><span class="p">:</span><span class="w"> </span><span class="nx">token</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Timeout</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Duration</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">BootstrapToken</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">kubeadm</span><span class="p">.</span><span class="nx">BootstrapTokenDiscovery</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">APIServerEndpoint</span><span class="p">:</span><span class="w"> </span><span class="nx">Endpoint</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="nx">Token</span><span class="p">:</span><span class="w">             </span><span class="nx">token</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Timeouts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">kubeadm</span><span class="p">.</span><span class="nx">Timeouts</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">TLSBootstrap</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Duration</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Discovery</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Duration</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">tlsBootstrapCfg</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">discovery</span><span class="p">.</span><span class="nf">For</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">cfg</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">clientcmd</span><span class="p">.</span><span class="nf">WriteToFile</span><span class="p">(</span><span class="o">*</span><span class="nx">tlsBootstrapCfg</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;./bootstrap-kubelet.conf&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">func</span><span class="w"> </span><span class="nf">createShortLivedBootstrapToken</span><span class="p">(</span><span class="nx">client</span><span class="w"> </span><span class="nx">clientset</span><span class="p">.</span><span class="nx">Interface</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">tokenStr</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">bootstraputil</span><span class="p">.</span><span class="nf">GenerateBootstrapToken</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;error generating token to upload certs&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">bootstraptokenv1</span><span class="p">.</span><span class="nf">NewBootstrapTokenString</span><span class="p">(</span><span class="nx">tokenStr</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;error creating upload certs token&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nx">tokens</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="nx">bootstraptokenv1</span><span class="p">.</span><span class="nx">BootstrapToken</span><span class="p">{{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Token</span><span class="p">:</span><span class="w">       </span><span class="nx">token</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Description</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;Proxy for managing TTL for the kubeadm-certs secret&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">TTL</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">Duration</span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="nx">Duration</span><span class="p">:</span><span class="w"> </span><span class="nx">kubeadmconstants</span><span class="p">.</span><span class="nx">DefaultCertTokenDuration</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Groups</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">kubeadmconstants</span><span class="p">.</span><span class="nx">NodeBootstrapTokenAuthGroup</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="nx">Usages</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;authentication&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;signing&#34;</span><span class="p">},</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">nodebootstraptokenphase</span><span class="p">.</span><span class="nf">CreateNewTokens</span><span class="p">(</span><span class="nx">client</span><span class="p">,</span><span class="w"> </span><span class="nx">tokens</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nf">Wrap</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;error creating token&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">tokenStr</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>下载 go mod 依赖</p>
 <div class="highlight"><div class="chroma">
