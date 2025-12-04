@@ -40,7 +40,7 @@ println!("{}, world!", s1); // 编译错误: use of moved value: `s1`
 
 为了避免出现内存二次释放的问题，上面的代码当`s1`被赋给`s2`后，`s1`不再有效，当s2, s1离开作用域时只有s2会清理变量的堆内存。 这里相当于`s1`被移动到了`s2`中。
 
-![Snipaste_2022-09-09_00-36-00](https://inksnw.asuscomm.com:3001/blog/rust学习:所有权_1a6d8334026b6a1fe0deb0cfebd77490.png)
+![Snipaste_2022-09-09_00-36-00](http://inksnw.asuscomm.com:3001/blog/rust学习:所有权_1a6d8334026b6a1fe0deb0cfebd77490.png)
 
 rust永远不会自动创建数据的"深拷贝"，如果确实需要深度复制String中堆上的数据，而不仅仅是栈上的数据，可以使用一个叫做`clone`的通用函数。
 
@@ -121,7 +121,7 @@ fn calculate_length(s: &String) -> usize {
 
 `&`符号就是引用，它们允许你使用值但不获取其所有权。 `&s1`语法让我们创建一个指向值`s1`的引用，但是并不拥有它。因为并不拥有这个值，当引用离开作用域时其指向的值也不会被丢弃。
 
-![Snipaste_2022-09-09_00-53-21](https://inksnw.asuscomm.com:3001/blog/rust学习:所有权_3c67e316b1c8c4e74cf12ccd3c326c06.png)
+![Snipaste_2022-09-09_00-53-21](http://inksnw.asuscomm.com:3001/blog/rust学习:所有权_3c67e316b1c8c4e74cf12ccd3c326c06.png)
 
 
 

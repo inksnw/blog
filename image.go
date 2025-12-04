@@ -6,21 +6,22 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"os/user"
+	"path"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"io"
-	"os"
-	"os/user"
-	"path"
 )
 
 const (
 	endpoint   = "192.168.50.87:9000"
 	bucketName = "blog"
-	url        = "https://inksnw.asuscomm.com:3001"
+	url        = "http://inksnw.asuscomm.com:3001"
 )
 
 type Info struct {
@@ -31,11 +32,12 @@ type Info struct {
 }
 
 func main() {
+	fmt.Printf("输入参数为 %s\n", os.Args)
 	if len(os.Args) < 3 {
 		fmt.Println("参数不足")
 		return
 	}
-	fmt.Printf("输入参数为 %s\n", os.Args)
+
 	config := getKey()
 	awsConfig := getAWSConfig(config.AccessKeyID, config.SecretAccessKey)
 	s, err := session.NewSession(&awsConfig)

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Buildx自签证书构建 - </title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="" /><meta name="description" content="一直没搞定buildx信任私有证书, 这里总结一下
+构建报错 1 2 3 4 5 6 7 docker buildx build --platform=linux/amd64 --load -t foo:1.0 -f Dockerfile . [&#43;] Building 1.3s (2/2) FINISHED =&gt; ERROR [internal] load metadata for cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0 1.2s Dockerfile:1 -------------------- 1 | &gt;&gt;&gt; FROM cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0 -------------------- ERROR: failed to build: failed to solve: cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to resolve source metadata for cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to do request: Head &#34;https://cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/v2/foo/busybox/manifests/1.0&#34;: tls: failed to verify certificate: x509: certificate signed by unknown authority 宿主机信任根证书 从浏览器导出证书, 经验证, 在我的mac系统上只导入根证书不行, 需要把每一层证书都下载信任了 双击添加到系统信任证书中, 并配置始终信任
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+<meta name="robots" content="">
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.152.2 with theme even" />
+
+
+<link rel="canonical" href="http://inksnw.asuscomm.com:3001/post/buildx%E8%87%AA%E7%AD%BE%E8%AF%81%E4%B9%A6%E6%9E%84%E5%BB%BA/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.24a85fa8c2db6582cff2494f26688618992850573d2f73389695dc49738f4fe4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"  crossorigin="anonymous">
+<link rel="stylesheet" href="/css/styles.css">
+
+
+<meta property="og:url" content="http://inksnw.asuscomm.com:3001/post/buildx%E8%87%AA%E7%AD%BE%E8%AF%81%E4%B9%A6%E6%9E%84%E5%BB%BA/">
+  <meta property="og:title" content="Buildx自签证书构建">
+  <meta property="og:description" content="一直没搞定buildx信任私有证书, 这里总结一下
+构建报错 1 2 3 4 5 6 7 docker buildx build --platform=linux/amd64 --load -t foo:1.0 -f Dockerfile . [&#43;] Building 1.3s (2/2) FINISHED =&gt; ERROR [internal] load metadata for cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0 1.2s Dockerfile:1 -------------------- 1 | &gt;&gt;&gt; FROM cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0 -------------------- ERROR: failed to build: failed to solve: cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to resolve source metadata for cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to do request: Head &#34;https://cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/v2/foo/busybox/manifests/1.0&#34;: tls: failed to verify certificate: x509: certificate signed by unknown authority 宿主机信任根证书 从浏览器导出证书, 经验证, 在我的mac系统上只导入根证书不行, 需要把每一层证书都下载信任了 双击添加到系统信任证书中, 并配置始终信任">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-12-04T21:39:01+08:00">
+    <meta property="article:modified_time" content="2025-12-04T21:39:01+08:00">
+
+  <meta itemprop="name" content="Buildx自签证书构建">
+  <meta itemprop="description" content="一直没搞定buildx信任私有证书, 这里总结一下
+构建报错 1 2 3 4 5 6 7 docker buildx build --platform=linux/amd64 --load -t foo:1.0 -f Dockerfile . [&#43;] Building 1.3s (2/2) FINISHED =&gt; ERROR [internal] load metadata for cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0 1.2s Dockerfile:1 -------------------- 1 | &gt;&gt;&gt; FROM cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0 -------------------- ERROR: failed to build: failed to solve: cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to resolve source metadata for cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to do request: Head &#34;https://cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/v2/foo/busybox/manifests/1.0&#34;: tls: failed to verify certificate: x509: certificate signed by unknown authority 宿主机信任根证书 从浏览器导出证书, 经验证, 在我的mac系统上只导入根证书不行, 需要把每一层证书都下载信任了 双击添加到系统信任证书中, 并配置始终信任">
+  <meta itemprop="datePublished" content="2025-12-04T21:39:01+08:00">
+  <meta itemprop="dateModified" content="2025-12-04T21:39:01+08:00">
+  <meta itemprop="wordCount" content="611">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Buildx自签证书构建">
+  <meta name="twitter:description" content="一直没搞定buildx信任私有证书, 这里总结一下
+构建报错 1 2 3 4 5 6 7 docker buildx build --platform=linux/amd64 --load -t foo:1.0 -f Dockerfile . [&#43;] Building 1.3s (2/2) FINISHED =&gt; ERROR [internal] load metadata for cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0 1.2s Dockerfile:1 -------------------- 1 | &gt;&gt;&gt; FROM cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0 -------------------- ERROR: failed to build: failed to solve: cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to resolve source metadata for cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to do request: Head &#34;https://cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/v2/foo/busybox/manifests/1.0&#34;: tls: failed to verify certificate: x509: certificate signed by unknown authority 宿主机信任根证书 从浏览器导出证书, 经验证, 在我的mac系统上只导入根证书不行, 需要把每一层证书都下载信任了 双击添加到系统信任证书中, 并配置始终信任">
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo"></a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/rust/">
+        <li class="mobile-menu-item">rust</li>
+      </a><a href="/life/">
+        <li class="mobile-menu-item">生活</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo"></a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/rust/">rust</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/life/">生活</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+
+    <header class="post-header">
+        <h1 class="post-title">Buildx自签证书构建</h1>
+
+        <div class="post-meta">
+            <span class="post-time"> 2025-12-04 </span>
+            
+            <span class="more-meta"> 约 611 字 更新于 2025-12-04
+              </span>
+            
+        </div>
+    </header>
+
+    
+<div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">目录</h2>
+    <div class="post-toc-content always-active">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#构建报错">构建报错</a></li>
+            <li><a href="#宿主机信任根证书">宿主机信任根证书</a></li>
+            <li><a href="#验证curl非必须">验证curl(非必须)</a></li>
+            <li><a href="#构建容器信任根证书">构建容器信任根证书</a></li>
+            <li><a href="#再次构建">再次构建</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+    
+    <div class="post-content">
+        <p>一直没搞定buildx信任私有证书, 这里总结一下</p>
+<h3 id="构建报错">构建报错</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker buildx build --platform<span class="o">=</span>linux/amd64 --load -t  foo:1.0 -f Dockerfile .
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Building 1.3s <span class="o">(</span>2/2<span class="o">)</span> <span class="nv">FINISHED</span>                                                            <span class="o">=</span>&gt; ERROR <span class="o">[</span>internal<span class="o">]</span> load metadata <span class="k">for</span> cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0                                          1.2s
+</span></span><span class="line"><span class="cl">Dockerfile:1
+</span></span><span class="line"><span class="cl">--------------------
+</span></span><span class="line"><span class="cl">   <span class="m">1</span> <span class="p">|</span> &gt;&gt;&gt; FROM cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0
+</span></span><span class="line"><span class="cl">--------------------
+</span></span><span class="line"><span class="cl">ERROR: failed to build: failed to solve: cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to resolve <span class="nb">source</span> metadata <span class="k">for</span> cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/foo/busybox:1.0: failed to <span class="k">do</span> request: Head <span class="s2">&#34;https://cr-ee.registry.cn-neimeng-236e-d01.env236.cloud.arm.com/v2/foo/busybox/manifests/1.0&#34;</span>: tls: failed to verify certificate: x509: certificate signed by unknown authority
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="宿主机信任根证书">宿主机信任根证书</h3>
+<p>从浏览器导出证书,  经验证, 在我的mac系统上只导入根证书不行, 需要把<strong>每一层证书</strong>都下载信任了
+<img src="http://inksnw.asuscomm.com:3001/blog/buildx%E8%87%AA%E7%AD%BE%E8%AF%81%E4%B9%A6%E6%9E%84%E5%BB%BA_4d7c2f89cf75123f69e4f0abb2f35294.png" alt="微信图片_20251204214055_4_63">
+双击添加到系统信任证书中, 并配置始终信任</p>
+<img src="http://inksnw.asuscomm.com:3001/blog/buildx自签证书构建_af8b9b671ae745b73cd15838e82911df.png" alt="微信图片_20251204214050_2_63" style="zoom:50%;" />
+<p>可以这样判断是否是根证书( 我的mac上只导入根证书不行, 建议都导入 )</p>
+<p>在https://myssl.com/cert_decode.html 这个网站贴入证书</p>
+<p><img src="http://inksnw.asuscomm.com:3001/blog/buildx%E8%87%AA%E7%AD%BE%E8%AF%81%E4%B9%A6%E6%9E%84%E5%BB%BA_373100b23329c2d2989313c80f735c97.png" alt="微信图片_20251204214053_3_63"></p>
+<h3 id="验证curl非必须">验证curl(非必须)</h3>
+<p>验证curl不通过</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl https://cr-ee.registry.cn-wulan-env148-d01.inter.env148.shuguang.com/auth
+</span></span><span class="line"><span class="cl">curl: <span class="o">(</span>60<span class="o">)</span> SSL certificate OpenSSL verify result: self-signed certificate in certificate chain <span class="o">(</span>19<span class="o">)</span>
+</span></span><span class="line"><span class="cl">More details here: https://curl.se/docs/sslcerts.html
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">curl failed to verify the legitimacy of the server and therefore could not
+</span></span><span class="line"><span class="cl">establish a secure connection to it. To learn more about this situation and
+</span></span><span class="line"><span class="cl">how to fix it, please visit the webpage mentioned above.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>使用brew 安装的curl 走的好像不是钥匙串里配置的证书, 始终验证不过</p>
+</blockquote>
+<p>使用系统的curl , 还是不行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/usr/bin/curl https://cr-ee.registry.cn-wulan-env148-d01.inter.env148.shuguang.com/auth
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>把根证书追加到<code>/etc/ssl/cert.pem</code>再使用<strong>系统curl</strong>测试, 可以了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/usr/bin/curl https://cr-ee.registry.cn-wulan-env148-d01.inter.env148.shuguang.com/auth
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;IsSuccess&#34;</span>:false,<span class="s2">&#34;Code&#34;</span>:<span class="s2">&#34;InvalidService&#34;</span>,<span class="s2">&#34;Message&#34;</span>:<span class="s2">&#34;The Service field is required&#34;</span>,<span class="s2">&#34;RequestId&#34;</span>:<span class="s2">&#34;curl/8.7.1&#34;</span><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>显式的指定证书使用, 也可以</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl --cacert env148.pem https://cr-ee.registry.cn-wulan-env148-d01.inter.env148.shuguang.com/auth
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;IsSuccess&#34;</span>:false,<span class="s2">&#34;Code&#34;</span>:<span class="s2">&#34;InvalidService&#34;</span>,<span class="s2">&#34;Message&#34;</span>:<span class="s2">&#34;The Service field is required&#34;</span>,<span class="s2">&#34;RequestId&#34;</span>:<span class="s2">&#34;curl/8.17.0&#34;</span><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="构建容器信任根证书">构建容器信任根证书</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker buildx create  --name newctx --driver docker-container --use
+</span></span><span class="line"><span class="cl">docker buildx inspect --bootstrap   
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>拷贝进容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 我这里有两层证书, 实际有几个就导入几个</span>
+</span></span><span class="line"><span class="cl">docker cp env148.pem 18af24e5b6f3:/usr/local/share/ca-certificates/ 
+</span></span><span class="line"><span class="cl">docker cp cr-ee.registry.cn-wulan-env148-d01.inter.env148.shuguang.com.pem 18af24e5b6f3:/usr/local/share/ca-certificates/ 
+</span></span><span class="line"><span class="cl"><span class="c1"># 进入容器更新证书</span>
+</span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it 18af24e5b6f3 sh
+</span></span><span class="line"><span class="cl">apk add ca-certificates
+</span></span><span class="line"><span class="cl"><span class="c1"># 更新证书</span>
+</span></span><span class="line"><span class="cl">update-ca-certificates
+</span></span><span class="line"><span class="cl">docker restart 18af24e5b6f3
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="再次构建">再次构建</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker buildx build --load -t  foo:1.0 -f Dockerfile .
+</span></span><span class="line"><span class="cl"><span class="c1"># 构建成功</span>
+</span></span><span class="line"><span class="cl">➜  Desktop docker buildx build --load -t  foo:1.0 -f Dockerfile .
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Building 1.5s <span class="o">(</span>7/7<span class="o">)</span> FINISHED                                                                              docker-container:newctx
+</span></span><span class="line"><span class="cl"> <span class="o">=</span>&gt; <span class="o">[</span>internal<span class="o">]</span> load build definition from Dockerfile                                       ...
+</span></span><span class="line"><span class="cl"> <span class="o">=</span>&gt; <span class="o">=</span>&gt; exporting config sha256:2b9f132b6470740b5b7c55a11ae83b936bdd17ac5b3796d8398c401b722d3ee5                                  0.0s
+</span></span><span class="line"><span class="cl"> <span class="o">=</span>&gt; <span class="o">=</span>&gt; sending tarball                                                                                                           0.3s
+</span></span><span class="line"><span class="cl"> <span class="o">=</span>&gt; importing to docker  
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    
+<footer class="post-footer">
+        
+        <nav class="post-nav">
+            
+            <a class="next" href="/post/k8s%E5%BC%BA%E5%88%B6%E5%88%A0%E9%99%A4%E8%B5%84%E6%BA%90/">
+                <span class="next-text nav-default">K8s强制删除资源</span>
+                <span class="next-text nav-mobile">下一篇</span>
+                <i class="iconfont icon-right"></i>
+            </a>
+        </nav>
+    </footer>
+</article>
+        </div>
+        
+
+  
+
+  
+
+  
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy;
+    2022 -
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span></span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+</body>
+</html>
